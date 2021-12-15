@@ -27,6 +27,9 @@ public class Organization implements Serializable{
 	@Column(name = "ORGANIZATION_ID")
 	private Long organizationId;
 	
+	@Column(name = "CORP_USER_ID")
+	private Long corpUserId;
+	
 	@Column(name = "ORG_NAME")
 	private String orgName;
 	
@@ -59,6 +62,14 @@ public class Organization implements Serializable{
 
 	public void setOrganizationId(Long organizationId) {
 		this.organizationId = organizationId;
+	}
+
+	public Long getCorpUserId() {
+		return corpUserId;
+	}
+
+	public void setCorpUserId(Long corpUserId) {
+		this.corpUserId = corpUserId;
 	}
 
 	public String getOrgName() {
@@ -127,8 +138,9 @@ public class Organization implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Organization [organizationId=" + organizationId + ", orgName=" + orgName + ", orgEmail=" + orgEmail
-				+ ", cinGstNum=" + cinGstNum + ", logo=" + Arrays.toString(logo) + ", description=" + description
-				+ ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status=" + status + "]";
+		return "Organization [organizationId=" + organizationId + ", corpUserId=" + corpUserId + ", orgName=" + orgName
+				+ ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum + ", logo=" + Arrays.toString(logo)
+				+ ", description=" + description + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status="
+				+ status + "]";
 	}
 }

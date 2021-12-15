@@ -9,9 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -48,10 +46,6 @@ public class CoporateUser implements Serializable{
 	
 	@Column(name = "PASSWORD")
 	private String password;
-	
-	@OneToOne
-	@JoinColumn(name = "ORGANIZATION_ID", referencedColumnName = "ORGANIZATION_ID")
-	private Organization organization;
 	
 	@Column(name = "USER_TYPE")
 	private String userType;
@@ -123,14 +117,6 @@ public class CoporateUser implements Serializable{
 		this.password = password;
 	}
 
-	public Organization getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
-	}
-
 	public String getUserType() {
 		return userType;
 	}
@@ -167,7 +153,7 @@ public class CoporateUser implements Serializable{
 	public String toString() {
 		return "CoporateUser [corpUserId=" + corpUserId + ", name=" + name + ", email=" + email + ", phoneNO=" + phoneNO
 				+ ", profileImage=" + Arrays.toString(profileImage) + ", address=" + address + ", password=" + password
-				+ ", organization=" + organization + ", userType=" + userType + ", createdOn=" + createdOn
-				+ ", updatedOn=" + updatedOn + ", status=" + status + "]";
+				+ ", userType=" + userType + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status="
+				+ status + "]";
 	}
 }

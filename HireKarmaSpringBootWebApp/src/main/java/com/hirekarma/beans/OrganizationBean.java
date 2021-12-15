@@ -9,6 +9,7 @@ public class OrganizationBean {
 	private String cinGstNum;
 	private byte[] logo;
 	private String description;
+	private Long corpUserId;
 	
 	public String getOrgName() {
 		return orgName;
@@ -40,10 +41,17 @@ public class OrganizationBean {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	public Long getCorpUserId() {
+		return corpUserId;
+	}
+	public void setCorpUserId(Long corpUserId) {
+		this.corpUserId = corpUserId;
+	}
 	
 	@Override
 	public String toString() {
 		return "OrganizationBean [orgName=" + orgName + ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum
-				+ ", logo=" + Arrays.toString(logo) + ", description=" + description + "]";
+				+ ", logo=" + Arrays.toString(logo) + ", description=" + description + ", corpUserId=" + corpUserId
+				+ "]";
 	}
 }

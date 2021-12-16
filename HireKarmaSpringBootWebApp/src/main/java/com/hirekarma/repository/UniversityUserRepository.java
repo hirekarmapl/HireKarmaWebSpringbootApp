@@ -11,7 +11,7 @@ import com.hirekarma.model.UniversityUser;
 @Repository("UniversityUserRepository")
 public interface UniversityUserRepository extends JpaRepository<UniversityUser, Long> {
 	
-	@Query("select u from UniversityUser u where u.email = :email and u.password = :password")
+	@Query("select u from UniversityUser u where u.emailAddress = :email and u.password = :password")
 	UniversityUser checkLoginCredentials(@Param("email")String email,@Param("password")String password);
 
 }

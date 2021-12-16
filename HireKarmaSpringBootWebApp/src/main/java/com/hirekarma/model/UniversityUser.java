@@ -1,7 +1,7 @@
 package com.hirekarma.model;
 
 import java.io.Serializable;
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.util.Arrays;
 
 import javax.persistence.Column;
@@ -47,24 +47,25 @@ public class UniversityUser  implements Serializable {
 	@Column(name = "USER_TYPE")
 	private String userType;
 	
+	@Column(name = "PASSWORD")
+	private String password;
+	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
 	
-	@CreationTimestamp
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 
 	@Column(name = "STATUS")
 	private String status;
 
-	
-	public Long getUserId() {
+	public Long getUniversityId() {
 		return universityId;
 	}
 
-	public void setUserId(Long userId) {
-		this.universityId = userId;
+	public void setUniversityId(Long universityId) {
+		this.universityId = universityId;
 	}
 
 	public String getUniversityName() {
@@ -111,11 +112,17 @@ public class UniversityUser  implements Serializable {
 		return userType;
 	}
 
-
 	public void setUserType(String userType) {
 		this.userType = userType;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 	public Timestamp getCreatedOn() {
 		return createdOn;
@@ -133,7 +140,6 @@ public class UniversityUser  implements Serializable {
 		this.updatedOn = updatedOn;
 	}
 
-
 	public String getStatus() {
 		return status;
 	}
@@ -144,9 +150,9 @@ public class UniversityUser  implements Serializable {
 
 	@Override
 	public String toString() {
-		return "UniversityUser [userId=" + universityId + ", universityName=" + universityName + ", emailAddress="
+		return "UniversityUser [universityId=" + universityId + ", universityName=" + universityName + ", emailAddress="
 				+ emailAddress + ", universityEmailAddress=" + universityEmailAddress + ", phoneNo=" + phoneNo
-				+ ", universiyImage=" + Arrays.toString(universiyImage) + ", userType=" + userType + ", createdOn="
-				+ createdOn + ", updatedOn=" + updatedOn + ", status=" + status + "]";
+				+ ", universiyImage=" + Arrays.toString(universiyImage) + ", userType=" + userType + ", password="
+				+ password + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status=" + status + "]";
 	}
 }

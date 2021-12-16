@@ -54,7 +54,6 @@ public class CoporateUser implements Serializable{
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
 	
-	@CreationTimestamp
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 	

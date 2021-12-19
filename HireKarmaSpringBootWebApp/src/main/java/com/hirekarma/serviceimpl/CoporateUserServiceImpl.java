@@ -30,7 +30,7 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 	private OrganizationRepository organizationRepository;
 
 	@Override
-	public CoporateUser insert(CoporateUser coporateUser) throws CoporateUserDefindException{
+	public CoporateUser insert(CoporateUser coporateUser) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.insert(-)");
 		CoporateUser user=null;
 		HirekarmaPasswordVerifier verifier= null;
@@ -58,7 +58,7 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 	}
 
 	@Override
-	public CoporateUserBean checkLoginCredentials(String email, String password) throws CoporateUserDefindException{
+	public CoporateUserBean checkLoginCredentials(String email, String password) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.checkLoginCredentials(-,-)");
 		CoporateUserBean coporateUserBean=null;
 		CoporateUser coporateUser=null;
@@ -87,7 +87,7 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 	}
 
 	@Override
-	public CoporateUserBean updateCoporateUserProfile(CoporateUserBean bean) throws CoporateUserDefindException{
+	public CoporateUserBean updateCoporateUserProfile(CoporateUserBean bean) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.updateCoporateUserProfile(-)");
 		CoporateUser coporateUser=null;
 		CoporateUser coporateUserReturn=null;
@@ -97,17 +97,19 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.updateCoporateUserProfile(-)");
 			optional=coporateUserRepository.findById(bean.getCorpUserId());
 			coporateUser=optional.get();
-			if(coporateUser!=null) {
-				coporateUser.setName(bean.getName());
-				coporateUser.setEmail(bean.getEmail());
-				coporateUser.setPhoneNO(bean.getPhoneNO());
-				coporateUser.setProfileImage(bean.getProfileImage());
-				coporateUser.setAddress(bean.getAddress());
-				coporateUser.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-				coporateUserReturn=coporateUserRepository.save(coporateUser);
-				coporateUserBean=new CoporateUserBean();
-				BeanUtils.copyProperties(coporateUserReturn, coporateUserBean);
-				LOGGER.info("Data Successfully updated using CoporateUserServiceImpl.updateCoporateUserProfile(-)");
+			if(!optional.isEmpty()) {
+				if(coporateUser!=null) {
+					coporateUser.setName(bean.getName());
+					coporateUser.setEmail(bean.getEmail());
+					coporateUser.setPhoneNO(bean.getPhoneNO());
+					coporateUser.setProfileImage(bean.getProfileImage());
+					coporateUser.setAddress(bean.getAddress());
+					coporateUser.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+					coporateUserReturn=coporateUserRepository.save(coporateUser);
+					coporateUserBean=new CoporateUserBean();
+					BeanUtils.copyProperties(coporateUserReturn, coporateUserBean);
+					LOGGER.info("Data Successfully updated using CoporateUserServiceImpl.updateCoporateUserProfile(-)");
+				}
 			}
 			return coporateUserBean;
 		}

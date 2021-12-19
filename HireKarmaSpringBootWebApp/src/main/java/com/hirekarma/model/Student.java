@@ -17,16 +17,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import com.sun.istack.NotNull;
 
 @Entity
-@Table(name="STUDENT_USER")
-public class StudentUser implements Serializable{
+@Table(name="STUDENT")
+public class Student implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
-	@Column(name = "STUDENT_USER_ID")
-	private Long studentUserId;
+	@Column(name = "STUDENT_ID")
+	private Long studentId;
 	
 	@Column(name = "NAME")
 	private String name;
@@ -60,12 +60,12 @@ public class StudentUser implements Serializable{
 	@Column(name = "STATUS")
 	private String status;
 
-	public Long getStudentUserId() {
-		return studentUserId;
+	public Long getStudentId() {
+		return studentId;
 	}
 
-	public void setStudentUserId(Long studentUserId) {
-		this.studentUserId = studentUserId;
+	public void setStudentId(Long studentId) {
+		this.studentId = studentId;
 	}
 
 	public String getName() {
@@ -150,9 +150,9 @@ public class StudentUser implements Serializable{
 
 	@Override
 	public String toString() {
-		return "StudentUser [studentUserId=" + studentUserId + ", name=" + name + ", email=" + email + ", phoneNO="
-				+ phoneNO + ", profileImage=" + Arrays.toString(profileImage) + ", address=" + address + ", password="
-				+ password + ", userType=" + userType + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn
-				+ ", status=" + status + "]";
+		return "Student [studentId=" + studentId + ", name=" + name + ", email=" + email + ", phoneNO=" + phoneNO
+				+ ", profileImage=" + Arrays.toString(profileImage) + ", address=" + address + ", password=" + password
+				+ ", userType=" + userType + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status="
+				+ status + "]";
 	}
 }

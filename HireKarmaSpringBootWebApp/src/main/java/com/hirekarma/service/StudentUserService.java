@@ -4,6 +4,6 @@ import com.hirekarma.beans.StudentUserBean;
 import com.hirekarma.model.StudentUser;
 
 public interface StudentUserService {
-	public StudentUser insert(StudentUser hireKarmaUser);
+	public StudentUser insert(StudentUser studentUser);
 	public StudentUserBean checkLoginCredentials(String email,String password);
 }

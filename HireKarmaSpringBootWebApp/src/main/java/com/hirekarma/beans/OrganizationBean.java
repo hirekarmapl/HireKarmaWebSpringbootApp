@@ -2,6 +2,8 @@ package com.hirekarma.beans;
 
 import java.util.Arrays;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class OrganizationBean {
 	
 	private String orgName;
@@ -10,6 +12,7 @@ public class OrganizationBean {
 	private byte[] logo;
 	private String description;
 	private Long corpUserId;
+	private MultipartFile file;
 	
 	public String getOrgName() {
 		return orgName;
@@ -47,11 +50,17 @@ public class OrganizationBean {
 	public void setCorpUserId(Long corpUserId) {
 		this.corpUserId = corpUserId;
 	}
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
 	
 	@Override
 	public String toString() {
 		return "OrganizationBean [orgName=" + orgName + ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum
 				+ ", logo=" + Arrays.toString(logo) + ", description=" + description + ", corpUserId=" + corpUserId
-				+ "]";
+				+ ", file=" + file + "]";
 	}
 }

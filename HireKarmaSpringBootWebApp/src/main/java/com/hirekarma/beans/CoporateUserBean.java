@@ -2,8 +2,11 @@ package com.hirekarma.beans;
 
 import java.util.Arrays;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class CoporateUserBean {
 
+	private Long corpUserId;
 	private String name;
 	private String email;
 	private String phoneNO;
@@ -11,7 +14,14 @@ public class CoporateUserBean {
 	private String address;
 	private String password;
 	private String userType;
+	private MultipartFile file;
 	
+	public Long getCorpUserId() {
+		return corpUserId;
+	}
+	public void setCorpUserId(Long corpUserId) {
+		this.corpUserId = corpUserId;
+	}
 	public String getName() {
 		return name;
 	}
@@ -54,11 +64,18 @@ public class CoporateUserBean {
 	public void setUserType(String userType) {
 		this.userType = userType;
 	}
-	
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
 	@Override
 	public String toString() {
-		return "CoporateUserBean [name=" + name + ", email=" + email + ", phoneNO=" + phoneNO + ", profileImage="
-				+ Arrays.toString(profileImage) + ", address=" + address + ", password=" + password + ", userType="
-				+ userType + "]";
+		return "CoporateUserBean [corpUserId=" + corpUserId + ", name=" + name + ", email=" + email + ", phoneNO="
+				+ phoneNO + ", profileImage=" + Arrays.toString(profileImage) + ", address=" + address + ", password="
+				+ password + ", userType=" + userType + ", file=" + file + "]";
 	}
+	
+	
 }

@@ -42,13 +42,16 @@ public class UniversityUser  implements Serializable {
 	
 	@Lob
     @Column(name = "UNIVERSITY_IMAGE")
-    private byte[] universiyImage;
+    private byte[] universityImage;
 	
 	@Column(name = "USER_TYPE")
 	private String userType;
 	
 	@Column(name = "PASSWORD")
 	private String password;
+	
+	@Column(name = "UNIVERSITY_ADDRESS")
+	private String universityAddress;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
@@ -100,12 +103,12 @@ public class UniversityUser  implements Serializable {
 		this.phoneNo = phoneNo;
 	}
 
-	public byte[] getUniversiyImage() {
-		return universiyImage;
+	public byte[] getUniversityImage() {
+		return universityImage;
 	}
 
-	public void setUniversiyImage(byte[] universiyImage) {
-		this.universiyImage = universiyImage;
+	public void setUniversityImage(byte[] universityImage) {
+		this.universityImage = universityImage;
 	}
 
 	public String getUserType() {
@@ -122,6 +125,14 @@ public class UniversityUser  implements Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getUniversityAddress() {
+		return universityAddress;
+	}
+
+	public void setUniversityAddress(String universityAddress) {
+		this.universityAddress = universityAddress;
 	}
 
 	public Timestamp getCreatedOn() {
@@ -152,7 +163,8 @@ public class UniversityUser  implements Serializable {
 	public String toString() {
 		return "UniversityUser [universityId=" + universityId + ", universityName=" + universityName + ", emailAddress="
 				+ emailAddress + ", universityEmailAddress=" + universityEmailAddress + ", phoneNo=" + phoneNo
-				+ ", universiyImage=" + Arrays.toString(universiyImage) + ", userType=" + userType + ", password="
-				+ password + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status=" + status + "]";
+				+ ", universiyImage=" + Arrays.toString(universityImage) + ", userType=" + userType + ", password="
+				+ password + ", universityAddress=" + universityAddress + ", createdOn=" + createdOn + ", updatedOn="
+				+ updatedOn + ", status=" + status + "]";
 	}
 }

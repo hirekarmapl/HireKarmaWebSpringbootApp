@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hirekarma.model.UniversityUser;
 
-@Repository("UniversityUserRepository")
+@Repository("universityUserRepository")
 public interface UniversityUserRepository extends JpaRepository<UniversityUser, Long> {
 	
 	@Query("select u from UniversityUser u where u.emailAddress = :email and u.password = :password")

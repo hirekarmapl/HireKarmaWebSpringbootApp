@@ -1,6 +1,6 @@
 package com.hirekarma.exception;
 
-public class UniversityUserDefindException extends Exception{
+public class UniversityUserDefindException extends RuntimeException{
 	
 	private static final long serialVersionUID = 1L;
 	

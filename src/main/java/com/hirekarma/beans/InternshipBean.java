@@ -1,5 +1,6 @@
 package com.hirekarma.beans;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -7,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class InternshipBean {
 	
 	private Long internshipId;
-	private Long corpUserId;
+	private Long userId;
 	private String internshipTitle;
 	private String internshipType;
 	private String skills;
@@ -17,9 +18,11 @@ public class InternshipBean {
 	private String about;
 	private String description;
 	private byte[] descriptionFile;
-	private MultipartFile file;
 	private String status;
 	private String deleteStatus;
+	private Timestamp createdOn;
+	private Timestamp updatedOn;
+	private MultipartFile file;
 	
 	public Long getInternshipId() {
 		return internshipId;
@@ -27,11 +30,11 @@ public class InternshipBean {
 	public void setInternshipId(Long internshipId) {
 		this.internshipId = internshipId;
 	}
-	public Long getCorpUserId() {
-		return corpUserId;
+	public Long getUserId() {
+		return userId;
 	}
-	public void setCorpUserId(Long corpUserId) {
-		this.corpUserId = corpUserId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 	public String getInternshipTitle() {
 		return internshipTitle;
@@ -87,12 +90,6 @@ public class InternshipBean {
 	public void setDescriptionFile(byte[] descriptionFile) {
 		this.descriptionFile = descriptionFile;
 	}
-	public MultipartFile getFile() {
-		return file;
-	}
-	public void setFile(MultipartFile file) {
-		this.file = file;
-	}
 	public String getStatus() {
 		return status;
 	}
@@ -105,13 +102,31 @@ public class InternshipBean {
 	public void setDeleteStatus(String deleteStatus) {
 		this.deleteStatus = deleteStatus;
 	}
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
 	
 	@Override
 	public String toString() {
-		return "InternshipBean [internshipId=" + internshipId + ", corpUserId=" + corpUserId + ", internshipTitle="
+		return "InternshipBean [internshipId=" + internshipId + ", userId=" + userId + ", internshipTitle="
 				+ internshipTitle + ", internshipType=" + internshipType + ", skills=" + skills + ", city=" + city
 				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
-				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", file=" + file + ", status=" + status
-				+ ", deleteStatus=" + deleteStatus + "]";
+				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
+				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", file=" + file + "]";
 	}
 }

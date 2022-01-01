@@ -4,60 +4,48 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.CreationTimestamp;
-
-import com.sun.istack.NotNull;
-
-@Entity
-@Table(name="STUDENT")
+//@Entity
+//@Table(name="STUDENT")
 public class Student implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@NotNull
-	@Column(name = "STUDENT_ID")
+//	@Id
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+//	@NotNull
+//	@Column(name = "STUDENT_ID")
 	private Long studentId;
 	
-	@Column(name = "NAME")
+//	@Column(name = "NAME")
 	private String name;
 	
-	@Column(name = "EMAIL")
+//	@Column(name = "EMAIL")
 	private String email;
 	
-	@Column(name="PHONE_NO")
+//	@Column(name="PHONE_NO")
 	private String phoneNO;
 	
-	@Lob
-    @Column(name = "PROFILE_IMAGE")
+//	@Lob
+//  @Column(name = "PROFILE_IMAGE")
     private byte[] profileImage;
 	
-	@Column(name = "ADDRESS")
+//	@Column(name = "ADDRESS")
 	private String address;
 	
-	@Column(name = "PASSWORD")
+//	@Column(name = "PASSWORD")
 	private String password;
 	
-	@Column(name = "USER_TYPE")
+//	@Column(name = "USER_TYPE")
 	private String userType;
 	
-	@CreationTimestamp
-	@Column(name = "CREATED_ON")
+//	@CreationTimestamp
+//	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
 	
-	@Column(name = "UPDATED_ON")
+//	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 
-	@Column(name = "STATUS")
+//	@Column(name = "STATUS")
 	private String status;
 
 	public Long getStudentId() {

@@ -4,5 +4,5 @@ import com.hirekarma.beans.OrganizationBean;
 
 public interface OrganizationService {
 	public OrganizationBean updateOrganizationDetails(OrganizationBean bean);
-	public OrganizationBean findOrganizationByCorporateId(Long corpUserId);
+	public OrganizationBean findOrganizationByUserId(Long userId);
 }

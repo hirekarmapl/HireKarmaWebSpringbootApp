@@ -28,8 +28,8 @@ public class Job implements Serializable{
 	@Column(name = "JOB_ID")
 	private Long jobId;
 	
-	@Column(name = "CORP_USER_ID")
-	private Long corpUserId;
+	@Column(name = "USER_ID")
+	private Long userId;
 	
 	@Column(name = "JOB_TITLE")
 	private String jobTitle;
@@ -86,12 +86,12 @@ public class Job implements Serializable{
 		this.jobId = jobId;
 	}
 
-	public Long getCorpUserId() {
-		return corpUserId;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setCorpUserId(Long corpUserId) {
-		this.corpUserId = corpUserId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public String getJobTitle() {
@@ -216,10 +216,10 @@ public class Job implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Job [jobId=" + jobId + ", corpUserId=" + corpUserId + ", jobTitle=" + jobTitle + ", category="
-				+ category + ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city="
-				+ city + ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description="
-				+ description + ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status
-				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+		return "Job [jobId=" + jobId + ", userId=" + userId + ", jobTitle=" + jobTitle + ", category=" + category
+				+ ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city=" + city
+				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
+				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
+				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
 	}
 }

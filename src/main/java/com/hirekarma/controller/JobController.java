@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,6 +32,7 @@ public class JobController {
 	private JobService jobService;
 	
 	@PostMapping("/saveJobUrl")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<JobBean> saveJobDetails(@ModelAttribute JobBean jobBean) {
 		LOGGER.debug("Inside JobController.saveJobDetails(-)");
 		JobBean bean=null;
@@ -48,12 +50,13 @@ public class JobController {
 	}
 	
 	@GetMapping("/findJobsByCorporateId")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<List<JobBean>> findJobsByCorporateId(@RequestParam("corpUserId") Long corpUserId){
 		LOGGER.debug("Inside JobController.findJobsByCorporateId(-)");
 		List<JobBean> jobBeans=null;
 		try {
 			LOGGER.debug("Inside try block of JobController.findJobsByCorporateId(-)");
-			jobBeans=jobService.findJobsByCorporateId(corpUserId);
+			jobBeans=jobService.findJobsByUserId(corpUserId);
 			LOGGER.info("Data successfully saved using JobController.saveJobDetails(-)");
 			return new ResponseEntity<>(jobBeans,HttpStatus.OK);
 		}
@@ -65,6 +68,7 @@ public class JobController {
 	}
 	
 	@GetMapping("/findJobById/{jobId}")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<JobBean> findJobById(@PathVariable Long jobId){
 		LOGGER.debug("Inside JobController.findJobById(-)");
 		JobBean jobBean=null;
@@ -88,6 +92,7 @@ public class JobController {
 	}
 	
 	@PutMapping("/deleteJobById/{jobId}")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<List<JobBean>> deleteJobById(@PathVariable Long jobId){
 		LOGGER.debug("Inside JobController.deleteJobById(-)");
 		List<JobBean> beans=null;
@@ -104,6 +109,7 @@ public class JobController {
 	}
 	
 	@PutMapping("/updateJobById")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<JobBean> updateJobById(@ModelAttribute JobBean jobBean){
 		LOGGER.debug("Inside JobController.updateJobById(-)");
 		JobBean bean=null;

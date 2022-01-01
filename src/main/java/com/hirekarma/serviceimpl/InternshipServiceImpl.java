@@ -36,7 +36,7 @@ public class InternshipServiceImpl implements InternshipService {
 			LOGGER.debug("Inside try block of InternshipServiceImpl.insert()");
 			image=internshipBean.getFile().getBytes();
 			internshipBean.setDescriptionFile(image);
-			internshipBean.setStatus("Not Active");
+			internshipBean.setStatus("InActive");
 			internshipBean.setDeleteStatus("Active");
 			internship=new Internship();
 			BeanUtils.copyProperties(internshipBean, internship);
@@ -53,7 +53,7 @@ public class InternshipServiceImpl implements InternshipService {
 	}
 
 	@Override
-	public List<InternshipBean> findInternshipsByCorporateId(Long corpUserId) {
+	public List<InternshipBean> findInternshipsByUserId(Long userId) {
 		LOGGER.debug("Inside InternshipServiceImpl.findInternshipsByCorporateId(-)");
 		List<Internship> internships=null;
 		List<InternshipBean> internshipBeans=null;
@@ -61,7 +61,7 @@ public class InternshipServiceImpl implements InternshipService {
 		boolean flag=false;
 		try {
 			LOGGER.debug("Inside try block of InternshipServiceImpl.findInternshipsByCorporateId(-)");
-			internships=internshipRepository.findInternshipsByCorporateId(corpUserId);
+			internships=internshipRepository.findInternshipsUserId(userId);
 			if(internships!=null) {
 				if(internships.size()>0) {
 					internshipBeans=new ArrayList<InternshipBean>();
@@ -132,11 +132,11 @@ public class InternshipServiceImpl implements InternshipService {
 			if(!optional.isEmpty()) {
 				internship=optional.get();
 				if(internship!=null) {
-					corpUserId=internship.getCorpUserId();
+					corpUserId=internship.getUserId();
 					internship.setDeleteStatus("InActive");
 					internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 					internshipRepository.save(internship);
-					internshipBeans=findInternshipsByCorporateId(corpUserId);
+					internshipBeans=findInternshipsByUserId(corpUserId);
 				}
 			}
 			LOGGER.debug("Data Successfully Deleted using InternshipServiceImpl.findInternshipById(-)");

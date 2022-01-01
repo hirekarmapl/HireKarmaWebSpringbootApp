@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,6 +31,7 @@ public class OrganizationController {
 	private OrganizationService organizationService;
 	
 	@PutMapping(value = "/updateOrganizationDetails")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<OrganizationBean> updateOrganizationDetails(@ModelAttribute OrganizationBean organizationBean){
 		LOGGER.debug("Inside OrganizationController.updateOrganizationDetails(-)");
 		OrganizationBean userBean=null;
@@ -61,12 +63,13 @@ public class OrganizationController {
 	}
 	
 	@GetMapping(value = "/findOrganizationByCorporateId/{corpUserId}")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<OrganizationBean> findOrganizationByCorporateId(@PathVariable Long corpUserId){
 		LOGGER.debug("Inside OrganizationController.findOrganizationByCorporateId(-)");
 		OrganizationBean userBean=null;
 		try {
 			LOGGER.debug("Inside try block of OrganizationController.findOrganizationByCorporateId(-)");
-			userBean=organizationService.findOrganizationByCorporateId(corpUserId);
+			userBean=organizationService.findOrganizationByUserId(corpUserId);
 			if(userBean!=null) {
 				LOGGER.info("Organization details get in OrganizationController.findOrganizationByCorporateId(-)");
 				return new ResponseEntity<>(userBean,HttpStatus.OK);

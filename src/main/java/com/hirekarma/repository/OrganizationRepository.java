@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 import com.hirekarma.model.Organization;
 
 @Repository("organizationRepository")
-public interface OrganizationRepository extends JpaRepository<Organization, Long>{
+public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 	
-	@Query(value = "select u from Organization u where u.status='Active' and u.corpUserId = :corpUserId")
-	Organization findOrganizationByCorporateId(@Param("corpUserId")Long corpUserId);
+	@Query(value = "select u from Organization u where u.status='Active' and u.userId = :userId")
+	Organization findOrganizationByUserId(@Param("userId")Long userId);
 	
 }

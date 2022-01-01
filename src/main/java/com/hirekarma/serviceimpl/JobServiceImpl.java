@@ -53,15 +53,15 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public List<JobBean> findJobsByCorporateId(Long corpUserId) {
-		LOGGER.debug("Inside JobServiceImpl.findJobsByCorporateId(-)");
+	public List<JobBean> findJobsByUserId(Long userId) {
+		LOGGER.debug("Inside JobServiceImpl.findJobsByUserId(-)");
 		List<Job> jobs=null;
 		List<JobBean> jobBeans=null;
 		JobBean jobBean=null;
 		boolean flag=false;
 		try {
-			LOGGER.debug("Inside try block of JobServiceImpl.findJobsByCorporateId(-)");
-			jobs=jobRepository.findJobsByCorporateId(corpUserId);
+			LOGGER.debug("Inside try block of JobServiceImpl.findJobsByUserId(-)");
+			jobs=jobRepository.findJobsByUserId(userId);
 			if(jobs!=null) {
 				if(jobs.size()>0) {
 					jobBeans=new ArrayList<JobBean>();
@@ -80,16 +80,16 @@ public class JobServiceImpl implements JobService {
 				flag=false;
 			}
 			if(flag) {
-				LOGGER.info("Data successfully fetched using JobServiceImpl.findJobsByCorporateId(-)");
+				LOGGER.info("Data successfully fetched using JobServiceImpl.findJobsByUserId(-)");
 				return jobBeans;
 			}
 			else {
-				LOGGER.info("No jobs are there. Get Result using JobServiceImpl.findJobsByCorporateId(-)");
+				LOGGER.info("No jobs are there. Get Result using JobServiceImpl.findJobsByUserId(-)");
 				return jobBeans;
 			}
 		}
 		catch (Exception e) {
-			LOGGER.error("Error occured in JobServiceImpl.findJobsByCorporateId(-): "+e);
+			LOGGER.error("Error occured in JobServiceImpl.findJobsByUserId(-): "+e);
 			throw new JobException(e.getMessage());
 		}
 	}
@@ -124,7 +124,7 @@ public class JobServiceImpl implements JobService {
 		LOGGER.debug("Inside JobServiceImpl.deleteJobById(-)");
 		Job job=null;
 		Optional<Job> optional=null;
-		Long corpUserId=null;
+		Long userId=null;
 		List<JobBean> jobBeans=null;
 		try {
 			LOGGER.debug("Inside try block of JobServiceImpl.deleteJobById(-)");
@@ -132,11 +132,11 @@ public class JobServiceImpl implements JobService {
 			if(!optional.isEmpty()) {
 				job=optional.get();
 				if(job!=null) {
-					corpUserId=job.getCorpUserId();
+					userId=job.getUserId();
 					job.setDeleteStatus("InActive");
 					job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 					jobRepository.save(job);
-					jobBeans=findJobsByCorporateId(corpUserId);
+					jobBeans=findJobsByUserId(userId);
 				}
 			}
 			LOGGER.debug("Data Successfully Deleted using JobServiceImpl.findJobById(-)");

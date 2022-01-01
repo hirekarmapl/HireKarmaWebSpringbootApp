@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,6 +32,7 @@ public class InternshipController {
 	private InternshipService internshipService;
 	
 	@PostMapping("/saveInternshipUrl")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<InternshipBean> saveInternshipDetails(@ModelAttribute InternshipBean internshipBean) {
 		LOGGER.debug("Inside InternshipController.saveInternshipDetails(-)");
 		InternshipBean bean=null;
@@ -48,12 +50,13 @@ public class InternshipController {
 	}
 	
 	@GetMapping("/findInternshipsByCorporateId")
-	public ResponseEntity<List<InternshipBean>> findInternshipsByCorporateId(@RequestParam("corpUserId") Long corpUserId){
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<List<InternshipBean>> findInternshipsByUserId(@RequestParam("userId") Long userId){
 		LOGGER.debug("Inside InternshipController.findInternshipsByCorporateId(-)");
 		List<InternshipBean> internshipBeans=null;
 		try {
 			LOGGER.debug("Inside try block of InternshipController.findInternshipsByCorporateId(-)");
-			internshipBeans=internshipService.findInternshipsByCorporateId(corpUserId);
+			internshipBeans=internshipService.findInternshipsByUserId(userId);
 			LOGGER.info("Data successfully saved using InternshipController.saveInternshipDetails(-)");
 			return new ResponseEntity<>(internshipBeans,HttpStatus.OK);
 		}
@@ -65,6 +68,7 @@ public class InternshipController {
 	}
 	
 	@GetMapping("/findInternshipById/{internshipId}")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<InternshipBean> findInternshipById(@PathVariable Long internshipId){
 		LOGGER.debug("Inside InternshipController.findInternshipById(-)");
 		InternshipBean internshipBean=null;
@@ -88,6 +92,7 @@ public class InternshipController {
 	}
 	
 	@PutMapping("/deleteInternshipById/{internshipId}")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<List<InternshipBean>> deleteInternshipById(@PathVariable Long internshipId){
 		LOGGER.debug("Inside InternshipController.deleteInternshipById(-)");
 		List<InternshipBean> beans=null;
@@ -104,6 +109,7 @@ public class InternshipController {
 	}
 	
 	@PutMapping("/updateInternshipById")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<InternshipBean> updateInternshipById(@ModelAttribute InternshipBean internshipBean){
 		LOGGER.debug("Inside InternshipController.updateInternshipById(-)");
 		InternshipBean bean=null;

@@ -26,8 +26,8 @@ public class InternshipApply implements Serializable{
 	@Column(name = "INTERNSHIP_APPLY_ID")
 	private Long internshipApplyId;
 	
-	@Column(name = "STUDENT_ID")
-	private Long studentId;
+	@Column(name = "USER_ID")
+	private Long userId;
 	
 	@Column(name = "HIRE_REASON")
 	private String hireReason;
@@ -56,12 +56,12 @@ public class InternshipApply implements Serializable{
 		this.internshipApplyId = internshipApplyId;
 	}
 
-	public Long getStudentId() {
-		return studentId;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setStudentId(Long studentId) {
-		this.studentId = studentId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public String getHireReason() {
@@ -114,7 +114,7 @@ public class InternshipApply implements Serializable{
 
 	@Override
 	public String toString() {
-		return "InternshipApply [internshipApplyId=" + internshipApplyId + ", studentId=" + studentId + ", hireReason="
+		return "InternshipApply [internshipApplyId=" + internshipApplyId + ", userId=" + userId + ", hireReason="
 				+ hireReason + ", coverLetter=" + coverLetter + ", earliestJoiningDate=" + earliestJoiningDate
 				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
 	}

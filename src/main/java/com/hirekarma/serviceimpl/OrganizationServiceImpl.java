@@ -33,7 +33,7 @@ public class OrganizationServiceImpl implements OrganizationService{
 		OrganizationBean organizationBean=null;
 		try {
 			LOGGER.debug("Inside try block of OrganizationServiceImpl.updateOrganizationDetails(-)");
-			organization=organizationRepository.findOrganizationByCorporateId(bean.getCorpUserId());
+			organization=organizationRepository.findOrganizationByUserId(bean.getUserId());
 			if(organization!=null) {
 				organization.setOrgName(bean.getOrgName());
 				organization.setOrgEmail(bean.getOrgEmail());
@@ -55,13 +55,13 @@ public class OrganizationServiceImpl implements OrganizationService{
 	}
 
 	@Override
-	public OrganizationBean findOrganizationByCorporateId(Long corpUserId) {
+	public OrganizationBean findOrganizationByUserId(Long userId) {
 		LOGGER.debug("Inside OrganizationServiceImpl.findOrganizationByCorporateId(-)");
 		Organization organization=null;
 		OrganizationBean organizationBean=null;
 		try {
 			LOGGER.debug("Inside try block of OrganizationServiceImpl.findOrganizationByCorporateId(-)");
-			organization=organizationRepository.findOrganizationByCorporateId(corpUserId);
+			organization=organizationRepository.findOrganizationByUserId(userId);
 			if(organization!=null) {
 				organizationBean=new OrganizationBean();
 				BeanUtils.copyProperties(organization, organizationBean);

@@ -28,8 +28,8 @@ public class Internship implements Serializable{
 	@Column(name = "INTERNSHIP_ID")
 	private Long internshipId;
 	
-	@Column(name = "CORP_USER_ID")
-	private Long corpUserId;
+	@Column(name = "USER_ID")
+	private Long userId;
 	
 	@Column(name = "INTERNSHIP_TITLE")
 	private String internshipTitle;
@@ -80,12 +80,12 @@ public class Internship implements Serializable{
 		this.internshipId = internshipId;
 	}
 
-	public Long getCorpUserId() {
-		return corpUserId;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setCorpUserId(Long corpUserId) {
-		this.corpUserId = corpUserId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public String getInternshipTitle() {
@@ -194,7 +194,7 @@ public class Internship implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Internship [internshipId=" + internshipId + ", corpUserId=" + corpUserId + ", internshipTitle="
+		return "Internship [internshipId=" + internshipId + ", userId=" + userId + ", internshipTitle="
 				+ internshipTitle + ", internshipType=" + internshipType + ", skills=" + skills + ", city=" + city
 				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
 				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="

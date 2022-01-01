@@ -1,5 +1,6 @@
 package com.hirekarma.beans;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -7,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class JobBean {
 	
 	private Long jobId;
-	private Long corpUserId;
+	private Long userId;
 	private String jobTitle;
 	private String category;
 	private String jobType;
@@ -19,9 +20,11 @@ public class JobBean {
 	private String about;
 	private String description;
 	private byte[] descriptionFile;
-	private MultipartFile file;
 	private String status;
 	private String deleteStatus;
+	private Timestamp createdOn;
+	private Timestamp updatedOn;
+	private MultipartFile file;
 	
 	public Long getJobId() {
 		return jobId;
@@ -29,11 +32,11 @@ public class JobBean {
 	public void setJobId(Long jobId) {
 		this.jobId = jobId;
 	}
-	public Long getCorpUserId() {
-		return corpUserId;
+	public Long getUserId() {
+		return userId;
 	}
-	public void setCorpUserId(Long corpUserId) {
-		this.corpUserId = corpUserId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 	public String getJobTitle() {
 		return jobTitle;
@@ -101,12 +104,6 @@ public class JobBean {
 	public void setDescriptionFile(byte[] descriptionFile) {
 		this.descriptionFile = descriptionFile;
 	}
-	public MultipartFile getFile() {
-		return file;
-	}
-	public void setFile(MultipartFile file) {
-		this.file = file;
-	}
 	public String getStatus() {
 		return status;
 	}
@@ -119,13 +116,31 @@ public class JobBean {
 	public void setDeleteStatus(String deleteStatus) {
 		this.deleteStatus = deleteStatus;
 	}
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
 	
 	@Override
 	public String toString() {
-		return "JobBean [jobId=" + jobId + ", corpUserId=" + corpUserId + ", jobTitle=" + jobTitle + ", category="
-				+ category + ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city="
-				+ city + ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description="
-				+ description + ", descriptionFile=" + Arrays.toString(descriptionFile) + ", file=" + file + ", status="
-				+ status + ", deleteStatus=" + deleteStatus + "]";
+		return "JobBean [jobId=" + jobId + ", userId=" + userId + ", jobTitle=" + jobTitle + ", category=" + category
+				+ ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city=" + city
+				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
+				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
+				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", file=" + file + "]";
 	}
 }

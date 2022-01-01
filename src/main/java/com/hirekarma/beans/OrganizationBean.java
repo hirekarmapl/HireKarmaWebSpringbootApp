@@ -1,19 +1,36 @@
 package com.hirekarma.beans;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 
 import org.springframework.web.multipart.MultipartFile;
 
 public class OrganizationBean {
 	
+	private Long organizationId;
+	private Long userId;
 	private String orgName;
 	private String orgEmail;
 	private String cinGstNum;
 	private byte[] logo;
 	private String description;
-	private Long corpUserId;
+	private Timestamp createdOn;
+	private Timestamp updatedOn;
+	private String status;
 	private MultipartFile file;
 	
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+	public void setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
+	}
+	public Long getUserId() {
+		return userId;
+	}
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 	public String getOrgName() {
 		return orgName;
 	}
@@ -44,11 +61,23 @@ public class OrganizationBean {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Long getCorpUserId() {
-		return corpUserId;
+	public Timestamp getCreatedOn() {
+		return createdOn;
 	}
-	public void setCorpUserId(Long corpUserId) {
-		this.corpUserId = corpUserId;
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	public MultipartFile getFile() {
 		return file;
@@ -59,8 +88,9 @@ public class OrganizationBean {
 	
 	@Override
 	public String toString() {
-		return "OrganizationBean [orgName=" + orgName + ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum
-				+ ", logo=" + Arrays.toString(logo) + ", description=" + description + ", corpUserId=" + corpUserId
-				+ ", file=" + file + "]";
+		return "OrganizationBean [organizationId=" + organizationId + ", userId=" + userId + ", orgName=" + orgName
+				+ ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum + ", logo=" + Arrays.toString(logo)
+				+ ", description=" + description + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status="
+				+ status + ", file=" + file + "]";
 	}
 }

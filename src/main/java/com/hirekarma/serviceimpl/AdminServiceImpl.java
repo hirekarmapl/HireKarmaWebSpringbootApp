@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hirekarma.beans.JobBean;
-import com.hirekarma.controller.StudentController;
 import com.hirekarma.model.Job;
 import com.hirekarma.repository.AdminRepository;
 import com.hirekarma.service.AdminService;
@@ -29,7 +27,6 @@ public class AdminServiceImpl implements AdminService {
 			LOGGER.debug("Inside AdminServiceImpl.updateActiveStatus(-)");
 			Optional<Job> optional = adminRepository.findById(id);
 			job = optional.get();
-			System.out.println("\n\n Job Details"+job+"\n\n");
 			if(job != null)
 			{
 				job.setStatus(status);
@@ -37,9 +34,10 @@ public class AdminServiceImpl implements AdminService {
 				adminRepository.save(job);
 			}
 			LOGGER.info("Data Updated Successfully In AdminServiceImpl.updateActiveStatus(-)");
-		}catch (Exception e) {
+		}
+		catch (Exception e) {
 			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)"+e);
-				throw e;
+			throw e;
 		}
 		return job;
 	}

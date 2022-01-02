@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.hirekarma.beans.AuthenticationProvider;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.UserProfile;
@@ -211,9 +210,5 @@ public class StudentServiceImpl implements StudentService{
 			LOGGER.error("Error occured in StudentServiceImpl.findStudentById(-): "+e);
 			throw new StudentUserDefindException(e.getMessage());
 		}
-	}
-
-	
-	
-	
+	}	
 }

@@ -14,7 +14,4 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService{
 		OAuth2User user = super.loadUser(userRequest);
 		return new CustomOauth2User(user);
 	}
-	
-	
-
 }

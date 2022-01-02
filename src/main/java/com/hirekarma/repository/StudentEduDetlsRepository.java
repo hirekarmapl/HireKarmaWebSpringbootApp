@@ -1,5 +1,7 @@
 package com.hirekarma.repository;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +18,7 @@ public interface StudentEduDetlsRepository extends JpaRepository<StudentEducatio
 	@Modifying
 	@Query("delete from StudentEducationDetails u where u.userId=?1")
 	void deleteStudentEduDtlsByUserId(Long userId);
+	
+	@Query("select u from StudentEducationDetails u where u.userId=?1")
+	List<StudentEducationDetails> getStudentEducationDetailsByUserId(Long userId);
 }

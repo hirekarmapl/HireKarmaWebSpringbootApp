@@ -104,4 +104,48 @@ public class StudentProfDetailsServiceImpl implements StudentProfDetailsService 
 			throw e;
 		}
 	}
+
+	@Override
+	public StudentProfessionalDetailsBean getStudentProffesionalDetailsByUserId(Long userId) {
+		LOGGER.debug("Inside StudentProfDetailsServiceImpl.getStudentProffesionalDetailsByUserId(-)");
+		
+		StudentProfessionalDetailsBean studentProfessionalDetailsBean=null;
+		StudentEducationDetailsBean studentEducationDetailsBean=null;
+		StudentProfessionalExperienceBean studentProfessionalExperienceBean=null;
+		List<StudentEducationDetailsBean> studentEducationDetailsBeans=null;
+		List<StudentProfessionalExperienceBean> studentProfessionalExperienceBeans=null;
+		List<StudentEducationDetails> studentEducationDetails=null;
+		List<StudentProfessionalExperience> studentProfessionalExperiences=null;
+		
+		try {
+			LOGGER.debug("Inside try block of StudentProfDetailsServiceImpl.getStudentProffesionalDetailsByUserId(-)");
+			studentEducationDetails=studentEduDetlsRepository.getStudentEducationDetailsByUserId(userId);
+			studentProfessionalExperiences=studentProfExpRepository.getStudentProfessionalExperienceByUserId(userId);
+			if(studentEducationDetails!=null && studentEducationDetails.size()>0) {
+				studentEducationDetailsBeans=new ArrayList<StudentEducationDetailsBean>();
+				for (StudentEducationDetails studentEducationDetail : studentEducationDetails) {
+					studentEducationDetailsBean =new StudentEducationDetailsBean();
+					BeanUtils.copyProperties(studentEducationDetail, studentEducationDetailsBean);
+					studentEducationDetailsBeans.add(studentEducationDetailsBean);
+				}
+			}
+			if(studentProfessionalExperiences!=null && studentProfessionalExperiences.size()>0) {
+				studentProfessionalExperienceBeans=new ArrayList<StudentProfessionalExperienceBean>();
+				for (StudentProfessionalExperience studentProfessionalExperience : studentProfessionalExperiences) {
+					studentProfessionalExperienceBean =new StudentProfessionalExperienceBean();
+					BeanUtils.copyProperties(studentProfessionalExperience, studentProfessionalExperienceBean);
+					studentProfessionalExperienceBeans.add(studentProfessionalExperienceBean);
+				}
+			}
+			studentProfessionalDetailsBean = new StudentProfessionalDetailsBean();
+			studentProfessionalDetailsBean.setEducationDetailsBeans(studentEducationDetailsBeans);
+			studentProfessionalDetailsBean.setProfessionalExperienceBeans(studentProfessionalExperienceBeans);
+			LOGGER.info("data retrived using StudentProfDetailsServiceImpl.getStudentProffesionalDetailsByUserId(-)");
+			return studentProfessionalDetailsBean;
+		}
+		catch (Exception e) {
+			LOGGER.debug("data failed to retrive using StudentProfDetailsServiceImpl.getStudentProffesionalDetailsByUserId(-): "+e);
+			throw e;
+		}
+	}
 }

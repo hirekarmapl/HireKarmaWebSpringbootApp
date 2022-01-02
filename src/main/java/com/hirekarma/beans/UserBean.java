@@ -97,7 +97,7 @@ public class UserBean {
 	public String toString() {
 		return "UserBean [userId=" + userId + ", name=" + name + ", email=" + email + ", universityEmailAddress="
 				+ universityEmailAddress + ", phoneNo=" + phoneNo + ", image=" + Arrays.toString(image) + ", userType="
-				+ userType + ", password=" + password + ", address=" + address + ", createdOn=" + createdOn
-				+ ", updatedOn=" + updatedOn + ", file=" + file + "]";
+				+ userType + ", password=" + password + ", address=" + address + ", createdOn="
+				+ createdOn + ", updatedOn=" + updatedOn + ", file=" + file + "]";
 	}
 }

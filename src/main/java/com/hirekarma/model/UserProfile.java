@@ -163,7 +163,7 @@ public class UserProfile  implements Serializable {
 	public String toString() {
 		return "UserProfile [userId=" + userId + ", name=" + name + ", email=" + email + ", universityEmailAddress="
 				+ universityEmailAddress + ", phoneNo=" + phoneNo + ", image=" + Arrays.toString(image) + ", userType="
-				+ userType + ", password=" + password + ", address=" + address + ", createdOn=" + createdOn
-				+ ", updatedOn=" + updatedOn + ", status=" + status + "]";
+				+ userType + ", password=" + password + ", address=" + address + ", createdOn="
+				+ createdOn + ", updatedOn=" + updatedOn + ", status=" + status + "]";
 	}
 }

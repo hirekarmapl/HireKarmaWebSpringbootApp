@@ -1,5 +1,7 @@
 package com.hirekarma.service;
 
-public interface StudentProfDetailsService {
+import com.hirekarma.beans.StudentProfessionalDetailsBean;
 
+public interface StudentProfDetailsService {
+	public StudentProfessionalDetailsBean addStudentProfessionalDetails(StudentProfessionalDetailsBean professionalDetailsBean);
 }

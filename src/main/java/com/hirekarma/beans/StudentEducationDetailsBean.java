@@ -9,7 +9,7 @@ public class StudentEducationDetailsBean {
 	private String examination;
 	private String instituteName;
 	private String address;
-	private String yearOfPassing;
+	private Integer yearOfPassing;
 	private Double marks;
 	private String additionalInfo;
 	private String deleteStatus;
@@ -46,10 +46,10 @@ public class StudentEducationDetailsBean {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	public String getYearOfPassing() {
+	public Integer getYearOfPassing() {
 		return yearOfPassing;
 	}
-	public void setYearOfPassing(String yearOfPassing) {
+	public void setYearOfPassing(Integer yearOfPassing) {
 		this.yearOfPassing = yearOfPassing;
 	}
 	public Double getMarks() {

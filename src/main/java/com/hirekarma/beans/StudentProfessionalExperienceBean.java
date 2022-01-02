@@ -27,6 +27,8 @@ public class StudentProfessionalExperienceBean {
 	private Timestamp createdOn;
 	
 	private String Response;
+	
+	private String deleteStatus;
 
 	public Long getProfExpId() {
 		return profExpId;
@@ -116,14 +118,19 @@ public class StudentProfessionalExperienceBean {
 		Response = response;
 	}
 
+	public String getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(String deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
 	@Override
 	public String toString() {
 		return "StudentProfessionalExperienceBean [profExpId=" + profExpId + ", userId=" + userId + ", companyName="
 				+ companyName + ", companyAddress=" + companyAddress + ", position=" + position + ", startDate="
 				+ startDate + ", endDate=" + endDate + ", description=" + description + ", updatedOn=" + updatedOn
-				+ ", createdOn=" + createdOn + ", Response=" + Response + "]";
+				+ ", createdOn=" + createdOn + ", Response=" + Response + ", deleteStatus=" + deleteStatus + "]";
 	}
-	
-	
-	
 }

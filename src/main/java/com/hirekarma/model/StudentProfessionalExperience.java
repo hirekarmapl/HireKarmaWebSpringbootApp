@@ -57,6 +57,9 @@ public class StudentProfessionalExperience implements Serializable {
 	@Column(name = "CREATED_ON")
 	@CreationTimestamp
 	private Timestamp createdOn;
+	
+	@Column(name = "DELETE_STATUS")
+	private String deleteStatus;
 
 	public Long getProfExpId() {
 		return profExpId;
@@ -121,7 +124,6 @@ public class StudentProfessionalExperience implements Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
 
 	public String getSkills() {
 		return skills;
@@ -129,10 +131,6 @@ public class StudentProfessionalExperience implements Serializable {
 
 	public void setSkills(String skills) {
 		this.skills = skills;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 
 	public Timestamp getUpdatedOn() {
@@ -151,19 +149,19 @@ public class StudentProfessionalExperience implements Serializable {
 		this.createdOn = createdOn;
 	}
 
+	public String getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(String deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
 	@Override
 	public String toString() {
 		return "StudentProfessionalExperience [profExpId=" + profExpId + ", userId=" + userId + ", companyName="
 				+ companyName + ", companyAddress=" + companyAddress + ", position=" + position + ", startDate="
 				+ startDate + ", endDate=" + endDate + ", description=" + description + ", skills=" + skills
-				+ ", updatedOn=" + updatedOn + ", createdOn=" + createdOn + "]";
+				+ ", updatedOn=" + updatedOn + ", createdOn=" + createdOn + ", deleteStatus=" + deleteStatus + "]";
 	}
-
-	
-	
-	
-	
-	
-	
-	
 }

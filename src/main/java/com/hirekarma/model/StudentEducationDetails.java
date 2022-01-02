@@ -39,7 +39,7 @@ public class StudentEducationDetails implements Serializable{
 	private String address;
 	
 	@Column(name = "YEAR_OF_PASSING")
-	private String yearOfPassing;
+	private Integer yearOfPassing;
 	
 	@Column(name = "MARKS")
 	private Double marks;
@@ -97,11 +97,11 @@ public class StudentEducationDetails implements Serializable{
 		this.address = address;
 	}
 
-	public String getYearOfPassing() {
+	public Integer getYearOfPassing() {
 		return yearOfPassing;
 	}
 
-	public void setYearOfPassing(String yearOfPassing) {
+	public void setYearOfPassing(Integer yearOfPassing) {
 		this.yearOfPassing = yearOfPassing;
 	}
 

@@ -5,7 +5,7 @@ import java.util.List;
 public class StudentProfessionalDetailsBean {
 	
 	private List<StudentEducationDetailsBean> educationDetailsBeans;
-	private List<StudentProfessionalDetailsBean> professionalDetailsBeans;
+	private List<StudentProfessionalExperienceBean> professionalExperienceBeans;
 	
 	public List<StudentEducationDetailsBean> getEducationDetailsBeans() {
 		return educationDetailsBeans;
@@ -13,17 +13,16 @@ public class StudentProfessionalDetailsBean {
 	public void setEducationDetailsBeans(List<StudentEducationDetailsBean> educationDetailsBeans) {
 		this.educationDetailsBeans = educationDetailsBeans;
 	}
-	public List<StudentProfessionalDetailsBean> getProfessionalDetailsBeans() {
-		return professionalDetailsBeans;
+	public List<StudentProfessionalExperienceBean> getProfessionalExperienceBeans() {
+		return professionalExperienceBeans;
 	}
-	public void setProfessionalDetailsBeans(List<StudentProfessionalDetailsBean> professionalDetailsBeans) {
-		this.professionalDetailsBeans = professionalDetailsBeans;
+	public void setProfessionalExperienceBeans(List<StudentProfessionalExperienceBean> professionalExperienceBeans) {
+		this.professionalExperienceBeans = professionalExperienceBeans;
 	}
 	
 	@Override
 	public String toString() {
 		return "StudentProfessionalDetailsBean [educationDetailsBeans=" + educationDetailsBeans
-				+ ", professionalDetailsBeans=" + professionalDetailsBeans + "]";
+				+ ", professionalExperienceBeans=" + professionalExperienceBeans + "]";
 	}
-
 }

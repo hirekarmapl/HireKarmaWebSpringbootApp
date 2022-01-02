@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ public class AdminController {
 	
 	
 	@PostMapping("/updateJobStatus")
+	@PreAuthorize("hasRole('admin')")
 	public ResponseEntity<Job> updateJobStatus(@RequestParam("id") Long id, @RequestParam("status") String status) {
 		
 		LOGGER.debug("Inside StudentController.updateJobStatus(-)");

@@ -6,6 +6,8 @@ import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +16,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.hirekarma.beans.AuthenticationProvider;
 import com.sun.istack.NotNull;
 
 @Entity
@@ -62,6 +65,10 @@ public class UserProfile  implements Serializable {
 
 	@Column(name = "STATUS")
 	private String status;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "AUTH_PROVIDER")
+	private AuthenticationProvider authProvider;
 
 	public Long getUserId() {
 		return userId;
@@ -159,11 +166,26 @@ public class UserProfile  implements Serializable {
 		this.status = status;
 	}
 
+	
+	public AuthenticationProvider getAuthProvider() {
+		return authProvider;
+	}
+
+	public void setAuthProvider(AuthenticationProvider authProvider) {
+		this.authProvider = authProvider;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 	@Override
 	public String toString() {
 		return "UserProfile [userId=" + userId + ", name=" + name + ", email=" + email + ", universityEmailAddress="
 				+ universityEmailAddress + ", phoneNo=" + phoneNo + ", image=" + Arrays.toString(image) + ", userType="
-				+ userType + ", password=" + password + ", address=" + address + ", createdOn="
-				+ createdOn + ", updatedOn=" + updatedOn + ", status=" + status + "]";
+				+ userType + ", password=" + password + ", address=" + address + ", createdOn=" + createdOn
+				+ ", updatedOn=" + updatedOn + ", status=" + status + ", authProvider=" + authProvider + "]";
 	}
+
+	
 }

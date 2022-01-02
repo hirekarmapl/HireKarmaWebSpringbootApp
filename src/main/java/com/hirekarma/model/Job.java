@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -77,6 +78,23 @@ public class Job implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
+	
+	@Transient
+	private String response;
+	
+	
+
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String response) {
+		this.response = response;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 
 	public Long getJobId() {
 		return jobId;

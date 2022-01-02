@@ -25,6 +25,7 @@ public class JobBean {
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 	private MultipartFile file;
+	private String response;
 	
 	public Long getJobId() {
 		return jobId;
@@ -135,12 +136,22 @@ public class JobBean {
 		this.file = file;
 	}
 	
+	public String getResponse() {
+		return response;
+	}
+	public void setResponse(String response) {
+		this.response = response;
+	}
 	@Override
 	public String toString() {
 		return "JobBean [jobId=" + jobId + ", userId=" + userId + ", jobTitle=" + jobTitle + ", category=" + category
 				+ ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city=" + city
 				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
 				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
-				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", file=" + file + "]";
+				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", file=" + file
+				+ ", response=" + response + "]";
 	}
+	
+	
+	
 }

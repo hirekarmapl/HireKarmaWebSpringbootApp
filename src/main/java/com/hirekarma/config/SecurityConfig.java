@@ -16,6 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.hirekarma.security.oauth2.CustomOauth2UserService;
+import com.hirekarma.security.oauth2.Oauth2LoginSuccessHandler;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -31,6 +34,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	@Autowired
 	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	
+	@Autowired
+	private CustomOauth2UserService customOauth2UserService;
+	
+	@Autowired
+	private Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
+	
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -39,10 +48,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().authorizeRequests().antMatchers("/hirekarma/login","/hirekarma/saveStudentUrl","/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl")
-			.permitAll().anyRequest().authenticated().and()
-			.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		http.csrf()
+			.disable()
+			.authorizeRequests()
+			.antMatchers("/hirekarma/login","/hirekarma/saveStudentUrl","/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl","/hirekarma/oauth2/**")
+			.permitAll()
+			.anyRequest()
+			.authenticated()
+			.and()
+//			.oauth2Login()
+//				.loginPage("/login")
+//				.userInfoEndpoint()
+//				.userService(customOauth2UserService)
+//				.and()
+//				.successHandler(oauth2LoginSuccessHandler)
+//			.and()
+			.exceptionHandling()
+				.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+			.and()
+			.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		http.cors();
 	}

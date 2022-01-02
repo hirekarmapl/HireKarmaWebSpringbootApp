@@ -16,6 +16,9 @@
 	<description>Web application for hirekarma using Springboot</description>
 	<properties>
 		<java.version>11</java.version>
+		<start-class>
+			com.hirekarma.HireKarmaSpringBootWebAppApplication
+		</start-class>
 	</properties>
 	<dependencies>
 		<dependency>

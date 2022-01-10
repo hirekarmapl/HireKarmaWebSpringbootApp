@@ -1,15 +1,24 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.UniversityUserDefindException;
 import com.hirekarma.model.UserProfile;
@@ -29,6 +38,15 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	@Value("${mail.service.welcomeUrl}")
+	private String welcomeUrl;
+	
+	@Value("${mail.service.getStarted}")
+	private String getStarted;
 	
 
 //	@Override
@@ -58,18 +76,30 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 	public UserProfile insert(UserProfile universityUser) {
 		LOGGER.debug("Inside UniversityUserServiceImpl.insert(-)");
 		UserProfile sityUser=null;
+		HttpHeaders headers=null;
+		Map<String,String> body=null;
+		String reqBodyData=null;
+		HttpEntity<String> requestEntity=null;
 		try {
 			LOGGER.debug("Inside try block of UniversityUserServiceImpl.insert(-)");
 			universityUser.setUserType("university");
 			universityUser.setStatus("Active");
 			universityUser.setPassword(passwordEncoder.encode(universityUser.getPassword()));
 			sityUser=userRepository.save(universityUser);
+			headers=new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			body=new HashMap<String,String>();
+			body.put("email", universityUser.getEmail());
+			reqBodyData=new ObjectMapper().writeValueAsString(body);
+			requestEntity=new HttpEntity<String>(reqBodyData,headers);
+			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
+			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
 			LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
 			return sityUser;	
 					
 		}catch (Exception e ) {
 			LOGGER.error("Data Insertion failed using UniversityUserServiceImpl.insert(-): "+e);
-			throw e;	
+			throw new UniversityUserDefindException(e.getMessage());
 		}		
 	}
 

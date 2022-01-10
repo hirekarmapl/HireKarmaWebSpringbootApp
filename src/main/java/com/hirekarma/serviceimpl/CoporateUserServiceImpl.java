@@ -1,15 +1,24 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.model.Organization;
@@ -34,6 +43,15 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	@Value("${mail.service.welcomeUrl}")
+	private String welcomeUrl;
+	
+	@Value("${mail.service.getStarted}")
+	private String getStarted;
 
 //	@Override
 //	public CoporateUser insert(CoporateUser coporateUser) {
@@ -68,6 +86,10 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 		LOGGER.debug("Inside CoporateUserServiceImpl.insert(-)");
 		UserProfile user=null;
 		Organization organization=null;
+		HttpHeaders headers=null;
+		Map<String,String> body=null;
+		String reqBodyData=null;
+		HttpEntity<String> requestEntity=null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.insert(-)");
 			userProfile.setUserType("corporate");
@@ -78,6 +100,14 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 			organization.setUserId(user.getUserId());
 			organization.setStatus("Active");
 			organizationRepository.save(organization);
+			headers=new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			body=new HashMap<String,String>();
+			body.put("email", userProfile.getEmail());
+			reqBodyData=new ObjectMapper().writeValueAsString(body);
+			requestEntity=new HttpEntity<String>(reqBodyData,headers);
+			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
+			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
 			LOGGER.info("Data successfully saved using CoporateUserServiceImpl.insert(-)");
 			return user;
 		}

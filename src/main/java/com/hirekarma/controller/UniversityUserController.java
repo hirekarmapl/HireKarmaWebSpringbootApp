@@ -1,6 +1,13 @@
 package com.hirekarma.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +24,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.service.StudentService;
 import com.hirekarma.service.UniversityUserService;
+import com.hirekarma.utilty.StudentDataExcelGenerator;
 
 @RestController("universityUserController ")
 @CrossOrigin
@@ -32,6 +44,9 @@ public class UniversityUserController {
 	
 	@Autowired
 	private UniversityUserService universityUserService;
+	
+	@Autowired
+	private StudentService studentService;
 	
 //	@PostMapping("/universitySaveUrl")
 //	public ResponseEntity<UniversityUserBean> createUser(@RequestBody UniversityUserBean universityUserBean){
@@ -211,6 +226,48 @@ public class UniversityUserController {
 		}
 		catch (Exception e) {
 			LOGGER.error("Some problem occured in UniversityUserController.findUniversityById(-): "+e);
+			e.printStackTrace();
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	// download student details as excel
+	@GetMapping("/exportStudentDataExcel")
+	@PreAuthorize("hasRole('university')")
+	public ModelAndView exportStudentDataExcel(HttpServletResponse res) {
+		LOGGER.debug("Inside UniversityUserController.exportStudentDataExcel(-)");
+		List<UserBean> studentBeans = null;
+		Map<String, Object> model = null;
+		Date date = null;
+		try {
+			LOGGER.debug("Inside try block of UniversityUserController.exportStudentDataExcel(-)");
+			studentBeans = studentService.getAllStudents();
+			model = new HashMap<String, Object>();
+			date = new Date();
+			res.setContentType("application/ms-excel");
+			res.setHeader("Content-disposition", "inline; filename=students-" + new SimpleDateFormat("yyyy-MM-dd").format(date) + ".xls");
+			model.put("Data",studentBeans);
+			return new ModelAndView(new StudentDataExcelGenerator(), model);
+		}
+		catch (Exception e) {
+			LOGGER.error("UniversityUserController.exportStudentDataExcel(-) excel creation failed: "+e.getMessage());
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// upload student details as excel
+	@PostMapping("/importStudentDataExcel")
+	@PreAuthorize("hasRole('university')")
+	public ResponseEntity<List<UserBean>> importStudentDataExcel(@RequestPart("file") MultipartFile file) {
+		LOGGER.debug("Inside UniversityUserController.importStudentDataExcel(-)");
+		List<UserBean> studentBeans =null;
+		try {
+			studentBeans=studentService.importStudentDataExcel(file);
+			return new ResponseEntity<List<UserBean>>(studentBeans,HttpStatus.OK);
+		}
+		catch (Exception e) {
+			LOGGER.error("UniversityUserController.importStudentDataExcel(-) excel creation failed: "+e.getMessage());
 			e.printStackTrace();
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}

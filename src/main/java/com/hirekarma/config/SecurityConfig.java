@@ -51,8 +51,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		http.csrf()
 			.disable()
 			.authorizeRequests()
-			.antMatchers("/hirekarma/login","/hirekarma/saveStudentUrl","/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl","/hirekarma/oauth2/**")
-			.permitAll()
+			.antMatchers(
+				"/hirekarma/login","/hirekarma/saveStudentUrl",
+				"/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl",
+				"/hirekarma/oauth2/**"
+			).permitAll()
 			.anyRequest()
 			.authenticated()
 			.and()

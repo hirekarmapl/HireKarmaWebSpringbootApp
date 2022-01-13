@@ -29,23 +29,21 @@ public class AdminController {
 	
 	@PostMapping("/updateJobStatus")
 	@PreAuthorize("hasRole('admin')")
-	public ResponseEntity<Job> updateJobStatus(@RequestParam("id") Long id, @RequestParam("status") String status) {
+	public ResponseEntity<Job> updateJobStatus(@RequestParam("id") Long id) {
 		
-		LOGGER.debug("Inside StudentController.updateJobStatus(-)");
+		LOGGER.debug("Inside AdminController.updateJobStatus(-)");
 		Job job = new Job();
 		ResponseEntity<Job> resEntity = null;
 		
 		try {
 			LOGGER.debug("Inside try block of AdminController.updateJobStatus(-)");
-			job = adminService.updateActiveStatus(id,status);
+			job = adminService.updateActiveStatus(id,"Active");
 			LOGGER.info("Status Successfully Updated using AdminController.updateJobStatus(-)");
-			job.setResponse("UPDATED");
 			resEntity = new ResponseEntity<>(job,HttpStatus.ACCEPTED);
 		}
 		catch (Exception e) {
 			LOGGER.error("Status Updation failed in AdminController.updateJobStatus(-): "+e);
 			e.printStackTrace();
-			job.setResponse("FAILED");
 			resEntity =  new ResponseEntity<>(job,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return  resEntity;

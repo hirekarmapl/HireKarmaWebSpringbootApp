@@ -18,5 +18,20 @@
     "name": "mail.service.url",
     "type": "java.lang.String",
     "description": "A description for 'mail.service.url'"
+  },
+  {
+    "name": "mail.service.welcomeListUrl",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.service.welcomeListUrl'"
+  },
+  {
+    "name": "mail.service.welcomeUrl",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.service.welcomeUrl'"
+  },
+  {
+    "name": "mail.service.getStarted",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.service.getStarted'"
   }
 ]}

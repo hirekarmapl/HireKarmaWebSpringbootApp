@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,8 +64,14 @@ public class StudentServiceImpl implements StudentService{
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	@Value("${mail.service.url}")
-	private String mailSenderServiceUrl;
+	@Value("${mail.service.welcomeListUrl}")
+	private String welcomeListUrl;
+	
+	@Value("${mail.service.welcomeUrl}")
+	private String welcomeUrl;
+	
+	@Value("${mail.service.getStarted}")
+	private String getStarted;
 
 //	@Override
 //	public Student insert(Student student) {
@@ -88,12 +95,24 @@ public class StudentServiceImpl implements StudentService{
 	public UserProfile insert(UserProfile student) {
 		LOGGER.debug("Inside StudentServiceImpl.insert(-)");
 		UserProfile studentReturn=null;
+		HttpHeaders headers=null;
+		Map<String,String> body=null;
+		String reqBodyData=null;
+		HttpEntity<String> requestEntity=null;
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.insert(-)");
 			student.setStatus("Active");
 			student.setUserType("student");
 			student.setPassword(passwordEncoder.encode(student.getPassword()));
 			studentReturn=userRepository.save(student);
+			headers=new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			body=new HashMap<String,String>();
+			body.put("email", student.getEmail());
+			reqBodyData=new ObjectMapper().writeValueAsString(body);
+			requestEntity=new HttpEntity<String>(reqBodyData,headers);
+			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
+			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
 			LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
 			return studentReturn;
 		}
@@ -334,7 +353,7 @@ public class StudentServiceImpl implements StudentService{
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			reqBodyData = new ObjectMapper().writeValueAsString(allStudentLists);
 			requestEntity=new HttpEntity<String>(reqBodyData,headers);
-			restTemplate.exchange(mailSenderServiceUrl,HttpMethod.POST,requestEntity,String.class);
+			restTemplate.exchange(welcomeListUrl,HttpMethod.POST,requestEntity,String.class);
 			LOGGER.info("Student data import Successfully and mail sent using StudentServiceImpl.importStudentDataExcel(-)");
 			return allStudentLists;
 		}

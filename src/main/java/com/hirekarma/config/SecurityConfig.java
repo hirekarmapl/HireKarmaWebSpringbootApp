@@ -52,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.disable()
 			.authorizeRequests()
 			.antMatchers(
-				"/hirekarma/login","/hirekarma/saveStudentUrl",
+				"/hirekarma/shareJob","/hirekarma/login","/hirekarma/saveStudentUrl",
 				"/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl",
 				"/hirekarma/oauth2/**"
 			).permitAll()

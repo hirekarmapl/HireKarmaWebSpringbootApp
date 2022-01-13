@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -66,9 +67,34 @@ public class UserProfile  implements Serializable {
 	@Column(name = "STATUS")
 	private String status;
 	
+	@Column(name = "share_job_id")
+	private Long shareJobId;
+	
+	@Transient
+	private String response;
+	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "AUTH_PROVIDER")
 	private AuthenticationProvider authProvider;
+	
+	
+	
+
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String response) {
+		this.response = response;
+	}
+
+	public Long getShareJobId() {
+		return shareJobId;
+	}
+
+	public void setShareJobId(Long shareJobId) {
+		this.shareJobId = shareJobId;
+	}
 
 	public Long getUserId() {
 		return userId;

@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.model.Job;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.AdminRepository;
+import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.AdminService;
 
 @Service("adminServiceImpl")
@@ -19,6 +21,10 @@ public class AdminServiceImpl implements AdminService {
 	
 	@Autowired
 	private AdminRepository adminRepository;
+	
+	@Autowired
+	private UserRepository userProfilRepository;
+
 
 	@Override
 	public Job updateActiveStatus(Long id, String status) {
@@ -41,5 +47,27 @@ public class AdminServiceImpl implements AdminService {
 		}
 		return job;
 	}
+
+	@Override
+	public UserProfile shareJob(Long jobId,Long universityId) {
+		UserProfile user = null;
+		try {
+			LOGGER.debug("Inside AdminServiceImpl.shareJob(-)");
+			Optional<UserProfile> optional = userProfilRepository.findById(universityId);
+			user = optional.get();
+			System.out.println("USER : \n\n"+user);
+			if(user != null)
+			{
+				user.setShareJobId(jobId);
+				//user.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+				userProfilRepository.save(user);
+			}
+
+		}
+		catch (Exception e) {
+			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)"+e);
+			throw e;
+		}
+		return user;	}
 
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.model.Job;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.AdminService;
 
 @RestController("adminController")
@@ -43,6 +44,30 @@ public class AdminController {
 		}
 		catch (Exception e) {
 			LOGGER.error("Status Updation failed in AdminController.updateJobStatus(-): "+e);
+			e.printStackTrace();
+			job.setResponse("FAILED");
+			resEntity =  new ResponseEntity<>(job,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return  resEntity;
+	}
+	
+	@PostMapping("/shareJob")
+//	@PreAuthorize("hasRole('admin')")
+	public  ResponseEntity<UserProfile> shareJob(@RequestParam("jobId") Long jobId,@RequestParam("universityId") Long universityId)
+	{
+		LOGGER.debug("Inside StudentController.shareJob(-)");
+		UserProfile job = new UserProfile();
+		ResponseEntity<UserProfile> resEntity = null;
+		
+		try {
+			LOGGER.debug("Inside try block of AdminController.shareJob(-)");
+			job = adminService.shareJob(jobId,universityId);
+			LOGGER.info("Status Successfully Updated using AdminController.shareJob(-)");
+			job.setResponse("SHARED");
+			resEntity = new ResponseEntity<>(job,HttpStatus.ACCEPTED);
+		}
+		catch (Exception e) {
+			LOGGER.error("Status Updation failed in AdminController.shareJob(-): "+e);
 			e.printStackTrace();
 			job.setResponse("FAILED");
 			resEntity =  new ResponseEntity<>(job,HttpStatus.INTERNAL_SERVER_ERROR);

@@ -8,12 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.ShareJobBean;
 import com.hirekarma.model.Job;
-import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.AdminService;
 
 @RestController("adminController")
@@ -51,15 +52,15 @@ public class AdminController {
 	
 	@PostMapping("/shareJob")
 //	@PreAuthorize("hasRole('admin')")
-	public  ResponseEntity<UserProfile> shareJob(@RequestParam("jobId") Long jobId,@RequestParam("universityId") Long universityId)
+	public  ResponseEntity<ShareJobBean> shareJob(@RequestBody ShareJobBean shareJobBean)
 	{
 		LOGGER.debug("Inside StudentController.shareJob(-)");
-		UserProfile job = new UserProfile();
-		ResponseEntity<UserProfile> resEntity = null;
+		ShareJobBean job = new ShareJobBean();
+		ResponseEntity<ShareJobBean> resEntity = null;
 		
 		try {
 			LOGGER.debug("Inside try block of AdminController.shareJob(-)");
-			job = adminService.shareJob(jobId,universityId);
+			job = adminService.shareJob(shareJobBean);
 			LOGGER.info("Status Successfully Updated using AdminController.shareJob(-)");
 			job.setResponse("SHARED");
 			resEntity = new ResponseEntity<>(job,HttpStatus.ACCEPTED);

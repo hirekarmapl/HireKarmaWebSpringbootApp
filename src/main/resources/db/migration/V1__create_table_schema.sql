@@ -123,3 +123,32 @@ CREATE TABLE user_profile (
   user_type varchar(255) DEFAULT NULL,
   PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `share_job_to_university` (
+  `share_job_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `created_by` varchar(255) DEFAULT NULL,
+  `created_on` datetime(6) DEFAULT NULL,
+  `job_id` bigint(20) DEFAULT NULL,
+  `university_id` bigint(20) DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_on` datetime(6) DEFAULT NULL,
+  `job_status` varchar(255) DEFAULT NULL,
+  `rejection_feedback` varchar(255) DEFAULT NULL,
+  `university_response_status` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`share_job_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `university_job_share` (
+  `share_job_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `created_by` varchar(255) DEFAULT NULL,
+  `created_on` datetime(6) DEFAULT NULL,
+  `job_id` bigint(20) DEFAULT NULL,
+  `student_id` bigint(20) DEFAULT NULL,
+  `university_id` bigint(20) DEFAULT NULL,
+  `updated_by` varchar(255) DEFAULT NULL,
+  `updated_on` datetime(6) DEFAULT NULL,
+  `job_status` varchar(255) DEFAULT NULL,
+  `response_feedback` varchar(255) DEFAULT NULL,
+  `student_response_status` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`share_job_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

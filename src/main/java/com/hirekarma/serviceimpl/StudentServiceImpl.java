@@ -37,11 +37,17 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hirekarma.beans.ShareJobBean;
+import com.hirekarma.beans.UniversityJobShareBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.StudentUserDefindException;
+import com.hirekarma.model.ShareJob;
+import com.hirekarma.model.UniversityJobShare;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.StudentService;
+import com.hirekarma.service.UniversityService;
 import com.hirekarma.utilty.ExcelUploadUtil;
 
 @Service("studentServiceImpl")
@@ -60,6 +66,9 @@ public class StudentServiceImpl implements StudentService{
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private UniversityJobShareRepository universityJobShareRepository;
 	
 	@Autowired
 	private RestTemplate restTemplate;
@@ -379,5 +388,35 @@ public class StudentServiceImpl implements StudentService{
 			stringBuilder.append(chars4.charAt(random.nextInt(chars4.length())));
 		}
 		return stringBuilder.toString();
+	}
+
+	@Override
+	public UniversityJobShareBean studentJobResponse(UniversityJobShareBean jobBean) {
+		UniversityJobShareBean jobShareBean = null;
+		UniversityJobShare universityJobShare = null;
+		try {
+			LOGGER.debug("Inside UniversityServiceImpl.universityResponse(-)");
+			Optional<UniversityJobShare> optional = universityJobShareRepository.findById(jobBean.getTableId());
+			universityJobShare = new UniversityJobShare();
+			universityJobShare = optional.get();
+			if (universityJobShare != null) {
+				jobShareBean = new UniversityJobShareBean();
+				universityJobShare.setStudentResponseStatus(jobBean.getStudentResponseStatus());
+				universityJobShare.setFeedBack(jobBean.getFeedBack());
+				universityJobShare.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+				universityJobShare.setUpdatedBy("Biswa");
+				
+				universityJobShareRepository.save(universityJobShare);
+				
+				BeanUtils.copyProperties(universityJobShare, jobShareBean);
+				jobShareBean.setResponse("SUCCESS");
+			}
+			LOGGER.info("Data Updated Successfully In UniversityServiceImpl.universityResponse(-)");
+		} catch (Exception e) {
+			jobShareBean.setResponse("FAILED");
+			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
+			throw e;
+		}
+		return jobShareBean;
 	}
 }

@@ -5,9 +5,11 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hirekarma.beans.JobBean;
 import com.hirekarma.beans.ShareJobBean;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.ShareJob;
@@ -27,8 +29,9 @@ public class AdminServiceImpl implements AdminService {
 	private ShareJobRepository shareJobRepository;
 
 	@Override
-	public Job updateActiveStatus(Long id, String status) {
-		Job job = null;
+	public JobBean updateActiveStatus(Long id, String status) {
+		JobBean jobBean = new JobBean();
+		Job job = new Job();
 		try {
 			LOGGER.debug("Inside AdminServiceImpl.updateActiveStatus(-)");
 			Optional<Job> optional = adminRepository.findById(id);
@@ -38,12 +41,15 @@ public class AdminServiceImpl implements AdminService {
 				job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 				adminRepository.save(job);
 			}
+			BeanUtils.copyProperties(job, jobBean);
+			jobBean.setResponse("UPDATED");
 			LOGGER.info("Data Updated Successfully In AdminServiceImpl.updateActiveStatus(-)");
 		} catch (Exception e) {
+			jobBean.setResponse("FAILED");
 			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)" + e);
 			throw e;
 		}
-		return job;
+		return jobBean;
 	}
 
 	@Override
@@ -60,6 +66,7 @@ public class AdminServiceImpl implements AdminService {
 					ShareJob = new ShareJob();
 					ShareJob.setJobId(shareJobBean.getJobId());
 					ShareJob.setUniversityId(shareJobBean.getUniversityId().get(i));
+					ShareJob.setJobStatus("ACTIVE");
 					ShareJob.setCreatedBy("Biswa");
 					ShareJob.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
 					

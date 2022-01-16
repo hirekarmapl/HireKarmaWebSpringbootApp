@@ -52,7 +52,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.disable()
 			.authorizeRequests()
 			.antMatchers(
-				"/hirekarma/shareJob","/hirekarma/login","/hirekarma/saveStudentUrl",
+//					"/hirekarma/**"
+				"/hirekarma/login","/hirekarma/saveStudentUrl",
 				"/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl",
 				"/hirekarma/oauth2/**"
 			).permitAll()

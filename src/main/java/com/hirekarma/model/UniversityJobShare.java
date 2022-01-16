@@ -17,47 +17,46 @@ import lombok.Data;
 import lombok.ToString;
 
 @Entity
-@Table(name = "SHARE_JOB_TO_UNIVERSITY")
+@Table(name = "UNIVERSITY_JOB_SHARE")
 @Data
 @ToString
-public class ShareJob {
-	
-	private static final long serialVersionUID = 1L;
-	
+public class UniversityJobShare {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
-	@Column(name = "SHARE_JOB_ID")
-	private Long shareJobId;
-	
-	@Column(name = "JOB_ID")
-	private Long jobId;
-	
-	@Column(name = "UNIVERSITY_ID")
-	private Long universityId;
-	
-	@Column(name = "JOB_STATUS")
-	private String jobStatus;
-	
-	@Column(name = "UNIVERSITY_RESPONSE_STATUS")
-	private String universityResponseStatus;
-	
-	@Column(name = "REJECTION_FEEDBACK")
-	private String rejectionFeedback;
-	
-	@CreationTimestamp
-	@Column(name = "CREATED_ON")
-	private Timestamp createdOn;
-	
+	@Column(name = "TABLE_ID")
+	private Long tableId;
+
 	@Column(name = "CREATED_BY")
 	private String createdBy;
-	
-	@Column(name = "UPDATED_ON")
-	private Timestamp updatedOn;
-	
+
+	@Column(name = "CREATED_ON")
+	@CreationTimestamp
+	private Timestamp createdOn;
+
+	@Column(name = "JOB_ID")
+	private Long jobId;
+
+	@Column(name = "STUDENT_ID")
+	private Long studentId;
+
+	@Column(name = "UNIVERSITY_ID")
+	private Long universityId;
+
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
-	
-	
+
+	@Column(name = "UPDATED_ON")
+	private Timestamp updatedOn;
+
+	@Column(name = "JOB_STATUS")
+	private String jobStatus;
+
+	@Column(name = "RESPONSE_FEEDBACK")
+	private String feedBack;
+
+	@Column(name = "STUDENT_RESPONSE_STATUS")
+	private String studentResponseStatus;
 
 }

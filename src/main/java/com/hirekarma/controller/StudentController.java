@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.ShareJobBean;
+import com.hirekarma.beans.UniversityJobShareBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.StudentService;
@@ -216,6 +218,27 @@ public class StudentController {
 			e.printStackTrace();
 			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	
+	@PostMapping("/studentJobResponse")
+	public ResponseEntity<UniversityJobShareBean> studentJobResponse(@RequestBody UniversityJobShareBean jobBean)
+	{
+		LOGGER.debug("Inside StudentController.studentJobResponse(-)");
+		UniversityJobShareBean universityJobShareBean = new UniversityJobShareBean();
+		ResponseEntity<UniversityJobShareBean> responseEntity = null;
+		try {
+			LOGGER.debug("Inside try block of StudentController.studentJobResponse(-)");
+			universityJobShareBean = studentService.studentJobResponse(jobBean);
+			LOGGER.info("Response Successfully Updated using UniversityController.studentJobResponse(-)");
+			responseEntity = new ResponseEntity<>(universityJobShareBean,HttpStatus.ACCEPTED);
+		}
+		catch (Exception e) {
+			LOGGER.error("Response Updation failed in StudentController.studentJobResponse(-): "+e);
+			e.printStackTrace();
+			responseEntity =  new ResponseEntity<>(universityJobShareBean,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return  responseEntity;
 	}
 
 }

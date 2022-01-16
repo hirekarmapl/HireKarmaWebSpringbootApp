@@ -16,6 +16,12 @@ public class ShareJobBean {
 	
 	private List<Long> universityId;
 	
+	private String jobStatus;
+	
+	private String universityResponseStatus;
+	
+	private String rejectionFeedback;
+	
 	private Timestamp createdOn;
 	
 	private String createdBy;

@@ -15,41 +15,36 @@ import org.hibernate.annotations.CreationTimestamp;
 import com.sun.istack.NotNull;
 
 import lombok.Data;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "SHARE_JOB_TO_UNIVERSITY")
 @Data
-@ToString
-public class ShareJob implements Serializable{
+@NoArgsConstructor
+@Entity
+@Table(name = "SCREENING_QUESTIONS")
+public class ScreeningQuestions implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
-	@Column(name = "SHARE_JOB_ID")
-	private Long shareJobId;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "QUESTIONS_ID")
+	private Long questionsId;
 	
-	@Column(name = "JOB_ID")
-	private Long jobId;
+	@Column(name = "SCREENING_ID")
+	private Long screeningId;
 	
-	@Column(name = "UNIVERSITY_ID")
-	private Long universityId;
+	@Column(name = "QUESTIONS")
+	private String questions;
 	
-	@CreationTimestamp
+	@Column(name = "STATUS")
+	private String status;
+	
 	@Column(name = "CREATED_ON")
+	@CreationTimestamp
 	private Timestamp createdOn;
-	
-	@Column(name = "CREATED_BY")
-	private String createdBy;
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
-	
-	@Column(name = "UPDATED_BY")
-	private String updatedBy;
-	
-	
 
 }

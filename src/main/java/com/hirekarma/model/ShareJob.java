@@ -1,5 +1,6 @@
 package com.hirekarma.model;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
@@ -20,7 +21,7 @@ import lombok.ToString;
 @Table(name = "SHARE_JOB_TO_UNIVERSITY")
 @Data
 @ToString
-public class ShareJob {
+public class ShareJob implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	

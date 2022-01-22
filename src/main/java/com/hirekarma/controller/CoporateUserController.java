@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.CoporateUserService;
@@ -27,12 +29,12 @@ import com.hirekarma.service.CoporateUserService;
 @CrossOrigin
 @RequestMapping("/hirekarma/")
 public class CoporateUserController {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoporateUserController.class);
-	
+
 	@Autowired
 	private CoporateUserService coporateUserService;
-	
+
 //	@PostMapping("/saveCoporateUrl")
 //	public ResponseEntity<CoporateUserBean> createUser(@RequestBody CoporateUserBean coporateUserBean) {
 //		LOGGER.debug("Inside CoporateUserController.createUser(-)");
@@ -56,31 +58,30 @@ public class CoporateUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@PostMapping("/saveCorporateUrl")
 	public ResponseEntity<UserBean> createUser(@RequestBody UserBean bean) {
 		LOGGER.debug("Inside CoporateUserController.createUser(-)");
-		UserProfile userProfile=null;
-		UserProfile userProfileReturn=null;
-		UserBean userBean=null;
+		UserProfile userProfile = null;
+		UserProfile userProfileReturn = null;
+		UserBean userBean = null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.createUser(-)");
-			userProfile=new UserProfile();
-			userBean=new UserBean();
+			userProfile = new UserProfile();
+			userBean = new UserBean();
 			BeanUtils.copyProperties(bean, userProfile);
-			userProfileReturn=coporateUserService.insert(userProfile);
+			userProfileReturn = coporateUserService.insert(userProfile);
 			LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
-			BeanUtils.copyProperties(userProfileReturn,userBean);
+			BeanUtils.copyProperties(userProfileReturn, userBean);
 			userBean.setPassword(null);
-			return new ResponseEntity<>(userBean,HttpStatus.CREATED);
-		}
-		catch (Exception e) {
-			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): "+e);
+			return new ResponseEntity<>(userBean, HttpStatus.CREATED);
+		} catch (Exception e) {
+			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 //	@PostMapping("/checkCopporateLoginCredentials")
 //	public ResponseEntity<CoporateUserBean> checkLoginCredentials(@RequestBody LoginBean loginBean) {
 //		LOGGER.debug("Inside CoporateUserController.checkLoginCredentials(-)");
@@ -104,7 +105,7 @@ public class CoporateUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 //	@PutMapping(value = "/updateCoporateUserProfile")
 //	public ResponseEntity<CoporateUserBean> updateCoporateUserProfile(@ModelAttribute CoporateUserBean coporateUserBean){
 //		LOGGER.debug("Inside CoporateUserController.updateCoporateUserProfile(-)");
@@ -136,62 +137,95 @@ public class CoporateUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@PutMapping(value = "/updateCoporateUserProfile")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<UserBean> updateCoporateUserProfile(@ModelAttribute UserBean bean){
+	public ResponseEntity<UserBean> updateCoporateUserProfile(@ModelAttribute UserBean bean) {
 		LOGGER.debug("Inside CoporateUserController.updateCoporateUserProfile(-)");
-		UserBean userBean=null;
-		byte[] image=null;
+		UserBean userBean = null;
+		byte[] image = null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.updateCoporateUserProfile(-)");
-			image=bean.getFile().getBytes();
+			image = bean.getFile().getBytes();
 			bean.setImage(image);
-			userBean=coporateUserService.updateCoporateUserProfile(bean);
-			if(userBean!=null) {
-				LOGGER.info("Coporate details successfully updated in CoporateUserController.updateCoporateUserProfile(-)");
+			userBean = coporateUserService.updateCoporateUserProfile(bean);
+			if (userBean != null) {
+				LOGGER.info(
+						"Coporate details successfully updated in CoporateUserController.updateCoporateUserProfile(-)");
 				userBean.setPassword(null);
-				return new ResponseEntity<>(userBean,HttpStatus.OK);
-			}
-			else {
+				return new ResponseEntity<>(userBean, HttpStatus.OK);
+			} else {
 				LOGGER.info("Coporate details not found in CoporateUserController.updateCoporateUserProfile(-)");
-				return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
-		}
-		catch (IOException e) {
-			LOGGER.error("Problem occured during image to byte[] conversion in CoporateUserController.updateCoporateUserProfile(-): "+e);
+		} catch (IOException e) {
+			LOGGER.error(
+					"Problem occured during image to byte[] conversion in CoporateUserController.updateCoporateUserProfile(-): "
+							+ e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		catch (Exception e) {
-			LOGGER.error("Some problem occured in CoporateUserController.updateCoporateUserProfile(-): "+e);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			LOGGER.error("Some problem occured in CoporateUserController.updateCoporateUserProfile(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@GetMapping(value = "/findCorporateById/{corpUserId}")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<UserBean> findCorporateById(@PathVariable Long corpUserId){
+	public ResponseEntity<UserBean> findCorporateById(@PathVariable Long corpUserId) {
 		LOGGER.debug("Inside CoporateUserController.findCorporateById(-)");
-		UserBean userBean=null;
+		UserBean userBean = null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.findCorporateById(-)");
-			userBean=coporateUserService.findCorporateById(corpUserId);
-			if(userBean!=null) {
+			userBean = coporateUserService.findCorporateById(corpUserId);
+			if (userBean != null) {
 				LOGGER.info("Corporate details get in CoporateUserController.findCorporateById(-)");
 				userBean.setPassword(null);
-				return new ResponseEntity<>(userBean,HttpStatus.OK);
-			}
-			else {
+				return new ResponseEntity<>(userBean, HttpStatus.OK);
+			} else {
 				LOGGER.info("Coporate details not found in CoporateUserController.findCorporateById(-)");
-				return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
-		}
-		catch (Exception e) {
-			LOGGER.error("Some problem occured in CoporateUserController.findCorporateById(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Some problem occured in CoporateUserController.findCorporateById(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	@PostMapping("/corporateCampusResponse")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<?> corporateCampusResponse(@RequestBody CampusDriveResponseBean campus) {
+
+		LOGGER.debug("Inside CoporateUserController.corporateCampusResponse(-)");
+
+		CampusDriveResponseBean driveResponseBean = new CampusDriveResponseBean();
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+
+		try {
+			LOGGER.debug("Inside try block of CoporateUserController.corporateCampusResponse(-)");
+
+			driveResponseBean = coporateUserService.corporateCampusResponse(campus);
+
+			LOGGER.info("Status Successfully Updated using CoporateUserController.corporateCampusResponse(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Request Accepted Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(driveResponseBean);
+
+		} catch (Exception e) {
+			LOGGER.error("Status Updation failed in CoporateUserController.corporateCampusResponse(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
 	}
 }

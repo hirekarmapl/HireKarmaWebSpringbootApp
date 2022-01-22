@@ -8,9 +8,9 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class UniversityJobShareBean {
+public class UniversityJobShareToStudentBean {
 
-	private Long tableId;
+	private Long id;
 
 	private String createdBy;
 
@@ -26,12 +26,16 @@ public class UniversityJobShareBean {
 
 	private Timestamp updatedOn;
 
-	private String jobStatus;
+	private Boolean jobStatus;
 
 	private String feedBack;
 
-	private String studentResponseStatus;
+	private Boolean studentResponseStatus;
 	
 	private String response;
+	
+	private String token;
+	
+	private String tokenKey;
 
 }

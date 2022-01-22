@@ -19,37 +19,43 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
+import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Organization;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.OrganizationRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.CoporateUserService;
 
 @Service("coporateUserService")
-public class CoporateUserServiceImpl implements CoporateUserService{
+public class CoporateUserServiceImpl implements CoporateUserService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoporateUserServiceImpl.class);
-	
+
 //	@Autowired
 //	private CoporateUserRepository coporateUserRepository;
-	
+
 	@Autowired
 	private OrganizationRepository organizationRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
+	@Autowired
+	private CampusDriveResponseRepository campusDriveResponseRepository;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
 	@Value("${mail.service.welcomeUrl}")
 	private String welcomeUrl;
-	
+
 	@Value("${mail.service.getStarted}")
 	private String getStarted;
 
@@ -80,39 +86,38 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 //			throw new CoporateUserDefindException(e.getMessage());
 //		}
 //	}
-	
+
 	@Override
 	public UserProfile insert(UserProfile userProfile) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.insert(-)");
-		UserProfile user=null;
-		Organization organization=null;
-		HttpHeaders headers=null;
-		Map<String,String> body=null;
-		String reqBodyData=null;
-		HttpEntity<String> requestEntity=null;
+		UserProfile user = null;
+		Organization organization = null;
+		HttpHeaders headers = null;
+		Map<String, String> body = null;
+		String reqBodyData = null;
+		HttpEntity<String> requestEntity = null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.insert(-)");
 			userProfile.setUserType("corporate");
 			userProfile.setStatus("Active");
 			userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
-			user=userRepository.save(userProfile);
-			organization=new Organization();
+			user = userRepository.save(userProfile);
+			organization = new Organization();
 			organization.setUserId(user.getUserId());
 			organization.setStatus("Active");
 			organizationRepository.save(organization);
-			headers=new HttpHeaders();
+			headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			body=new HashMap<String,String>();
+			body = new HashMap<String, String>();
 			body.put("email", userProfile.getEmail());
-			reqBodyData=new ObjectMapper().writeValueAsString(body);
-			requestEntity=new HttpEntity<String>(reqBodyData,headers);
-			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
-			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
+			reqBodyData = new ObjectMapper().writeValueAsString(body);
+			requestEntity = new HttpEntity<String>(reqBodyData, headers);
+//			restTemplate.exchange(welcomeUrl, HttpMethod.POST, requestEntity, String.class);
+//			restTemplate.exchange(getStarted, HttpMethod.POST, requestEntity, String.class);
 			LOGGER.info("Data successfully saved using CoporateUserServiceImpl.insert(-)");
 			return user;
-		}
-		catch (Exception e) {
-			LOGGER.error("Data Insertion failed using CoporateUserServiceImpl.insert(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Data Insertion failed using CoporateUserServiceImpl.insert(-): " + e);
 			throw new CoporateUserDefindException(e.getMessage());
 		}
 	}
@@ -178,36 +183,35 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 //			throw new CoporateUserDefindException(e.getMessage());
 //		}
 //	}
-	
+
 	@Override
 	public UserBean updateCoporateUserProfile(UserBean bean) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.updateCoporateUserProfile(-)");
-		UserProfile user=null;
-		UserProfile userReturn=null;
-		Optional<UserProfile> optional=null;
-		UserBean userBean=null;
+		UserProfile user = null;
+		UserProfile userReturn = null;
+		Optional<UserProfile> optional = null;
+		UserBean userBean = null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.updateCoporateUserProfile(-)");
-			optional=userRepository.findById(bean.getUserId());
-			if(!optional.isEmpty()) {
-				user=optional.get();
-				if(user!=null) {
+			optional = userRepository.findById(bean.getUserId());
+			if (!optional.isEmpty()) {
+				user = optional.get();
+				if (user != null) {
 					user.setName(bean.getName());
 					user.setEmail(bean.getEmail());
 					user.setPhoneNo(bean.getPhoneNo());
 					user.setImage(bean.getImage());
 					user.setAddress(bean.getAddress());
 					user.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-					userReturn=userRepository.save(user);
-					userBean=new UserBean();
+					userReturn = userRepository.save(user);
+					userBean = new UserBean();
 					BeanUtils.copyProperties(userReturn, userBean);
 					LOGGER.info("Data Successfully updated using CoporateUserServiceImpl.updateCoporateUserProfile(-)");
 				}
 			}
 			return userBean;
-		}
-		catch (Exception e) {
-			LOGGER.error("Error occured in CoporateUserServiceImpl.updateCoporateUserProfile(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Error occured in CoporateUserServiceImpl.updateCoporateUserProfile(-): " + e);
 			throw new CoporateUserDefindException(e.getMessage());
 		}
 	}
@@ -236,30 +240,71 @@ public class CoporateUserServiceImpl implements CoporateUserService{
 //			throw new CoporateUserDefindException(e.getMessage());
 //		}
 //	}
-	
+
 	@Override
 	public UserBean findCorporateById(Long userId) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.findCorporateById(-)");
-		UserProfile user=null;
-		Optional<UserProfile> optional=null;
-		UserBean userBean=null;
+		UserProfile user = null;
+		Optional<UserProfile> optional = null;
+		UserBean userBean = null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.findCorporateById(-)");
-			optional=userRepository.findById(userId);
-			if(!optional.isEmpty()) {
-				user=optional.get();
-				if(user!=null) {
-					userBean=new UserBean();
+			optional = userRepository.findById(userId);
+			if (!optional.isEmpty()) {
+				user = optional.get();
+				if (user != null) {
+					userBean = new UserBean();
 					BeanUtils.copyProperties(user, userBean);
 					LOGGER.info("Data Successfully fetched using CoporateUserServiceImpl.findCorporateById(-)");
 				}
 			}
 			return userBean;
-		}
-		catch (Exception e) {
-			LOGGER.error("Error occured in CoporateUserServiceImpl.findCorporateById(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Error occured in CoporateUserServiceImpl.findCorporateById(-): " + e);
 			throw new CoporateUserDefindException(e.getMessage());
 		}
+	}
+
+	@Override
+	public CampusDriveResponseBean corporateCampusResponse(CampusDriveResponseBean campus) {
+
+		CampusDriveResponseBean driveResponseBean = new CampusDriveResponseBean();
+		CampusDriveResponse driveResponse = null;
+
+		try {
+			LOGGER.debug("Inside CoporateUserServiceImpl.corporateCampusResponse(-)");
+
+			if (campus != null) {
+				Optional<CampusDriveResponse> optional = campusDriveResponseRepository
+						.findById(campus.getCampusDriveId());
+				driveResponse = new CampusDriveResponse();
+				driveResponse = optional.get();
+
+				if (driveResponse != null) {
+
+					driveResponse.setCorporateResponse(campus.getCorporateResponse());
+					driveResponse.setCorporateResponseOn(new Timestamp(new java.util.Date().getTime()));
+
+					campusDriveResponseRepository.save(driveResponse);
+
+					BeanUtils.copyProperties(driveResponse, driveResponseBean);
+
+				} else {
+					throw new CoporateUserDefindException("No Data Found !!");
+				}
+
+			} else {
+				throw new CoporateUserDefindException("Request can't Be Null !!");
+			}
+
+			LOGGER.info("Data Updated Successfully In CoporateUserServiceImpl.corporateCampusResponse(-)");
+
+		} catch (Exception e) {
+
+			LOGGER.info("Data Updatation Failed In CoporateUserServiceImpl.corporateCampusResponse(-)" + e);
+			throw e;
+		}
+		return driveResponseBean;
 	}
 
 }

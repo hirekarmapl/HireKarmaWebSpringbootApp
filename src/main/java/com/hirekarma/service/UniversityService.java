@@ -1,12 +1,18 @@
 package com.hirekarma.service;
 
-import com.hirekarma.beans.ShareJobBean;
-import com.hirekarma.beans.UniversityJobShareBean;
+import java.util.Map;
+
+import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.UniversityJobShareToStudentBean;
 
 public interface UniversityService {
 
-	ShareJobBean universityResponse(ShareJobBean jobBean);
+	Map<String, Object> universityResponse(AdminShareJobToUniversityBean jobBean);
 
-	UniversityJobShareBean shareJobStudent(UniversityJobShareBean universityJobShareBean);
+	Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
+			throws Exception;
+
+	CampusDriveResponseBean campusDriveRequest(CampusDriveResponseBean campus);
 
 }

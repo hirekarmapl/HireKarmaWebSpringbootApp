@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -37,12 +38,13 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hirekarma.beans.ShareJobBean;
-import com.hirekarma.beans.UniversityJobShareBean;
+import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.StudentUserDefindException;
-import com.hirekarma.model.ShareJob;
-import com.hirekarma.model.UniversityJobShare;
+import com.hirekarma.exception.UniversityJobShareToStudentException;
+import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UserRepository;
@@ -391,28 +393,31 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	@Override
-	public UniversityJobShareBean studentJobResponse(UniversityJobShareBean jobBean) {
-		UniversityJobShareBean jobShareBean = null;
-		UniversityJobShare universityJobShare = null;
+	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean) {
+		UniversityJobShareToStudentBean jobShareBean = new UniversityJobShareToStudentBean();
+		UniversityJobShareToStudent universityJobShareToStudent = null;
 		try {
 			LOGGER.debug("Inside UniversityServiceImpl.universityResponse(-)");
-			Optional<UniversityJobShare> optional = universityJobShareRepository.findById(jobBean.getTableId());
-			universityJobShare = new UniversityJobShare();
-			universityJobShare = optional.get();
-			if (universityJobShare != null) {
-				jobShareBean = new UniversityJobShareBean();
-				universityJobShare.setStudentResponseStatus(jobBean.getStudentResponseStatus());
-				universityJobShare.setFeedBack(jobBean.getFeedBack());
-				universityJobShare.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-				universityJobShare.setUpdatedBy("Biswa");
+			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getId());
+			universityJobShareToStudent = new UniversityJobShareToStudent();
+			universityJobShareToStudent = optional.get();
+			if (universityJobShareToStudent != null) {
 				
-				universityJobShareRepository.save(universityJobShare);
+				universityJobShareToStudent.setStudentResponseStatus(jobBean.getStudentResponseStatus());
+				universityJobShareToStudent.setFeedBack(jobBean.getFeedBack());
+				universityJobShareToStudent.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+				universityJobShareToStudent.setUpdatedBy("Biswa");
 				
-				BeanUtils.copyProperties(universityJobShare, jobShareBean);
-				jobShareBean.setResponse("SUCCESS");
+				universityJobShareRepository.save(universityJobShareToStudent);
+				
+				BeanUtils.copyProperties(universityJobShareToStudent, jobShareBean);
 			}
 			LOGGER.info("Data Updated Successfully In UniversityServiceImpl.universityResponse(-)");
-		} catch (Exception e) {
+		
+		}catch (NoSuchElementException e) {
+			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
+			throw new UniversityJobShareToStudentException("Please Re-Check This Job May Not Be Available Now !!");
+		}catch (Exception e) {
 			jobShareBean.setResponse("FAILED");
 			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
 			throw e;

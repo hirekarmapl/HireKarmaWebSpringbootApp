@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class ShareJobBean {
+public class AdminShareJobToUniversityBean {
 	
 	private Long shareJobId;
 	
@@ -18,7 +18,7 @@ public class ShareJobBean {
 	
 	private String jobStatus;
 	
-	private String universityResponseStatus;
+	private Boolean universityResponseStatus;
 	
 	private String rejectionFeedback;
 	
@@ -31,6 +31,8 @@ public class ShareJobBean {
 	private String updatedBy;
 	
 	private String response;
+	
+	private Long toatlSharedJob;
 
 
 }

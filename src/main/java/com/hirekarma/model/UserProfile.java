@@ -21,64 +21,61 @@ import com.hirekarma.beans.AuthenticationProvider;
 import com.sun.istack.NotNull;
 
 @Entity
-@Table(name="USER_PROFILE")
-public class UserProfile  implements Serializable {
-	
+@Table(name = "USER_PROFILE")
+public class UserProfile implements Serializable {
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
 	@Column(name = "USER_ID")
 	private Long userId;
-	
+
 	@Column(name = "NAME")
 	private String name;
-	
-	@Column(name="EMAIL")
+
+	@Column(name = "EMAIL")
 	private String email;
-	
-	@Column(name="UNIVERSITY_EMAIL_ADDRESS")
+
+	@Column(name = "UNIVERSITY_EMAIL_ADDRESS")
 	private String universityEmailAddress;
-	
-	@Column(name="PHONE_NO")
+
+	@Column(name = "PHONE_NO")
 	private String phoneNo;
-	
+
 	@Lob
-    @Column(name = "IMAGE")
-    private byte[] image;
-	
+	@Column(name = "IMAGE")
+	private byte[] image;
+
 	@Column(name = "USER_TYPE")
 	private String userType;
-	
+
 	@Column(name = "PASSWORD")
 	private String password;
-	
+
 	@Column(name = "UNIVERSITY_ADDRESS")
 	private String address;
-	
+
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
-	
+
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 
 	@Column(name = "STATUS")
 	private String status;
-	
+
 	@Column(name = "share_job_id")
 	private Long shareJobId;
-	
+
 	@Transient
 	private String response;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "AUTH_PROVIDER")
 	private AuthenticationProvider authProvider;
-	
-	
-	
 
 	public String getResponse() {
 		return response;
@@ -192,7 +189,6 @@ public class UserProfile  implements Serializable {
 		this.status = status;
 	}
 
-	
 	public AuthenticationProvider getAuthProvider() {
 		return authProvider;
 	}
@@ -213,5 +209,4 @@ public class UserProfile  implements Serializable {
 				+ ", updatedOn=" + updatedOn + ", status=" + status + ", authProvider=" + authProvider + "]";
 	}
 
-	
 }

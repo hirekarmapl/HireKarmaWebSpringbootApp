@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hirekarma.beans.ShareJobBean;
-import com.hirekarma.beans.UniversityJobShareBean;
+import com.hirekarma.beans.Response;
+import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.StudentService;
@@ -222,21 +222,33 @@ public class StudentController {
 	
 	
 	@PostMapping("/studentJobResponse")
-	public ResponseEntity<UniversityJobShareBean> studentJobResponse(@RequestBody UniversityJobShareBean jobBean)
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> studentJobResponse(@RequestBody UniversityJobShareToStudentBean jobBean)
 	{
 		LOGGER.debug("Inside StudentController.studentJobResponse(-)");
-		UniversityJobShareBean universityJobShareBean = new UniversityJobShareBean();
-		ResponseEntity<UniversityJobShareBean> responseEntity = null;
+		UniversityJobShareToStudentBean universityJobShareToStudentBean = new UniversityJobShareToStudentBean();
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of StudentController.studentJobResponse(-)");
-			universityJobShareBean = studentService.studentJobResponse(jobBean);
+			universityJobShareToStudentBean = studentService.studentJobResponse(jobBean);
 			LOGGER.info("Response Successfully Updated using UniversityController.studentJobResponse(-)");
-			responseEntity = new ResponseEntity<>(universityJobShareBean,HttpStatus.ACCEPTED);
+			
+			responseEntity = new ResponseEntity<>(response,HttpStatus.ACCEPTED);
+			
+			response.setMessage("Job Shared Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(universityJobShareToStudentBean);
+			
 		}
 		catch (Exception e) {
 			LOGGER.error("Response Updation failed in StudentController.studentJobResponse(-): "+e);
 			e.printStackTrace();
-			responseEntity =  new ResponseEntity<>(universityJobShareBean,HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity =  new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
 		return  responseEntity;
 	}

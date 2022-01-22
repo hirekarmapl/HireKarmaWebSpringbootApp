@@ -92,8 +92,8 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 			body.put("email", universityUser.getEmail());
 			reqBodyData=new ObjectMapper().writeValueAsString(body);
 			requestEntity=new HttpEntity<String>(reqBodyData,headers);
-			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
-			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
+//			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
+//			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
 			LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
 			return sityUser;	
 					

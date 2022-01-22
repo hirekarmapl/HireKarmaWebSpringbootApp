@@ -20,7 +20,7 @@ public class JobBean {
 	private String about;
 	private String description;
 	private byte[] descriptionFile;
-	private String status;
+	private boolean status;
 	private String deleteStatus;
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
@@ -105,10 +105,10 @@ public class JobBean {
 	public void setDescriptionFile(byte[] descriptionFile) {
 		this.descriptionFile = descriptionFile;
 	}
-	public String getStatus() {
+	public boolean isStatus() {
 		return status;
 	}
-	public void setStatus(String status) {
+	public void setStatus(boolean status) {
 		this.status = status;
 	}
 	public String getDeleteStatus() {

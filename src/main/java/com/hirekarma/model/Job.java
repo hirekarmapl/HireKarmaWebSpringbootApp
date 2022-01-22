@@ -66,7 +66,7 @@ public class Job implements Serializable{
 	private byte[] descriptionFile;
 	
 	@Column(name = "STATUS")
-	private String status;
+	private boolean status;
 	
 	@Column(name = "DELETE_STATUS")
 	private String deleteStatus;
@@ -182,12 +182,16 @@ public class Job implements Serializable{
 		this.descriptionFile = descriptionFile;
 	}
 
-	public String getStatus() {
+	public boolean isStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(boolean status) {
 		this.status = status;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	public String getDeleteStatus() {

@@ -1,6 +1,10 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -9,11 +13,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hirekarma.beans.JobBean;
-import com.hirekarma.beans.ShareJobBean;
+import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.exception.JobException;
+import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Job;
-import com.hirekarma.model.ShareJob;
-import com.hirekarma.repository.AdminRepository;
+import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ShareJobRepository;
 import com.hirekarma.service.AdminService;
 
@@ -23,63 +27,99 @@ public class AdminServiceImpl implements AdminService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminServiceImpl.class);
 
 	@Autowired
-	private AdminRepository adminRepository;
-
-	@Autowired
 	private ShareJobRepository shareJobRepository;
 
+	@Autowired
+	private JobRepository jobRepository;
+
 	@Override
-	public JobBean updateActiveStatus(Long id, String status) {
-		JobBean jobBean = new JobBean();
+	public Map<String, Object> updateActiveStatus(Long id, boolean status) {
+
 		Job job = new Job();
+		Map<String, Object> response = new HashMap<String, Object>();
+
 		try {
 			LOGGER.debug("Inside AdminServiceImpl.updateActiveStatus(-)");
-			Optional<Job> optional = adminRepository.findById(id);
+
+			Optional<Job> optional = jobRepository.findById(id);
+
 			job = optional.get();
+
 			if (job != null) {
+
 				job.setStatus(status);
 				job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-				adminRepository.save(job);
+
+				jobRepository.save(job);
+
+			} else {
+				throw new JobException("Job Value Can't Be Null !!");
 			}
-			BeanUtils.copyProperties(job, jobBean);
-			jobBean.setResponse("UPDATED");
+
+			response.put("activeJob", job);
+
 			LOGGER.info("Data Updated Successfully In AdminServiceImpl.updateActiveStatus(-)");
-		} catch (Exception e) {
-			jobBean.setResponse("FAILED");
+		}
+
+		catch (Exception e) {
 			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)" + e);
 			throw e;
 		}
-		return jobBean;
+		return response;
 	}
 
 	@Override
-	public ShareJobBean shareJob(ShareJobBean shareJobBean) {
-		ShareJobBean user = null;
-		ShareJob ShareJob = null;
+	public Map<String, Object> shareJob(AdminShareJobToUniversityBean adminShareJobToUniversityBean) {
+
+		AdminShareJobToUniversityBean user = new AdminShareJobToUniversityBean();
+		AdminShareJobToUniversity AdminShareJobToUniversity = null;
+		List<AdminShareJobToUniversity> list = new ArrayList<AdminShareJobToUniversity>();
+		Job job = new Job();
+		Long count = 0L;
+
+		Map<String, Object> response = new HashMap<String, Object>();
+
 		try {
 			LOGGER.debug("Inside AdminServiceImpl.shareJob(-)");
-			if (shareJobBean.getUniversityId().size() != 0) {
-				user = new ShareJobBean();
-				
-				for (int i = 0; i < shareJobBean.getUniversityId().size(); i++) {
-					System.out.println("\n\n************"+shareJobBean.getUniversityId().get(i)+"***************");
-					ShareJob = new ShareJob();
-					ShareJob.setJobId(shareJobBean.getJobId());
-					ShareJob.setUniversityId(shareJobBean.getUniversityId().get(i));
-					ShareJob.setJobStatus("ACTIVE");
-					ShareJob.setCreatedBy("Biswa");
-					ShareJob.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
-					
-					shareJobRepository.save(ShareJob);
+			Optional<Job> optional = jobRepository.findById(adminShareJobToUniversityBean.getJobId());
+			job = optional.get();
+			if (job != null) {
+				if (adminShareJobToUniversityBean.getUniversityId().size() != 0) {
+
+					for (int i = 0; i < adminShareJobToUniversityBean.getUniversityId().size(); i++) {
+						count++;
+						System.out.println("\n\n************" + adminShareJobToUniversityBean.getUniversityId().get(i)
+								+ "***************");
+						AdminShareJobToUniversity = new AdminShareJobToUniversity();
+						AdminShareJobToUniversity.setJobId(adminShareJobToUniversityBean.getJobId());
+						AdminShareJobToUniversity
+								.setUniversityId(adminShareJobToUniversityBean.getUniversityId().get(i));
+						AdminShareJobToUniversity.setJobStatus("ACTIVE");
+						AdminShareJobToUniversity.setCreatedBy("Biswa");
+						AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
+
+						shareJobRepository.save(AdminShareJobToUniversity);
+						BeanUtils.copyProperties(AdminShareJobToUniversity, user);
+						list.add(AdminShareJobToUniversity);
+					}
+					user.setToatlSharedJob(count);
+					user.setResponse("SHARED");
+				} else {
+					throw new JobException("No University Selected !!");
 				}
-				user.setResponse("SHARED");
+			} else {
+				throw new JobException("No Job Selected !!");
 			}
+
+			response.put("shareJob", list);
+			response.put("totalSharedJob", count);
 
 		} catch (Exception e) {
 			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)" + e);
 			throw e;
 		}
-		return user;
+
+		return response;
 	}
 
 }

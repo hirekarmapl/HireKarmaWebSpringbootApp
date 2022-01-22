@@ -39,15 +39,15 @@ import com.hirekarma.utilty.StudentDataExcelGenerator;
 @CrossOrigin
 @RequestMapping("/hirekarma/")
 public class UniversityUserController {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniversityUserController.class);
-	
+
 	@Autowired
 	private UniversityUserService universityUserService;
-	
+
 	@Autowired
 	private StudentService studentService;
-	
+
 //	@PostMapping("/universitySaveUrl")
 //	public ResponseEntity<UniversityUserBean> createUser(@RequestBody UniversityUserBean universityUserBean){
 //		LOGGER.debug("Inside UniversityUserController.createUser(-)");
@@ -70,30 +70,29 @@ public class UniversityUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}	
 //	}
-	
+
 	@PostMapping("/universitySaveUrl")
-	public ResponseEntity<UserBean> createUser(@RequestBody UserBean universityUserBean){
+	public ResponseEntity<UserBean> createUser(@RequestBody UserBean universityUserBean) {
 		LOGGER.debug("Inside UniversityUserController.createUser(-)");
-		UserProfile universityUser=null;
-		UserProfile universityUserReturn=null;
-		UserBean userBean=null;	
+		UserProfile universityUser = null;
+		UserProfile universityUserReturn = null;
+		UserBean userBean = null;
 		try {
 			LOGGER.debug("Inside try block of UniversityUserController.createUser(-)");
-			universityUser=new UserProfile();
-			userBean=new UserBean();
+			universityUser = new UserProfile();
+			userBean = new UserBean();
 			BeanUtils.copyProperties(universityUserBean, universityUser);
-			universityUserReturn=universityUserService.insert(universityUser);
-			BeanUtils.copyProperties(universityUserReturn,userBean);
+			universityUserReturn = universityUserService.insert(universityUser);
+			BeanUtils.copyProperties(universityUserReturn, userBean);
 			LOGGER.info("Data successfully saved using UniversityUserController.createUser(-)");
-			return new ResponseEntity<>(userBean,HttpStatus.CREATED);
-		}
-		catch (Exception e){
-			LOGGER.error("Data saving failed in UniversityUserController.createUser(-): "+e);
+			return new ResponseEntity<>(userBean, HttpStatus.CREATED);
+		} catch (Exception e) {
+			LOGGER.error("Data saving failed in UniversityUserController.createUser(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-		}	
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
+
 //	@PostMapping("/checkLoginCredentials")
 //	public ResponseEntity<UniversityUserBean> checkLoginCredentials(@RequestBody LoginBean loginBean) {
 //		LOGGER.debug("Inside UniversityUserController.checkLoginCredentials(-)");
@@ -116,7 +115,7 @@ public class UniversityUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);	
 //		}
 //	}
-	
+
 //	@PutMapping(value = "/updateUniversityUserProfile")
 //	public ResponseEntity<UniversityUserBean> updateUniversityUserProfile(@ModelAttribute UniversityUserBean universityUserBean){
 //		LOGGER.debug("Inside UniversityUserController.updateUniversityUserProfile(-)");
@@ -148,40 +147,40 @@ public class UniversityUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@PutMapping(value = "/updateUniversityUserProfile")
 	@PreAuthorize("hasRole('university')")
-	public ResponseEntity<UserBean> updateUniversityUserProfile(@ModelAttribute UserBean universityUserBean){
+	public ResponseEntity<UserBean> updateUniversityUserProfile(@ModelAttribute UserBean universityUserBean) {
 		LOGGER.debug("Inside UniversityUserController.updateUniversityUserProfile(-)");
-		UserBean userBean=null;
-		byte[] image=null;
+		UserBean userBean = null;
+		byte[] image = null;
 		try {
 			LOGGER.debug("Inside try block of UniversityUserController.updateUniversityUserProfile(-)");
-			image=universityUserBean.getFile().getBytes();
+			image = universityUserBean.getFile().getBytes();
 			universityUserBean.setImage(image);
-			userBean=universityUserService.updateUniversityUserProfile(universityUserBean);
-			if(userBean!=null) {
-				LOGGER.info("Coporate details successfully updated in UniversityUserController.updateUniversityUserProfile(-)");
+			userBean = universityUserService.updateUniversityUserProfile(universityUserBean);
+			if (userBean != null) {
+				LOGGER.info(
+						"Coporate details successfully updated in UniversityUserController.updateUniversityUserProfile(-)");
 				userBean.setPassword(null);
-				return new ResponseEntity<>(userBean,HttpStatus.OK);
-			}
-			else {
+				return new ResponseEntity<>(userBean, HttpStatus.OK);
+			} else {
 				LOGGER.info("Coporate details not found in UniversityUserController.updateUniversityUserProfile(-)");
-				return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
-		}
-		catch (IOException e) {
-			LOGGER.error("Problem occured during image to byte[] conversion in UniversityUserController.updateUniversityUserProfile(-): "+e);
+		} catch (IOException e) {
+			LOGGER.error(
+					"Problem occured during image to byte[] conversion in UniversityUserController.updateUniversityUserProfile(-): "
+							+ e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		catch (Exception e) {
-			LOGGER.error("Some problem occured in UniversityUserController.updateUniversityUserProfile(-): "+e);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			LOGGER.error("Some problem occured in UniversityUserController.updateUniversityUserProfile(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 //	@GetMapping(value = "/findUniversityById/{universityId}")
 //	public ResponseEntity<UniversityUserBean> findUniversityById(@PathVariable Long universityId){
 //		LOGGER.debug("Inside UniversityUserController.findUniversityById(-)");
@@ -205,32 +204,30 @@ public class UniversityUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@GetMapping(value = "/findUniversityById/{universityId}")
 	@PreAuthorize("hasRole('university')")
-	public ResponseEntity<UserBean> findUniversityById(@PathVariable Long universityId){
+	public ResponseEntity<UserBean> findUniversityById(@PathVariable Long universityId) {
 		LOGGER.debug("Inside UniversityUserController.findUniversityById(-)");
-		UserBean userBean=null;
+		UserBean userBean = null;
 		try {
 			LOGGER.debug("Inside try block of UniversityUserController.findUniversityById(-)");
-			userBean=universityUserService.findUniversityById(universityId);
-			if(userBean!=null) {
+			userBean = universityUserService.findUniversityById(universityId);
+			if (userBean != null) {
 				LOGGER.info("University details get in UniversityUserController.findUniversityById(-)");
 				userBean.setPassword(null);
-				return new ResponseEntity<>(userBean,HttpStatus.OK);
-			}
-			else {
+				return new ResponseEntity<>(userBean, HttpStatus.OK);
+			} else {
 				LOGGER.info("University details not found in UniversityUserController.findUniversityById(-)");
-				return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
-		}
-		catch (Exception e) {
-			LOGGER.error("Some problem occured in UniversityUserController.findUniversityById(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Some problem occured in UniversityUserController.findUniversityById(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	// download student details as excel
 	@GetMapping("/exportStudentDataExcel")
 	@PreAuthorize("hasRole('university')")
@@ -245,32 +242,31 @@ public class UniversityUserController {
 			model = new HashMap<String, Object>();
 			date = new Date();
 			res.setContentType("application/ms-excel");
-			res.setHeader("Content-disposition", "inline; filename=students-" + new SimpleDateFormat("yyyy-MM-dd").format(date) + ".xls");
-			model.put("Data",studentBeans);
+			res.setHeader("Content-disposition",
+					"inline; filename=students-" + new SimpleDateFormat("yyyy-MM-dd").format(date) + ".xls");
+			model.put("Data", studentBeans);
 			return new ModelAndView(new StudentDataExcelGenerator(), model);
-		}
-		catch (Exception e) {
-			LOGGER.error("UniversityUserController.exportStudentDataExcel(-) excel creation failed: "+e.getMessage());
+		} catch (Exception e) {
+			LOGGER.error("UniversityUserController.exportStudentDataExcel(-) excel creation failed: " + e.getMessage());
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
 	// upload student details as excel
 	@PostMapping("/importStudentDataExcel")
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<List<UserBean>> importStudentDataExcel(@RequestPart("file") MultipartFile file) {
 		LOGGER.debug("Inside UniversityUserController.importStudentDataExcel(-)");
-		List<UserBean> studentBeans =null;
+		List<UserBean> studentBeans = null;
 		try {
-			studentBeans=studentService.importStudentDataExcel(file);
-			return new ResponseEntity<List<UserBean>>(studentBeans,HttpStatus.OK);
-		}
-		catch (Exception e) {
-			LOGGER.error("UniversityUserController.importStudentDataExcel(-) excel creation failed: "+e.getMessage());
+			studentBeans = studentService.importStudentDataExcel(file);
+			return new ResponseEntity<List<UserBean>>(studentBeans, HttpStatus.OK);
+		} catch (Exception e) {
+			LOGGER.error("UniversityUserController.importStudentDataExcel(-) excel creation failed: " + e.getMessage());
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 }

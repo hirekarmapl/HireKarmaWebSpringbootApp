@@ -18,10 +18,10 @@ import lombok.Data;
 import lombok.ToString;
 
 @Entity
-@Table(name = "SHARE_JOB_TO_UNIVERSITY")
+@Table(name = "ADMIN_SHARE_JOB_TO_UNIVERSITY")
 @Data
 @ToString
-public class ShareJob implements Serializable{
+public class AdminShareJobToUniversity implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -41,7 +41,7 @@ public class ShareJob implements Serializable{
 	private String jobStatus;
 	
 	@Column(name = "UNIVERSITY_RESPONSE_STATUS")
-	private String universityResponseStatus;
+	private Boolean universityResponseStatus;
 	
 	@Column(name = "REJECTION_FEEDBACK")
 	private String rejectionFeedback;

@@ -1,11 +1,13 @@
 package com.hirekarma.service;
 
+import java.util.Map;
+
 import com.hirekarma.beans.JobBean;
-import com.hirekarma.beans.ShareJobBean;
+import com.hirekarma.beans.AdminShareJobToUniversityBean;
 
 public interface AdminService {
 	
-	JobBean updateActiveStatus(Long id, String status);
+	Map<String, Object> updateActiveStatus(Long id, boolean status);
 
-	ShareJobBean shareJob(ShareJobBean shareJobBean);
+	Map<String, Object> shareJob(AdminShareJobToUniversityBean adminShareJobToUniversityBean);
 }

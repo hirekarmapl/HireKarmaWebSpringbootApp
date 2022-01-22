@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.hirekarma.beans.UniversityJobShareBean;
+import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.UserProfile;
 
@@ -19,5 +19,5 @@ public interface StudentService {
 	public UserBean findStudentById(Long studentId);
 	public List<UserBean> getAllStudents();
 	public List<UserBean> importStudentDataExcel(MultipartFile file);
-	public UniversityJobShareBean studentJobResponse(UniversityJobShareBean jobBean);
+	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean);
 }

@@ -17,16 +17,16 @@ import lombok.Data;
 import lombok.ToString;
 
 @Entity
-@Table(name = "UNIVERSITY_JOB_SHARE")
+@Table(name = "UNIVERSITY_JOB_SHARE_TO_STUDENT")
 @Data
 @ToString
-public class UniversityJobShare {
+public class UniversityJobShareToStudent {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
 	@Column(name = "TABLE_ID")
-	private Long tableId;
+	private Long iD;
 
 	@Column(name = "CREATED_BY")
 	private String createdBy;
@@ -51,12 +51,12 @@ public class UniversityJobShare {
 	private Timestamp updatedOn;
 
 	@Column(name = "JOB_STATUS")
-	private String jobStatus;
+	private Boolean jobStatus;
 
 	@Column(name = "RESPONSE_FEEDBACK")
 	private String feedBack;
 
 	@Column(name = "STUDENT_RESPONSE_STATUS")
-	private String studentResponseStatus;
+	private Boolean studentResponseStatus;
 
 }

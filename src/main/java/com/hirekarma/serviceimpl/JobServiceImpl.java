@@ -36,7 +36,7 @@ public class JobServiceImpl implements JobService {
 			LOGGER.debug("Inside try block of JobServiceImpl.insert()");
 			image=jobBean.getFile().getBytes();
 			jobBean.setDescriptionFile(image);
-			jobBean.setStatus("Not Active");
+			jobBean.setStatus(false);
 			jobBean.setDeleteStatus("Active");
 			job=new Job();
 			BeanUtils.copyProperties(jobBean, job);

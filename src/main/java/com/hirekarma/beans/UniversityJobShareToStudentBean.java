@@ -36,6 +36,10 @@ public class UniversityJobShareToStudentBean {
 	
 	private String token;
 	
-	private String tokenKey;
+	private Long batchId;
+	
+	private Long branchId;
+	
+	private Long cgpaId;
 
 }

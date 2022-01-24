@@ -38,49 +38,53 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
-import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.Student;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
+import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.StudentService;
-import com.hirekarma.service.UniversityService;
 import com.hirekarma.utilty.ExcelUploadUtil;
 
 @Service("studentServiceImpl")
-public class StudentServiceImpl implements StudentService{
-	
+public class StudentServiceImpl implements StudentService {
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(StudentServiceImpl.class);
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
-//	@Autowired
-//	private StudentRepository studentRepository;
-	
+
+	@Autowired
+	private StudentRepository studentRepository;
+
+	@Autowired
+	private UniversityRepository universityRepository;
+
 	@Autowired
 	private ExcelUploadUtil excelUploadUtil;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private UniversityJobShareRepository universityJobShareRepository;
-	
+
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
 	@Value("${mail.service.welcomeListUrl}")
 	private String welcomeListUrl;
-	
+
 	@Value("${mail.service.welcomeUrl}")
 	private String welcomeUrl;
-	
+
 	@Value("${mail.service.getStarted}")
 	private String getStarted;
 
@@ -101,34 +105,57 @@ public class StudentServiceImpl implements StudentService{
 //			throw new StudentUserDefindException(e.getMessage());
 //		}
 //	}
-	
+
 	@Override
 	public UserProfile insert(UserProfile student) {
+
 		LOGGER.debug("Inside StudentServiceImpl.insert(-)");
-		UserProfile studentReturn=null;
-		HttpHeaders headers=null;
-		Map<String,String> body=null;
-		String reqBodyData=null;
-		HttpEntity<String> requestEntity=null;
+
+		UserProfile studentReturn = null;
+		HttpHeaders headers = null;
+		Map<String, String> body = null;
+		String reqBodyData = null;
+		HttpEntity<String> requestEntity = null;
+		Student stud = new Student();
+
+		String LowerCaseEmail = student.getEmail().toLowerCase();
+		Long count = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
+
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.insert(-)");
-			student.setStatus("Active");
-			student.setUserType("student");
-			student.setPassword(passwordEncoder.encode(student.getPassword()));
-			studentReturn=userRepository.save(student);
-			headers=new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			body=new HashMap<String,String>();
-			body.put("email", student.getEmail());
-			reqBodyData=new ObjectMapper().writeValueAsString(body);
-			requestEntity=new HttpEntity<String>(reqBodyData,headers);
-			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
-			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
-			LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
+			if (count == 0) {
+
+				student.setStatus("Active");
+				student.setUserType("student");
+				student.setEmail(LowerCaseEmail);
+				student.setPassword(passwordEncoder.encode(student.getPassword()));
+
+				studentReturn = userRepository.save(student);
+
+				stud.setUserId(studentReturn.getUserId());
+				studentRepository.save(stud);
+
+				headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+
+				body = new HashMap<String, String>();
+				body.put("email", student.getEmail());
+
+				reqBodyData = new ObjectMapper().writeValueAsString(body);
+
+				requestEntity = new HttpEntity<String>(reqBodyData, headers);
+
+//			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
+//			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
+
+				LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
+			} else {
+				throw new StudentUserDefindException("This Email Is Already Present !!");
+			}
+
 			return studentReturn;
-		}
-		catch (Exception e) {
-			LOGGER.error("Data Insertion failed using StudentServiceImpl.insert(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Data Insertion failed using StudentServiceImpl.insert(-): " + e);
 			throw new StudentUserDefindException(e.getMessage());
 		}
 	}
@@ -194,36 +221,88 @@ public class StudentServiceImpl implements StudentService{
 //			throw new StudentUserDefindException(e.getMessage());
 //		}
 //	}
-	
+
 	@Override
 	public UserBean updateStudentProfile(UserBean studentBean) {
+
 		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile(-)");
-		UserProfile student=null;
-		UserProfile studentReturn=null;
-		Optional<UserProfile> optional=null;
-		UserBean studentBeanReturn=null;
+
+		UserProfile student = null;
+		UserProfile studentReturn = null;
+		Optional<UserProfile> optional = null;
+		UserBean studentBeanReturn = null;
+		Student stud = new Student();
+
+		String LowerCaseEmail = studentBean.getEmail().toLowerCase();
+		Long count1 = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
+
+		Long count2 = studentRepository.getDetailsByEmail(LowerCaseEmail);
+
+		Optional<University> university = universityRepository.findById(studentBean.getUniversityId());
+
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.updateStudentProfile(-)");
-			optional=userRepository.findById(studentBean.getUserId());
-			if(!optional.isEmpty()) {
-				student=optional.get();
-				if(student!=null) {
-					student.setName(studentBean.getName());
-					student.setEmail(studentBean.getEmail());
-					student.setPhoneNo(studentBean.getPhoneNo());
-					student.setImage(studentBean.getImage());
-					student.setAddress(studentBean.getAddress());
-					student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-					studentReturn=userRepository.save(student);
-					studentBeanReturn=new UserBean();
-					BeanUtils.copyProperties(studentReturn, studentBeanReturn);
-					LOGGER.info("Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+
+			if (count1 == 1 && count2 == 1) {
+
+				optional = userRepository.findById(studentBean.getUserId());
+
+				Optional<Student> studOptional = studentRepository.getStudentDetails(studentBean.getUserId());
+
+				if (university.isPresent()) {
+
+					if (!optional.isEmpty()) {
+
+						if (studOptional.isPresent()) {
+							student = optional.get();
+							stud = studOptional.get();
+
+							if (student != null) {
+
+								student.setName(studentBean.getName());
+								student.setEmail(studentBean.getEmail());
+								student.setPhoneNo(studentBean.getPhoneNo());
+								student.setImage(studentBean.getImage());
+								student.setAddress(studentBean.getAddress());
+								student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+
+								studentReturn = userRepository.save(student);
+
+								stud.setStudentName(studentReturn.getName());
+								stud.setStudentEmail(studentReturn.getEmail());
+								stud.setStudentImage(studentBean.getImage());
+								stud.setStudentPhoneNumber(Long.valueOf(studentBean.getPhoneNo()));
+								stud.setStatus(true);
+								stud.setUniversityId(studentBean.getUniversityId());
+								stud.setBranch(studentBean.getBranch());
+								stud.setBatch(studentBean.getBatch());
+								stud.setCgpa(studentBean.getCgpa());
+								stud.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+
+								stud = studentRepository.save(stud);
+
+								studentBeanReturn = new UserBean();
+								BeanUtils.copyProperties(studentReturn, studentBeanReturn);
+
+								studentBeanReturn.setBatch(stud.getBatch());
+								studentBeanReturn.setBranch(stud.getBranch());
+								studentBeanReturn.setCgpa(stud.getCgpa());
+								studentBeanReturn.setUniversityId(stud.getUniversityId());
+
+								LOGGER.info(
+										"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+							}
+						}
+					}
+				} else {
+					throw new StudentUserDefindException("This University Is Not Present !!");
 				}
+			} else {
+				throw new StudentUserDefindException("This Email Is Already Present !!");
 			}
 			return studentBeanReturn;
-		}
-		catch (Exception e) {
-			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): " + e);
 			throw new StudentUserDefindException(e.getMessage());
 		}
 	}
@@ -252,42 +331,41 @@ public class StudentServiceImpl implements StudentService{
 //			throw new StudentUserDefindException(e.getMessage());
 //		}
 //	}
-	
+
 	@Override
 	public UserBean findStudentById(Long studentId) {
 		LOGGER.debug("Inside StudentServiceImpl.findStudentById(-)");
-		UserProfile student=null;
-		Optional<UserProfile> optional=null;
-		UserBean studentBean=null;
+		UserProfile student = null;
+		Optional<UserProfile> optional = null;
+		UserBean studentBean = null;
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.findStudentById(-)");
-			optional=userRepository.findById(studentId);
-			if(!optional.isEmpty()) {
-				student=optional.get();
-				if(student!=null) {
-					studentBean=new UserBean();
+			optional = userRepository.findById(studentId);
+			if (!optional.isEmpty()) {
+				student = optional.get();
+				if (student != null) {
+					studentBean = new UserBean();
 					BeanUtils.copyProperties(student, studentBean);
 					LOGGER.info("Data Successfully fetched using StudentServiceImpl.findStudentById(-)");
 				}
 			}
 			return studentBean;
-		}
-		catch (Exception e) {
-			LOGGER.error("Error occured in StudentServiceImpl.findStudentById(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Error occured in StudentServiceImpl.findStudentById(-): " + e);
 			throw new StudentUserDefindException(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public List<UserBean> getAllStudents() {
 		LOGGER.debug("Inside StudentServiceImpl.getAllStudents()");
-		List<UserProfile> students=null;
-		UserBean studentBean=null;
-		List<UserBean> studentBeans=null;
+		List<UserProfile> students = null;
+		UserBean studentBean = null;
+		List<UserBean> studentBeans = null;
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.getAllStudents()");
-			students=userRepository.getAllStudents();
-			if(students!=null && students.size()>0) {
+			students = userRepository.getAllStudents();
+			if (students != null && students.size() > 0) {
 				studentBeans = new ArrayList<UserBean>();
 				for (UserProfile student : students) {
 					studentBean = new UserBean();
@@ -297,9 +375,8 @@ public class StudentServiceImpl implements StudentService{
 			}
 			LOGGER.info("Data Successfully fetched using StudentServiceImpl.getAllStudents()");
 			return studentBeans;
-		}
-		catch (Exception e) {
-			LOGGER.error("Error occured in StudentServiceImpl.getAllStudents(): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Error occured in StudentServiceImpl.getAllStudents(): " + e);
 			throw new StudentUserDefindException(e.getMessage());
 		}
 	}
@@ -313,13 +390,13 @@ public class StudentServiceImpl implements StudentService{
 		Sheet sheet = null;
 		Supplier<Stream<Row>> rowStreamSupplier = null;
 		Row headerRow = null;
-		List<Map<String,String>> studentLists = null;
+		List<Map<String, String>> studentLists = null;
 		int passwordLength = 12;
 		String generatedPassword = null;
 		UserProfile studentProfile = null;
 		UserProfile studentProfileReturn = null;
 		List<UserBean> allStudentLists = null;
-		UserBean studentReturnBean =null;
+		UserBean studentReturnBean = null;
 		HttpHeaders headers = null;
 		String reqBodyData = null;
 		HttpEntity<String> requestEntity = null;
@@ -332,22 +409,22 @@ public class StudentServiceImpl implements StudentService{
 			sheet = workbook.getSheetAt(0);
 			rowStreamSupplier = excelUploadUtil.getRowStreamSupplier(sheet);
 			headerRow = rowStreamSupplier.get().findFirst().get();
-			List<String> headerCells = excelUploadUtil.getStream(headerRow)
-					.map(Cell::getStringCellValue)
+			List<String> headerCells = excelUploadUtil.getStream(headerRow).map(Cell::getStringCellValue)
 					.collect(Collectors.toList());
 			int colCount = headerCells.size();
-			studentLists = rowStreamSupplier.get().skip(1).map(row->{
-				excelUploadUtil.getStream(row).forEach(cell->{
+			studentLists = rowStreamSupplier.get().skip(1).map(row -> {
+				excelUploadUtil.getStream(row).forEach(cell -> {
 					cell.setCellType(CellType.STRING);
 				});
-				List<String> cellList = excelUploadUtil.getStream(row)
-						.map(Cell::getStringCellValue)
+				List<String> cellList = excelUploadUtil.getStream(row).map(Cell::getStringCellValue)
 						.collect(Collectors.toList());
-				return excelUploadUtil.cellIteratorSupplier(colCount).get().collect(toMap(headerCells::get,cellList::get));
+				return excelUploadUtil.cellIteratorSupplier(colCount).get()
+						.collect(toMap(headerCells::get, cellList::get));
 			}).collect(Collectors.toList());
-			//integrate with database to save all students are there in excel and sent them email using MicroServices
+			// integrate with database to save all students are there in excel and sent them
+			// email using MicroServices
 			allStudentLists = new ArrayList<UserBean>();
-			for (Map<String,String> student : studentLists) {
+			for (Map<String, String> student : studentLists) {
 				studentProfile = new UserProfile();
 				studentProfile.setName(student.get("Name"));
 				studentProfile.setEmail(student.get("Email"));
@@ -356,24 +433,25 @@ public class StudentServiceImpl implements StudentService{
 				studentProfileReturn = insert(studentProfile);
 				studentReturnBean = new UserBean();
 				BeanUtils.copyProperties(studentProfileReturn, studentReturnBean);
-				//this password is not encrypted this is the original random password and encrypted password is stored in database
+				// this password is not encrypted this is the original random password and
+				// encrypted password is stored in database
 				studentReturnBean.setPassword(generatedPassword);
 				allStudentLists.add(studentReturnBean);
 			}
 			headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			reqBodyData = new ObjectMapper().writeValueAsString(allStudentLists);
-			requestEntity=new HttpEntity<String>(reqBodyData,headers);
-			restTemplate.exchange(welcomeListUrl,HttpMethod.POST,requestEntity,String.class);
-			LOGGER.info("Student data import Successfully and mail sent using StudentServiceImpl.importStudentDataExcel(-)");
+			requestEntity = new HttpEntity<String>(reqBodyData, headers);
+			restTemplate.exchange(welcomeListUrl, HttpMethod.POST, requestEntity, String.class);
+			LOGGER.info(
+					"Student data import Successfully and mail sent using StudentServiceImpl.importStudentDataExcel(-)");
 			return allStudentLists;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			LOGGER.error("Error occured in StudentServiceImpl.importStudentDataExcel(-)");
 			throw new StudentUserDefindException(e.getMessage());
 		}
 	}
-	
+
 	private String generateRandomPassword(int passwordLength) {
 		Random random = null;
 		StringBuilder stringBuilder = null;
@@ -383,7 +461,7 @@ public class StudentServiceImpl implements StudentService{
 		final String chars4 = "!@#$%&";
 		random = new Random();
 		stringBuilder = new StringBuilder(passwordLength);
-		for (int i = 0; i < passwordLength/4; i++) {
+		for (int i = 0; i < passwordLength / 4; i++) {
 			stringBuilder.append(chars1.charAt(random.nextInt(chars1.length())));
 			stringBuilder.append(chars2.charAt(random.nextInt(chars2.length())));
 			stringBuilder.append(chars3.charAt(random.nextInt(chars3.length())));
@@ -402,22 +480,22 @@ public class StudentServiceImpl implements StudentService{
 			universityJobShareToStudent = new UniversityJobShareToStudent();
 			universityJobShareToStudent = optional.get();
 			if (universityJobShareToStudent != null) {
-				
+
 				universityJobShareToStudent.setStudentResponseStatus(jobBean.getStudentResponseStatus());
 				universityJobShareToStudent.setFeedBack(jobBean.getFeedBack());
 				universityJobShareToStudent.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 				universityJobShareToStudent.setUpdatedBy("Biswa");
-				
+
 				universityJobShareRepository.save(universityJobShareToStudent);
-				
+
 				BeanUtils.copyProperties(universityJobShareToStudent, jobShareBean);
 			}
 			LOGGER.info("Data Updated Successfully In UniversityServiceImpl.universityResponse(-)");
-		
-		}catch (NoSuchElementException e) {
+
+		} catch (NoSuchElementException e) {
 			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
 			throw new UniversityJobShareToStudentException("Please Re-Check This Job May Not Be Available Now !!");
-		}catch (Exception e) {
+		} catch (Exception e) {
 			jobShareBean.setResponse("FAILED");
 			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
 			throw e;

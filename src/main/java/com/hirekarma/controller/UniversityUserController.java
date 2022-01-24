@@ -23,17 +23,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.exception.UniversityUserDefindException;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.StudentService;
 import com.hirekarma.service.UniversityUserService;
 import com.hirekarma.utilty.StudentDataExcelGenerator;
+import com.hirekarma.utilty.Validation;
 
 @RestController("universityUserController ")
 @CrossOrigin
@@ -72,25 +76,52 @@ public class UniversityUserController {
 //	}
 
 	@PostMapping("/universitySaveUrl")
-	public ResponseEntity<UserBean> createUser(@RequestBody UserBean universityUserBean) {
+	public ResponseEntity<Response> createUser(@RequestBody UserBean universityUserBean) {
 		LOGGER.debug("Inside UniversityUserController.createUser(-)");
 		UserProfile universityUser = null;
 		UserProfile universityUserReturn = null;
 		UserBean userBean = null;
+		Response response = new Response();
+		ResponseEntity<Response> responseEntity = null;
 		try {
 			LOGGER.debug("Inside try block of UniversityUserController.createUser(-)");
-			universityUser = new UserProfile();
-			userBean = new UserBean();
-			BeanUtils.copyProperties(universityUserBean, universityUser);
-			universityUserReturn = universityUserService.insert(universityUser);
-			BeanUtils.copyProperties(universityUserReturn, userBean);
-			LOGGER.info("Data successfully saved using UniversityUserController.createUser(-)");
-			return new ResponseEntity<>(userBean, HttpStatus.CREATED);
+
+			if (Validation.validateEmail(universityUserBean.getEmail())) {
+				if (Validation.phoneNumberValidation(Long.valueOf(universityUserBean.getPhoneNo()))) {
+
+					universityUser = new UserProfile();
+					userBean = new UserBean();
+					BeanUtils.copyProperties(universityUserBean, universityUser);
+
+					universityUserReturn = universityUserService.insert(universityUser);
+
+					BeanUtils.copyProperties(universityUserReturn, userBean);
+					LOGGER.info("Data successfully saved using UniversityUserController.createUser(-)");
+
+					responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
+
+					response.setMessage("Data Shared Successfully...");
+					response.setStatus("Success");
+					response.setResponseCode(responseEntity.getStatusCodeValue());
+					response.setData(userBean);
+				} else {
+					throw new UniversityUserDefindException("Please Enter A Valid Phone Number !!");
+				}
+			} else {
+				throw new UniversityUserDefindException("Please Enter A Valid Email !!");
+			}
+
 		} catch (Exception e) {
 			LOGGER.error("Data saving failed in UniversityUserController.createUser(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
 
 //	@PostMapping("/checkLoginCredentials")
@@ -150,35 +181,69 @@ public class UniversityUserController {
 
 	@PutMapping(value = "/updateUniversityUserProfile")
 	@PreAuthorize("hasRole('university')")
-	public ResponseEntity<UserBean> updateUniversityUserProfile(@ModelAttribute UserBean universityUserBean) {
+	public ResponseEntity<Response> updateUniversityUserProfile(@ModelAttribute UserBean universityUserBean,@RequestHeader(value = "Authorization")String token) {
 		LOGGER.debug("Inside UniversityUserController.updateUniversityUserProfile(-)");
 		UserBean userBean = null;
 		byte[] image = null;
+		Response response = new Response();
+		ResponseEntity<Response> responseEntity = null;
 		try {
 			LOGGER.debug("Inside try block of UniversityUserController.updateUniversityUserProfile(-)");
-			image = universityUserBean.getFile().getBytes();
-			universityUserBean.setImage(image);
-			userBean = universityUserService.updateUniversityUserProfile(universityUserBean);
-			if (userBean != null) {
-				LOGGER.info(
-						"Coporate details successfully updated in UniversityUserController.updateUniversityUserProfile(-)");
-				userBean.setPassword(null);
-				return new ResponseEntity<>(userBean, HttpStatus.OK);
+
+			if (Validation.validateEmail(universityUserBean.getEmail())) {
+				if (Validation.phoneNumberValidation(Long.valueOf(universityUserBean.getPhoneNo()))) {
+
+					image = universityUserBean.getFile().getBytes();
+					universityUserBean.setImage(image);
+					userBean = universityUserService.updateUniversityUserProfile(universityUserBean,token);
+					if (userBean != null) {
+						LOGGER.info(
+								"Coporate details successfully updated in UniversityUserController.updateUniversityUserProfile(-)");
+						userBean.setPassword(null);
+
+						responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+						response.setStatus("Success");
+						response.setMessage("Data Updated Successfully...");
+					} else {
+						LOGGER.info(
+								"Coporate details not found in UniversityUserController.updateUniversityUserProfile(-)");
+
+						responseEntity = new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+
+						response.setStatus("Failed");
+						response.setMessage("Details Not Found !!");
+					}
+
+					response.setResponseCode(responseEntity.getStatusCodeValue());
+					response.setData(userBean);
+				} else {
+					throw new UniversityUserDefindException("Please Enter A Valid Phone Number !!");
+				}
 			} else {
-				LOGGER.info("Coporate details not found in UniversityUserController.updateUniversityUserProfile(-)");
-				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+				throw new UniversityUserDefindException("Please Enter A Valid Email !!");
 			}
 		} catch (IOException e) {
 			LOGGER.error(
 					"Problem occured during image to byte[] conversion in UniversityUserController.updateUniversityUserProfile(-): "
 							+ e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+
 		} catch (Exception e) {
 			LOGGER.error("Some problem occured in UniversityUserController.updateUniversityUserProfile(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
 
 //	@GetMapping(value = "/findUniversityById/{universityId}")

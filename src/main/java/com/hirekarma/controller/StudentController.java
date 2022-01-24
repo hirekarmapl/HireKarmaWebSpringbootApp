@@ -22,19 +22,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.StudentService;
+import com.hirekarma.utilty.Validation;
 
 @RestController("studentController")
 @CrossOrigin
 @RequestMapping("/hirekarma/")
 public class StudentController {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(StudentController.class);
-	
+
 	@Autowired
 	private StudentService studentService;
-	
+
 //	@PostMapping("/saveStudentUrl")
 //	public ResponseEntity<StudentBean> createUser(@RequestBody StudentBean studentBean) {
 //		LOGGER.debug("Inside StudentController.createUser(-)");
@@ -58,31 +60,54 @@ public class StudentController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@PostMapping("/saveStudentUrl")
-	public ResponseEntity<UserBean> createUser(@RequestBody UserBean studentBean) {
+	public ResponseEntity<Response> createUser(@RequestBody UserBean studentBean) {
 		LOGGER.debug("Inside StudentController.createUser(-)");
-		UserProfile student=null;
-		UserProfile studentReturn=null;
-		UserBean bean=null;
+		UserProfile student = null;
+		UserProfile studentReturn = null;
+		UserBean bean = null;
+		Response response = new Response();
+		ResponseEntity<Response> responseEntity = null;
 		try {
 			LOGGER.debug("Inside try block of StudentController.createUser(-)");
-			student=new UserProfile();
-			bean=new UserBean();
-			BeanUtils.copyProperties(studentBean, student);
-			studentReturn=studentService.insert(student);
-			LOGGER.info("Data successfully saved using StudentController.createUser(-)");
-			BeanUtils.copyProperties(studentReturn,bean);
-			bean.setPassword(null);
-			return new ResponseEntity<>(bean,HttpStatus.CREATED);
-		}
-		catch (Exception e) {
-			LOGGER.error("Data saving failed in StudentController.createUser(-): "+e);
+
+			if (Validation.validateEmail(studentBean.getEmail())) {
+				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
+
+					student = new UserProfile();
+					bean = new UserBean();
+					BeanUtils.copyProperties(studentBean, student);
+					studentReturn = studentService.insert(student);
+					LOGGER.info("Data successfully saved using StudentController.createUser(-)");
+					BeanUtils.copyProperties(studentReturn, bean);
+					bean.setPassword(null);
+
+					responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
+
+					response.setMessage("Data Shared Successfully...");
+					response.setStatus("Success");
+					response.setResponseCode(responseEntity.getStatusCodeValue());
+					response.setData(bean);
+				} else {
+					throw new StudentUserDefindException("Please Enter A Valid Phone Number !!");
+				}
+			} else {
+				throw new StudentUserDefindException("Please Enter A Valid Email !!");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Data saving failed in StudentController.createUser(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
-	
+
 //	@PostMapping("/checkStudentLoginCredentials")
 //	public ResponseEntity<StudentBean> checkLoginCredentials(@RequestBody LoginBean loginBean) {
 //		LOGGER.debug("Inside StudentController.checkLoginCredentials(-)");
@@ -105,7 +130,7 @@ public class StudentController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 //	@PutMapping(value = "/updateStudentProfile")
 //	public ResponseEntity<StudentBean> updateStudentProfile(@ModelAttribute StudentBean studentBean){
 //		LOGGER.debug("Inside StudentController.updateStudentProfile(-)");
@@ -137,40 +162,74 @@ public class StudentController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@PutMapping(value = "/updateStudentProfile")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<UserBean> updateStudentProfile(@ModelAttribute UserBean studentBean){
+	public ResponseEntity<Response> updateStudentProfile(@ModelAttribute UserBean studentBean) {
 		LOGGER.debug("Inside StudentController.updateStudentProfile(-)");
-		UserBean bean=null;
-		byte[] image=null;
+		UserBean bean = null;
+		byte[] image = null;
+		Response response = new Response();
+		ResponseEntity<Response> responseEntity = null;
 		try {
 			LOGGER.debug("Inside try block of StudentController.updateStudentProfile(-)");
-			image=studentBean.getFile().getBytes();
-			studentBean.setImage(image);
-			bean=studentService.updateStudentProfile(studentBean);
-			if(bean!=null) {
-				LOGGER.info("Coporate details successfully updated in StudentController.updateStudentProfile(-)");
-				bean.setPassword(null);
-				return new ResponseEntity<>(bean,HttpStatus.OK);
+
+			if (Validation.validateEmail(studentBean.getEmail())) {
+				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
+
+					image = studentBean.getFile().getBytes();
+					studentBean.setImage(image);
+					bean = studentService.updateStudentProfile(studentBean);
+					if (bean != null) {
+						LOGGER.info(
+								"Coporate details successfully updated in StudentController.updateStudentProfile(-)");
+						bean.setPassword(null);
+
+						responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+						response.setStatus("Success");
+						response.setMessage("Data Updated Successfully...");
+					} else {
+						LOGGER.info("Coporate details not found in StudentController.updateStudentProfile(-)");
+
+						responseEntity = new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+
+						response.setStatus("Failed");
+						response.setMessage("Details Not Found !!");
+					}
+
+					response.setStatus("Success");
+					response.setResponseCode(responseEntity.getStatusCodeValue());
+					response.setData(bean);
+				} else {
+					throw new StudentUserDefindException("Please Enter A Valid Phone Number !!");
+				}
+			} else {
+				throw new StudentUserDefindException("Please Enter A Valid Email !!");
 			}
-			else {
-				LOGGER.info("Coporate details not found in StudentController.updateStudentProfile(-)");
-				return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
-			}
-		}
-		catch (IOException e) {
-			LOGGER.error("Problem occured during image to byte[] conversion in StudentController.updateStudentProfile(-): "+e);
+		} catch (IOException e) {
+			LOGGER.error(
+					"Problem occured during image to byte[] conversion in StudentController.updateStudentProfile(-): "
+							+ e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		catch (Exception e) {
-			LOGGER.error("Some problem occured in StudentController.updateStudentProfile(-): "+e);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+
+		} catch (Exception e) {
+			LOGGER.error("Some problem occured in StudentController.updateStudentProfile(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
-	
+
 //	@GetMapping(value = "/findStudentById/{studentId}")
 //	public ResponseEntity<StudentBean> findStudentById(@PathVariable Long studentId){
 //		LOGGER.debug("Inside StudentController.findStudentById(-)");
@@ -194,37 +253,33 @@ public class StudentController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@GetMapping(value = "/findStudentById/{studentId}")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<UserBean> findStudentById(@PathVariable Long studentId){
+	public ResponseEntity<UserBean> findStudentById(@PathVariable Long studentId) {
 		LOGGER.debug("Inside StudentController.findStudentById(-)");
-		UserBean bean=null;
+		UserBean bean = null;
 		try {
 			LOGGER.debug("Inside try block of StudentController.findStudentById(-)");
-			bean=studentService.findStudentById(studentId);
-			if(bean!=null) {
+			bean = studentService.findStudentById(studentId);
+			if (bean != null) {
 				LOGGER.info("Corporate details get in StudentController.findStudentById(-)");
 				bean.setPassword(null);
-				return new ResponseEntity<>(bean,HttpStatus.OK);
-			}
-			else {
+				return new ResponseEntity<>(bean, HttpStatus.OK);
+			} else {
 				LOGGER.info("Coporate details not found in StudentController.findStudentById(-)");
-				return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			}
-		}
-		catch (Exception e) {
-			LOGGER.error("Some problem occured in StudentController.findStudentById(-): "+e);
+		} catch (Exception e) {
+			LOGGER.error("Some problem occured in StudentController.findStudentById(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
+
 	@PostMapping("/studentJobResponse")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<Response> studentJobResponse(@RequestBody UniversityJobShareToStudentBean jobBean)
-	{
+	public ResponseEntity<Response> studentJobResponse(@RequestBody UniversityJobShareToStudentBean jobBean) {
 		LOGGER.debug("Inside StudentController.studentJobResponse(-)");
 		UniversityJobShareToStudentBean universityJobShareToStudentBean = new UniversityJobShareToStudentBean();
 		ResponseEntity<Response> responseEntity = null;
@@ -233,24 +288,23 @@ public class StudentController {
 			LOGGER.debug("Inside try block of StudentController.studentJobResponse(-)");
 			universityJobShareToStudentBean = studentService.studentJobResponse(jobBean);
 			LOGGER.info("Response Successfully Updated using UniversityController.studentJobResponse(-)");
-			
-			responseEntity = new ResponseEntity<>(response,HttpStatus.ACCEPTED);
-			
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+
 			response.setMessage("Job Shared Successfully...");
 			response.setStatus("Success");
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 			response.setData(universityJobShareToStudentBean);
-			
-		}
-		catch (Exception e) {
-			LOGGER.error("Response Updation failed in StudentController.studentJobResponse(-): "+e);
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in StudentController.studentJobResponse(-): " + e);
 			e.printStackTrace();
-			responseEntity =  new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			response.setMessage(e.getMessage());
 			response.setStatus("Failed");
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
-		return  responseEntity;
+		return responseEntity;
 	}
 
 }

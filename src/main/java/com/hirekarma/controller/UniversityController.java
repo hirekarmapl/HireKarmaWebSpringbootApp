@@ -12,7 +12,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
@@ -21,6 +23,7 @@ import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.service.UniversityService;
+import com.hirekarma.utilty.Validation;
 
 @RestController("universityController")
 @CrossOrigin
@@ -33,7 +36,7 @@ public class UniversityController {
 	private UniversityService universityService;
 
 	@PostMapping("/universityResponse")
-	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<?> universityResponse(@RequestBody AdminShareJobToUniversityBean jobBean) {
 		LOGGER.debug("Inside UniversityController.universityResponse(-)");
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -67,16 +70,19 @@ public class UniversityController {
 	}
 
 	@PostMapping("/shareJobStudent")
-	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<?> shareJobStudent(
-			@RequestBody UniversityJobShareToStudentBean universityJobShareToStudentBean) {
+			@RequestBody UniversityJobShareToStudentBean universityJobShareToStudentBean,@RequestHeader(value = "Authorization")String token) {
 		LOGGER.debug("Inside UniversityController.shareJobStudent(-)");
 
 		ResponseEntity<?> responseEntity = null;
 		Map<String, Object> response = new HashMap<String, Object>();
 
+		universityJobShareToStudentBean.setToken(token);
+		
 		try {
 			LOGGER.debug("Inside try block of UniversityController.shareJobStudent(-)");
+			
 			if (universityJobShareToStudentBean.getToken() != null && universityJobShareToStudentBean.getToken() != ""
 					&& !universityJobShareToStudentBean.getToken().equalsIgnoreCase("null")
 					&& !universityJobShareToStudentBean.getToken().isEmpty()
@@ -108,15 +114,15 @@ public class UniversityController {
 	}
 
 	@PostMapping("/campusDriveRequest")
-	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<Response> campusDriveRequest(@RequestBody CampusDriveResponseBean campus) {
+	@PreAuthorize("hasRole('university')")
+	public ResponseEntity<Response> campusDriveRequest(@RequestBody CampusDriveResponseBean campus,@RequestHeader(value = "Authorization")String token) {
 		LOGGER.debug("Inside UniversityController.campusDriveRequest(-)");
 		CampusDriveResponseBean driveResponseBean = new CampusDriveResponseBean();
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of UniversityController.campusDriveRequest(-)");
-			driveResponseBean = universityService.campusDriveRequest(campus);
+			driveResponseBean = universityService.campusDriveRequest(campus,token);
 			LOGGER.info("Response Successfully Updated using UniversityController.campusDriveRequest(-)");
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
@@ -138,14 +144,17 @@ public class UniversityController {
 	}
 
 //	@PostMapping("/shareJobStudent")
-//	@PreAuthorize("hasRole('corporate')")
-//	public String shareJobStudent(@RequestBody UniversityJobShareToStudentBean  universityJobShareToStudentBean) throws Exception
+//	@PreAuthorize("hasRole('student')")
+//	public String shareJobStudent(@RequestBody UniversityJobShareToStudentBean  universityJobShareToStudentBean,@RequestHeader(value = "Authorization")String token) throws Exception
 //	{
 //		
 //		
 //		
 //		
-//		String[] chunks = universityJobShareToStudentBean.getCreatedBy().split("\\.");
+//		String[] chunks = universityJobShareToStudentBean.getToken().split("\\.");
+//		String[] chunks1 = token.split(" ");
+//		
+//		String[] chunks = chunks1[1].split("\\.");
 //		
 //		
 //		
@@ -182,7 +191,24 @@ public class UniversityController {
 //		String name = (String) jsonObject.get("sub");
 //		
 //		System.out.println("payload : \n\n"+payload+"\n\nName Is : "+name);
-//		return  signature;
+//		return  name;
 //	}
-
+//
+//	
+//	@PostMapping("/testing")
+//	@PreAuthorize("hasRole('university')")
+//	public String shareJobStudent(@RequestParam("email") Long email)
+//	{
+//		String name = null;
+//		if(Validation.phoneNumberValidation(email))
+//		{
+//			 name = "biswa";
+//		}else {
+//			name = "ranjan";
+//		}
+//		
+//		return name;
+//	}
+	
+		
 }

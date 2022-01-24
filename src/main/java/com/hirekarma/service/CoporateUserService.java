@@ -1,7 +1,10 @@
 package com.hirekarma.service;
 
+import java.util.List;
+
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
 
 public interface CoporateUserService {
@@ -17,4 +20,6 @@ public interface CoporateUserService {
 	public UserBean findCorporateById(Long userId);
 
 	public CampusDriveResponseBean corporateCampusResponse(CampusDriveResponseBean campus);
+
+	public List<Corporate> corporateList();
 }

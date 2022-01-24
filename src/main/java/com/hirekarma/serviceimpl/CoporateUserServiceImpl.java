@@ -1,7 +1,9 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
+import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.CampusDriveResponse;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Organization;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.OrganizationRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.CoporateUserService;
@@ -43,6 +47,9 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private CorporateRepository corporateRepository;
 
 	@Autowired
 	private CampusDriveResponseRepository campusDriveResponseRepository;
@@ -96,24 +103,41 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		Map<String, String> body = null;
 		String reqBodyData = null;
 		HttpEntity<String> requestEntity = null;
+
+		String LowerCaseEmail = userProfile.getEmail().toLowerCase();
+		Long count = userRepository.getDetailsByEmail(LowerCaseEmail, "corporate");
+
 		try {
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.insert(-)");
-			userProfile.setUserType("corporate");
-			userProfile.setStatus("Active");
-			userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
-			user = userRepository.save(userProfile);
-			organization = new Organization();
-			organization.setUserId(user.getUserId());
-			organization.setStatus("Active");
-			organizationRepository.save(organization);
-			headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			body = new HashMap<String, String>();
-			body.put("email", userProfile.getEmail());
-			reqBodyData = new ObjectMapper().writeValueAsString(body);
-			requestEntity = new HttpEntity<String>(reqBodyData, headers);
+			if (count == 0) {
+
+				userProfile.setUserType("corporate");
+				userProfile.setStatus("Active");
+				userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
+
+				user = userRepository.save(userProfile);
+
+				organization = new Organization();
+				organization.setUserId(user.getUserId());
+				organization.setStatus("Active");
+
+				organizationRepository.save(organization);
+
+				headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+
+				body = new HashMap<String, String>();
+				body.put("email", userProfile.getEmail());
+
+				reqBodyData = new ObjectMapper().writeValueAsString(body);
+				requestEntity = new HttpEntity<String>(reqBodyData, headers);
+
 //			restTemplate.exchange(welcomeUrl, HttpMethod.POST, requestEntity, String.class);
 //			restTemplate.exchange(getStarted, HttpMethod.POST, requestEntity, String.class);
+			} else {
+				throw new StudentUserDefindException("This Email Is Already Present !!");
+			}
+
 			LOGGER.info("Data successfully saved using CoporateUserServiceImpl.insert(-)");
 			return user;
 		} catch (Exception e) {
@@ -305,6 +329,20 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			throw e;
 		}
 		return driveResponseBean;
+	}
+
+	@Override
+	public List<Corporate> corporateList() {
+		List<Corporate> corporate = new ArrayList<Corporate>();
+		try {
+			LOGGER.debug("Inside CoporateUserServiceImpl.corporateList(-)");
+			corporate = corporateRepository.findAll();
+			
+		}catch (Exception e) {
+			LOGGER.error("Data Fetching Failed At CoporateUserServiceImpl.corporateList(-)");
+			throw e;
+		}
+		return corporate;
 	}
 
 }

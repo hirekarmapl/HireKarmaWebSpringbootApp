@@ -13,6 +13,6 @@ public interface UniversityService {
 	Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception;
 
-	CampusDriveResponseBean campusDriveRequest(CampusDriveResponseBean campus);
+	CampusDriveResponseBean campusDriveRequest(CampusDriveResponseBean campus, String token) throws Exception;
 
 }

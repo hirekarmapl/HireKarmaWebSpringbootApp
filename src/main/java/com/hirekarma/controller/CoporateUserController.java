@@ -1,6 +1,8 @@
 package com.hirekarma.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.exception.CoporateUserDefindException;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.CoporateUserService;
+import com.hirekarma.utilty.Validation;
 
 @RestController("coporateUserController")
 @CrossOrigin
@@ -60,26 +65,57 @@ public class CoporateUserController {
 //	}
 
 	@PostMapping("/saveCorporateUrl")
-	public ResponseEntity<UserBean> createUser(@RequestBody UserBean bean) {
+	public ResponseEntity<Response> createUser(@RequestBody UserBean bean) {
+
 		LOGGER.debug("Inside CoporateUserController.createUser(-)");
+
 		UserProfile userProfile = null;
 		UserProfile userProfileReturn = null;
 		UserBean userBean = null;
+		Response response = new Response();
+		ResponseEntity<Response> responseEntity = null;
+
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.createUser(-)");
-			userProfile = new UserProfile();
-			userBean = new UserBean();
-			BeanUtils.copyProperties(bean, userProfile);
-			userProfileReturn = coporateUserService.insert(userProfile);
-			LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
-			BeanUtils.copyProperties(userProfileReturn, userBean);
-			userBean.setPassword(null);
-			return new ResponseEntity<>(userBean, HttpStatus.CREATED);
+
+			if (Validation.validateEmail(bean.getEmail())) {
+//				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
+
+					userProfile = new UserProfile();
+					userBean = new UserBean();
+					BeanUtils.copyProperties(bean, userProfile);
+
+					userProfileReturn = coporateUserService.insert(userProfile);
+
+					LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
+					BeanUtils.copyProperties(userProfileReturn, userBean);
+					userBean.setPassword(null);
+
+					responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
+
+					response.setMessage("Data Shared Successfully...");
+					response.setStatus("Success");
+					response.setResponseCode(responseEntity.getStatusCodeValue());
+					response.setData(userBean);
+				} else {
+					throw new CoporateUserDefindException("Please Enter A Valid Phone Number !!");
+				}
+
+//			} else {
+//				throw new CoporateUserDefindException("Please Enter A Valid Email !!");
+//			}
+
 		} catch (Exception e) {
 			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): " + e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
 
 //	@PostMapping("/checkCopporateLoginCredentials")
@@ -146,17 +182,27 @@ public class CoporateUserController {
 		byte[] image = null;
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.updateCoporateUserProfile(-)");
-			image = bean.getFile().getBytes();
-			bean.setImage(image);
-			userBean = coporateUserService.updateCoporateUserProfile(bean);
-			if (userBean != null) {
-				LOGGER.info(
-						"Coporate details successfully updated in CoporateUserController.updateCoporateUserProfile(-)");
-				userBean.setPassword(null);
-				return new ResponseEntity<>(userBean, HttpStatus.OK);
+			if (Validation.validateEmail(bean.getEmail())) {
+				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
+
+					image = bean.getFile().getBytes();
+					bean.setImage(image);
+					userBean = coporateUserService.updateCoporateUserProfile(bean);
+					if (userBean != null) {
+						LOGGER.info(
+								"Coporate details successfully updated in CoporateUserController.updateCoporateUserProfile(-)");
+						userBean.setPassword(null);
+						return new ResponseEntity<>(userBean, HttpStatus.OK);
+					} else {
+						LOGGER.info(
+								"Coporate details not found in CoporateUserController.updateCoporateUserProfile(-)");
+						return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+					}
+				} else {
+					throw new CoporateUserDefindException("Please Enter A Valid Phone Number !!");
+				}
 			} else {
-				LOGGER.info("Coporate details not found in CoporateUserController.updateCoporateUserProfile(-)");
-				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+				throw new CoporateUserDefindException("Please Enter A Valid Email !!");
 			}
 		} catch (IOException e) {
 			LOGGER.error(
@@ -225,6 +271,24 @@ public class CoporateUserController {
 			response.setMessage(e.getMessage());
 			response.setStatus("Failed");
 			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
+	
+	@GetMapping(value = "/corporateList")
+//	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<?> corporateList() {
+		LOGGER.debug("Inside CoporateUserController.corporateList(-)");
+		List<Corporate> corporate = new ArrayList<Corporate>();
+		ResponseEntity<?> responseEntity = null;
+		try {
+			LOGGER.debug("Inside try block of CoporateUserController.corporateList(-)");
+			corporate = coporateUserService.corporateList();
+			responseEntity = new ResponseEntity<>(corporate, HttpStatus.OK);
+		} catch (Exception e) {
+			LOGGER.error("Some problem occured in CoporateUserController.corporateList(-): " + e);
+			e.printStackTrace();
+			responseEntity =  new ResponseEntity<>(corporate, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return responseEntity;
 	}

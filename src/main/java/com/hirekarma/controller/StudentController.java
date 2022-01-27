@@ -1,6 +1,7 @@
 package com.hirekarma.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,7 +75,6 @@ public class StudentController {
 			LOGGER.debug("Inside try block of StudentController.createUser(-)");
 
 			if (Validation.validateEmail(studentBean.getEmail())) {
-				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
 
 					student = new UserProfile();
 					bean = new UserBean();
@@ -89,9 +90,6 @@ public class StudentController {
 					response.setStatus("Success");
 					response.setResponseCode(responseEntity.getStatusCodeValue());
 					response.setData(bean);
-				} else {
-					throw new StudentUserDefindException("Please Enter A Valid Phone Number !!");
-				}
 			} else {
 				throw new StudentUserDefindException("Please Enter A Valid Email !!");
 			}
@@ -165,7 +163,7 @@ public class StudentController {
 
 	@PutMapping(value = "/updateStudentProfile")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<Response> updateStudentProfile(@ModelAttribute UserBean studentBean) {
+	public ResponseEntity<Response> updateStudentProfile(@ModelAttribute UserBean studentBean,@RequestHeader(value = "Authorization")String token) {
 		LOGGER.debug("Inside StudentController.updateStudentProfile(-)");
 		UserBean bean = null;
 		byte[] image = null;
@@ -175,11 +173,11 @@ public class StudentController {
 			LOGGER.debug("Inside try block of StudentController.updateStudentProfile(-)");
 
 			if (Validation.validateEmail(studentBean.getEmail())) {
-				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
+				if (Validation.phoneNumberValidation(Long.valueOf(studentBean.getPhoneNo()))) {
 
 					image = studentBean.getFile().getBytes();
 					studentBean.setImage(image);
-					bean = studentService.updateStudentProfile(studentBean);
+					bean = studentService.updateStudentProfile(studentBean,token);
 					if (bean != null) {
 						LOGGER.info(
 								"Coporate details successfully updated in StudentController.updateStudentProfile(-)");
@@ -278,7 +276,7 @@ public class StudentController {
 	}
 
 	@PostMapping("/studentJobResponse")
-	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<Response> studentJobResponse(@RequestBody UniversityJobShareToStudentBean jobBean) {
 		LOGGER.debug("Inside StudentController.studentJobResponse(-)");
 		UniversityJobShareToStudentBean universityJobShareToStudentBean = new UniversityJobShareToStudentBean();
@@ -298,6 +296,37 @@ public class StudentController {
 
 		} catch (Exception e) {
 			LOGGER.error("Response Updation failed in StudentController.studentJobResponse(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
+	
+	
+	@RequestMapping("/jobDetails")
+	@PreAuthorize("hasRole('student')")
+	public ResponseEntity<Response> jobDetails(@RequestHeader(value = "Authorization")String token) {
+		LOGGER.debug("Inside studentController.jobDetails(-)");
+		List<?> listData = null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+		try {
+			LOGGER.debug("Inside try block of studentController.jobDetails(-)");
+			listData = studentService.jobDetails(token);
+			LOGGER.info("Response Successfully Updated using studentController.jobDetails(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(listData);
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in studentController.jobDetails(-): " + e);
 			e.printStackTrace();
 			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			response.setMessage(e.getMessage());

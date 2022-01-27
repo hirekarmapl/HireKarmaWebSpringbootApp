@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.beans.AdminSharedJobList;
+import com.hirekarma.beans.JobBean;
 import com.hirekarma.exception.JobException;
+import com.hirekarma.exception.UniversityException;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Job;
 import com.hirekarma.repository.JobRepository;
@@ -120,6 +123,46 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		return response;
+	}
+
+	@Override
+	public List<?> displayJobList() {
+		List<Job> jobBeanList = new ArrayList<Job>();
+		Job jobBean = null;
+		try {
+			jobBeanList = jobRepository.getJobAllDetails();
+			
+			System.out.println(jobBeanList.size());
+				
+//				if (list.size() != 0) {
+//					for (Object[] obj1 : list) {
+//						jobBean = new JobBean();
+//
+//						adminSharedJobList.setUniversityResponseStatus(String.valueOf(obj1[0]));
+//						adminSharedJobList.setShareJobId(String.valueOf(obj1[1]));
+//						adminSharedJobList.setJobTitle((String) obj1[2]);
+//						adminSharedJobList.setCategory((String) obj1[3]);
+//						adminSharedJobList.setJobType((String) obj1[4]);
+//						adminSharedJobList.setWfhCheckbox((Boolean) obj1[5]);
+//						adminSharedJobList.setSkills((String) obj1[6]);
+//						adminSharedJobList.setCity((String) obj1[7]);
+//						adminSharedJobList.setOpenings(String.valueOf(obj1[8]));
+//						adminSharedJobList.setSalary(String.valueOf(obj1[9]));
+//						adminSharedJobList.setAbout((String) obj1[10]);
+//						adminSharedJobList.setDescription((String) obj1[11]);
+//
+//						jobBeanList.add(jobBean);
+//					}
+//
+//				} else {
+//					throw new UniversityException("No Job Found !!");
+//				}
+		} catch (Exception e) {
+			throw e;
+		}
+
+		return jobBeanList;
+
 	}
 
 }

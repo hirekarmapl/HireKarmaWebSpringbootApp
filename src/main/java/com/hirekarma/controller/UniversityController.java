@@ -1,6 +1,8 @@
 package com.hirekarma.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
@@ -23,7 +24,6 @@ import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.service.UniversityService;
-import com.hirekarma.utilty.Validation;
 
 @RestController("universityController")
 @CrossOrigin
@@ -142,6 +142,67 @@ public class UniversityController {
 		}
 		return responseEntity;
 	}
+	
+	@RequestMapping("/seeShareJobList")
+	@PreAuthorize("hasRole('university')")
+	public ResponseEntity<Response> seeShareJobList(@RequestHeader(value = "Authorization")String token) {
+		LOGGER.debug("Inside UniversityController.seeShareJobList(-)");
+		List<?> listData = null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+		try {
+			LOGGER.debug("Inside try block of UniversityController.seeShareJobList(-)");
+			listData = universityService.seeShareJobList(token);
+			LOGGER.info("Response Successfully Updated using UniversityController.seeShareJobList(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(listData);
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in UniversityController.seeShareJobList(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
+	
+	@RequestMapping("/studentDetails")
+	@PreAuthorize("hasRole('university')")
+	public ResponseEntity<Response> studentDetails(@RequestHeader(value = "Authorization")String token) {
+		LOGGER.debug("Inside UniversityController.studentDetails(-)");
+		List<?> listData = null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+		try {
+			LOGGER.debug("Inside try block of UniversityController.studentDetails(-)");
+			listData = universityService.studentDetails(token);
+			LOGGER.info("Response Successfully Updated using UniversityController.studentDetails(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(listData);
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in UniversityController.studentDetails(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
+
 
 //	@PostMapping("/shareJobStudent")
 //	@PreAuthorize("hasRole('student')")

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.beans.AdminSharedJobList;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.exception.CampusDriveResponseException;
@@ -24,9 +25,11 @@ import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.CampusDriveResponse;
+import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.ShareJobRepository;
 import com.hirekarma.repository.StudentRepository;
@@ -51,6 +54,9 @@ public class UniversityServiceImpl implements UniversityService {
 
 	@Autowired
 	private UniversityRepository universityRepository;
+
+	@Autowired
+	private AdminShareJobToUniversityRepository adminShareJobToUniversityRepository;
 
 	@Autowired
 	private UniversityJobShareRepository universityJobShareRepository;
@@ -224,8 +230,7 @@ public class UniversityServiceImpl implements UniversityService {
 
 					LOGGER.info("Data Inserted Successfully In UniversityServiceImpl.campusDriveRequest(-)");
 				} else {
-					throw new CampusDriveResponseException(
-							"Already Request Sended To This Perticular Corporate !!");
+					throw new CampusDriveResponseException("Already Request Sended To This Perticular Corporate !!");
 				}
 			} else {
 				throw new CampusDriveResponseException("Something went wrong !! Try Later...");
@@ -237,6 +242,98 @@ public class UniversityServiceImpl implements UniversityService {
 			throw e;
 		}
 		return driveResponseBean;
+	}
+
+	@Override
+	public List<?> seeShareJobList(String token) throws Exception {
+
+		String[] chunks1 = token.split(" ");
+		String[] chunks = chunks1[1].split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String payload = new String(decoder.decode(chunks[1]));
+		JSONParser jsonParser = new JSONParser();
+		Object obj = jsonParser.parse(payload);
+
+		JSONObject jsonObject = (JSONObject) obj;
+
+		String email = (String) jsonObject.get("sub");
+
+		Long id = universityRepository.findIdByEmail(email);
+		AdminSharedJobList adminSharedJobList = null;
+		List<AdminSharedJobList> SharedJobList = new ArrayList<AdminSharedJobList>();
+		try {
+			if (id != null) {
+				List<Object[]> list = adminShareJobToUniversityRepository.getJobDetailsByUniversityId(id);
+				
+				if (list.size() != 0) {
+					for (Object[] obj1 : list) {
+						adminSharedJobList = new AdminSharedJobList();
+
+						adminSharedJobList.setUniversityResponseStatus(String.valueOf(obj1[0]));
+						adminSharedJobList.setShareJobId(String.valueOf(obj1[1]));
+						adminSharedJobList.setJobTitle((String) obj1[2]);
+						adminSharedJobList.setCategory((String) obj1[3]);
+						adminSharedJobList.setJobType((String) obj1[4]);
+						adminSharedJobList.setWfhCheckbox((Boolean) obj1[5]);
+						adminSharedJobList.setSkills((String) obj1[6]);
+						adminSharedJobList.setCity((String) obj1[7]);
+						adminSharedJobList.setOpenings(String.valueOf(obj1[8]));
+						adminSharedJobList.setSalary(String.valueOf(obj1[9]));
+						adminSharedJobList.setAbout((String) obj1[10]);
+						adminSharedJobList.setDescription((String) obj1[11]);
+
+						SharedJobList.add(adminSharedJobList);
+					}
+
+				} else {
+					throw new UniversityException("You Don't Have Any Shared Job !!");
+				}
+			} else {
+				throw new UniversityException("University Data Not Found !!");
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+
+		return SharedJobList;
+	}
+
+	@Override
+	public List<?> studentDetails(String token) throws Exception {
+		String[] chunks1 = token.split(" ");
+		String[] chunks = chunks1[1].split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String payload = new String(decoder.decode(chunks[1]));
+		JSONParser jsonParser = new JSONParser();
+		Object obj = jsonParser.parse(payload);
+
+		JSONObject jsonObject = (JSONObject) obj;
+
+		String email = (String) jsonObject.get("sub");
+		List<Student> studentList = new ArrayList<Student>();
+		List<University> university = new ArrayList<University>();
+		
+		university = universityRepository.getDetailsByEmail1(email);
+		
+		try {
+			if (university.size() == 1) {
+				studentList = studentRepository.getStudentListForUniversity(university.get(0).getUniversityId());
+				
+				if (studentList != null) {
+					
+				} else {
+					throw new UniversityException("No Student Found In Your University !!");
+				}
+			} else {
+				throw new UniversityException("Something Went Wrong !! Duplicte Data Found !!");
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+
+		return studentList;
 	}
 
 }

@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -39,13 +43,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
+import com.hirekarma.beans.UniversitySharedJobList;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.StudentUserDefindException;
+import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
@@ -75,6 +82,9 @@ public class StudentServiceImpl implements StudentService {
 
 	@Autowired
 	private UniversityJobShareRepository universityJobShareRepository;
+	
+	@Autowired
+	private JobRepository jobRepository;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -133,6 +143,9 @@ public class StudentServiceImpl implements StudentService {
 				studentReturn = userRepository.save(student);
 
 				stud.setUserId(studentReturn.getUserId());
+				stud.setStudentEmail(LowerCaseEmail);
+				stud.setStudentName(studentReturn.getName());
+
 				studentRepository.save(stud);
 
 				headers = new HttpHeaders();
@@ -223,7 +236,7 @@ public class StudentServiceImpl implements StudentService {
 //	}
 
 	@Override
-	public UserBean updateStudentProfile(UserBean studentBean) {
+	public UserBean updateStudentProfile(UserBean studentBean, String token) throws Exception {
 
 		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile(-)");
 
@@ -232,74 +245,95 @@ public class StudentServiceImpl implements StudentService {
 		Optional<UserProfile> optional = null;
 		UserBean studentBeanReturn = null;
 		Student stud = new Student();
+		UserProfile userProfile = null;
 
-		String LowerCaseEmail = studentBean.getEmail().toLowerCase();
-		Long count1 = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
+		String[] chunks1 = token.split(" ");
+		String[] chunks = chunks1[1].split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
 
-		Long count2 = studentRepository.getDetailsByEmail(LowerCaseEmail);
+		String payload = new String(decoder.decode(chunks[1]));
+		JSONParser jsonParser = new JSONParser();
+		Object obj = jsonParser.parse(payload);
 
-		Optional<University> university = universityRepository.findById(studentBean.getUniversityId());
+		JSONObject jsonObject = (JSONObject) obj;
+
+		String email = (String) jsonObject.get("sub");
 
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.updateStudentProfile(-)");
 
-			if (count1 == 1 && count2 == 1) {
+			userProfile = userRepository.findByEmail(email, "student");
 
-				optional = userRepository.findById(studentBean.getUserId());
+			if (userProfile != null) {
 
-				Optional<Student> studOptional = studentRepository.getStudentDetails(studentBean.getUserId());
+				String LowerCaseEmail = studentBean.getEmail().toLowerCase();
+				Long count1 = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
 
-				if (university.isPresent()) {
+				Long count2 = studentRepository.getDetailsByEmail(LowerCaseEmail);
 
-					if (!optional.isEmpty()) {
+				Optional<University> university = universityRepository.findById(studentBean.getUniversityId());
 
-						if (studOptional.isPresent()) {
-							student = optional.get();
-							stud = studOptional.get();
+				if (count1 == 1 && count2 == 1) {
 
-							if (student != null) {
+					optional = userRepository.findById(userProfile.getUserId());
 
-								student.setName(studentBean.getName());
-								student.setEmail(studentBean.getEmail());
-								student.setPhoneNo(studentBean.getPhoneNo());
-								student.setImage(studentBean.getImage());
-								student.setAddress(studentBean.getAddress());
-								student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+					Optional<Student> studOptional = studentRepository.getStudentDetails(userProfile.getUserId());
 
-								studentReturn = userRepository.save(student);
+					if (university.isPresent()) {
 
-								stud.setStudentName(studentReturn.getName());
-								stud.setStudentEmail(studentReturn.getEmail());
-								stud.setStudentImage(studentBean.getImage());
-								stud.setStudentPhoneNumber(Long.valueOf(studentBean.getPhoneNo()));
-								stud.setStatus(true);
-								stud.setUniversityId(studentBean.getUniversityId());
-								stud.setBranch(studentBean.getBranch());
-								stud.setBatch(studentBean.getBatch());
-								stud.setCgpa(studentBean.getCgpa());
-								stud.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+						if (!optional.isEmpty()) {
 
-								stud = studentRepository.save(stud);
+							if (studOptional.isPresent()) {
+								student = optional.get();
+								stud = studOptional.get();
 
-								studentBeanReturn = new UserBean();
-								BeanUtils.copyProperties(studentReturn, studentBeanReturn);
+								if (student != null) {
 
-								studentBeanReturn.setBatch(stud.getBatch());
-								studentBeanReturn.setBranch(stud.getBranch());
-								studentBeanReturn.setCgpa(stud.getCgpa());
-								studentBeanReturn.setUniversityId(stud.getUniversityId());
+									student.setName(studentBean.getName());
+									student.setEmail(studentBean.getEmail());
+									student.setPhoneNo(studentBean.getPhoneNo());
+									student.setImage(studentBean.getImage());
+									student.setAddress(studentBean.getAddress());
+									student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 
-								LOGGER.info(
-										"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+									studentReturn = userRepository.save(student);
+
+									stud.setStudentName(studentReturn.getName());
+									stud.setStudentEmail(studentReturn.getEmail());
+									stud.setStudentImage(studentBean.getImage());
+									stud.setStudentPhoneNumber(Long.valueOf(studentBean.getPhoneNo()));
+									stud.setStatus(true);
+									stud.setUniversityId(studentBean.getUniversityId());
+									stud.setBranch(studentBean.getBranch());
+									stud.setBatch(studentBean.getBatch());
+									stud.setCgpa(studentBean.getCgpa());
+									stud.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+
+									stud = studentRepository.save(stud);
+
+									studentBeanReturn = new UserBean();
+									BeanUtils.copyProperties(studentReturn, studentBeanReturn);
+
+									studentBeanReturn.setBatch(stud.getBatch());
+									studentBeanReturn.setBranch(stud.getBranch());
+									studentBeanReturn.setCgpa(stud.getCgpa());
+									studentBeanReturn.setUniversityId(stud.getUniversityId());
+
+									LOGGER.info(
+											"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+								}
 							}
 						}
+					} else {
+						throw new StudentUserDefindException("This University Is Not Present !!");
 					}
 				} else {
-					throw new StudentUserDefindException("This University Is Not Present !!");
+					throw new StudentUserDefindException("This Email Is Already Present !!");
 				}
 			} else {
-				throw new StudentUserDefindException("This Email Is Already Present !!");
+				throw new StudentUserDefindException("No Data Found !!");
 			}
+
 			return studentBeanReturn;
 		} catch (Exception e) {
 			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): " + e);
@@ -501,5 +535,62 @@ public class StudentServiceImpl implements StudentService {
 			throw e;
 		}
 		return jobShareBean;
+	}
+
+	@Override
+	public List<?> jobDetails(String token) throws ParseException {
+		String[] chunks1 = token.split(" ");
+		String[] chunks = chunks1[1].split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String payload = new String(decoder.decode(chunks[1]));
+		JSONParser jsonParser = new JSONParser();
+		Object obj = jsonParser.parse(payload);
+
+		JSONObject jsonObject = (JSONObject) obj;
+
+		String email = (String) jsonObject.get("sub");
+		List<Student> studentList = new ArrayList<Student>();
+		UniversitySharedJobList universitySharedJob = null;
+		List<UniversitySharedJobList> universitySharedJobList = new ArrayList<UniversitySharedJobList>();
+		
+		studentList = studentRepository.getDetailsByEmail1(email);
+		
+		try {
+			if (studentList.size() == 1) {
+				List<Object[]> list = jobRepository.getStudentJobAllDetails(studentList.get(0).getUniversityId(),studentList.get(0).getStudentId());
+				
+				if (list.size() != 0) {
+					for (Object[] obj1 : list) {
+						universitySharedJob = new UniversitySharedJobList();
+
+						universitySharedJob.setJobId((Long)obj1[0]);
+						universitySharedJob.setJobTitle((String)obj1[1]);
+						universitySharedJob.setCategory((String) obj1[2]);
+						universitySharedJob.setJobType((String) obj1[3]);
+						universitySharedJob.setWfhCheckbox((Boolean) obj1[4]);
+						universitySharedJob.setSkills((String) obj1[5]);
+						universitySharedJob.setCity((String) obj1[6]);
+						universitySharedJob.setOpenings((Integer) obj1[7]);
+						universitySharedJob.setSalary((Double)obj1[8]);
+						universitySharedJob.setAbout((String)obj1[9]);
+						universitySharedJob.setDescription((String) obj1[10]);
+						universitySharedJob.setSharedJobId((Long) obj1[11]);
+						universitySharedJob.setStudentResponse((Boolean)obj1[12]);
+
+						universitySharedJobList.add(universitySharedJob);
+					}
+					
+				} else {
+					throw new UniversityException("Sorry, No Job's Shared For You !!");
+				}
+			} else {
+				throw new UniversityException("Something Went Wrong !! Student Duplicte Data Found !!");
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+
+		return universitySharedJobList;
 	}
 }

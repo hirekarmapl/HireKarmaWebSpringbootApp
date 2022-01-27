@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hirekarma.model.AdminShareJobToUniversity;
 
-@Repository
+@Repository("shareJobRepository")
 public interface ShareJobRepository extends JpaRepository<AdminShareJobToUniversity, Long> {
 
 }

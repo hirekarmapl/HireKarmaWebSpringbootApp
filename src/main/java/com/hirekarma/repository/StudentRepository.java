@@ -27,6 +27,12 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 
 	@Query("select studentId from Student")
 	List<Long> getStudentList();
+
+	@Query("select s from Student s where s.studentEmail = :email")
+	List<Student> getDetailsByEmail1(@Param("email")String email);
+
+	@Query("select s from Student s where s.universityId = :universityId")
+	List<Student> getStudentListForUniversity(@Param("universityId")Long universityId);
 	
 	
 }

@@ -21,5 +21,5 @@ public class Response {
 	
 	public Object data;
 	
-	public List<Object> dataList;
+	public List<?> dataList;
 }

@@ -304,6 +304,7 @@ public class StudentServiceImpl implements StudentService {
 									stud.setStudentPhoneNumber(Long.valueOf(studentBean.getPhoneNo()));
 									stud.setStatus(true);
 									stud.setUniversityId(studentBean.getUniversityId());
+									stud.setStudentAddress(studentBean.getAddress());
 									stud.setBranch(studentBean.getBranch());
 									stud.setBatch(studentBean.getBatch());
 									stud.setCgpa(studentBean.getCgpa());

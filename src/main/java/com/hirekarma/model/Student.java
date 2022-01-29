@@ -47,6 +47,9 @@ public class Student implements Serializable{
 	@Column(name = "UNIVERSITY_ID")
 	private Long universityId;
 	
+	@Column(name = "STUDENT_ADDRESS")
+	private String studentAddress;
+	
 	@Column(name = "BRANCH")
 	private Long branch;
 	

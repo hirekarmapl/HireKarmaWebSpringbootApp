@@ -11,7 +11,7 @@ public interface UniversityUserService {
 //	public UniversityUserBean findUniversityById(Long universityId);
 	
 	public UserProfile insert(UserProfile universityUser);
-	public UserBean updateUniversityUserProfile(UserBean universityUserBean);
+	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String token);
 	public UserBean findUniversityById(Long universityId);
 
 }

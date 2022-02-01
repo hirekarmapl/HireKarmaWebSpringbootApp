@@ -1,45 +1,251 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.beans.BadgeShareBean;
+import com.hirekarma.exception.AdminException;
+import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
-import com.hirekarma.repository.AdminRepository;
+import com.hirekarma.model.JobApply;
+import com.hirekarma.model.University;
+import com.hirekarma.repository.BadgesRepository;
+import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.JobApplyRepository;
+import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.ShareJobRepository;
+import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.service.AdminService;
 
 @Service("adminServiceImpl")
 public class AdminServiceImpl implements AdminService {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminServiceImpl.class);
-	
+
 	@Autowired
-	private AdminRepository adminRepository;
+	private ShareJobRepository shareJobRepository;
+
+	@Autowired
+	private JobRepository jobRepository;
+
+	@Autowired
+	private UniversityRepository universityRepository;
+
+	@Autowired
+	private JobApplyRepository jobApplyRepository;
+
+	@Autowired
+	private CorporateRepository corporateRepository;
+
+	@Autowired
+	private BadgesRepository badgesRepository;
+
+	@Scheduled(cron = "0 0 0 * * *")
+	public void jobApplicationStatusChange() {
+
+		LOGGER.info("\n\nSchedular Working For Deactivating The Job Appliaction : " + new Date().toString());
+
+		List<JobApply> JobApplyList = new ArrayList<JobApply>();
+
+		JobApplyList = jobApplyRepository.findAll();
+
+		if (JobApplyList.size() != 0) {
+
+			for (JobApply job : JobApplyList) {
+
+				String time1 = String.valueOf(job.getCreatedOn());
+				String[] fetchedTime = time1.split(" ");
+
+				String time2 = String.valueOf(LocalDateTime.now());
+				String[] now = time2.split("T");
+
+				LocalDate d1 = LocalDate.parse(fetchedTime[0], DateTimeFormatter.ISO_LOCAL_DATE);
+				LocalDate d2 = LocalDate.parse(now[0], DateTimeFormatter.ISO_LOCAL_DATE);
+
+				Duration diff = Duration.between(d1.atStartOfDay(), d2.atStartOfDay());
+				long diffDays = diff.toDays();
+
+				if (diffDays == 90) {
+
+					job.setApplicationStatus(false);
+					jobApplyRepository.save(job);
+
+					LOGGER.info("Appliaction Rejected For : " + job.getCoverLetter());
+				}
+			}
+		}
+	}
 
 	@Override
-	public Job updateActiveStatus(Long id, String status) {
-		Job job = null;
+	public Map<String, Object> updateActiveStatus(Long id, boolean status) {
+
+		Job job = new Job();
+		Map<String, Object> response = new HashMap<String, Object>();
+
 		try {
 			LOGGER.debug("Inside AdminServiceImpl.updateActiveStatus(-)");
-			Optional<Job> optional = adminRepository.findById(id);
+
+			Optional<Job> optional = jobRepository.findById(id);
+
 			job = optional.get();
-			if(job != null)
-			{
+
+			if (job != null) {
+
 				job.setStatus(status);
 				job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-				adminRepository.save(job);
+
+				jobRepository.save(job);
+
+			} else {
+				throw new AdminException("Job Value Can't Be Null !!");
 			}
+
+			response.put("activeJob", job);
+
 			LOGGER.info("Data Updated Successfully In AdminServiceImpl.updateActiveStatus(-)");
 		}
+
 		catch (Exception e) {
-			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)"+e);
+			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)" + e);
 			throw e;
 		}
-		return job;
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> shareJob(AdminShareJobToUniversityBean adminShareJobToUniversityBean) {
+
+		AdminShareJobToUniversityBean user = new AdminShareJobToUniversityBean();
+		AdminShareJobToUniversity AdminShareJobToUniversity = null;
+		List<AdminShareJobToUniversity> list = new ArrayList<AdminShareJobToUniversity>();
+		Job job = new Job();
+		Long count = 0L;
+
+		Map<String, Object> response = new HashMap<String, Object>();
+
+		try {
+			LOGGER.debug("Inside AdminServiceImpl.shareJob(-)");
+			Optional<Job> optional = jobRepository.findById(adminShareJobToUniversityBean.getJobId());
+			job = optional.get();
+			if (job != null) {
+				if (adminShareJobToUniversityBean.getUniversityId().size() != 0) {
+
+					for (int i = 0; i < adminShareJobToUniversityBean.getUniversityId().size(); i++) {
+						count++;
+						System.out.println("\n\n************" + adminShareJobToUniversityBean.getUniversityId().get(i)
+								+ "***************");
+						AdminShareJobToUniversity = new AdminShareJobToUniversity();
+						AdminShareJobToUniversity.setJobId(adminShareJobToUniversityBean.getJobId());
+						AdminShareJobToUniversity
+								.setUniversityId(adminShareJobToUniversityBean.getUniversityId().get(i));
+						AdminShareJobToUniversity.setJobStatus("ACTIVE");
+						AdminShareJobToUniversity.setCreatedBy("Biswa");
+						AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
+
+						shareJobRepository.save(AdminShareJobToUniversity);
+						BeanUtils.copyProperties(AdminShareJobToUniversity, user);
+						list.add(AdminShareJobToUniversity);
+					}
+					user.setToatlSharedJob(count);
+					user.setResponse("SHARED");
+				} else {
+					throw new AdminException("No University Selected !!");
+				}
+			} else {
+				throw new AdminException("No Job Selected !!");
+			}
+
+			response.put("shareJob", list);
+			response.put("totalSharedJob", count);
+
+		} catch (Exception e) {
+			LOGGER.info("Data Updated Failed In AdminServiceImpl.updateActiveStatus(-)" + e);
+			throw e;
+		}
+
+		return response;
+	}
+
+	@Override
+	public List<?> displayJobList() {
+		List<Job> jobList = new ArrayList<Job>();
+		try {
+			LOGGER.debug("Inside AdminServiceImpl.displayJobList(-)");
+
+			jobList = jobRepository.getJobAllDetails();
+
+			System.out.println("Total DisplayJobList : " + jobList.size());
+		} catch (Exception e) {
+			throw e;
+		}
+		return jobList;
+	}
+
+	@Override
+	public List<?> displayUniversityList() {
+		List<University> UniversityList = new ArrayList<University>();
+		try {
+			LOGGER.debug("Inside AdminServiceImpl.displayUniversityList(-)");
+
+			UniversityList = universityRepository.displayUniversityList();
+
+			System.out.println("Total DisplayUniversityList : " + UniversityList.size());
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return UniversityList;
+	}
+
+	@Override
+	public Corporate shareBadge(BadgeShareBean badgeShareBean) {
+
+		Optional<?> optional = null;
+		Corporate corporate = new Corporate();
+
+		try {
+			LOGGER.debug("Inside AdminServiceImpl.shareBadge(-)");
+
+			optional = badgesRepository.findById(badgeShareBean.getBadgeId());
+			if (optional.isPresent()) {
+				optional = null;
+				optional = corporateRepository.findById(badgeShareBean.getCorporateId());
+				if (optional.isPresent()) {
+
+					corporate = (Corporate) optional.get();
+					corporate.setCorporateBadge(badgeShareBean.getBadgeId());
+
+					corporateRepository.save(corporate);
+					LOGGER.info("Badge Successfuly Updated In AdminServiceImpl.shareBadge(-)");
+				} else {
+					throw new AdminException("Selected Corporate Not Found !!");
+				}
+			} else {
+				throw new AdminException("Selected Badge Not Found !!");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Data Updated Failed In AdminServiceImpl.shareBadge(-)" + e);
+			throw e;
+		}
+		return corporate;
 	}
 
 }

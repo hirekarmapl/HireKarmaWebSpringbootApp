@@ -2,7 +2,6 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,14 +10,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
 
+import lombok.Data;
+import lombok.ToString;
+
 @Entity
 @Table(name = "JOB")
+@Data
+@ToString
 public class Job implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -67,7 +70,7 @@ public class Job implements Serializable{
 	private byte[] descriptionFile;
 	
 	@Column(name = "STATUS")
-	private String status;
+	private boolean status;
 	
 	@Column(name = "DELETE_STATUS")
 	private String deleteStatus;
@@ -78,166 +81,5 @@ public class Job implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
-	
-	@Transient
-	private String response;
-	
-	
 
-	public String getResponse() {
-		return response;
-	}
-
-	public void setResponse(String response) {
-		this.response = response;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
-	public Long getJobId() {
-		return jobId;
-	}
-
-	public void setJobId(Long jobId) {
-		this.jobId = jobId;
-	}
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public String getJobTitle() {
-		return jobTitle;
-	}
-
-	public void setJobTitle(String jobTitle) {
-		this.jobTitle = jobTitle;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public String getJobType() {
-		return jobType;
-	}
-
-	public void setJobType(String jobType) {
-		this.jobType = jobType;
-	}
-
-	public Boolean getWfhCheckbox() {
-		return wfhCheckbox;
-	}
-
-	public void setWfhCheckbox(Boolean wfhCheckbox) {
-		this.wfhCheckbox = wfhCheckbox;
-	}
-
-	public String getSkills() {
-		return skills;
-	}
-
-	public void setSkills(String skills) {
-		this.skills = skills;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public Integer getOpenings() {
-		return openings;
-	}
-
-	public void setOpenings(Integer openings) {
-		this.openings = openings;
-	}
-
-	public Double getSalary() {
-		return salary;
-	}
-
-	public void setSalary(Double salary) {
-		this.salary = salary;
-	}
-
-	public String getAbout() {
-		return about;
-	}
-
-	public void setAbout(String about) {
-		this.about = about;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public byte[] getDescriptionFile() {
-		return descriptionFile;
-	}
-
-	public void setDescriptionFile(byte[] descriptionFile) {
-		this.descriptionFile = descriptionFile;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getDeleteStatus() {
-		return deleteStatus;
-	}
-
-	public void setDeleteStatus(String deleteStatus) {
-		this.deleteStatus = deleteStatus;
-	}
-
-	public Timestamp getCreatedOn() {
-		return createdOn;
-	}
-
-	public void setCreatedOn(Timestamp createdOn) {
-		this.createdOn = createdOn;
-	}
-
-	public Timestamp getUpdatedOn() {
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Timestamp updatedOn) {
-		this.updatedOn = updatedOn;
-	}
-
-	@Override
-	public String toString() {
-		return "Job [jobId=" + jobId + ", userId=" + userId + ", jobTitle=" + jobTitle + ", category=" + category
-				+ ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city=" + city
-				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
-				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
-				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
-	}
 }

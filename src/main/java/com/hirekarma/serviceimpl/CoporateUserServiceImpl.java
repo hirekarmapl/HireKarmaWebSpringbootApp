@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.exception.StudentUserDefindException;
@@ -31,6 +32,7 @@ import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.OrganizationRepository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.CoporateUserService;
 
@@ -39,15 +41,15 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoporateUserServiceImpl.class);
 
-//	@Autowired
-//	private CoporateUserRepository coporateUserRepository;
+	@Autowired
+	private StudentRepository studentRepository;
 
 	@Autowired
 	private OrganizationRepository organizationRepository;
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private CorporateRepository corporateRepository;
 
@@ -103,6 +105,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		Map<String, String> body = null;
 		String reqBodyData = null;
 		HttpEntity<String> requestEntity = null;
+		Corporate corporate = new Corporate();
 
 		String LowerCaseEmail = userProfile.getEmail().toLowerCase();
 		Long count = userRepository.getDetailsByEmail(LowerCaseEmail, "corporate");
@@ -116,6 +119,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
 
 				user = userRepository.save(userProfile);
+
+				corporate.setCorporateEmail(LowerCaseEmail);
+				corporate.setCorporateName(user.getName());
+				corporate.setStatus("Active");
+
+				corporateRepository.save(corporate);
 
 				organization = new Organization();
 				organization.setUserId(user.getUserId());
@@ -290,10 +299,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 	}
 
 	@Override
-	public CampusDriveResponseBean corporateCampusResponse(CampusDriveResponseBean campus) {
+	public List<StudentDetails> corporateCampusResponse(CampusDriveResponseBean campus) {
 
 		CampusDriveResponseBean driveResponseBean = new CampusDriveResponseBean();
 		CampusDriveResponse driveResponse = null;
+		StudentDetails studentDetails = null;
+		List<StudentDetails> StudentDetailsList = new ArrayList<StudentDetails>();
 
 		try {
 			LOGGER.debug("Inside CoporateUserServiceImpl.corporateCampusResponse(-)");
@@ -310,6 +321,30 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 					driveResponse.setCorporateResponseOn(new Timestamp(new java.util.Date().getTime()));
 
 					campusDriveResponseRepository.save(driveResponse);
+
+					if (driveResponse.getCorporateResponse() && driveResponse.getUniversityAsk()) {
+						List<Object[]> list = studentRepository.findApplyStudentDetails(driveResponse.getUniversityId(),
+								driveResponse.getJobId());
+
+						if (list.size() != 0) {
+							for (Object[] obj : list) {
+
+								studentDetails = new StudentDetails();
+
+								studentDetails.setName((String) obj[0]);
+								studentDetails.setEmail((String) obj[1]);
+								studentDetails.setAddress((String) obj[2]);
+								studentDetails.setPhone(String.valueOf(obj[3]));
+								studentDetails.setBatch((String) obj[4]);
+								studentDetails.setBranch((String) obj[5]);
+								studentDetails.setCgpa(String.valueOf(obj[6]));
+
+								StudentDetailsList.add(studentDetails);
+							}
+						} else {
+							throw new CoporateUserDefindException("No Student Found !!");
+						}
+					}
 
 					BeanUtils.copyProperties(driveResponse, driveResponseBean);
 
@@ -328,7 +363,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			LOGGER.info("Data Updatation Failed In CoporateUserServiceImpl.corporateCampusResponse(-)" + e);
 			throw e;
 		}
-		return driveResponseBean;
+		return StudentDetailsList;
 	}
 
 	@Override
@@ -337,12 +372,72 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		try {
 			LOGGER.debug("Inside CoporateUserServiceImpl.corporateList(-)");
 			corporate = corporateRepository.findAll();
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			LOGGER.error("Data Fetching Failed At CoporateUserServiceImpl.corporateList(-)");
 			throw e;
 		}
 		return corporate;
+	}
+
+	@Override
+	public List<StudentDetails> applyStudentDetails(CampusDriveResponseBean campus, String token) {
+		CampusDriveResponseBean driveResponseBean = new CampusDriveResponseBean();
+		CampusDriveResponse driveResponse = null;
+		StudentDetails studentDetails = null;
+		List<StudentDetails> StudentDetailsList = new ArrayList<StudentDetails>();
+
+		try {
+			LOGGER.debug("Inside CoporateUserServiceImpl.applyStudentDetails(-)");
+
+			if (campus != null) {
+				Optional<CampusDriveResponse> optional = campusDriveResponseRepository
+						.findById(campus.getCampusDriveId());
+				driveResponse = new CampusDriveResponse();
+				driveResponse = optional.get();
+
+				if (driveResponse != null) {
+
+					if (driveResponse.getUniversityAsk()) {
+						List<Object[]> list = studentRepository.findApplyStudentDetails(driveResponse.getUniversityId(),
+								driveResponse.getJobId());
+
+						if (list.size() != 0) {
+							for (Object[] obj : list) {
+
+								studentDetails = new StudentDetails();
+
+								studentDetails.setName((String) obj[0]);
+								studentDetails.setEmail((String) obj[1]);
+								studentDetails.setAddress((String) obj[2]);
+								studentDetails.setPhone(String.valueOf(obj[3]));
+								studentDetails.setBatch((String) obj[4]);
+								studentDetails.setBranch((String) obj[5]);
+								studentDetails.setCgpa(String.valueOf(obj[6]));
+
+								StudentDetailsList.add(studentDetails);
+							}
+						}
+					}
+
+					BeanUtils.copyProperties(driveResponse, driveResponseBean);
+
+				} else {
+					throw new CoporateUserDefindException("No Data Found !!");
+				}
+
+			} else {
+				throw new CoporateUserDefindException("Request can't Be Null !!");
+			}
+
+			LOGGER.info("Data Updated Successfully In CoporateUserServiceImpl.applyStudentDetails(-)");
+
+		} catch (Exception e) {
+
+			LOGGER.info("Data Updatation Failed In CoporateUserServiceImpl.applyStudentDetails(-)" + e);
+			throw e;
+		}
+		return StudentDetailsList;
 	}
 
 }

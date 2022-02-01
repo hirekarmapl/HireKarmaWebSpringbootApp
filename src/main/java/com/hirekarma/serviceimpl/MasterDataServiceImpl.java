@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hirekarma.repository.BadgesRepository;
 import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
-import com.hirekarma.repository.StudentCGPARepository;
 import com.hirekarma.service.MasterDataService;
 
 @Service("masterDataServiceImpl")
@@ -28,7 +28,7 @@ public class MasterDataServiceImpl implements MasterDataService {
 	public StudentBatchRepository batchRepository;
 
 	@Autowired
-	public StudentCGPARepository cgpaRepository;
+	public BadgesRepository badgesRepository;
 
 	@Override
 	public List<Map<String, Object>> fetchMasterData(String value) {
@@ -72,17 +72,17 @@ public class MasterDataServiceImpl implements MasterDataService {
 
 			break;
 
-		case "cgpa":
+		case "badge":
 
-			LOGGER.info("Inside CGPA Details..");
+			LOGGER.info("Inside Badge Details..");
 
-			list = cgpaRepository.getCgpaList();
+			list = badgesRepository.getBadgeDetails();
 			it = list.iterator();
 			while (it.hasNext()) {
 				Object[] state = it.next();
 				Map<String, Object> st = new HashMap<String, Object>();
-				st.put("CgpaId", state[0]);
-				st.put("CgpaName", state[1]);
+				st.put("badgeId", state[0]);
+				st.put("badgeName", state[1]);
 				dataList.add(st);
 			}
 

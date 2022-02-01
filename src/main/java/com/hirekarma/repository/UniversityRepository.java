@@ -29,4 +29,7 @@ public interface UniversityRepository extends JpaRepository<University, Long> {
 	@Query("select s from University s where s.universityEmail = :email")
 	List<University> getDetailsByEmail1(@Param("email")String email);
 
+	@Query("select u from University u where u.status = 1 ")
+	List<University> displayUniversityList();
+
 }

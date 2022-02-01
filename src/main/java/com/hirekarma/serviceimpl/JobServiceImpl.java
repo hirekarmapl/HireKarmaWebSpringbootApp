@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.JobBean;
 import com.hirekarma.exception.JobException;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.service.JobService;
 
@@ -25,6 +27,9 @@ public class JobServiceImpl implements JobService {
 	@Autowired
 	private JobRepository jobRepository;
 
+	@Autowired
+	private CorporateRepository corporateRepository;
+	
 	@Override
 	public JobBean insert(JobBean jobBean) {
 		LOGGER.debug("Inside JobServiceImpl.insert()");
@@ -34,17 +39,29 @@ public class JobServiceImpl implements JobService {
 		byte[] image=null;
 		try {
 			LOGGER.debug("Inside try block of JobServiceImpl.insert()");
+			
+			Optional<Corporate> optional = corporateRepository.findById(jobBean.getUserId());
+			if(optional.isPresent()) {
 			image=jobBean.getFile().getBytes();
 			jobBean.setDescriptionFile(image);
-			jobBean.setStatus(false);
 			jobBean.setDeleteStatus("Active");
+			
+			if(optional.get().getCorporateBadge() == 3)
+			{
+				jobBean.setStatus(true);
+			}else {
+				jobBean.setStatus(false);
+			}
+			
 			job=new Job();
 			BeanUtils.copyProperties(jobBean, job);
 			jobReturn=jobRepository.save(job);
 			bean=new JobBean();
 			BeanUtils.copyProperties(jobReturn, bean);
 			LOGGER.info("Data successfully saved using JobServiceImpl.insert(-)");
+			}
 			return bean;
+			
 		}
 		catch (Exception e) {
 			LOGGER.error("Data Insertion failed using JobServiceImpl.insert(-): "+e);

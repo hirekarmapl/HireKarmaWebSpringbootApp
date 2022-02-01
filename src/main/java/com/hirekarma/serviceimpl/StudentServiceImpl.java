@@ -511,7 +511,7 @@ public class StudentServiceImpl implements StudentService {
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		try {
 			LOGGER.debug("Inside UniversityServiceImpl.universityResponse(-)");
-			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getId());
+			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getID());
 			universityJobShareToStudent = new UniversityJobShareToStudent();
 			universityJobShareToStudent = optional.get();
 			if (universityJobShareToStudent != null) {
@@ -524,6 +524,7 @@ public class StudentServiceImpl implements StudentService {
 				universityJobShareRepository.save(universityJobShareToStudent);
 
 				BeanUtils.copyProperties(universityJobShareToStudent, jobShareBean);
+				
 			}
 			LOGGER.info("Data Updated Successfully In UniversityServiceImpl.universityResponse(-)");
 
@@ -594,4 +595,5 @@ public class StudentServiceImpl implements StudentService {
 
 		return universitySharedJobList;
 	}
+
 }

@@ -22,4 +22,5 @@ public interface StudentService {
 	public List<UserBean> importStudentDataExcel(MultipartFile file);
 	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean);
 	public List<?> jobDetails(String token) throws ParseException;
+
 }

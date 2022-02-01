@@ -11,17 +11,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.beans.BadgeShareBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.service.AdminService;
 
 @RestController("adminController")
@@ -35,7 +35,7 @@ public class AdminController {
 	private AdminService adminService;
 
 	@PutMapping("/updateJobStatus")
-	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasRole('admin')")
 	public ResponseEntity<?> updateJobStatus(@RequestParam("id") Long id, @RequestParam("status") boolean status) {
 
 		LOGGER.debug("Inside AdminController.updateJobStatus(-)");
@@ -71,7 +71,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/shareJob")
-	@PreAuthorize("hasRole('university')")
+	@PreAuthorize("hasRole('admin')")
 	public ResponseEntity<?> shareJob(@RequestBody AdminShareJobToUniversityBean adminShareJobToUniversityBean) {
 
 		LOGGER.debug("Inside AdminController.shareJob(-)");
@@ -103,6 +103,7 @@ public class AdminController {
 	}
 	
 	@RequestMapping("/displayJobList")
+	@PreAuthorize("hasRole('admin')")
 	public ResponseEntity<Response> displayJobList() {
 		LOGGER.debug("Inside AdminController.displayJobList(-)");
 		List<?> listData = null;
@@ -131,4 +132,72 @@ public class AdminController {
 		return responseEntity;
 	}
 	
+	
+	@RequestMapping("/displayUniversityList")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<Response> displayUniversityList() {
+		LOGGER.debug("Inside AdminController.displayJobList(-)");
+		List<?> listData = null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+		try {
+			LOGGER.debug("Inside try block of AdminController.displayUniversityList(-)");
+			listData = adminService.displayUniversityList();
+			LOGGER.info("Response Successfully Updated using AdminController.displayUniversityList(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setDataList(listData);
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in AdminController.displayUniversityList(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
+	
+	@PutMapping("shareBadge")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<?> shareBadge(@RequestBody BadgeShareBean badgeShareBean) {
+
+		LOGGER.debug("Inside AdminController.shareBadge(-)");
+		
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+		Corporate badgeShare= new Corporate();
+		
+		try {
+			LOGGER.debug("Inside try block of AdminController.shareBadge(-)");
+			
+			badgeShare = adminService.shareBadge(badgeShareBean);
+
+			LOGGER.info("Response Successfully Updated using AdminController.shareBadge(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(badgeShare);
+
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in AdminController.displayUniversityList(-): " + e);
+			
+			e.printStackTrace();
+			
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
 }

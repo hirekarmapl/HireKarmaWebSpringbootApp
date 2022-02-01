@@ -18,11 +18,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.model.Corporate;
@@ -71,7 +73,6 @@ public class CoporateUserController {
 
 		UserProfile userProfile = null;
 		UserProfile userProfileReturn = null;
-		UserBean userBean = null;
 		Response response = new Response();
 		ResponseEntity<Response> responseEntity = null;
 
@@ -82,21 +83,20 @@ public class CoporateUserController {
 //				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
 
 					userProfile = new UserProfile();
-					userBean = new UserBean();
 					BeanUtils.copyProperties(bean, userProfile);
 
 					userProfileReturn = coporateUserService.insert(userProfile);
 
 					LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
-					BeanUtils.copyProperties(userProfileReturn, userBean);
-					userBean.setPassword(null);
+//					BeanUtils.copyProperties(userProfileReturn, userBean);
+					userProfileReturn.setPassword(null);
 
 					responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
 
 					response.setMessage("Data Shared Successfully...");
 					response.setStatus("Success");
 					response.setResponseCode(responseEntity.getStatusCodeValue());
-					response.setData(userBean);
+					response.setData(userProfileReturn);
 				} else {
 					throw new CoporateUserDefindException("Please Enter A Valid Phone Number !!");
 				}
@@ -246,14 +246,14 @@ public class CoporateUserController {
 
 		LOGGER.debug("Inside CoporateUserController.corporateCampusResponse(-)");
 
-		CampusDriveResponseBean driveResponseBean = new CampusDriveResponseBean();
+		List<StudentDetails> StudentDetails = new ArrayList<StudentDetails>();
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.corporateCampusResponse(-)");
 
-			driveResponseBean = coporateUserService.corporateCampusResponse(campus);
+			StudentDetails = coporateUserService.corporateCampusResponse(campus);
 
 			LOGGER.info("Status Successfully Updated using CoporateUserController.corporateCampusResponse(-)");
 
@@ -262,7 +262,7 @@ public class CoporateUserController {
 			response.setMessage("Request Accepted Successfully...");
 			response.setStatus("Success");
 			response.setResponseCode(responseEntity.getStatusCodeValue());
-			response.setData(driveResponseBean);
+			response.setData(StudentDetails);
 
 		} catch (Exception e) {
 			LOGGER.error("Status Updation failed in CoporateUserController.corporateCampusResponse(-): " + e);
@@ -275,8 +275,43 @@ public class CoporateUserController {
 		return responseEntity;
 	}
 	
+	@GetMapping("/applyStudentDetails")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<?> applyStudentDetails(@RequestBody CampusDriveResponseBean campus,@RequestHeader(value = "Authorization") String token) {
+
+		LOGGER.debug("Inside CoporateUserController.applyStudentDetails(-)");
+
+		List<StudentDetails> StudentDetails = new ArrayList<StudentDetails>();
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+
+		try {
+			LOGGER.debug("Inside try block of CoporateUserController.applyStudentDetails(-)");
+
+			StudentDetails = coporateUserService.applyStudentDetails(campus,token);
+
+			LOGGER.info("Status Successfully Updated using CoporateUserController.applyStudentDetails(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(StudentDetails);
+
+		} catch (Exception e) {
+			LOGGER.error("Status Updation failed in CoporateUserController.applyStudentDetails(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
+	
 	@GetMapping(value = "/corporateList")
-//	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<?> corporateList() {
 		LOGGER.debug("Inside CoporateUserController.corporateList(-)");
 		List<Corporate> corporate = new ArrayList<Corporate>();

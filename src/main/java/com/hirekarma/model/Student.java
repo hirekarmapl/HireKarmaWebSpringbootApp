@@ -57,7 +57,7 @@ public class Student implements Serializable{
 	private Long batch;
 	
 	@Column(name = "CGPA")
-	private Long cgpa;
+	private Double cgpa;
 	
 	@Lob
 	@Column(name = "STUDENT_IMAGE")

@@ -61,6 +61,9 @@ public class Corporate {
 	
 	@Column(name = "STATUS")
 	private String status;
+	
+	@Column(name = "BADGE")
+	private Long corporateBadge;
 
 	
 

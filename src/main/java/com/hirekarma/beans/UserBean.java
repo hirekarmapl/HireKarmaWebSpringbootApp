@@ -31,7 +31,7 @@ public class UserBean implements Serializable {
 	private Timestamp updatedOn;
 	private MultipartFile file;
 	private Long branch;
-	private Long cgpa;
+	private Double cgpa;
 	private Long batch;
 	private Long universityId;
 }

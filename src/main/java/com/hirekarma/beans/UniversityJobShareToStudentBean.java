@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 public class UniversityJobShareToStudentBean {
 
-	private Long id;
+	private Long iD;
 
 	private String createdBy;
 
@@ -40,6 +40,6 @@ public class UniversityJobShareToStudentBean {
 	
 	private Long branchId;
 	
-	private Long cgpaId;
+	private Double cgpaId;
 
 }

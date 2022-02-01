@@ -22,8 +22,9 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 	@Query("select s.studentId from Student s "
 			+ "inner join StudentBatch sbc on s.batch = sbc.id "
 			+ "inner join StudentBranch sbr on s.branch = sbr.id "
-			+ "inner join StudentCGPA scg on s.cgpa = scg.id")
-	List<Long> getStudentList(@Param("batchId")Long batchId, @Param("branchId")Long branchId,@Param("cgpaId") Long cgpaId);
+			+ "inner join StudentCGPA scg on s.cgpa = scg.id "
+			+ "where s.batch = :batchId and s.branch = :branchId and s.cgpa >= :cgpaId")
+	List<Long> getStudentList(@Param("batchId")Long batchId, @Param("branchId")Long branchId,@Param("cgpaId") Double cgpaId);
 
 	@Query("select studentId from Student")
 	List<Long> getStudentList();
@@ -33,6 +34,20 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 
 	@Query("select s from Student s where s.universityId = :universityId")
 	List<Student> getStudentListForUniversity(@Param("universityId")Long universityId);
+
+	@Query("select s from Student s where s.studentId = :studentId")
+	Student findByStudentId(@Param("studentId")Long studentId);
+
+	@Query("select s.studentName , s.studentEmail , s.studentAddress , s.studentPhoneNumber , "
+			+ "sbt.batchName , sbr.branchName , s.cgpa "
+			+ "from Student s inner join UniversityJobShareToStudent u on s.studentId = u.studentId "
+			+ "inner join StudentBatch sbt on s.batch = sbt.id "
+			+ "inner join StudentBranch sbr on s.branch = sbr.id "
+			+ "where u.universityId = :universityId  and u.jobId = :jobId and u.studentResponseStatus = 1")
+	List<Object[]> findApplyStudentDetails(@Param("universityId") Long universityId,@Param("jobId")  Long jobId);
+
+	@Query("select s from Student s where s.universityId = :universityId and s.batch = :batchId and s.branch = :branchId and s.cgpa >= :cgpa")
+	List<Student> getStudentFilter(@Param("universityId")Long universityId,@Param("batchId") Long batchId,@Param("branchId") Long branchId,@Param("cgpa") Double cgpa);
 	
 	
 }

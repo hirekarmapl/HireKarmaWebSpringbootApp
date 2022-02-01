@@ -1,7 +1,12 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,17 +16,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
-import com.hirekarma.beans.AdminSharedJobList;
-import com.hirekarma.beans.JobBean;
-import com.hirekarma.exception.JobException;
-import com.hirekarma.exception.UniversityException;
+import com.hirekarma.beans.BadgeShareBean;
+import com.hirekarma.exception.AdminException;
 import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.JobApply;
+import com.hirekarma.model.University;
+import com.hirekarma.repository.BadgesRepository;
+import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ShareJobRepository;
+import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.service.AdminService;
 
 @Service("adminServiceImpl")
@@ -34,6 +45,54 @@ public class AdminServiceImpl implements AdminService {
 
 	@Autowired
 	private JobRepository jobRepository;
+
+	@Autowired
+	private UniversityRepository universityRepository;
+
+	@Autowired
+	private JobApplyRepository jobApplyRepository;
+
+	@Autowired
+	private CorporateRepository corporateRepository;
+
+	@Autowired
+	private BadgesRepository badgesRepository;
+
+	@Scheduled(cron = "0 0 0 * * *")
+	public void jobApplicationStatusChange() {
+
+		LOGGER.info("\n\nSchedular Working For Deactivating The Job Appliaction : " + new Date().toString());
+
+		List<JobApply> JobApplyList = new ArrayList<JobApply>();
+
+		JobApplyList = jobApplyRepository.findAll();
+
+		if (JobApplyList.size() != 0) {
+
+			for (JobApply job : JobApplyList) {
+
+				String time1 = String.valueOf(job.getCreatedOn());
+				String[] fetchedTime = time1.split(" ");
+
+				String time2 = String.valueOf(LocalDateTime.now());
+				String[] now = time2.split("T");
+
+				LocalDate d1 = LocalDate.parse(fetchedTime[0], DateTimeFormatter.ISO_LOCAL_DATE);
+				LocalDate d2 = LocalDate.parse(now[0], DateTimeFormatter.ISO_LOCAL_DATE);
+
+				Duration diff = Duration.between(d1.atStartOfDay(), d2.atStartOfDay());
+				long diffDays = diff.toDays();
+
+				if (diffDays == 90) {
+
+					job.setApplicationStatus(false);
+					jobApplyRepository.save(job);
+
+					LOGGER.info("Appliaction Rejected For : " + job.getCoverLetter());
+				}
+			}
+		}
+	}
 
 	@Override
 	public Map<String, Object> updateActiveStatus(Long id, boolean status) {
@@ -56,7 +115,7 @@ public class AdminServiceImpl implements AdminService {
 				jobRepository.save(job);
 
 			} else {
-				throw new JobException("Job Value Can't Be Null !!");
+				throw new AdminException("Job Value Can't Be Null !!");
 			}
 
 			response.put("activeJob", job);
@@ -108,10 +167,10 @@ public class AdminServiceImpl implements AdminService {
 					user.setToatlSharedJob(count);
 					user.setResponse("SHARED");
 				} else {
-					throw new JobException("No University Selected !!");
+					throw new AdminException("No University Selected !!");
 				}
 			} else {
-				throw new JobException("No Job Selected !!");
+				throw new AdminException("No Job Selected !!");
 			}
 
 			response.put("shareJob", list);
@@ -127,42 +186,66 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public List<?> displayJobList() {
-		List<Job> jobBeanList = new ArrayList<Job>();
-		Job jobBean = null;
+		List<Job> jobList = new ArrayList<Job>();
 		try {
-			jobBeanList = jobRepository.getJobAllDetails();
-			
-			System.out.println(jobBeanList.size());
-				
-//				if (list.size() != 0) {
-//					for (Object[] obj1 : list) {
-//						jobBean = new JobBean();
-//
-//						adminSharedJobList.setUniversityResponseStatus(String.valueOf(obj1[0]));
-//						adminSharedJobList.setShareJobId(String.valueOf(obj1[1]));
-//						adminSharedJobList.setJobTitle((String) obj1[2]);
-//						adminSharedJobList.setCategory((String) obj1[3]);
-//						adminSharedJobList.setJobType((String) obj1[4]);
-//						adminSharedJobList.setWfhCheckbox((Boolean) obj1[5]);
-//						adminSharedJobList.setSkills((String) obj1[6]);
-//						adminSharedJobList.setCity((String) obj1[7]);
-//						adminSharedJobList.setOpenings(String.valueOf(obj1[8]));
-//						adminSharedJobList.setSalary(String.valueOf(obj1[9]));
-//						adminSharedJobList.setAbout((String) obj1[10]);
-//						adminSharedJobList.setDescription((String) obj1[11]);
-//
-//						jobBeanList.add(jobBean);
-//					}
-//
-//				} else {
-//					throw new UniversityException("No Job Found !!");
-//				}
+			LOGGER.debug("Inside AdminServiceImpl.displayJobList(-)");
+
+			jobList = jobRepository.getJobAllDetails();
+
+			System.out.println("Total DisplayJobList : " + jobList.size());
 		} catch (Exception e) {
 			throw e;
 		}
+		return jobList;
+	}
 
-		return jobBeanList;
+	@Override
+	public List<?> displayUniversityList() {
+		List<University> UniversityList = new ArrayList<University>();
+		try {
+			LOGGER.debug("Inside AdminServiceImpl.displayUniversityList(-)");
 
+			UniversityList = universityRepository.displayUniversityList();
+
+			System.out.println("Total DisplayUniversityList : " + UniversityList.size());
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return UniversityList;
+	}
+
+	@Override
+	public Corporate shareBadge(BadgeShareBean badgeShareBean) {
+
+		Optional<?> optional = null;
+		Corporate corporate = new Corporate();
+
+		try {
+			LOGGER.debug("Inside AdminServiceImpl.shareBadge(-)");
+
+			optional = badgesRepository.findById(badgeShareBean.getBadgeId());
+			if (optional.isPresent()) {
+				optional = null;
+				optional = corporateRepository.findById(badgeShareBean.getCorporateId());
+				if (optional.isPresent()) {
+
+					corporate = (Corporate) optional.get();
+					corporate.setCorporateBadge(badgeShareBean.getBadgeId());
+
+					corporateRepository.save(corporate);
+					LOGGER.info("Badge Successfuly Updated In AdminServiceImpl.shareBadge(-)");
+				} else {
+					throw new AdminException("Selected Corporate Not Found !!");
+				}
+			} else {
+				throw new AdminException("Selected Badge Not Found !!");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Data Updated Failed In AdminServiceImpl.shareBadge(-)" + e);
+			throw e;
+		}
+		return corporate;
 	}
 
 }

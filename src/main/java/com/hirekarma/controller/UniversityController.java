@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
@@ -72,17 +73,18 @@ public class UniversityController {
 	@PostMapping("/shareJobStudent")
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<?> shareJobStudent(
-			@RequestBody UniversityJobShareToStudentBean universityJobShareToStudentBean,@RequestHeader(value = "Authorization")String token) {
+			@RequestBody UniversityJobShareToStudentBean universityJobShareToStudentBean,
+			@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside UniversityController.shareJobStudent(-)");
 
 		ResponseEntity<?> responseEntity = null;
 		Map<String, Object> response = new HashMap<String, Object>();
 
 		universityJobShareToStudentBean.setToken(token);
-		
+
 		try {
 			LOGGER.debug("Inside try block of UniversityController.shareJobStudent(-)");
-			
+
 			if (universityJobShareToStudentBean.getToken() != null && universityJobShareToStudentBean.getToken() != ""
 					&& !universityJobShareToStudentBean.getToken().equalsIgnoreCase("null")
 					&& !universityJobShareToStudentBean.getToken().isEmpty()
@@ -115,14 +117,15 @@ public class UniversityController {
 
 	@PostMapping("/campusDriveRequest")
 	@PreAuthorize("hasRole('university')")
-	public ResponseEntity<Response> campusDriveRequest(@RequestBody CampusDriveResponseBean campus,@RequestHeader(value = "Authorization")String token) {
+	public ResponseEntity<Response> campusDriveRequest(@RequestBody CampusDriveResponseBean campus,
+			@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside UniversityController.campusDriveRequest(-)");
 		CampusDriveResponseBean driveResponseBean = new CampusDriveResponseBean();
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of UniversityController.campusDriveRequest(-)");
-			driveResponseBean = universityService.campusDriveRequest(campus,token);
+			driveResponseBean = universityService.campusDriveRequest(campus, token);
 			LOGGER.info("Response Successfully Updated using UniversityController.campusDriveRequest(-)");
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
@@ -142,10 +145,10 @@ public class UniversityController {
 		}
 		return responseEntity;
 	}
-	
-	@RequestMapping("/seeShareJobList")
+
+	@RequestMapping("/seeShareJobListByAdmin")
 	@PreAuthorize("hasRole('university')")
-	public ResponseEntity<Response> seeShareJobList(@RequestHeader(value = "Authorization")String token) {
+	public ResponseEntity<Response> seeShareJobList(@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside UniversityController.seeShareJobList(-)");
 		List<?> listData = null;
 		ResponseEntity<Response> responseEntity = null;
@@ -172,10 +175,40 @@ public class UniversityController {
 		}
 		return responseEntity;
 	}
-	
+
+	@RequestMapping("/seeShareJobListToStudent")
+	@PreAuthorize("hasRole('university')")
+	public ResponseEntity<Response> seeShareJobListToStudent(@RequestHeader(value = "Authorization") String token) {
+		LOGGER.debug("Inside UniversityController.seeShareJobListToStudent(-)");
+		List<?> listData = null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+		try {
+			LOGGER.debug("Inside try block of UniversityController.seeShareJobListToStudent(-)");
+			listData = universityService.seeShareJobListToStudent(token);
+			LOGGER.info("Response Successfully Updated using UniversityController.seeShareJobListToStudent(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(listData);
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in UniversityController.seeShareJobListToStudent(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
+
 	@RequestMapping("/studentDetails")
 	@PreAuthorize("hasRole('university')")
-	public ResponseEntity<Response> studentDetails(@RequestHeader(value = "Authorization")String token) {
+	public ResponseEntity<Response> studentDetails(@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside UniversityController.studentDetails(-)");
 		List<?> listData = null;
 		ResponseEntity<Response> responseEntity = null;
@@ -203,6 +236,39 @@ public class UniversityController {
 		return responseEntity;
 	}
 
+	@RequestMapping("/studentFilter")
+	@PreAuthorize("hasRole('university')")
+	public ResponseEntity<Response> studentFilter(
+			@RequestParam("batchId") Long batchId,
+			@RequestParam("branchId") Long branchId,
+			@RequestParam("cgpa") Double cgpa,
+			@RequestHeader(value = "Authorization") String token) {
+		LOGGER.debug("Inside UniversityController.studentFilter(-)");
+		List<?> listData = null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
+		try {
+			LOGGER.debug("Inside try block of UniversityController.studentFilter(-)");
+			listData = universityService.studentFilter(token,batchId,branchId,cgpa);
+			LOGGER.info("Response Successfully Updated using UniversityController.studentFilter(-)");
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+
+			response.setMessage("Data Fetched Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(listData);
+
+		} catch (Exception e) {
+			LOGGER.error("Response Updation failed in UniversityController.studentFilter(-): " + e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		return responseEntity;
+	}
 
 //	@PostMapping("/shareJobStudent")
 //	@PreAuthorize("hasRole('student')")
@@ -270,6 +336,5 @@ public class UniversityController {
 //		
 //		return name;
 //	}
-	
-		
+
 }

@@ -26,4 +26,10 @@ public interface JobRepository extends JpaRepository<Job, Long>{
 			+ "where u.universityId = :universityId and u.studentId = :studentId")
 	List<Object[]> getStudentJobAllDetails(@Param("universityId")Long universityId,@Param("studentId") Long studentId);
 
+	@Query(value = "select count(*) from Job where jobId = :jobId ")
+	Long getJobById(@Param("jobId") Long jobId);
+
+	@Query("select j from Job j where j.jobId = :jobId")
+	Job findByJobId(@Param("jobId")Long jobId);
+
 }

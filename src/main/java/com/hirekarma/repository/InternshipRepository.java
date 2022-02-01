@@ -11,6 +11,6 @@ import com.hirekarma.model.Internship;
 
 @Repository("internshipRepository")
 public interface InternshipRepository extends JpaRepository<Internship, Long>{
-	@Query(value = "select u from Internship u where u.deleteStatus='Active' and u.userId = :userId")
-	List<Internship> findInternshipsUserId(@Param("userId")Long userId);
+	@Query(value = "select u from Internship u where u.deleteStatus = :deleteStatus and u.corporateId = :corporateId")
+	List<Internship> findInternshipsUserId(@Param("corporateId")Long corporateId, @Param("deleteStatus") Boolean deleteStatus);
 }

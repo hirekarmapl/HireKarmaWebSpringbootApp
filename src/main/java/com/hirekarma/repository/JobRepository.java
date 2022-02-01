@@ -12,8 +12,9 @@ import com.hirekarma.model.Job;
 
 @Repository("jobRepository")
 public interface JobRepository extends JpaRepository<Job, Long>{
-	@Query(value = "select u from Job u where u.deleteStatus='Active' and u.userId = :userId")
-	List<Job> findJobsByUserId(@Param("userId")Long userId);
+	
+	@Query(value = "select u from Job u where u.deleteStatus = :deleteStatus and u.corporateId = :corporateId")
+	List<Job> findJobsByUserId(@Param("corporateId")Long corporateId,@Param("deleteStatus")Boolean deleteStatus);
 
 	@Query(value = "select u from Job u where u.deleteStatus='Active' ")
 	List<Job> getJobAllDetails();

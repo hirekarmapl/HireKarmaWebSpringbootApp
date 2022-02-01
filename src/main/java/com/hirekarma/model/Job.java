@@ -32,8 +32,8 @@ public class Job implements Serializable{
 	@Column(name = "JOB_ID")
 	private Long jobId;
 	
-	@Column(name = "USER_ID")
-	private Long userId;
+	@Column(name = "CORPORATE_ID")
+	private Long corporateId;
 	
 	@Column(name = "JOB_TITLE")
 	private String jobTitle;
@@ -70,10 +70,10 @@ public class Job implements Serializable{
 	private byte[] descriptionFile;
 	
 	@Column(name = "STATUS")
-	private boolean status;
+	private Boolean status;
 	
 	@Column(name = "DELETE_STATUS")
-	private String deleteStatus;
+	private Boolean deleteStatus;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")

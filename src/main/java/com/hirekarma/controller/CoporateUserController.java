@@ -98,7 +98,7 @@ public class CoporateUserController {
 					response.setResponseCode(responseEntity.getStatusCodeValue());
 					response.setData(userProfileReturn);
 				} else {
-					throw new CoporateUserDefindException("Please Enter A Valid Phone Number !!");
+					throw new CoporateUserDefindException("Please Enter A Valid Email Address !!");
 				}
 
 //			} else {

@@ -31,20 +31,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversitySharedJobList;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
@@ -82,39 +78,12 @@ public class StudentServiceImpl implements StudentService {
 
 	@Autowired
 	private UniversityJobShareRepository universityJobShareRepository;
-	
+
 	@Autowired
 	private JobRepository jobRepository;
 
 	@Autowired
-	private RestTemplate restTemplate;
-
-	@Value("${mail.service.welcomeListUrl}")
-	private String welcomeListUrl;
-
-	@Value("${mail.service.welcomeUrl}")
-	private String welcomeUrl;
-
-	@Value("${mail.service.getStarted}")
-	private String getStarted;
-
-//	@Override
-//	public Student insert(Student student) {
-//		LOGGER.debug("Inside StudentServiceImpl.insert(-)");
-//		Student studentReturn=null;
-//		try {
-//			LOGGER.debug("Inside try block of StudentServiceImpl.insert(-)");
-//			student.setStatus("Active");
-//			student.setPassword(passwordEncoder.encode(student.getPassword()));
-//			studentReturn=studentRepository.save(student);
-//			LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
-//			return studentReturn;
-//		}
-//		catch (Exception e) {
-//			LOGGER.error("Data Insertion failed using StudentServiceImpl.insert(-): "+e);
-//			throw new StudentUserDefindException(e.getMessage());
-//		}
-//	}
+	private EmailController emailController;
 
 	@Override
 	public UserProfile insert(UserProfile student) {
@@ -124,8 +93,6 @@ public class StudentServiceImpl implements StudentService {
 		UserProfile studentReturn = null;
 		HttpHeaders headers = null;
 		Map<String, String> body = null;
-		String reqBodyData = null;
-		HttpEntity<String> requestEntity = null;
 		Student stud = new Student();
 
 		String LowerCaseEmail = student.getEmail().toLowerCase();
@@ -154,12 +121,7 @@ public class StudentServiceImpl implements StudentService {
 				body = new HashMap<String, String>();
 				body.put("email", student.getEmail());
 
-				reqBodyData = new ObjectMapper().writeValueAsString(body);
-
-				requestEntity = new HttpEntity<String>(reqBodyData, headers);
-
-//			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
-//			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
+				emailController.welcomeEmail(body);
 
 				LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
 			} else {
@@ -172,68 +134,6 @@ public class StudentServiceImpl implements StudentService {
 			throw new StudentUserDefindException(e.getMessage());
 		}
 	}
-
-//	@Override
-//	public StudentBean checkLoginCredentials(String email, String password) {
-//		LOGGER.debug("Inside StudentServiceImpl.checkLoginCredentials(-,-)");
-//		StudentBean studentBean=null;
-//		Student student=null;
-//		HirekarmaPasswordVerifier verifier= null;
-//		String encryptedPassword=null;
-//		try {
-//			LOGGER.debug("Inside try block of StudentServiceImpl.checkLoginCredentials(-,-)");
-//			verifier= new HirekarmaPasswordVerifier();
-//			encryptedPassword=verifier.getEncriptedString(password);
-//			student=studentRepository.checkLoginCredentials(email, encryptedPassword);
-//			if(student!=null) {
-//				LOGGER.info("student credential match using StudentServiceImpl.checkLoginCredentials(-,-)");
-//				studentBean=new StudentBean();
-//				BeanUtils.copyProperties(student, studentBean);
-//				return studentBean;
-//			}
-//			else {
-//				LOGGER.info("student credential does not match using StudentServiceImpl.checkLoginCredentials(-,-)");
-//				return null;
-//			}
-//		}
-//		catch (Exception e) {
-//			LOGGER.info("Error occured in StudentServiceImpl.checkLoginCredentials(-,-): "+e);
-//			throw new StudentUserDefindException(e.getMessage());
-//		}
-//	}
-
-//	@Override
-//	public UserBean updateStudentProfile(UserBean studentBean) {
-//		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile(-)");
-//		Student student=null;
-//		Student studentReturn=null;
-//		Optional<Student> optional=null;
-//		StudentBean studentBean=null;
-//		try {
-//			LOGGER.debug("Inside try block of StudentServiceImpl.updateStudentProfile(-)");
-//			optional=studentRepository.findById(bean.getStudentId());
-//			student=optional.get();
-//			if(!optional.isEmpty()) {
-//				if(student!=null) {
-//					student.setName(bean.getName());
-//					student.setEmail(bean.getEmail());
-//					student.setPhoneNO(bean.getPhoneNO());
-//					student.setProfileImage(bean.getProfileImage());
-//					student.setAddress(bean.getAddress());
-//					student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-//					studentReturn=studentRepository.save(student);
-//					studentBean=new StudentBean();
-//					BeanUtils.copyProperties(studentReturn, studentBean);
-//					LOGGER.info("Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
-//				}
-//			}
-//			return studentBean;
-//		}
-//		catch (Exception e) {
-//			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): "+e);
-//			throw new StudentUserDefindException(e.getMessage());
-//		}
-//	}
 
 	@Override
 	public UserBean updateStudentProfile(UserBean studentBean, String token) throws Exception {
@@ -432,9 +332,7 @@ public class StudentServiceImpl implements StudentService {
 		UserProfile studentProfileReturn = null;
 		List<UserBean> allStudentLists = null;
 		UserBean studentReturnBean = null;
-		HttpHeaders headers = null;
-		String reqBodyData = null;
-		HttpEntity<String> requestEntity = null;
+
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.importStudentDataExcel(-)");
 			path = Files.createTempDirectory("");
@@ -473,11 +371,12 @@ public class StudentServiceImpl implements StudentService {
 				studentReturnBean.setPassword(generatedPassword);
 				allStudentLists.add(studentReturnBean);
 			}
-			headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			reqBodyData = new ObjectMapper().writeValueAsString(allStudentLists);
-			requestEntity = new HttpEntity<String>(reqBodyData, headers);
-			restTemplate.exchange(welcomeListUrl, HttpMethod.POST, requestEntity, String.class);
+//			headers = new HttpHeaders();
+//			headers.setContentType(MediaType.APPLICATION_JSON);
+//			reqBodyData = new ObjectMapper().writeValueAsString(allStudentLists);
+//			requestEntity = new HttpEntity<String>(reqBodyData, headers);
+			emailController.welcomeEmailList(allStudentLists);
+//			restTemplate.exchange(welcomeListUrl, HttpMethod.POST, requestEntity, String.class);
 			LOGGER.info(
 					"Student data import Successfully and mail sent using StudentServiceImpl.importStudentDataExcel(-)");
 			return allStudentLists;
@@ -524,7 +423,7 @@ public class StudentServiceImpl implements StudentService {
 				universityJobShareRepository.save(universityJobShareToStudent);
 
 				BeanUtils.copyProperties(universityJobShareToStudent, jobShareBean);
-				
+
 			}
 			LOGGER.info("Data Updated Successfully In UniversityServiceImpl.universityResponse(-)");
 
@@ -555,34 +454,35 @@ public class StudentServiceImpl implements StudentService {
 		List<Student> studentList = new ArrayList<Student>();
 		UniversitySharedJobList universitySharedJob = null;
 		List<UniversitySharedJobList> universitySharedJobList = new ArrayList<UniversitySharedJobList>();
-		
+
 		studentList = studentRepository.getDetailsByEmail1(email);
-		
+
 		try {
 			if (studentList.size() == 1) {
-				List<Object[]> list = jobRepository.getStudentJobAllDetails(studentList.get(0).getUniversityId(),studentList.get(0).getStudentId());
-				
+				List<Object[]> list = jobRepository.getStudentJobAllDetails(studentList.get(0).getUniversityId(),
+						studentList.get(0).getStudentId());
+
 				if (list.size() != 0) {
 					for (Object[] obj1 : list) {
 						universitySharedJob = new UniversitySharedJobList();
 
-						universitySharedJob.setJobId((Long)obj1[0]);
-						universitySharedJob.setJobTitle((String)obj1[1]);
+						universitySharedJob.setJobId((Long) obj1[0]);
+						universitySharedJob.setJobTitle((String) obj1[1]);
 						universitySharedJob.setCategory((String) obj1[2]);
 						universitySharedJob.setJobType((String) obj1[3]);
 						universitySharedJob.setWfhCheckbox((Boolean) obj1[4]);
 						universitySharedJob.setSkills((String) obj1[5]);
 						universitySharedJob.setCity((String) obj1[6]);
 						universitySharedJob.setOpenings((Integer) obj1[7]);
-						universitySharedJob.setSalary((Double)obj1[8]);
-						universitySharedJob.setAbout((String)obj1[9]);
+						universitySharedJob.setSalary((Double) obj1[8]);
+						universitySharedJob.setAbout((String) obj1[9]);
 						universitySharedJob.setDescription((String) obj1[10]);
 						universitySharedJob.setSharedJobId((Long) obj1[11]);
-						universitySharedJob.setStudentResponse((Boolean)obj1[12]);
+						universitySharedJob.setStudentResponse((Boolean) obj1[12]);
 
 						universitySharedJobList.add(universitySharedJob);
 					}
-					
+
 				} else {
 					throw new UniversityException("Sorry, No Job's Shared For You !!");
 				}
@@ -595,5 +495,67 @@ public class StudentServiceImpl implements StudentService {
 
 		return universitySharedJobList;
 	}
+
+//	@Override
+//	public StudentBean checkLoginCredentials(String email, String password) {
+//		LOGGER.debug("Inside StudentServiceImpl.checkLoginCredentials(-,-)");
+//		StudentBean studentBean=null;
+//		Student student=null;
+//		HirekarmaPasswordVerifier verifier= null;
+//		String encryptedPassword=null;
+//		try {
+//			LOGGER.debug("Inside try block of StudentServiceImpl.checkLoginCredentials(-,-)");
+//			verifier= new HirekarmaPasswordVerifier();
+//			encryptedPassword=verifier.getEncriptedString(password);
+//			student=studentRepository.checkLoginCredentials(email, encryptedPassword);
+//			if(student!=null) {
+//				LOGGER.info("student credential match using StudentServiceImpl.checkLoginCredentials(-,-)");
+//				studentBean=new StudentBean();
+//				BeanUtils.copyProperties(student, studentBean);
+//				return studentBean;
+//			}
+//			else {
+//				LOGGER.info("student credential does not match using StudentServiceImpl.checkLoginCredentials(-,-)");
+//				return null;
+//			}
+//		}
+//		catch (Exception e) {
+//			LOGGER.info("Error occured in StudentServiceImpl.checkLoginCredentials(-,-): "+e);
+//			throw new StudentUserDefindException(e.getMessage());
+//		}
+//	}
+
+//	@Override
+//	public UserBean updateStudentProfile(UserBean studentBean) {
+//		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile(-)");
+//		Student student=null;
+//		Student studentReturn=null;
+//		Optional<Student> optional=null;
+//		StudentBean studentBean=null;
+//		try {
+//			LOGGER.debug("Inside try block of StudentServiceImpl.updateStudentProfile(-)");
+//			optional=studentRepository.findById(bean.getStudentId());
+//			student=optional.get();
+//			if(!optional.isEmpty()) {
+//				if(student!=null) {
+//					student.setName(bean.getName());
+//					student.setEmail(bean.getEmail());
+//					student.setPhoneNO(bean.getPhoneNO());
+//					student.setProfileImage(bean.getProfileImage());
+//					student.setAddress(bean.getAddress());
+//					student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+//					studentReturn=studentRepository.save(student);
+//					studentBean=new StudentBean();
+//					BeanUtils.copyProperties(studentReturn, studentBean);
+//					LOGGER.info("Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+//				}
+//			}
+//			return studentBean;
+//		}
+//		catch (Exception e) {
+//			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): "+e);
+//			throw new StudentUserDefindException(e.getMessage());
+//		}
+//	}
 
 }

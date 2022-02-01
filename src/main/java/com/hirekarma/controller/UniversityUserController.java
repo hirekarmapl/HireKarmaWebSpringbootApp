@@ -87,7 +87,7 @@ public class UniversityUserController {
 			LOGGER.debug("Inside try block of UniversityUserController.createUser(-)");
 
 			if (Validation.validateEmail(universityUserBean.getEmail())) {
-				if (Validation.phoneNumberValidation(Long.valueOf(universityUserBean.getPhoneNo()))) {
+//				if (Validation.phoneNumberValidation(Long.valueOf(universityUserBean.getPhoneNo()))) {
 
 					universityUser = new UserProfile();
 					userBean = new UserBean();
@@ -104,9 +104,9 @@ public class UniversityUserController {
 					response.setStatus("Success");
 					response.setResponseCode(responseEntity.getStatusCodeValue());
 					response.setData(userBean);
-				} else {
-					throw new UniversityUserDefindException("Please Enter A Valid Phone Number !!");
-				}
+//				} else {
+//					throw new UniversityUserDefindException("Please Enter A Valid Phone Number !!");
+//				}
 			} else {
 				throw new UniversityUserDefindException("Please Enter A Valid Email !!");
 			}

@@ -55,7 +55,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 //					"/hirekarma/**"
 				"/hirekarma/login","/hirekarma/saveStudentUrl",
 				"/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl",
-				"/hirekarma/oauth2/**","/hirekarma/masterData","/hirekarma/corporateList","/hirekarma/displayJobList"
+				"/hirekarma/oauth2/**","/hirekarma/masterData","/hirekarma/corporateList",
+				"/hirekarma/displayJobList"
 			).permitAll()
 			.anyRequest()
 			.authenticated()
@@ -75,6 +76,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		http.cors();
 	}
+	
+//	http.authorizeRequests()
+//	.anyRequest().authenticated()
+//	.and().oauth2Login();
 	
 	@Bean
 	@Override

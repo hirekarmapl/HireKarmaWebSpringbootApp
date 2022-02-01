@@ -32,7 +32,7 @@ public class JobController {
 	private JobService jobService;
 	
 	@PostMapping("/saveJobUrl")
-	@PreAuthorize("hasRole('university')")
+	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<JobBean> saveJobDetails(@ModelAttribute JobBean jobBean) {
 		LOGGER.debug("Inside JobController.saveJobDetails(-)");
 		JobBean bean=null;

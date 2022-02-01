@@ -12,16 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityUserDefindException;
 import com.hirekarma.model.University;
@@ -35,9 +32,6 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniversityUserServiceImpl.class);
 
-//	@Autowired 
-//	private UniversityUserRepository universityUserRepository;
-
 	@Autowired
 	private UserRepository userRepository;
 
@@ -48,36 +42,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 	private PasswordEncoder passwordEncoder;
 
 	@Autowired
-	private RestTemplate restTemplate;
-
-	@Value("${mail.service.welcomeUrl}")
-	private String welcomeUrl;
-
-	@Value("${mail.service.getStarted}")
-	private String getStarted;
-
-//	@Override
-//	public UniversityUser insert(UniversityUser universityUser) {
-//		LOGGER.debug("Inside UniversityUserServiceImpl.insert(-)");
-//		UniversityUser sityUser=null;
-//		HirekarmaPasswordVerifier verifier= null;
-//		String encryptedPassword=null;
-//		try {
-//			LOGGER.debug("Inside try block of UniversityUserServiceImpl.insert(-)");
-//			verifier= new HirekarmaPasswordVerifier();
-//			universityUser.setUserType("University User");
-//			universityUser.setStatus("Active");
-//			encryptedPassword=verifier.getEncriptedString(universityUser.getPassword());
-//			universityUser.setPassword(encryptedPassword);
-//			sityUser=universityUserRepository.save(universityUser);
-//			LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
-//			return sityUser;	
-//					
-//		}catch (Exception e ) {
-//			LOGGER.error("Data Insertion failed using UniversityUserServiceImpl.insert(-): "+e);
-//			throw e;	
-//		}		
-//	}
+	private EmailController emailController;
 
 	@Override
 	public UserProfile insert(UserProfile universityUser) {
@@ -85,8 +50,6 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		UserProfile sityUser = null;
 		HttpHeaders headers = null;
 		Map<String, String> body = null;
-		String reqBodyData = null;
-		HttpEntity<String> requestEntity = null;
 		University university = new University();
 
 		String LowerCaseEmail = universityUser.getEmail().toLowerCase();
@@ -115,11 +78,10 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 
 				body = new HashMap<String, String>();
 				body.put("email", universityUser.getEmail());
-				reqBodyData = new ObjectMapper().writeValueAsString(body);
-				requestEntity = new HttpEntity<String>(reqBodyData, headers);
 
-//			restTemplate.exchange(welcomeUrl,HttpMethod.POST,requestEntity,String.class);
-//			restTemplate.exchange(getStarted,HttpMethod.POST,requestEntity,String.class);
+				emailController.welcomeEmail(body);
+				emailController.letsGetStarted(body);
+
 				LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
 			} else {
 				throw new StudentUserDefindException("This Email Is Already Present !!");
@@ -132,73 +94,8 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		}
 	}
 
-//	@Override
-//	public UniversityUserBean checkLoginCredentials(String email, String password) {
-//		
-//		LOGGER.debug("Inside UniversityUserServiceImpl.insert(-)");
-//		UniversityUserBean sityUserBean=null;
-//		UniversityUser sityUser=null;
-//		HirekarmaPasswordVerifier verifier= null;
-//		String encryptedPassword=null;
-//		try {
-//			LOGGER.debug("Inside try block of UniversityUserServiceImpl.checkLoginCredentials(-,-)");
-//			verifier= new HirekarmaPasswordVerifier();
-//			encryptedPassword=verifier.getEncriptedString(password);
-//			sityUser= universityUserRepository.checkLoginCredentials(email, encryptedPassword);
-//			if(sityUser!=null) {
-//				LOGGER.info("user credential match using UniversityUserServiceImpl.checkLoginCredentials(-,-)");
-//				sityUserBean=new UniversityUserBean();
-//				BeanUtils.copyProperties(sityUser, sityUserBean);
-//				return sityUserBean;
-//			}
-//			else {
-//				LOGGER.info("user credential does not match using UniversityUserServiceImpl.checkLoginCredentials(-,-)");
-//				return null;
-//			} 
-//		}
-//		catch(Exception e ) {
-//			LOGGER.info("Error occured in UniversityUserServiceImpl.checkLoginCredentials(-,-): "+e);
-//			throw e;
-//		}
-//	
-//	}
-
-//	@Override
-//	public UniversityUserBean updateUniversityUserProfile(UniversityUserBean universityUserBean) {
-//		LOGGER.debug("Inside UniversityUserServiceImpl.updateUniversityUserProfile(-)");
-//		UniversityUser universityUser=null;
-//		UniversityUser universityUserReturn=null;
-//		Optional<UniversityUser> optional=null;
-//		UniversityUserBean universityUserBeanReturn=null;
-//		try {
-//			LOGGER.debug("Inside try block of UniversityUserServiceImpl.updateUniversityUserProfile(-)");
-//			optional=universityUserRepository.findById(universityUserBean.getUniversityId());
-//			if(!optional.isEmpty()) {
-//				universityUser=optional.get();
-//				if(universityUser!=null) {
-//					universityUser.setUniversityName(universityUserBean.getUniversityName());
-//					universityUser.setEmailAddress(universityUserBean.getEmailAddress());
-//					universityUser.setPhoneNo(universityUserBean.getPhoneNo());
-//					universityUser.setUniversityEmailAddress(universityUserBean.getUniversityEmailAddress());
-//					universityUser.setUniversityImage(universityUserBean.getUniversityImage());
-//					universityUser.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-//					universityUser.setUniversityAddress(universityUserBean.getUniversityAddress());
-//					universityUserReturn=universityUserRepository.save(universityUser);
-//					universityUserBeanReturn=new UniversityUserBean();
-//					BeanUtils.copyProperties(universityUserReturn, universityUserBeanReturn);
-//					LOGGER.info("Data Successfully updated using UniversityUserServiceImpl.updateUniversityUserProfile(-)");
-//				}
-//			}
-//			return universityUserBeanReturn;
-//		}
-//		catch (Exception e) {
-//			LOGGER.error("Error occured in UniversityUserServiceImpl.updateUniversityUserProfile(-): "+e);
-//			throw new UniversityUserDefindException(e.getMessage());
-//		}
-//	}
-
 	@Override
-	public UserBean updateUniversityUserProfile(UserBean universityUserBean,String jwtToken) {
+	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String jwtToken) {
 		LOGGER.debug("Inside UniversityUserServiceImpl.updateUniversityUserProfile(-)");
 		UserProfile universityUser = null;
 		UserProfile universityUserReturn = null;
@@ -215,7 +112,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 			LOGGER.debug("Inside try block of UniversityUserServiceImpl.updateUniversityUserProfile(-)");
 
 			if (count1 == 1 && count2 == 1) {
-				
+
 				String[] chunks1 = jwtToken.split(" ");
 				String[] chunks = chunks1[1].split("\\.");
 				Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -229,7 +126,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 				String email = (String) jsonObject.get("sub");
 
 				university = universityRepository.findByEmail(email);
-				
+
 				optional = userRepository.findById(university.getUserId());
 //				Optional<University> universityOptional = universityRepository
 //						.getUniversityDetails(universityUserBean.getUserId());
@@ -278,6 +175,30 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		}
 	}
 
+	@Override
+	public UserBean findUniversityById(Long universityId) {
+		LOGGER.debug("Inside UniversityUserServiceImpl.findUniversityById(-)");
+		UserProfile universityUser = null;
+		Optional<UserProfile> optional = null;
+		UserBean universityUserBean = null;
+		try {
+			LOGGER.debug("Inside try block of UniversityUserServiceImpl.findUniversityById(-)");
+			optional = userRepository.findById(universityId);
+			if (!optional.isEmpty()) {
+				universityUser = optional.get();
+				if (universityUser != null) {
+					universityUserBean = new UserBean();
+					BeanUtils.copyProperties(universityUser, universityUserBean);
+					LOGGER.info("Data Successfully fetched using UniversityUserServiceImpl.findUniversityById(-)");
+				}
+			}
+			return universityUserBean;
+		} catch (Exception e) {
+			LOGGER.error("Error occured in UniversityUserServiceImpl.findUniversityById(-): " + e);
+			throw new UniversityUserDefindException(e.getMessage());
+		}
+	}
+
 //	@Override
 //	public UniversityUserBean findUniversityById(Long universityId) {
 //		LOGGER.debug("Inside UniversityUserServiceImpl.findUniversityById(-)");
@@ -303,28 +224,68 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 //		}
 //	}
 
-	@Override
-	public UserBean findUniversityById(Long universityId) {
-		LOGGER.debug("Inside UniversityUserServiceImpl.findUniversityById(-)");
-		UserProfile universityUser = null;
-		Optional<UserProfile> optional = null;
-		UserBean universityUserBean = null;
-		try {
-			LOGGER.debug("Inside try block of UniversityUserServiceImpl.findUniversityById(-)");
-			optional = userRepository.findById(universityId);
-			if (!optional.isEmpty()) {
-				universityUser = optional.get();
-				if (universityUser != null) {
-					universityUserBean = new UserBean();
-					BeanUtils.copyProperties(universityUser, universityUserBean);
-					LOGGER.info("Data Successfully fetched using UniversityUserServiceImpl.findUniversityById(-)");
-				}
-			}
-			return universityUserBean;
-		} catch (Exception e) {
-			LOGGER.error("Error occured in UniversityUserServiceImpl.findUniversityById(-): " + e);
-			throw new UniversityUserDefindException(e.getMessage());
-		}
-	}
+//	@Override
+//	public UniversityUserBean checkLoginCredentials(String email, String password) {
+//		
+//		LOGGER.debug("Inside UniversityUserServiceImpl.insert(-)");
+//		UniversityUserBean sityUserBean=null;
+//		UniversityUser sityUser=null;
+//		HirekarmaPasswordVerifier verifier= null;
+//		String encryptedPassword=null;
+//		try {
+//			LOGGER.debug("Inside try block of UniversityUserServiceImpl.checkLoginCredentials(-,-)");
+//			verifier= new HirekarmaPasswordVerifier();
+//			encryptedPassword=verifier.getEncriptedString(password);
+//			sityUser= universityUserRepository.checkLoginCredentials(email, encryptedPassword);
+//			if(sityUser!=null) {
+//				LOGGER.info("user credential match using UniversityUserServiceImpl.checkLoginCredentials(-,-)");
+//				sityUserBean=new UniversityUserBean();
+//				BeanUtils.copyProperties(sityUser, sityUserBean);
+//				return sityUserBean;
+//			}
+//			else {
+//				LOGGER.info("user credential does not match using UniversityUserServiceImpl.checkLoginCredentials(-,-)");
+//				return null;
+//			} 
+//		}
+//		catch(Exception e ) {
+//			LOGGER.info("Error occured in UniversityUserServiceImpl.checkLoginCredentials(-,-): "+e);
+//			throw e;
+//		}
+//	
+//	}
+//	@Override
+//	public UniversityUserBean updateUniversityUserProfile(UniversityUserBean universityUserBean) {
+//		LOGGER.debug("Inside UniversityUserServiceImpl.updateUniversityUserProfile(-)");
+//		UniversityUser universityUser=null;
+//		UniversityUser universityUserReturn=null;
+//		Optional<UniversityUser> optional=null;
+//		UniversityUserBean universityUserBeanReturn=null;
+//		try {
+//			LOGGER.debug("Inside try block of UniversityUserServiceImpl.updateUniversityUserProfile(-)");
+//			optional=universityUserRepository.findById(universityUserBean.getUniversityId());
+//			if(!optional.isEmpty()) {
+//				universityUser=optional.get();
+//				if(universityUser!=null) {
+//					universityUser.setUniversityName(universityUserBean.getUniversityName());
+//					universityUser.setEmailAddress(universityUserBean.getEmailAddress());
+//					universityUser.setPhoneNo(universityUserBean.getPhoneNo());
+//					universityUser.setUniversityEmailAddress(universityUserBean.getUniversityEmailAddress());
+//					universityUser.setUniversityImage(universityUserBean.getUniversityImage());
+//					universityUser.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+//					universityUser.setUniversityAddress(universityUserBean.getUniversityAddress());
+//					universityUserReturn=universityUserRepository.save(universityUser);
+//					universityUserBeanReturn=new UniversityUserBean();
+//					BeanUtils.copyProperties(universityUserReturn, universityUserBeanReturn);
+//					LOGGER.info("Data Successfully updated using UniversityUserServiceImpl.updateUniversityUserProfile(-)");
+//				}
+//			}
+//			return universityUserBeanReturn;
+//		}
+//		catch (Exception e) {
+//			LOGGER.error("Error occured in UniversityUserServiceImpl.updateUniversityUserProfile(-): "+e);
+//			throw new UniversityUserDefindException(e.getMessage());
+//		}
+//	}
 
 }

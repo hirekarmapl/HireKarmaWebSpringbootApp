@@ -11,7 +11,15 @@ public class EmailBean {
 	
 	private String toEmail;
 	
-	private List<String> toListMail;
+	private List<String> toListEmail ;
+	
+	private String attachment;
+	
+	private String body;
+	
+	private String subject;
+	
+	private String meetLink;
 	
 	private String response;
 

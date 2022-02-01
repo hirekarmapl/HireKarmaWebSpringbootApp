@@ -48,7 +48,7 @@ CREATE TABLE job (
   user_id bigint(20) DEFAULT NULL,
   wfh_check_box bit(1) DEFAULT NULL,
   PRIMARY KEY (job_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE job_apply (
   job_apply_id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -136,7 +136,7 @@ CREATE TABLE share_job_to_university (
   updated_by varchar(255) DEFAULT NULL,
   updated_on datetime(6) DEFAULT NULL,
   PRIMARY KEY (share_job_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `university_job_share` (
   `share_job_id` bigint(20) NOT NULL AUTO_INCREMENT,

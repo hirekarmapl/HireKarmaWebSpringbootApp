@@ -132,37 +132,60 @@ public class InternshipController {
 	
 	@PutMapping("/deleteInternshipById/{internshipId}")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<List<InternshipBean>> deleteInternshipById(@PathVariable Long internshipId){
+	public ResponseEntity<Response> deleteInternshipById(@PathVariable Long internshipId,@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside InternshipController.deleteInternshipById(-)");
 		List<InternshipBean> beans=null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of InternshipController.deleteInternshipById(-)");
-//			beans=internshipService.deleteInternshipById(internshipId);
+			beans=internshipService.deleteInternshipById(internshipId,token);
 			LOGGER.info("Data Deleted successfully using InternshipController.deleteInternshipById(-)");
-			return new ResponseEntity<List<InternshipBean>>(beans,HttpStatus.OK);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
+
+			response.setMessage("Internship Deleted Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(beans);
 		}
 		catch (Exception e) {
 			LOGGER.info("Data not deleted using InternshipController.deleteInternshipById(-)");
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
 	
 	@PutMapping("/updateInternshipById")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<InternshipBean> updateInternshipById(@ModelAttribute InternshipBean internshipBean){
+	public ResponseEntity<Response> updateInternshipById(@ModelAttribute InternshipBean internshipBean,@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside InternshipController.updateInternshipById(-)");
 		InternshipBean bean=null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of InternshipController.updateInternshipById(-)");
-			bean=internshipService.updateInternshipById(internshipBean);
+			bean=internshipService.updateInternshipById(internshipBean,token);
 			LOGGER.info("Data successfully updated using InternshipController.updateInternshipById(-)");
-			return new ResponseEntity<>(bean,HttpStatus.CREATED);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
+
+			response.setMessage("Internship Updated Successfully...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(bean);
 		}
 		catch (Exception e) {
 			LOGGER.error("Data saving failed in InternshipController.updateInternshipById(-): "+e);
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
 	
 }

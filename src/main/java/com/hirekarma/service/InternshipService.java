@@ -8,6 +8,6 @@ public interface InternshipService {
 	public InternshipBean insert(InternshipBean internshipBean, String token);
 	public List<InternshipBean> findInternshipsByUserId(String token);
 	public InternshipBean findInternshipById(Long internshipId);
-//	public List<InternshipBean> deleteInternshipById(Long internshipId);
-	public InternshipBean updateInternshipById(InternshipBean internshipBean);
+	public List<InternshipBean> deleteInternshipById(Long internshipId, String token);
+	public InternshipBean updateInternshipById(InternshipBean internshipBean, String token);
 }

@@ -9,10 +9,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.InternshipApplyBean;
+import com.hirekarma.beans.Response;
 import com.hirekarma.service.InternshipApplyService;
 
 @RestController("internshipApplyController")
@@ -27,19 +29,30 @@ public class InternshipApplyController {
 	
 	@PostMapping("/applyInternshipUrl")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<InternshipApplyBean> applyInternship(@RequestBody InternshipApplyBean internshipApplyBean){
+	public ResponseEntity<Response> applyInternship(@RequestBody InternshipApplyBean internshipApplyBean,@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside InternshipApplyController.applyInternship()");
 		InternshipApplyBean internshipApplyBeanReturn=null;
+		ResponseEntity<Response> responseEntity = null;
+		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of InternshipApplyController.applyInternship()");
-			internshipApplyBeanReturn=internshipApplyService.insert(internshipApplyBean);
+			internshipApplyBeanReturn = internshipApplyService.insert(internshipApplyBean,token);
 			LOGGER.info("Internship successfully applied");
-			return new ResponseEntity<InternshipApplyBean>(internshipApplyBeanReturn,HttpStatus.OK);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
+
+			response.setMessage("Internship successfully applied...");
+			response.setStatus("Success");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(internshipApplyBeanReturn);
 		}
 		catch (Exception e) {
 			LOGGER.error("Internship applying failed");
 			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+			response.setMessage(e.getMessage());
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
+		return responseEntity;
 	}
 }

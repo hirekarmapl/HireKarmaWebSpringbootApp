@@ -31,9 +31,12 @@ public class JobApply implements Serializable {
 	@Column(name = "JOB_APPLY_ID")
 	private Long jobApplyId;
 
-	@Column(name = "USER_ID")
-	private Long userId;
+	@Column(name = "STUDENT_ID")
+	private Long studentId;
 
+	@Column(name = "CORPORATE_ID")
+	private Long corporateId;
+	
 	@Column(name = "HIRE_REASON")
 	private String hireReason;
 
@@ -44,7 +47,7 @@ public class JobApply implements Serializable {
 	private String earliestJoiningDate;
 
 	@Column(name = "DELETE_STATUS")
-	private String deleteStatus;
+	private Boolean deleteStatus;
 
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")

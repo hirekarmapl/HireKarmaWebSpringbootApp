@@ -181,65 +181,95 @@ public class InternshipServiceImpl implements InternshipService {
 		}
 	}
 
-//	@Override
-//	public List<InternshipBean> deleteInternshipById(Long internshipId) {
-//		LOGGER.debug("Inside InternshipServiceImpl.deleteInternshipById(-)");
-//		Internship internship = null;
-//		Optional<Internship> optional = null;
-//		Long corpUserId = null;
-//		List<InternshipBean> internshipBeans = null;
-//		try {
-//			LOGGER.debug("Inside try block of InternshipServiceImpl.deleteInternshipById(-)");
-//			optional = internshipRepository.findById(internshipId);
-//			if (!optional.isEmpty()) {
-//				internship = optional.get();
-//				if (internship != null) {
-//					corpUserId = internship.getUserId();
-//					internship.setDeleteStatus("InActive");
-//					internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-//					internshipRepository.save(internship);
-//					internshipBeans = findInternshipsByUserId(corpUserId);
-//				}
-//			}
-//			LOGGER.debug("Data Successfully Deleted using InternshipServiceImpl.findInternshipById(-)");
-//			return internshipBeans;
-//		} catch (Exception e) {
-//			LOGGER.error("Error occured in InternshipServiceImpl.deleteInternshipById(-): " + e);
-//			throw new InternshipException(e.getMessage());
-//		}
-//	}
+	@Override
+	public List<InternshipBean> deleteInternshipById(Long internshipId, String token) {
+		LOGGER.debug("Inside InternshipServiceImpl.deleteInternshipById(-)");
+		Internship internship = null;
+		Optional<Internship> optional = null;
+		Long corpUserId = null;
+		List<InternshipBean> internshipBeans = null;
+		try {
+			LOGGER.debug("Inside try block of InternshipServiceImpl.deleteInternshipById(-)");
+			optional = internshipRepository.findById(internshipId);
+			if (!optional.isEmpty()) {
+				internship = optional.get();
+				if (internship != null) {
+					corpUserId = internship.getCorporateId();
+					internship.setDeleteStatus(true);
+					internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+					internshipRepository.save(internship);
+					internshipBeans = findInternshipsByUserId(token);
+				}
+			} else {
+				throw new InternshipException("No Internships Found !!");
+			}
+			LOGGER.debug("Data Successfully Deleted using InternshipServiceImpl.findInternshipById(-)");
+			return internshipBeans;
+		} catch (Exception e) {
+			LOGGER.error("Error occured in InternshipServiceImpl.deleteInternshipById(-): " + e);
+			throw new InternshipException(e.getMessage());
+		}
+	}
 
 	@Override
-	public InternshipBean updateInternshipById(InternshipBean internshipBean) {
+	public InternshipBean updateInternshipById(InternshipBean internshipBean, String token) {
 		LOGGER.debug("Inside InternshipServiceImpl.updateInternshipById(-)");
 		Internship internship = null;
 		Internship internshipReturn = null;
 		Optional<Internship> optional = null;
 		InternshipBean bean = null;
 		byte[] image = null;
+		Corporate corporate = null;
 		try {
 			LOGGER.debug("Inside try block of InternshipServiceImpl.updateInternshipById(-)");
-			image = internshipBean.getFile().getBytes();
-			internshipBean.setDescriptionFile(image);
-			optional = internshipRepository.findById(internshipBean.getInternshipId());
-			if (!optional.isEmpty()) {
-				internship = optional.get();
-				if (internship != null) {
-					internship.setInternshipTitle(internshipBean.getInternshipTitle());
-					internship.setInternshipType(internshipBean.getInternshipType());
-					internship.setSkills(internshipBean.getSkills());
-					internship.setCity(internshipBean.getCity());
-					internship.setOpenings(internshipBean.getOpenings());
-					internship.setSalary(internshipBean.getSalary());
-					internship.setAbout(internshipBean.getAbout());
-					internship.setDescription(internshipBean.getDescription());
-					internship.setDescriptionFile(internshipBean.getDescriptionFile());
-					internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-					internshipReturn = internshipRepository.save(internship);
-					bean = new InternshipBean();
-					BeanUtils.copyProperties(internshipReturn, bean);
-					LOGGER.info("Data Successfully updated using InternshipServiceImpl.updateInternshipById(-)");
+
+			String[] chunks1 = token.split(" ");
+			String[] chunks = chunks1[1].split("\\.");
+			Base64.Decoder decoder = Base64.getUrlDecoder();
+
+			String payload = new String(decoder.decode(chunks[1]));
+			JSONParser jsonParser = new JSONParser();
+			Object obj = jsonParser.parse(payload);
+
+			JSONObject jsonObject = (JSONObject) obj;
+
+			String email = (String) jsonObject.get("sub");
+
+			corporate = corporateRepository.findByEmail(email);
+			if (corporate != null) {
+
+				image = internshipBean.getFile().getBytes();
+				internshipBean.setDescriptionFile(image);
+
+				optional = internshipRepository.findById(internshipBean.getInternshipId());
+				if (!optional.isEmpty()) {
+					internship = optional.get();
+					if (internship != null) {
+
+						internship.setInternshipTitle(internshipBean.getInternshipTitle());
+						internship.setInternshipType(internshipBean.getInternshipType());
+						internship.setSkills(internshipBean.getSkills());
+						internship.setCity(internshipBean.getCity());
+						internship.setOpenings(internshipBean.getOpenings());
+						internship.setSalary(internshipBean.getSalary());
+						internship.setAbout(internshipBean.getAbout());
+						internship.setDescription(internshipBean.getDescription());
+						internship.setDescriptionFile(internshipBean.getDescriptionFile());
+						internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+						internship.setDeleteStatus(false);
+
+						internshipReturn = internshipRepository.save(internship);
+
+						bean = new InternshipBean();
+						BeanUtils.copyProperties(internshipReturn, bean);
+
+						LOGGER.info("Data Successfully updated using InternshipServiceImpl.updateInternshipById(-)");
+					}
+				}else {
+					throw new InternshipException("No Internship Found !!");
 				}
+			} else {
+				throw new InternshipException("No corporate Found !!");
 			}
 			return bean;
 		} catch (Exception e) {

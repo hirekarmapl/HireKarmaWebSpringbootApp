@@ -14,8 +14,13 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
 
+import lombok.Data;
+import lombok.ToString;
+
 @Entity
 @Table(name="INTERNSHIP_APPLY")
+@Data
+@ToString
 public class InternshipApply implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -26,8 +31,11 @@ public class InternshipApply implements Serializable{
 	@Column(name = "INTERNSHIP_APPLY_ID")
 	private Long internshipApplyId;
 	
-	@Column(name = "USER_ID")
-	private Long userId;
+	@Column(name = "STUDENT_ID")
+	private Long studentId;
+	
+	@Column(name = "CORPORATE_ID")
+	private Long corporateId;
 	
 	@Column(name = "HIRE_REASON")
 	private String hireReason;
@@ -39,7 +47,10 @@ public class InternshipApply implements Serializable{
 	private String earliestJoiningDate;
 	
 	@Column(name = "DELETE_STATUS")
-	private String deleteStatus;
+	private Boolean deleteStatus;
+	
+	@Column(name = "APPLICATION_STATUS")
+	private Boolean applicatinStatus;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
@@ -48,74 +59,4 @@ public class InternshipApply implements Serializable{
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 
-	public Long getInternshipApplyId() {
-		return internshipApplyId;
-	}
-
-	public void setInternshipApplyId(Long internshipApplyId) {
-		this.internshipApplyId = internshipApplyId;
-	}
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public String getHireReason() {
-		return hireReason;
-	}
-
-	public void setHireReason(String hireReason) {
-		this.hireReason = hireReason;
-	}
-
-	public String getCoverLetter() {
-		return coverLetter;
-	}
-
-	public void setCoverLetter(String coverLetter) {
-		this.coverLetter = coverLetter;
-	}
-
-	public String getEarliestJoiningDate() {
-		return earliestJoiningDate;
-	}
-
-	public void setEarliestJoiningDate(String earliestJoiningDate) {
-		this.earliestJoiningDate = earliestJoiningDate;
-	}
-
-	public String getDeleteStatus() {
-		return deleteStatus;
-	}
-
-	public void setDeleteStatus(String deleteStatus) {
-		this.deleteStatus = deleteStatus;
-	}
-
-	public Timestamp getCreatedOn() {
-		return createdOn;
-	}
-
-	public void setCreatedOn(Timestamp createdOn) {
-		this.createdOn = createdOn;
-	}
-
-	public Timestamp getUpdatedOn() {
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Timestamp updatedOn) {
-		this.updatedOn = updatedOn;
-	}
-
-	@Override
-	public String toString() {
-		return "InternshipApply [internshipApplyId=" + internshipApplyId + ", userId=" + userId + ", hireReason="
-				+ hireReason + ", coverLetter=" + coverLetter + ", earliestJoiningDate=" + earliestJoiningDate
-				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
-	}
 }

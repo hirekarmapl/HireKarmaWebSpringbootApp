@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.JwtRequest;
 import com.hirekarma.beans.JwtResponse;
+import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.UserProfile;
@@ -51,31 +52,47 @@ public class JwtAuthenticationController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 		String token=null;
+		Response response = null;
 		UserDetails userDetails=null;
 		JwtResponse jwtResponse=null;
 		UserProfile userProfile=null;
 		UserBean userBean=null;
-		
+		ResponseEntity<Response> responseEntity = null;
 		try {
 			if (Validation.validateEmail(authenticationRequest.getEmail())) {
+				System.out.println("email validated succesfully");
 				if(!authenticationRequest.getEmail().equalsIgnoreCase("admin@gmail.com") && !authenticationRequest.getPassword().equalsIgnoreCase("admin"))
 					authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword()));
 			}else {
-				throw new StudentUserDefindException("Please Enter A Valid Email !!");
+				throw new Exception("Bad Credentials");
 			}
 		}
 		catch (Exception e) {
-			throw new Exception("Incorrect email or password: "+e.getMessage());
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<Response>(response,HttpStatus.BAD_REQUEST);
+			response.setMessage(e.getMessage());
+			response.setStatus("Error");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(jwtResponse);
+			return responseEntity;
+			
 		}
+		
 		userDetails=this.userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
 		token=this.jwtTokenUtil.generateToken(userDetails);
 		userProfile=userRepository.findUserByEmail(authenticationRequest.getEmail());
 		userBean=new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
+		response= new Response();
+		responseEntity = new ResponseEntity<Response>(response,HttpStatus.OK);
 		jwtResponse=new JwtResponse();
 		jwtResponse.setJwtToken(token);
 		jwtResponse.setData(userBean);
-		return ResponseEntity.ok(jwtResponse);
+		response.setMessage("Data Saved Succesfully");
+		response.setStatus("Success");
+		response.setResponseCode(responseEntity.getStatusCodeValue());
+		response.setData(jwtResponse);
+		return responseEntity;
 	}
 	
 	@RequestMapping(value = "/refreshtoken", method = RequestMethod.GET)

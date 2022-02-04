@@ -73,7 +73,7 @@ public class StudentController {
 			LOGGER.error("Data saving failed in StudentController.createUser(-): " + e);
 			e.printStackTrace();
 
-			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.CONFLICT);
 
 			response.setMessage(e.getMessage());
 			response.setStatus("Failed");

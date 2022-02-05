@@ -49,9 +49,6 @@ public class Corporate {
     @Column(name = "PROFILE_IMAGE")
     private byte[] profileImage;
 	
-	@Column(name = "USER_TYPE")
-	private String userType;
-	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
@@ -60,7 +57,7 @@ public class Corporate {
 	private Timestamp updatedOn;
 	
 	@Column(name = "STATUS")
-	private String status;
+	private Boolean status;
 	
 	@Column(name = "BADGE")
 	private Long corporateBadge;

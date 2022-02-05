@@ -93,7 +93,7 @@ public class CoporateUserController {
 
 					responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
 
-					response.setMessage("Data Shared Successfully...");
+					response.setMessage("Data Saved Successfully...");
 					response.setStatus("Success");
 					response.setResponseCode(responseEntity.getStatusCodeValue());
 					response.setData(userProfileReturn);

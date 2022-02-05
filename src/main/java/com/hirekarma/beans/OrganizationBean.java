@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class OrganizationBean {
 	
 	private Long organizationId;
-	private Long userId;
+	private Long corporateId;
 	private String orgName;
 	private String orgEmail;
 	private String cinGstNum;
@@ -16,20 +16,19 @@ public class OrganizationBean {
 	private String description;
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
-	private String status;
+	private Boolean status;
 	private MultipartFile file;
-	
 	public Long getOrganizationId() {
 		return organizationId;
 	}
 	public void setOrganizationId(Long organizationId) {
 		this.organizationId = organizationId;
 	}
-	public Long getUserId() {
-		return userId;
+	public Long getCorporateId() {
+		return corporateId;
 	}
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
 	}
 	public String getOrgName() {
 		return orgName;
@@ -73,10 +72,10 @@ public class OrganizationBean {
 	public void setUpdatedOn(Timestamp updatedOn) {
 		this.updatedOn = updatedOn;
 	}
-	public String getStatus() {
+	public Boolean getStatus() {
 		return status;
 	}
-	public void setStatus(String status) {
+	public void setStatus(Boolean status) {
 		this.status = status;
 	}
 	public MultipartFile getFile() {
@@ -85,12 +84,13 @@ public class OrganizationBean {
 	public void setFile(MultipartFile file) {
 		this.file = file;
 	}
-	
 	@Override
 	public String toString() {
-		return "OrganizationBean [organizationId=" + organizationId + ", userId=" + userId + ", orgName=" + orgName
-				+ ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum + ", logo=" + Arrays.toString(logo)
+		return "OrganizationBean [organizationId=" + organizationId + ", corporateId=" + corporateId + ", orgName="
+				+ orgName + ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum + ", logo=" + Arrays.toString(logo)
 				+ ", description=" + description + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status="
 				+ status + ", file=" + file + "]";
 	}
+	
+
 }

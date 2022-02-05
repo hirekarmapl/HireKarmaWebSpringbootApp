@@ -71,28 +71,36 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		try {
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.insert(-)");
 			if (count == 0) {
-
+				
+				//save Into Common Table
+				
 				userProfile.setUserType("corporate");
 				userProfile.setStatus("Active");
 				userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
 
 				user = userRepository.save(userProfile);
 
+				//save Into Corporate Table
+				
 				corporate.setCorporateEmail(LowerCaseEmail);
 				corporate.setCorporateName(user.getName());
-				corporate.setStatus("Active");
+				corporate.setStatus(true);
 
 				corporateRepository.save(corporate);
+				
+				//save Into Organization Table
 
 				organization = new Organization();
-				organization.setUserId(user.getUserId());
-				organization.setStatus("Active");
+				organization.setCorporateId(corporate.getCorporateId());
+				organization.setStatus(true);
 
 				organizationRepository.save(organization);
 
 				body = new HashMap<String, String>();
 				body.put("email", userProfile.getEmail());
 
+				//email sent
+				
 				emailController.welcomeEmail(body);
 				emailController.letsGetStarted(body);
 

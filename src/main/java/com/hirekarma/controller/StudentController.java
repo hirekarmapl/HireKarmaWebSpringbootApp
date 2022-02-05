@@ -3,6 +3,7 @@ package com.hirekarma.controller;
 import java.io.IOException;
 import java.util.List;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,12 +42,15 @@ public class StudentController {
 	private StudentService studentService;
 
 	@PostMapping("/saveStudentUrl")
-	public ResponseEntity<Response> createUser(@RequestBody UserBean studentBean) {
+	public ResponseEntity<Response> createUser(@RequestBody UserBean studentBean,BindingResult result) {
 		LOGGER.debug("Inside StudentController.createUser(-)");
 		UserProfile student = null;
 		UserProfile studentReturn = null;
 		UserBean bean = null;
 		Response response = new Response();
+		System.out.println("helllo");
+		
+		
 		ResponseEntity<Response> responseEntity = null;
 		try {
 			LOGGER.debug("Inside try block of StudentController.createUser(-)");

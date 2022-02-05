@@ -3,9 +3,12 @@ package com.hirekarma.controller;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
+import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,13 +50,15 @@ public class JwtAuthenticationController {
 	@Autowired
 	private UserDetailsServiceImpl userDetailsService;
 	
-	@Autowired
+	@Autowired 
 	private UserRepository userRepository;
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest,BindingResult result) throws Exception {
+		
+		System.out.println("outside valid");
 		String token=null;
-		Response response = null;
+		Response response = new Response();
 		UserDetails userDetails=null;
 		JwtResponse jwtResponse=null;
 		UserProfile userProfile=null;
@@ -64,7 +70,7 @@ public class JwtAuthenticationController {
 				if(!authenticationRequest.getEmail().equalsIgnoreCase("admin@gmail.com") && !authenticationRequest.getPassword().equalsIgnoreCase("admin"))
 					authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword()));
 			}else {
-				throw new Exception("Bad Credentials");
+				throw new Exception("Bad Credential");
 			}
 		}
 		catch (Exception e) {
@@ -83,7 +89,7 @@ public class JwtAuthenticationController {
 		userProfile=userRepository.findUserByEmail(authenticationRequest.getEmail());
 		userBean=new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
-		response= new Response();
+		
 		responseEntity = new ResponseEntity<Response>(response,HttpStatus.OK);
 		jwtResponse=new JwtResponse();
 		jwtResponse.setJwtToken(token);

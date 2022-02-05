@@ -119,10 +119,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			LOGGER.debug("Inside try block of CoporateUserServiceImpl.updateCoporateUserProfile(-)");
 			optional = userRepository.findById(bean.getUserId());
 			if (!optional.isEmpty()) {
+				
 				user = optional.get();
 				if (user != null) {
 					user.setName(bean.getName());
-					user.setEmail(bean.getEmail());
+//					updation causig JWT verification error and jwt token not working..
+//					user.setEmail(bean.getEmail());
 					user.setPhoneNo(bean.getPhoneNo());
 					user.setImage(bean.getImage());
 					user.setAddress(bean.getAddress());

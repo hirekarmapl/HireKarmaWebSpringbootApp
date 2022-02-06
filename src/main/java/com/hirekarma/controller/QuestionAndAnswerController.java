@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.QuestionAndAnswerBean;
 import com.hirekarma.beans.QuestionAndAnswerResponseBean;
@@ -63,4 +64,9 @@ public class QuestionAndAnswerController {
 		respDetail=QAService.deleteQNADetail(QNA_id);		
 		return respDetail;
 	}
+	 @PostMapping("/upload")
+	  public ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(@RequestParam("file") MultipartFile file) {
+		 return QAService.uploadFile(file);
+	 }
+	
 }

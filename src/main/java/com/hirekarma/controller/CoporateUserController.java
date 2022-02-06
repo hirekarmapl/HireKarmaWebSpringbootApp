@@ -72,7 +72,7 @@ public class CoporateUserController {
 			LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
 			BeanUtils.copyProperties(userProfileReturn,userBean);
 			userBean.setPassword(null);
-			return new ResponseEntity<>(userBean,HttpStatus.CREATED);
+			return new ResponseEntity<UserBean>(userBean,HttpStatus.CREATED);
 		}
 		catch (Exception e) {
 			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): "+e);

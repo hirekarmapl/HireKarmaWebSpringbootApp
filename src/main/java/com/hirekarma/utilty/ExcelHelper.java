@@ -1,0 +1,80 @@
+package com.hirekarma.utilty;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
+import com.hirekarma.beans.QuestionAndAnswerBean;
+public class ExcelHelper {
+  public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  static String[] HEADERs = { "question", "type", "mcqanswer", "codingdescription","testcase","corporateid" };
+  static String SHEET = "Tutorials";
+  public static boolean hasExcelFormat(MultipartFile file) {
+	  System.out.println(file.getContentType());
+    if (!TYPE.equals(file.getContentType())) {
+      return false;
+    }
+    return true;
+  }
+  public static List<QuestionAndAnswerBean> excelToTutorials(InputStream is) {
+    try {
+    	System.out.println(is.toString());
+      Workbook workbook = new XSSFWorkbook(is);
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rows = sheet.iterator();
+      List<QuestionAndAnswerBean> tutorials = new ArrayList<QuestionAndAnswerBean>();
+      int rowNumber = 0;
+      while (rows.hasNext()) {
+        Row currentRow = rows.next();
+        // skip header
+        if (rowNumber == 0) {
+          rowNumber++;
+          continue;
+        }
+        Iterator<Cell> cellsInRow = currentRow.iterator();
+        QuestionAndAnswerBean tutorial = new QuestionAndAnswerBean();
+        int cellIdx = 0;
+        while (cellsInRow.hasNext()) {
+          Cell currentCell = cellsInRow.next();
+          switch (cellIdx) {
+          case 0:
+        	  String [] question=currentCell.getStringCellValue().split(",");
+            tutorial.setQuestion(question);
+            break;
+          case 1:
+            tutorial.setType(currentCell.getStringCellValue());
+            break;
+          case 2:
+        	  String [] mcqAnswer=currentCell.getStringCellValue().split(",");
+            tutorial.setMcqAnswer(mcqAnswer);
+            break;
+          case 3:
+            tutorial.setCodingDescription(currentCell.getStringCellValue());
+            break;
+          case 4:
+        	  String [] testCases=currentCell.getStringCellValue().split(",");
+              tutorial.setTestCase(testCases);
+            break;
+          case 5:
+            tutorial.setCorporateId(currentCell.getStringCellValue());
+            break;
+          default:
+            break;
+          }
+          cellIdx++;
+        }
+        tutorials.add(tutorial);
+      }
+      workbook.close();
+      return tutorials;
+    } catch (IOException e) {
+      throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
+    }
+  }
+}

@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.QuestionAndAnswerBean;
 import com.hirekarma.beans.QuestionAndAnswerResponseBean;
@@ -17,12 +20,14 @@ import com.hirekarma.model.QuestionANdanswer;
 import com.hirekarma.repository.MCQRepository;
 import com.hirekarma.repository.QuestionAndAnswerRepository;
 import com.hirekarma.service.QuestionAndANswerService;
+import com.hirekarma.utilty.ExcelHelper;
 @Service("QuestionAndAnswerServiceImpl")
 public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	@Autowired
 	QuestionAndAnswerRepository QARepo;
 	@Autowired
 	MCQRepository mcqRepo;
+
 
 	public QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA) {
 		QuestionAndAnswerResponseBean bean=new QuestionAndAnswerResponseBean();
@@ -111,6 +116,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 
 
 	private void createQNARecord(QuestionAndAnswerBean QAbean, QuestionAndAnswerRepository QARepo2, QuestionAndAnswerResponseBean bean) {
+		try {
 		String [] question=QAbean.getQuestion();
 		for(int j=0;j<question.length;j++) {
 			QuestionANdanswer QAs=new QuestionANdanswer();
@@ -122,7 +128,9 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		}
 		bean.setStatus(200);
 		bean.setMessage("Data Saved Successfully!!");
-		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -262,6 +270,30 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		bean.setStatus(200);
 		bean.setMessage("Data deleted successfully!!");
 		return bean;
+	}
+
+
+	@Override
+	public ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file) {
+		String message = "";
+		int status=0;
+		ExcelService fileService=new ExcelService();
+	    if (ExcelHelper.hasExcelFormat(file)) {
+	      try {
+	    	  List<QuestionAndAnswerBean> tutorial= fileService.save(file);
+	    	  CreateQuestionAndAnswer(tutorial);
+	        status=200;
+	        message = "Uploaded the file successfully: " + file.getOriginalFilename();
+	        return ResponseEntity.status(HttpStatus.OK).body(new QuestionAndAnswerResponseBean(status,message));
+	      } catch (Exception e) {
+	    	 status=210; 
+	        message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+	        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new QuestionAndAnswerResponseBean(status,message));
+	      }
+	    }
+	    status=210;
+	    message = "Please upload an excel file!";
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new QuestionAndAnswerResponseBean(status,message));
 	}
 
 }

@@ -22,6 +22,23 @@ public class Validation {
 			return false;
 		}
 	}
+	public static boolean validatePassword(String password)
+	{
+		if(password == null || password.isBlank() || password.isEmpty() || password.equalsIgnoreCase("null") || password == null)
+		{
+			return false;
+		}
+		
+		String passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,20}$";
+		
+		Pattern pattern = Pattern.compile(passwordRegex);
+		if(pattern.matcher(password).matches())
+		{
+			return true;
+		}else {
+			return false;
+		}
+	}
 	
 	public static boolean phoneNumberValidation(Long phone)
 	{

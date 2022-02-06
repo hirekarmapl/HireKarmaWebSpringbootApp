@@ -45,6 +45,7 @@ public class JobServiceImpl implements JobService {
 		try {
 			LOGGER.debug("Inside try block of JobServiceImpl.insert()");
 
+//			finding unique cooperate by its email using token
 			String[] chunks1 = token.split(" ");
 			String[] chunks = chunks1[1].split("\\.");
 			Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -59,6 +60,7 @@ public class JobServiceImpl implements JobService {
 
 			corporate = corporateRepository.findByEmail(email);
 
+//			if cooperate found then
 			if (corporate != null) {
 
 				image = jobBean.getFile().getBytes();
@@ -199,6 +201,7 @@ public class JobServiceImpl implements JobService {
 		}
 	}
 
+//	we are not actually deleteing anything but setting status of delete true f
 	@Override
 	public List<JobBean> deleteJobById(Long jobId, String token) throws ParseException {
 		LOGGER.debug("Inside JobServiceImpl.deleteJobById(-)");

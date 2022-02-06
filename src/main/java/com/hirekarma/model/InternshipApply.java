@@ -19,8 +19,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name="INTERNSHIP_APPLY")
-@Data
-@ToString
+//@Data
+//@ToString
 public class InternshipApply implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -58,5 +58,99 @@ public class InternshipApply implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
+
+	@Override
+	public String toString() {
+		return "InternshipApply [internshipApplyId=" + internshipApplyId + ", studentId=" + studentId + ", corporateId="
+				+ corporateId + ", hireReason=" + hireReason + ", coverLetter=" + coverLetter + ", earliestJoiningDate="
+				+ earliestJoiningDate + ", deleteStatus=" + deleteStatus + ", applicatinStatus=" + applicatinStatus
+				+ ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	}
+
+	public Long getInternshipApplyId() {
+		return internshipApplyId;
+	}
+
+	public void setInternshipApplyId(Long internshipApplyId) {
+		this.internshipApplyId = internshipApplyId;
+	}
+
+	public Long getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(Long studentId) {
+		this.studentId = studentId;
+	}
+
+	public Long getCorporateId() {
+		return corporateId;
+	}
+
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
+	}
+
+	public String getHireReason() {
+		return hireReason;
+	}
+
+	public void setHireReason(String hireReason) {
+		this.hireReason = hireReason;
+	}
+
+	public String getCoverLetter() {
+		return coverLetter;
+	}
+
+	public void setCoverLetter(String coverLetter) {
+		this.coverLetter = coverLetter;
+	}
+
+	public String getEarliestJoiningDate() {
+		return earliestJoiningDate;
+	}
+
+	public void setEarliestJoiningDate(String earliestJoiningDate) {
+		this.earliestJoiningDate = earliestJoiningDate;
+	}
+
+	public Boolean getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(Boolean deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
+	public Boolean getApplicatinStatus() {
+		return applicatinStatus;
+	}
+
+	public void setApplicatinStatus(Boolean applicatinStatus) {
+		this.applicatinStatus = applicatinStatus;
+	}
+
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+	
 
 }

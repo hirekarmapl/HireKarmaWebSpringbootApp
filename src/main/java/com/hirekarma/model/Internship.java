@@ -2,6 +2,7 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,8 +21,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "INTERNSHIP")
-@Data
-@ToString
+//@Data
+//@ToString
 public class Internship implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -76,5 +77,139 @@ public class Internship implements Serializable{
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 
+	@Override
+	public String toString() {
+		return "Internship [internshipId=" + internshipId + ", corporateId=" + corporateId + ", internshipTitle="
+				+ internshipTitle + ", internshipType=" + internshipType + ", skills=" + skills + ", city=" + city
+				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
+				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
+				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	}
+
+	public Long getInternshipId() {
+		return internshipId;
+	}
+
+	public void setInternshipId(Long internshipId) {
+		this.internshipId = internshipId;
+	}
+
+	public Long getCorporateId() {
+		return corporateId;
+	}
+
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
+	}
+
+	public String getInternshipTitle() {
+		return internshipTitle;
+	}
+
+	public void setInternshipTitle(String internshipTitle) {
+		this.internshipTitle = internshipTitle;
+	}
+
+	public String getInternshipType() {
+		return internshipType;
+	}
+
+	public void setInternshipType(String internshipType) {
+		this.internshipType = internshipType;
+	}
+
+	public String getSkills() {
+		return skills;
+	}
+
+	public void setSkills(String skills) {
+		this.skills = skills;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public Integer getOpenings() {
+		return openings;
+	}
+
+	public void setOpenings(Integer openings) {
+		this.openings = openings;
+	}
+
+	public Double getSalary() {
+		return salary;
+	}
+
+	public void setSalary(Double salary) {
+		this.salary = salary;
+	}
+
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public byte[] getDescriptionFile() {
+		return descriptionFile;
+	}
+
+	public void setDescriptionFile(byte[] descriptionFile) {
+		this.descriptionFile = descriptionFile;
+	}
+
+	public Boolean getStatus() {
+		return status;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+	public Boolean getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(Boolean deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	
 	
 }

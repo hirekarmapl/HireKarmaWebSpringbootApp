@@ -55,4 +55,10 @@ public class MCQAnswer {
 		this.q_uid = q_uid;
 	}
 
+	@Override
+	public String toString() {
+		return "MCQAnswer [id=" + id + ", mcqAnswer=" + mcqAnswer + ", uid=" + uid + ", q_uid=" + q_uid + "]";
+	}
+
+	
 }

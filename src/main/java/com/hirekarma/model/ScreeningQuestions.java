@@ -17,8 +17,8 @@ import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
+//@Data
+//@NoArgsConstructor
 @Entity
 @Table(name = "SCREENING_QUESTIONS")
 public class ScreeningQuestions implements Serializable{
@@ -47,4 +47,69 @@ public class ScreeningQuestions implements Serializable{
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 
+	@Override
+	public String toString() {
+		return "ScreeningQuestions [questionsId=" + questionsId + ", screeningId=" + screeningId + ", questions="
+				+ questions + ", status=" + status + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	}
+
+	public ScreeningQuestions() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Long getQuestionsId() {
+		return questionsId;
+	}
+
+	public void setQuestionsId(Long questionsId) {
+		this.questionsId = questionsId;
+	}
+
+	public Long getScreeningId() {
+		return screeningId;
+	}
+
+	public void setScreeningId(Long screeningId) {
+		this.screeningId = screeningId;
+	}
+
+	public String getQuestions() {
+		return questions;
+	}
+
+	public void setQuestions(String questions) {
+		this.questions = questions;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	
+	
 }

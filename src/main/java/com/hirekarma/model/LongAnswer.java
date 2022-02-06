@@ -59,4 +59,11 @@ public class LongAnswer {
 		this.q_uid = q_uid;
 	}
 
+	@Override
+	public String toString() {
+		return "LongAnswer [id=" + id + ", longAnswer=" + longAnswer + ", uid=" + uid + ", q_uid=" + q_uid + "]";
+	}
+
+	
+	
 }

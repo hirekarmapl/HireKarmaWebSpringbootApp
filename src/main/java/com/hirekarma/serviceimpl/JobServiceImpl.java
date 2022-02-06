@@ -147,23 +147,50 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public JobBean findJobById(Long jobId) {
+	public JobBean findJobById(Long jobId, String token) throws ParseException {
 		LOGGER.debug("Inside JobServiceImpl.findJobById(-)");
 		Job job = null;
 		Optional<Job> optional = null;
 		JobBean jobBean = null;
+		Corporate corporate = null;
+
+		String[] chunks1 = token.split(" ");
+		String[] chunks = chunks1[1].split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String payload = new String(decoder.decode(chunks[1]));
+		JSONParser jsonParser = new JSONParser();
+		Object obj = jsonParser.parse(payload);
+
+		JSONObject jsonObject = (JSONObject) obj;
+
+		String email = (String) jsonObject.get("sub");
+
 		try {
 			LOGGER.debug("Inside try block of JobServiceImpl.findJobById(-)");
-			optional = jobRepository.findById(jobId);
-			if (!optional.isEmpty()) {
-				job = optional.get();
-				if (job != null && !job.getDeleteStatus()) {
-					jobBean = new JobBean();
-					BeanUtils.copyProperties(job, jobBean);
-					LOGGER.info("Data Successfully fetched using JobServiceImpl.findJobById(-)");
-				} else {
-					throw new JobException("This Job Has Been Removed !!");
+
+			corporate = corporateRepository.findByEmail(email);
+
+			if (corporate != null) {
+
+				optional = jobRepository.getJobDetails(jobId, corporate.getCorporateId());
+
+				if (!optional.isEmpty()) {
+
+					job = optional.get();
+
+					if (job != null && !job.getDeleteStatus()) {
+
+						jobBean = new JobBean();
+						BeanUtils.copyProperties(job, jobBean);
+
+						LOGGER.info("Data Successfully fetched using JobServiceImpl.findJobById(-)");
+					} else {
+						throw new JobException("This Job Has Been Removed !!");
+					}
 				}
+			} else {
+				throw new JobException("Corporate Data Not Found !!");
 			}
 			return jobBean;
 		} catch (Exception e) {
@@ -173,28 +200,50 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public List<JobBean> deleteJobById(Long jobId, String token) {
+	public List<JobBean> deleteJobById(Long jobId, String token) throws ParseException {
 		LOGGER.debug("Inside JobServiceImpl.deleteJobById(-)");
 		Job job = null;
 		Optional<Job> optional = null;
-		Long corporateId = null;
+		Corporate corporate = null;
 		List<JobBean> jobBeans = null;
+
+		String[] chunks1 = token.split(" ");
+		String[] chunks = chunks1[1].split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String payload = new String(decoder.decode(chunks[1]));
+		JSONParser jsonParser = new JSONParser();
+		Object obj = jsonParser.parse(payload);
+
+		JSONObject jsonObject = (JSONObject) obj;
+
+		String email = (String) jsonObject.get("sub");
 		try {
 			LOGGER.debug("Inside try block of JobServiceImpl.deleteJobById(-)");
 
-			optional = jobRepository.findById(jobId);
-			if (optional.isPresent()) {
+			corporate = corporateRepository.findByEmail(email);
 
-				job = optional.get();
-				if (job != null) {
-					corporateId = job.getCorporateId();
-					job.setDeleteStatus(true);
-					job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-					jobRepository.save(job);
-					jobBeans = findJobsByUserId(token);
+			if (corporate != null) {
+
+				optional = jobRepository.getJobDetails(jobId, corporate.getCorporateId());
+
+				if (optional.isPresent()) {
+
+					job = optional.get();
+
+					if (job != null) {
+
+						job.setDeleteStatus(true);
+						job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+
+						jobRepository.save(job);
+						jobBeans = findJobsByUserId(token);
+					}
+				} else {
+					throw new JobException("This Job Is Not Available !!");
 				}
 			} else {
-				throw new JobException("This Job Is Not Available !!");
+				throw new JobException("Corporate Not Available !!");
 			}
 			LOGGER.debug("Data Successfully Deleted using JobServiceImpl.findJobById(-)");
 			return jobBeans;
@@ -205,7 +254,7 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public JobBean updateJobById(JobBean jobBean) {
+	public JobBean updateJobById(JobBean jobBean, String token) throws ParseException {
 
 		LOGGER.debug("Inside JobServiceImpl.updateJobById(-)");
 
@@ -214,45 +263,64 @@ public class JobServiceImpl implements JobService {
 		Optional<Job> optional = null;
 		JobBean bean = null;
 		byte[] image = null;
+		Corporate corporate = null;
+
+		String[] chunks1 = token.split(" ");
+		String[] chunks = chunks1[1].split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String payload = new String(decoder.decode(chunks[1]));
+		JSONParser jsonParser = new JSONParser();
+		Object obj = jsonParser.parse(payload);
+
+		JSONObject jsonObject = (JSONObject) obj;
+
+		String email = (String) jsonObject.get("sub");
 
 		try {
 			LOGGER.debug("Inside try block of JobServiceImpl.updateJobById(-)");
 
 			image = jobBean.getFile().getBytes();
 			jobBean.setDescriptionFile(image);
+			corporate = corporateRepository.findByEmail(email);
 
-			optional = jobRepository.findById(jobBean.getJobId());
+			if (corporate != null) {
 
-			if (optional.isPresent()) {
+				optional = jobRepository.getJobDetails(jobBean.getJobId(), corporate.getCorporateId());
 
-				job = optional.get();
+				if (optional.isPresent()) {
 
-				if (job != null && !job.getDeleteStatus()) {
+					job = optional.get();
 
-					job.setJobTitle(jobBean.getJobTitle());
-					job.setCategory(jobBean.getCategory());
-					job.setJobType(jobBean.getJobType());
-					job.setWfhCheckbox(jobBean.getWfhCheckbox());
-					job.setSkills(jobBean.getSkills());
-					job.setCity(jobBean.getCity());
-					job.setOpenings(jobBean.getOpenings());
-					job.setSalary(jobBean.getSalary());
-					job.setAbout(jobBean.getAbout());
-					job.setDescription(jobBean.getDescription());
-					job.setDescriptionFile(jobBean.getDescriptionFile());
-					job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+					if (job != null && !job.getDeleteStatus()) {
 
-					jobReturn = jobRepository.save(job);
+						job.setJobTitle(jobBean.getJobTitle());
+						job.setCategory(jobBean.getCategory());
+						job.setJobType(jobBean.getJobType());
+						job.setWfhCheckbox(jobBean.getWfhCheckbox());
+						job.setSkills(jobBean.getSkills());
+						job.setCity(jobBean.getCity());
+						job.setOpenings(jobBean.getOpenings());
+						job.setSalary(jobBean.getSalary());
+						job.setAbout(jobBean.getAbout());
+						job.setDescription(jobBean.getDescription());
+						job.setDescriptionFile(jobBean.getDescriptionFile());
+						job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 
-					bean = new JobBean();
-					BeanUtils.copyProperties(jobReturn, bean);
+						jobReturn = jobRepository.save(job);
 
-					LOGGER.info("Data Successfully updated using JobServiceImpl.updateJobById(-)");
+						bean = new JobBean();
+						BeanUtils.copyProperties(jobReturn, bean);
+
+						LOGGER.info("Data Successfully updated using JobServiceImpl.updateJobById(-)");
+					} else {
+						throw new JobException("This Job Has Been Removed !!");
+					}
 				} else {
-					throw new JobException("This Job Has Been Removed !!");
+					throw new JobException("This Job Is Not Available With This Corporate!!");
 				}
 			} else {
-				throw new JobException("This Job Is Not Available !!");
+				throw new JobException("Corporate Not Available !!");
 			}
 
 			return bean;

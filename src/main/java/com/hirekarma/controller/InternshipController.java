@@ -93,14 +93,14 @@ public class InternshipController {
 	
 	@GetMapping("/findInternshipById/{internshipId}")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<Response> findInternshipById(@PathVariable Long internshipId){
+	public ResponseEntity<Response> findInternshipById(@PathVariable Long internshipId,@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside InternshipController.findInternshipById(-)");
 		InternshipBean internshipBean=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of InternshipController.findInternshipById(-)");
-			internshipBean=internshipService.findInternshipById(internshipId);
+			internshipBean=internshipService.findInternshipById(internshipId,token);
 			if(internshipBean!=null) {
 				LOGGER.info("Data retrived successfully using InternshipController.findInternshipById(-)");
 				responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);

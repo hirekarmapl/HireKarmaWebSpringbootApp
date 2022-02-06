@@ -1,6 +1,7 @@
 package com.hirekarma.model;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,10 +22,6 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "TBL_CORPORATE")
-@Data
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
 public class Corporate {
 	
 	@Id
@@ -61,6 +58,94 @@ public class Corporate {
 	
 	@Column(name = "BADGE")
 	private Long corporateBadge;
+
+	public Long getCorporateId() {
+		return corporateId;
+	}
+
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
+	}
+
+	public String getCorporateName() {
+		return corporateName;
+	}
+
+	public void setCorporateName(String corporateName) {
+		this.corporateName = corporateName;
+	}
+
+	public String getCorporateEmail() {
+		return corporateEmail;
+	}
+
+	public void setCorporateEmail(String corporateEmail) {
+		this.corporateEmail = corporateEmail;
+	}
+
+	public Long getCorporatePhoneNumber() {
+		return corporatePhoneNumber;
+	}
+
+	public void setCorporatePhoneNumber(Long corporatePhoneNumber) {
+		this.corporatePhoneNumber = corporatePhoneNumber;
+	}
+
+	public String getCorporateAddress() {
+		return corporateAddress;
+	}
+
+	public void setCorporateAddress(String corporateAddress) {
+		this.corporateAddress = corporateAddress;
+	}
+
+	public byte[] getProfileImage() {
+		return profileImage;
+	}
+
+	public void setProfileImage(byte[] profileImage) {
+		this.profileImage = profileImage;
+	}
+
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public Boolean getStatus() {
+		return status;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+	public Long getCorporateBadge() {
+		return corporateBadge;
+	}
+
+	public void setCorporateBadge(Long corporateBadge) {
+		this.corporateBadge = corporateBadge;
+	}
+
+	@Override
+	public String toString() {
+		return "Corporate [corporateId=" + corporateId + ", corporateName=" + corporateName + ", corporateEmail="
+				+ corporateEmail + ", corporatePhoneNumber=" + corporatePhoneNumber + ", corporateAddress="
+				+ corporateAddress + ", profileImage=" + Arrays.toString(profileImage) + ", createdOn=" + createdOn
+				+ ", updatedOn=" + updatedOn + ", status=" + status + ", corporateBadge=" + corporateBadge + "]";
+	}
 
 	
 

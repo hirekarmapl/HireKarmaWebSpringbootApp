@@ -138,39 +138,54 @@ public class AdminServiceImpl implements AdminService {
 		List<AdminShareJobToUniversity> list = new ArrayList<AdminShareJobToUniversity>();
 		Job job = new Job();
 		Long count = 0L;
+		Long universityCount = 0L;
+		Optional<University> university = null;
 
 		Map<String, Object> response = new HashMap<String, Object>();
 
 		try {
 			LOGGER.debug("Inside AdminServiceImpl.shareJob(-)");
-			Optional<Job> optional = jobRepository.findById(adminShareJobToUniversityBean.getJobId());
-			job = optional.get();
-			if (job != null) {
-				if (adminShareJobToUniversityBean.getUniversityId().size() != 0) {
+			for (Long id : adminShareJobToUniversityBean.getUniversityId()) {
+//				university = new University();
+				university = universityRepository.findById(id);
+				if (university.isPresent()) {
+					universityCount++;
+				}
+			}
+			if (universityCount == adminShareJobToUniversityBean.getUniversityId().size()) {
 
-					for (int i = 0; i < adminShareJobToUniversityBean.getUniversityId().size(); i++) {
-						count++;
-						System.out.println("\n\n************" + adminShareJobToUniversityBean.getUniversityId().get(i)
-								+ "***************");
-						AdminShareJobToUniversity = new AdminShareJobToUniversity();
-						AdminShareJobToUniversity.setJobId(adminShareJobToUniversityBean.getJobId());
-						AdminShareJobToUniversity
-								.setUniversityId(adminShareJobToUniversityBean.getUniversityId().get(i));
-						AdminShareJobToUniversity.setJobStatus("ACTIVE");
-						AdminShareJobToUniversity.setCreatedBy("Biswa");
-						AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
+				Optional<Job> optional = jobRepository.findById(adminShareJobToUniversityBean.getJobId());
+				job = optional.get();
 
-						shareJobRepository.save(AdminShareJobToUniversity);
-						BeanUtils.copyProperties(AdminShareJobToUniversity, user);
-						list.add(AdminShareJobToUniversity);
+				if (job != null) {
+					if (adminShareJobToUniversityBean.getUniversityId().size() != 0) {
+
+						for (int i = 0; i < adminShareJobToUniversityBean.getUniversityId().size(); i++) {
+							count++;
+							System.out.println("\n\n************"
+									+ adminShareJobToUniversityBean.getUniversityId().get(i) + "***************");
+							AdminShareJobToUniversity = new AdminShareJobToUniversity();
+							AdminShareJobToUniversity.setJobId(adminShareJobToUniversityBean.getJobId());
+							AdminShareJobToUniversity
+									.setUniversityId(adminShareJobToUniversityBean.getUniversityId().get(i));
+							AdminShareJobToUniversity.setJobStatus("ACTIVE");
+							AdminShareJobToUniversity.setCreatedBy("Biswa");
+							AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
+
+							shareJobRepository.save(AdminShareJobToUniversity);
+							BeanUtils.copyProperties(AdminShareJobToUniversity, user);
+							list.add(AdminShareJobToUniversity);
+						}
+						user.setToatlSharedJob(count);
+						user.setResponse("SHARED");
+					} else {
+						throw new AdminException("No University Selected !!");
 					}
-					user.setToatlSharedJob(count);
-					user.setResponse("SHARED");
 				} else {
-					throw new AdminException("No University Selected !!");
+					throw new AdminException("No Job Selected !!");
 				}
 			} else {
-				throw new AdminException("No Job Selected !!");
+				throw new AdminException("University Not Found !! Please Re-Check Your University List !!");
 			}
 
 			response.put("shareJob", list);

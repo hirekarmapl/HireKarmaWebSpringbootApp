@@ -115,14 +115,14 @@ public class JobController {
 	
 	@GetMapping("/findJobById/{jobId}")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<Response> findJobById(@PathVariable Long jobId){
+	public ResponseEntity<Response> findJobById(@PathVariable Long jobId,@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside JobController.findJobById(-)");
 		JobBean jobBean=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of JobController.findJobById(-)");
-			jobBean=jobService.findJobById(jobId);
+			jobBean=jobService.findJobById(jobId,token);
 			if(jobBean!=null) {
 				LOGGER.info("Data retrived successfully using JobController.findJobById(-)");
 				
@@ -198,14 +198,14 @@ public class JobController {
 	
 	@PutMapping("/updateJobById")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<Response> updateJobById(@ModelAttribute JobBean jobBean){
+	public ResponseEntity<Response> updateJobById(@ModelAttribute JobBean jobBean,@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside JobController.updateJobById(-)");
 		JobBean bean=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of JobController.updateJobById(-)");
-			bean=jobService.updateJobById(jobBean);
+			bean=jobService.updateJobById(jobBean,token);
 			LOGGER.info("Data successfully updated using JobController.updateJobById(-)");
 			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
 

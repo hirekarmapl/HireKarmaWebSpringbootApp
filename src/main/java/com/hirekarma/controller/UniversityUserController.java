@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -76,10 +77,11 @@ public class UniversityUserController {
 //	}
 
 	@PostMapping("/universitySaveUrl")
+//	@Async(value = "taskExecutor")
 	public ResponseEntity<Response> createUser(@RequestBody UserBean universityUserBean) {
 		LOGGER.debug("Inside UniversityUserController.createUser(-)");
 		UserProfile universityUser = null;
-		UserProfile universityUserReturn = null;
+		UserProfile universityUserReturn = new UserProfile();
 		UserBean userBean = null;
 		Response response = new Response();
 		ResponseEntity<Response> responseEntity = null;

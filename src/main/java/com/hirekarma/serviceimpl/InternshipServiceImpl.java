@@ -114,6 +114,7 @@ public class InternshipServiceImpl implements InternshipService {
 			if (corporate != null) {
 
 				LOGGER.debug("Inside try block of InternshipServiceImpl.findInternshipsByCorporateId(-)");
+
 				internships = internshipRepository.findInternshipsUserId(corporate.getCorporateId(), false);
 
 				if (internships != null) {
@@ -154,25 +155,50 @@ public class InternshipServiceImpl implements InternshipService {
 	}
 
 	@Override
-	public InternshipBean findInternshipById(Long internshipId) {
+	public InternshipBean findInternshipById(Long internshipId, String token) {
 		LOGGER.debug("Inside InternshipServiceImpl.findInternshipById(-)");
 		Internship internship = null;
 		Optional<Internship> optional = null;
 		InternshipBean internshipBean = null;
+		Corporate corporate = null;
+
 		try {
-			LOGGER.debug("Inside try block of InternshipServiceImpl.findInternshipById(-)");
-			optional = internshipRepository.findById(internshipId);
-			if (!optional.isEmpty()) {
-				internship = optional.get();
-				if (internship != null) {
-					internshipBean = new InternshipBean();
-					BeanUtils.copyProperties(internship, internshipBean);
-					LOGGER.info("Data Successfully fetched using InternshipServiceImpl.findInternshipById(-)");
+
+			String[] chunks1 = token.split(" ");
+			String[] chunks = chunks1[1].split("\\.");
+			Base64.Decoder decoder = Base64.getUrlDecoder();
+
+			String payload = new String(decoder.decode(chunks[1]));
+			JSONParser jsonParser = new JSONParser();
+			Object obj = jsonParser.parse(payload);
+
+			JSONObject jsonObject = (JSONObject) obj;
+
+			String email = (String) jsonObject.get("sub");
+
+			corporate = corporateRepository.findByEmail(email);
+
+			if (corporate != null) {
+
+				LOGGER.debug("Inside try block of InternshipServiceImpl.findInternshipById(-)");
+
+				optional = internshipRepository.getInternshipDetails(internshipId, corporate.getCorporateId());
+
+				if (!optional.isEmpty()) {
+
+					internship = optional.get();
+					if (internship != null) {
+						internshipBean = new InternshipBean();
+						BeanUtils.copyProperties(internship, internshipBean);
+						LOGGER.info("Data Successfully fetched using InternshipServiceImpl.findInternshipById(-)");
+					} else {
+						throw new InternshipException("This Internship Has Been Removed !!");
+					}
 				} else {
-					throw new InternshipException("This Internship Has Been Removed !!");
+					throw new InternshipException("No Internships Found With This Corporate!!");
 				}
 			} else {
-				throw new InternshipException("No Internships Found !!");
+				throw new InternshipException("No Corporate Found !!");
 			}
 			return internshipBean;
 		} catch (Exception e) {
@@ -186,22 +212,47 @@ public class InternshipServiceImpl implements InternshipService {
 		LOGGER.debug("Inside InternshipServiceImpl.deleteInternshipById(-)");
 		Internship internship = null;
 		Optional<Internship> optional = null;
-		Long corpUserId = null;
+//		Long corpUserId = null;
 		List<InternshipBean> internshipBeans = null;
+		Corporate corporate = null;
+
 		try {
 			LOGGER.debug("Inside try block of InternshipServiceImpl.deleteInternshipById(-)");
-			optional = internshipRepository.findById(internshipId);
-			if (!optional.isEmpty()) {
-				internship = optional.get();
-				if (internship != null) {
-					corpUserId = internship.getCorporateId();
-					internship.setDeleteStatus(true);
-					internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-					internshipRepository.save(internship);
-					internshipBeans = findInternshipsByUserId(token);
+			String[] chunks1 = token.split(" ");
+			String[] chunks = chunks1[1].split("\\.");
+			Base64.Decoder decoder = Base64.getUrlDecoder();
+
+			String payload = new String(decoder.decode(chunks[1]));
+			JSONParser jsonParser = new JSONParser();
+			Object obj = jsonParser.parse(payload);
+
+			JSONObject jsonObject = (JSONObject) obj;
+
+			String email = (String) jsonObject.get("sub");
+
+			corporate = corporateRepository.findByEmail(email);
+
+			if (corporate != null) {
+
+				optional = internshipRepository.getInternshipDetails(internshipId, corporate.getCorporateId());
+
+				if (!optional.isEmpty()) {
+
+					internship = optional.get();
+
+					if (internship != null) {
+
+						internship.setDeleteStatus(true);
+						internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+
+						internshipRepository.save(internship);
+						internshipBeans = findInternshipsByUserId(token);
+					}
+				} else {
+					throw new InternshipException("No Internships In This Corporate !!");
 				}
 			} else {
-				throw new InternshipException("No Internships Found !!");
+				throw new InternshipException("No Corporate Found !!");
 			}
 			LOGGER.debug("Data Successfully Deleted using InternshipServiceImpl.findInternshipById(-)");
 			return internshipBeans;
@@ -241,9 +292,12 @@ public class InternshipServiceImpl implements InternshipService {
 				image = internshipBean.getFile().getBytes();
 				internshipBean.setDescriptionFile(image);
 
-				optional = internshipRepository.findById(internshipBean.getInternshipId());
+				optional = internshipRepository.getInternshipDetails(internshipBean.getInternshipId(),corporate.getCorporateId());
+
 				if (!optional.isEmpty()) {
+
 					internship = optional.get();
+
 					if (internship != null) {
 
 						internship.setInternshipTitle(internshipBean.getInternshipTitle());
@@ -265,8 +319,8 @@ public class InternshipServiceImpl implements InternshipService {
 
 						LOGGER.info("Data Successfully updated using InternshipServiceImpl.updateInternshipById(-)");
 					}
-				}else {
-					throw new InternshipException("No Internship Found !!");
+				} else {
+					throw new InternshipException("No Internship Found In This Corporate !!");
 				}
 			} else {
 				throw new InternshipException("No corporate Found !!");

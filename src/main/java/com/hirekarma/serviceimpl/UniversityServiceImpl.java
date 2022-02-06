@@ -83,20 +83,27 @@ public class UniversityServiceImpl implements UniversityService {
 		try {
 			LOGGER.debug("Inside UniversityServiceImpl.universityResponse(-)");
 
-			Optional<AdminShareJobToUniversity> optional = shareJobRepository.findById(jobBean.getShareJobId());
-			adminShareJobToUniversity = optional.get();
+			if (!jobBean.getUniversityResponseStatus() && (jobBean.getRejectionFeedback() == null
+					&& jobBean.getRejectionFeedback().equalsIgnoreCase("null")
+					&& jobBean.getRejectionFeedback().equals(""))) {
+				throw new UserProfileException("Rejected Reason Can't Be Blank !!");
+			} else {
 
-			if (adminShareJobToUniversity != null) {
-				if (jobBean.getUniversityResponseStatus() != null) {
-					adminShareJobToUniversity.setUniversityResponseStatus(jobBean.getUniversityResponseStatus());
-					adminShareJobToUniversity.setRejectionFeedback(jobBean.getRejectionFeedback());
-					adminShareJobToUniversity.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+				Optional<AdminShareJobToUniversity> optional = shareJobRepository.findById(jobBean.getShareJobId());
+				adminShareJobToUniversity = optional.get();
 
-					shareJobRepository.save(adminShareJobToUniversity);
-				} else {
-					throw new UniversityException("Response Value Can't Be Null !!");
+				if (adminShareJobToUniversity != null) {
+					if (jobBean.getUniversityResponseStatus() != null) {
+						adminShareJobToUniversity.setUniversityResponseStatus(jobBean.getUniversityResponseStatus());
+						adminShareJobToUniversity.setRejectionFeedback(jobBean.getRejectionFeedback());
+						adminShareJobToUniversity.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+
+						shareJobRepository.save(adminShareJobToUniversity);
+					} else {
+						throw new UniversityException("Response Value Can't Be Null !!");
+					}
+
 				}
-
 			}
 
 			response.put("result", adminShareJobToUniversity);
@@ -107,6 +114,7 @@ public class UniversityServiceImpl implements UniversityService {
 			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
 			throw e;
 		}
+
 		return response;
 	}
 
@@ -233,7 +241,8 @@ public class UniversityServiceImpl implements UniversityService {
 				if (optional.isPresent()) {
 
 					optional = null;
-					optional = jobRepository.findById(campus.getJobId());
+					optional = jobRepository.getJobDetails(campus.getJobId(), campus.getCorporateId());
+//					optional = jobRepository.findById(campus.getJobId());
 
 					if (optional.isPresent()) {
 
@@ -241,28 +250,38 @@ public class UniversityServiceImpl implements UniversityService {
 								campus.getCorporateId(), campus.getJobId());
 						System.out.println("*********\n\n\n" + campusList + "\n\n\n************");
 
-						if (campusList == 0) {
+						Object object = shareJobRepository.getRequestVerificationDetails(university.getUniversityId(),
+								campus.getJobId(), campus.getCorporateId());
 
-							driveResponse = new CampusDriveResponse();
+						if (object != null) {
 
-							driveResponse.setJobId(campus.getJobId());
-							driveResponse.setCorporateId(campus.getCorporateId());
-							driveResponse.setUniversityId(university.getUniversityId());
-							driveResponse.setUniversityAskedOn(new Timestamp(new java.util.Date().getTime()));
-							driveResponse.setCorporateResponse(false);
-							driveResponse.setUniversityAsk(true);
+							if (campusList == 0) {
 
-							campusDriveResponseRepository.save(driveResponse);
+								driveResponse = new CampusDriveResponse();
 
-							BeanUtils.copyProperties(driveResponse, driveResponseBean);
+								driveResponse.setJobId(campus.getJobId());
+								driveResponse.setCorporateId(campus.getCorporateId());
+								driveResponse.setUniversityId(university.getUniversityId());
+								driveResponse.setUniversityAskedOn(new Timestamp(new java.util.Date().getTime()));
+								driveResponse.setCorporateResponse(false);
+								driveResponse.setUniversityAsk(true);
 
-							LOGGER.info("Data Inserted Successfully In UniversityServiceImpl.campusDriveRequest(-)");
+								campusDriveResponseRepository.save(driveResponse);
+
+								BeanUtils.copyProperties(driveResponse, driveResponseBean);
+
+								LOGGER.info(
+										"Data Inserted Successfully In UniversityServiceImpl.campusDriveRequest(-)");
+							} else {
+								throw new CampusDriveResponseException(
+										"Already Request Sended To This Perticular Corporate !!");
+							}
 						} else {
 							throw new CampusDriveResponseException(
-									"Already Request Sended To This Perticular Corporate !!");
+									"No Shared Job Found From This Corporate  To Your University !!");
 						}
 					} else {
-						throw new CampusDriveResponseException("Job Details Not Found!!");
+						throw new CampusDriveResponseException("Job Details Not Found With This Corporate!!");
 					}
 				} else {
 					throw new CampusDriveResponseException("Corporate Details Not Found!!");
@@ -399,8 +418,8 @@ public class UniversityServiceImpl implements UniversityService {
 
 						responseToUniversity = new StudentResponseToUniversity();
 
-						responseToUniversity.setJob(
-								jobRepository.findByJobId(universityJobShareToStudent.get(i).getJobId()));
+						responseToUniversity
+								.setJob(jobRepository.findByJobId(universityJobShareToStudent.get(i).getJobId()));
 						responseToUniversity.setStudent(
 								studentRepository.findByStudentId(universityJobShareToStudent.get(i).getStudentId()));
 
@@ -443,7 +462,7 @@ public class UniversityServiceImpl implements UniversityService {
 	}
 
 	@Override
-	public List<?> studentFilter(String token,Long batchId, Long branchId, Double cgpa) throws ParseException {
+	public List<?> studentFilter(String token, Long batchId, Long branchId, Double cgpa) throws ParseException {
 		String[] chunks1 = token.split(" ");
 		String[] chunks = chunks1[1].split("\\.");
 		Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -462,7 +481,8 @@ public class UniversityServiceImpl implements UniversityService {
 
 		try {
 			if (university.size() == 1) {
-				studentList = studentRepository.getStudentFilter(university.get(0).getUniversityId(),batchId,branchId,cgpa);
+				studentList = studentRepository.getStudentFilter(university.get(0).getUniversityId(), batchId, branchId,
+						cgpa);
 
 				if (studentList.size() != 0) {
 

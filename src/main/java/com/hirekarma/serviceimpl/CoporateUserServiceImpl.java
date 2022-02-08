@@ -306,6 +306,19 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		return StudentDetailsList;
 	}
 
+	@Override
+	public Map<String, Object> shortListStudent(Long jobApplyId) {
+		LOGGER.debug("Inside CoporateUserServiceImpl.shortListStudent(-)");
+		
+		try {
+			
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in CoporateUserServiceImpl.shortListStudent(-)");
+		}
+		return null;
+	}
+
 //	@Override
 //	public CoporateUserBean findCorporateById(Long corpUserId) {
 //		LOGGER.debug("Inside CoporateUserServiceImpl.findCorporateById(-)");

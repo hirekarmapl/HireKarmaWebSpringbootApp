@@ -1,6 +1,7 @@
 package com.hirekarma.controller;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.api.services.calendar.Calendar;
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.GoogleCalenderRequest;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
@@ -30,6 +33,7 @@ import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.CoporateUserService;
+import com.hirekarma.utilty.CalendarApi;
 import com.hirekarma.utilty.Validation;
 
 @RestController("coporateUserController")
@@ -343,5 +347,28 @@ public class CoporateUserController {
 			responseEntity = new ResponseEntity<>(corporate, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return responseEntity;
+	}
+	
+	@PostMapping("/calendar")
+	@PreAuthorize("hasRole('corporate')")
+	public Response createEvent(@RequestBody GoogleCalenderRequest request) {
+		
+		try {
+			CalendarApi calendarQuickstart = new CalendarApi();
+			System.out.println(request.toString());
+			String op =  calendarQuickstart.insert(request.getEventName(), request.getDescription(),request.getLocation(), request.getAttendees().size(), request.getAttendees(), request.getStartTime()+"+05:30", request.getEndTime()+"+05:30");
+			return new Response("success",200,op , request, null );
+		} 
+		catch (GeneralSecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new Response("error",400,"Bad Request" , null, null );
 	}
 }

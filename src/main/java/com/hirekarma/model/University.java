@@ -2,6 +2,7 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,8 +21,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "TBL_UNIVERSITY")
-@Data
-@ToString
+//@Data
+//@ToString
 public class University implements Serializable{
 			
 			private static final long serialVersionUID = 1L;
@@ -60,6 +61,106 @@ public class University implements Serializable{
 
 			@Column(name = "STATUS")
 			private Boolean status;
+
+			@Override
+			public String toString() {
+				return "University [universityId=" + universityId + ", userId=" + userId + ", universityName="
+						+ universityName + ", universityEmail=" + universityEmail + ", universityAddress="
+						+ universityAddress + ", universityPhoneNumber=" + universityPhoneNumber + ", universityImage="
+						+ Arrays.toString(universityImage) + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn
+						+ ", status=" + status + "]";
+			}
+
+			public University() {
+				super();
+				// TODO Auto-generated constructor stub
+			}
+
+			public Long getUniversityId() {
+				return universityId;
+			}
+
+			public void setUniversityId(Long universityId) {
+				this.universityId = universityId;
+			}
+
+			public Long getUserId() {
+				return userId;
+			}
+
+			public void setUserId(Long userId) {
+				this.userId = userId;
+			}
+
+			public String getUniversityName() {
+				return universityName;
+			}
+
+			public void setUniversityName(String universityName) {
+				this.universityName = universityName;
+			}
+
+			public String getUniversityEmail() {
+				return universityEmail;
+			}
+
+			public void setUniversityEmail(String universityEmail) {
+				this.universityEmail = universityEmail;
+			}
+
+			public String getUniversityAddress() {
+				return universityAddress;
+			}
+
+			public void setUniversityAddress(String universityAddress) {
+				this.universityAddress = universityAddress;
+			}
+
+			public Long getUniversityPhoneNumber() {
+				return universityPhoneNumber;
+			}
+
+			public void setUniversityPhoneNumber(Long universityPhoneNumber) {
+				this.universityPhoneNumber = universityPhoneNumber;
+			}
+
+			public byte[] getUniversityImage() {
+				return universityImage;
+			}
+
+			public void setUniversityImage(byte[] universityImage) {
+				this.universityImage = universityImage;
+			}
+
+			public Timestamp getCreatedOn() {
+				return createdOn;
+			}
+
+			public void setCreatedOn(Timestamp createdOn) {
+				this.createdOn = createdOn;
+			}
+
+			public Timestamp getUpdatedOn() {
+				return updatedOn;
+			}
+
+			public void setUpdatedOn(Timestamp updatedOn) {
+				this.updatedOn = updatedOn;
+			}
+
+			public Boolean getStatus() {
+				return status;
+			}
+
+			public void setStatus(Boolean status) {
+				this.status = status;
+			}
+
+			public static long getSerialversionuid() {
+				return serialVersionUID;
+			}
+			
+			
 			
 			
 

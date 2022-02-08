@@ -14,8 +14,13 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
 
+import lombok.Data;
+import lombok.ToString;
+
 @Entity
 @Table(name="INTERNSHIP_APPLY")
+//@Data
+//@ToString
 public class InternshipApply implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -26,8 +31,11 @@ public class InternshipApply implements Serializable{
 	@Column(name = "INTERNSHIP_APPLY_ID")
 	private Long internshipApplyId;
 	
-	@Column(name = "USER_ID")
-	private Long userId;
+	@Column(name = "STUDENT_ID")
+	private Long studentId;
+	
+	@Column(name = "CORPORATE_ID")
+	private Long corporateId;
 	
 	@Column(name = "HIRE_REASON")
 	private String hireReason;
@@ -39,7 +47,10 @@ public class InternshipApply implements Serializable{
 	private String earliestJoiningDate;
 	
 	@Column(name = "DELETE_STATUS")
-	private String deleteStatus;
+	private Boolean deleteStatus;
+	
+	@Column(name = "APPLICATION_STATUS")
+	private Boolean applicatinStatus;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
@@ -47,6 +58,14 @@ public class InternshipApply implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
+
+	@Override
+	public String toString() {
+		return "InternshipApply [internshipApplyId=" + internshipApplyId + ", studentId=" + studentId + ", corporateId="
+				+ corporateId + ", hireReason=" + hireReason + ", coverLetter=" + coverLetter + ", earliestJoiningDate="
+				+ earliestJoiningDate + ", deleteStatus=" + deleteStatus + ", applicatinStatus=" + applicatinStatus
+				+ ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	}
 
 	public Long getInternshipApplyId() {
 		return internshipApplyId;
@@ -56,12 +75,20 @@ public class InternshipApply implements Serializable{
 		this.internshipApplyId = internshipApplyId;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public Long getStudentId() {
+		return studentId;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setStudentId(Long studentId) {
+		this.studentId = studentId;
+	}
+
+	public Long getCorporateId() {
+		return corporateId;
+	}
+
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
 	}
 
 	public String getHireReason() {
@@ -88,12 +115,20 @@ public class InternshipApply implements Serializable{
 		this.earliestJoiningDate = earliestJoiningDate;
 	}
 
-	public String getDeleteStatus() {
+	public Boolean getDeleteStatus() {
 		return deleteStatus;
 	}
 
-	public void setDeleteStatus(String deleteStatus) {
+	public void setDeleteStatus(Boolean deleteStatus) {
 		this.deleteStatus = deleteStatus;
+	}
+
+	public Boolean getApplicatinStatus() {
+		return applicatinStatus;
+	}
+
+	public void setApplicatinStatus(Boolean applicatinStatus) {
+		this.applicatinStatus = applicatinStatus;
 	}
 
 	public Timestamp getCreatedOn() {
@@ -112,10 +147,10 @@ public class InternshipApply implements Serializable{
 		this.updatedOn = updatedOn;
 	}
 
-	@Override
-	public String toString() {
-		return "InternshipApply [internshipApplyId=" + internshipApplyId + ", userId=" + userId + ", hireReason="
-				+ hireReason + ", coverLetter=" + coverLetter + ", earliestJoiningDate=" + earliestJoiningDate
-				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
+	
+	
+
 }

@@ -2,6 +2,7 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,8 +21,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name="TBL_STUDENT")
-@Data
-@ToString
+//@Data
+//@ToString
 public class Student implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -72,4 +73,133 @@ public class Student implements Serializable{
 
 	@Column(name = "STATUS")
 	private Boolean status;
+
+	@Override
+	public String toString() {
+		return "Student [studentId=" + studentId + ", userId=" + userId + ", studentName=" + studentName
+				+ ", studentPhoneNumber=" + studentPhoneNumber + ", studentEmail=" + studentEmail + ", universityId="
+				+ universityId + ", studentAddress=" + studentAddress + ", branch=" + branch + ", batch=" + batch
+				+ ", cgpa=" + cgpa + ", studentImage=" + Arrays.toString(studentImage) + ", createdOn=" + createdOn
+				+ ", updatedOn=" + updatedOn + ", status=" + status + "]";
+	}
+
+	public Long getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(Long studentId) {
+		this.studentId = studentId;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getStudentName() {
+		return studentName;
+	}
+
+	public void setStudentName(String studentName) {
+		this.studentName = studentName;
+	}
+
+	public Long getStudentPhoneNumber() {
+		return studentPhoneNumber;
+	}
+
+	public void setStudentPhoneNumber(Long studentPhoneNumber) {
+		this.studentPhoneNumber = studentPhoneNumber;
+	}
+
+	public String getStudentEmail() {
+		return studentEmail;
+	}
+
+	public void setStudentEmail(String studentEmail) {
+		this.studentEmail = studentEmail;
+	}
+
+	public Long getUniversityId() {
+		return universityId;
+	}
+
+	public void setUniversityId(Long universityId) {
+		this.universityId = universityId;
+	}
+
+	public String getStudentAddress() {
+		return studentAddress;
+	}
+
+	public void setStudentAddress(String studentAddress) {
+		this.studentAddress = studentAddress;
+	}
+
+	public Long getBranch() {
+		return branch;
+	}
+
+	public void setBranch(Long branch) {
+		this.branch = branch;
+	}
+
+	public Long getBatch() {
+		return batch;
+	}
+
+	public void setBatch(Long batch) {
+		this.batch = batch;
+	}
+
+	public Double getCgpa() {
+		return cgpa;
+	}
+
+	public void setCgpa(Double cgpa) {
+		this.cgpa = cgpa;
+	}
+
+	public byte[] getStudentImage() {
+		return studentImage;
+	}
+
+	public void setStudentImage(byte[] studentImage) {
+		this.studentImage = studentImage;
+	}
+
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public Boolean getStatus() {
+		return status;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	
+	
+	
 }

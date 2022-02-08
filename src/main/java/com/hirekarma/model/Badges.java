@@ -14,8 +14,6 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "BADGES")
-@Data
-@ToString
 public class Badges {
 	
 	@Id
@@ -26,5 +24,28 @@ public class Badges {
 	
 	@Column(name = "BADGE_NAME")
 	private String badgeName;
+
+	public Long getBadgeId() {
+		return badgeId;
+	}
+
+	public void setBadgeId(Long badgeId) {
+		this.badgeId = badgeId;
+	}
+
+	public String getBadgeName() {
+		return badgeName;
+	}
+
+	public void setBadgeName(String badgeName) {
+		this.badgeName = badgeName;
+	}
+
+	@Override
+	public String toString() {
+		return "Badges [badgeId=" + badgeId + ", badgeName=" + badgeName + "]";
+	}
+	
+	
 
 }

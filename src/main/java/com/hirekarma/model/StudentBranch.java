@@ -12,8 +12,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "STUDENT_BRANCH")
-@Data
-@ToString
+//@Data
+//@ToString
 public class StudentBranch {
 
 	@Id
@@ -23,5 +23,29 @@ public class StudentBranch {
 
 	@Column(name = "BRANCH_NAME")
 	private String branchName;
+
+	@Override
+	public String toString() {
+		return "StudentBranch [id=" + id + ", branchName=" + branchName + "]";
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getBranchName() {
+		return branchName;
+	}
+
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
+	}
+
+
+	
 
 }

@@ -18,8 +18,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "UNIVERSITY_JOB_SHARE_TO_STUDENT")
-@Data
-@ToString
+//@Data
+//@ToString
 public class UniversityJobShareToStudent {
 
 	@Id
@@ -58,5 +58,103 @@ public class UniversityJobShareToStudent {
 
 	@Column(name = "STUDENT_RESPONSE_STATUS")
 	private Boolean studentResponseStatus;
+
+	@Override
+	public String toString() {
+		return "UniversityJobShareToStudent [iD=" + iD + ", createdBy=" + createdBy + ", createdOn=" + createdOn
+				+ ", jobId=" + jobId + ", studentId=" + studentId + ", universityId=" + universityId + ", updatedBy="
+				+ updatedBy + ", updatedOn=" + updatedOn + ", jobStatus=" + jobStatus + ", feedBack=" + feedBack
+				+ ", studentResponseStatus=" + studentResponseStatus + "]";
+	}
+
+	public Long getiD() {
+		return iD;
+	}
+
+	public void setiD(Long iD) {
+		this.iD = iD;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Timestamp getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Long getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(Long jobId) {
+		this.jobId = jobId;
+	}
+
+	public Long getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(Long studentId) {
+		this.studentId = studentId;
+	}
+
+	public Long getUniversityId() {
+		return universityId;
+	}
+
+	public void setUniversityId(Long universityId) {
+		this.universityId = universityId;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public Boolean getJobStatus() {
+		return jobStatus;
+	}
+
+	public void setJobStatus(Boolean jobStatus) {
+		this.jobStatus = jobStatus;
+	}
+
+	public String getFeedBack() {
+		return feedBack;
+	}
+
+	public void setFeedBack(String feedBack) {
+		this.feedBack = feedBack;
+	}
+
+	public Boolean getStudentResponseStatus() {
+		return studentResponseStatus;
+	}
+
+	public void setStudentResponseStatus(Boolean studentResponseStatus) {
+		this.studentResponseStatus = studentResponseStatus;
+	}
+
+	
 
 }

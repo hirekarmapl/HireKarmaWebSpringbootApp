@@ -12,8 +12,8 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "STUDENT_BATCH")
-@Data
-@ToString
+//@Data
+//@ToString
 public class StudentBatch {
 
 	@Id
@@ -24,4 +24,27 @@ public class StudentBatch {
 	@Column(name = "BATCH_NAME")
 	private String batchName;
 
+	@Override
+	public String toString() {
+		return "StudentBatch [id=" + id + ", batchName=" + batchName + "]";
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getBatchName() {
+		return batchName;
+	}
+
+	public void setBatchName(String batchName) {
+		this.batchName = batchName;
+	}
+
+	
+	
 }

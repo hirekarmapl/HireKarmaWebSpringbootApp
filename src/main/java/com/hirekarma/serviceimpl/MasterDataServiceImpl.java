@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hirekarma.exception.AdminException;
+import com.hirekarma.model.StudentBatch;
+import com.hirekarma.model.StudentBranch;
 import com.hirekarma.repository.BadgesRepository;
 import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
@@ -90,6 +93,62 @@ public class MasterDataServiceImpl implements MasterDataService {
 		}
 
 		return dataList;
+	}
+
+	@Override
+	public Map<String, Object> createBatch(StudentBatch btch) {
+
+		Map<String, Object> response = new HashMap<String, Object>();
+		StudentBatch studentBatch = new StudentBatch();
+
+		try {
+			LOGGER.debug("Inside MasterDataServiceImpl.createBatch(-)");
+
+			if (btch.getBatchName() != null && !btch.getBatchName().equals("")
+					&& !btch.getBatchName().equalsIgnoreCase("null")) {
+
+				studentBatch.setBatchName(btch.getBatchName());
+				studentBatch = batchRepository.save(studentBatch);
+
+				LOGGER.debug("Batch Created At MasterDataServiceImpl.createBatch(-)");
+				response.put("response", studentBatch);
+
+			} else {
+				throw new AdminException("Batch Name Can't Be Blank Or Null");
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> createBranch(StudentBranch branch) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		StudentBranch studentBranch = new StudentBranch();
+
+		try {
+			LOGGER.debug("Inside MasterDataServiceImpl.createBatch(-)");
+
+			if (branch.getBranchName() != null && !branch.getBranchName().equals("")
+					&& !branch.getBranchName().equalsIgnoreCase("null")) {
+
+				studentBranch.setBranchName(branch.getBranchName());
+				studentBranch = branchRepository.save(studentBranch);
+
+				LOGGER.debug("Branch Created At MasterDataServiceImpl.createBranch(-)");
+				response.put("response", studentBranch);
+
+			} else {
+				throw new AdminException("Branch Name Can't Be Blank Or Null");
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+		return response;
+
 	}
 
 }

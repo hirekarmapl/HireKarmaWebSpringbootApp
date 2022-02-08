@@ -16,8 +16,13 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
 
+import lombok.Data;
+import lombok.ToString;
+
 @Entity
 @Table(name = "INTERNSHIP")
+//@Data
+//@ToString
 public class Internship implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -28,8 +33,8 @@ public class Internship implements Serializable{
 	@Column(name = "INTERNSHIP_ID")
 	private Long internshipId;
 	
-	@Column(name = "USER_ID")
-	private Long userId;
+	@Column(name = "CORPORATE_ID")
+	private Long corporateId;
 	
 	@Column(name = "INTERNSHIP_TITLE")
 	private String internshipTitle;
@@ -60,10 +65,10 @@ public class Internship implements Serializable{
 	private byte[] descriptionFile;
 	
 	@Column(name = "STATUS")
-	private String status;
+	private Boolean status;
 	
 	@Column(name = "DELETE_STATUS")
-	private String deleteStatus;
+	private Boolean deleteStatus;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
@@ -71,6 +76,15 @@ public class Internship implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
+
+	@Override
+	public String toString() {
+		return "Internship [internshipId=" + internshipId + ", corporateId=" + corporateId + ", internshipTitle="
+				+ internshipTitle + ", internshipType=" + internshipType + ", skills=" + skills + ", city=" + city
+				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
+				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
+				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	}
 
 	public Long getInternshipId() {
 		return internshipId;
@@ -80,12 +94,12 @@ public class Internship implements Serializable{
 		this.internshipId = internshipId;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public Long getCorporateId() {
+		return corporateId;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
 	}
 
 	public String getInternshipTitle() {
@@ -160,19 +174,19 @@ public class Internship implements Serializable{
 		this.descriptionFile = descriptionFile;
 	}
 
-	public String getStatus() {
+	public Boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(Boolean status) {
 		this.status = status;
 	}
 
-	public String getDeleteStatus() {
+	public Boolean getDeleteStatus() {
 		return deleteStatus;
 	}
 
-	public void setDeleteStatus(String deleteStatus) {
+	public void setDeleteStatus(Boolean deleteStatus) {
 		this.deleteStatus = deleteStatus;
 	}
 
@@ -192,12 +206,10 @@ public class Internship implements Serializable{
 		this.updatedOn = updatedOn;
 	}
 
-	@Override
-	public String toString() {
-		return "Internship [internshipId=" + internshipId + ", userId=" + userId + ", internshipTitle="
-				+ internshipTitle + ", internshipType=" + internshipType + ", skills=" + skills + ", city=" + city
-				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
-				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
-				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
+
+	
+	
 }

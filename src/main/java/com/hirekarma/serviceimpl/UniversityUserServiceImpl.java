@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -94,6 +95,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		}
 	}
 
+// email address are used to check if only one email is used for both email and workemail and rest is for updating
 	@Override
 	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String jwtToken) {
 		LOGGER.debug("Inside UniversityUserServiceImpl.updateUniversityUserProfile(-)");
@@ -104,27 +106,29 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		University university = new University();
 
 		String LowerCaseEmail = universityUserBean.getEmail().toLowerCase();
+		String universityEmail = universityUserBean.getUniversityEmailAddress().toLowerCase();
 		Long count1 = userRepository.getDetailsByEmail(LowerCaseEmail, "university");
 
-		Long count2 = universityRepository.getDetailsByEmail(LowerCaseEmail);
+		Long count2 = universityRepository.getDetailsByEmail(universityEmail);
+		
 
 		try {
 			LOGGER.debug("Inside try block of UniversityUserServiceImpl.updateUniversityUserProfile(-)");
 
-			if (count1 == 1 && count2 == 1) {
+			if (count1 == 1 && count2 == 0) {
 
 				String[] chunks1 = jwtToken.split(" ");
 				String[] chunks = chunks1[1].split("\\.");
 				Base64.Decoder decoder = Base64.getUrlDecoder();
-
 				String payload = new String(decoder.decode(chunks[1]));
+				
 				JSONParser jsonParser = new JSONParser();
 				Object obj = jsonParser.parse(payload);
 
 				JSONObject jsonObject = (JSONObject) obj;
-
 				String email = (String) jsonObject.get("sub");
 
+				System.out.println("         \njsonobject"+jsonObject.toJSONString()+"        email "+email);
 				university = universityRepository.findByEmail(email);
 
 				optional = userRepository.findById(university.getUserId());
@@ -139,7 +143,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 						if (universityUser != null) {
 
 							universityUser.setName(universityUserBean.getName());
-							universityUser.setEmail(universityUserBean.getEmail());
+//							universityUser.setEmail(universityUserBean.getEmail());
 							universityUser.setPhoneNo(universityUserBean.getPhoneNo());
 							universityUser.setUniversityEmailAddress(universityUserBean.getUniversityEmailAddress());
 							universityUser.setImage(universityUserBean.getImage());
@@ -166,7 +170,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 					}
 				}
 			} else {
-				throw new StudentUserDefindException("This Email Is Already Present !!");
+				throw new Exception();
 			}
 			return universityUserBeanReturn;
 		} catch (Exception e) {

@@ -18,5 +18,6 @@ public class JobApplyBean {
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 	private Long corporateId;
+	private Long jobId;
 	
 }

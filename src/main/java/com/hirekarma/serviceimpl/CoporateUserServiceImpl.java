@@ -21,11 +21,15 @@ import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.CampusDriveResponse;
+import com.hirekarma.model.ChatRoom;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Organization;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
+import com.hirekarma.repository.ChatRoomRepository;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.OrganizationRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
@@ -56,6 +60,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 
 	@Autowired
 	private EmailController emailController;
+	
+	@Autowired
+	private JobApplyRepository jobApplyRepository;
+	
+	@Autowired
+	private ChatRoomRepository chatRoomRepository;
 
 	@Override
 	public UserProfile insert(UserProfile userProfile) {
@@ -317,16 +327,50 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 	}
 
 	@Override
-	public Map<String, Object> shortListStudent(Long jobApplyId) {
-		LOGGER.debug("Inside CoporateUserServiceImpl.shortListStudent(-)");
-		
+	public Map<String, Object> shortListStudent(Long corporateId, Long jobApplyId) {
+		LOGGER.debug("Inside CoporateUserServiceImpl.shortListStudent(-,-)");
+		Map<String, Object> map = null;
+		Optional<JobApply> jobApplyOpt = null;
+		JobApply jobApply = null;
+		ChatRoom chatRoom = null;
 		try {
-			
+			jobApplyOpt = jobApplyRepository.findById(jobApplyId);
+			if(!jobApplyOpt.isEmpty()) {
+				jobApply = jobApplyOpt.get();
+				if(corporateId == jobApply.getCorporateId()) {
+					jobApply.setApplicationStatus(true);
+					jobApplyRepository.save(jobApply);
+					map = new HashMap<String,Object>();
+					map.put("status", "Success");
+					map.put("responseCode", "200");
+					map.put("message", "Student got shortlisted");
+					chatRoom = new ChatRoom();
+					chatRoom.setCorporateId(corporateId);
+					chatRoom.setStudentId(jobApply.getStudentId());
+					chatRoomRepository.save(chatRoom);
+				}
+				else {
+					map = new HashMap<String,Object>();
+					map.put("status", "Unauthorized");
+					map.put("responseCode", "400");
+					map.put("message", "Corporate mismatch");
+				}
+			}
+			else {
+				map = new HashMap<String,Object>();
+				map.put("status", "Bad Request");
+				map.put("responseCode", "400");
+				map.put("message", "Job Apply Id Not Found");
+			}
 		}
 		catch (Exception e) {
 			LOGGER.error("Error in CoporateUserServiceImpl.shortListStudent(-)");
+			map = new HashMap<String,Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", "400");
+			map.put("message", "Bad Request");
 		}
-		return null;
+		return map;
 	}
 
 //	@Override

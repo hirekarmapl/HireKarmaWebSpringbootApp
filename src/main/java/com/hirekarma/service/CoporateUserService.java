@@ -27,5 +27,5 @@ public interface CoporateUserService {
 
 	public List<StudentDetails> applyStudentDetails(CampusDriveResponseBean campus, String token);
 	
-	public Map<String,Object> shortListStudent(Long studentId);
+	public Map<String,Object> shortListStudent(Long corporateId, Long jobApplyId);
 }

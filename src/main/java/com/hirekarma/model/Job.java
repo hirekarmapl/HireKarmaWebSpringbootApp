@@ -16,9 +16,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
 
-import lombok.Data;
-import lombok.ToString;
-
 @Entity
 @Table(name = "JOB")
 //@Data

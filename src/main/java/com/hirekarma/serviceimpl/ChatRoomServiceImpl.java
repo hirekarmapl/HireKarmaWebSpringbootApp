@@ -2,6 +2,7 @@ package com.hirekarma.serviceimpl;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -32,43 +33,32 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 		LOGGER.debug("Inside ChatRoomServiceImpl.sendMessage(-)");
 		Map<String, Object> map = null;
 		ChatRoom chatRoom = null;
-		ChatRoom chatRoomReturn = null;
-		Long availibility = null;
 		Message message = null;
 		byte[] attachment = null;
 		try {
 			LOGGER.debug("Inside try block of ChatRoomServiceImpl.sendMessage(-)");
+			if(chatRoomBean.getCorporateId()!=null) {
+				chatRoom = chatRoomRepository.getChatRoomByCorporateId(chatRoomBean.getCorporateId());
+			}
+			else if(chatRoomBean.getStudentId()!=null) {
+				chatRoom = chatRoomRepository.getChatRoomByStudentId(chatRoomBean.getStudentId());
+			}
 			//check chat room is already there or not
-			availibility = chatRoomRepository.getChatRoomFromRepo(chatRoomBean.getStudentId(),chatRoomBean.getCorporateId());
 			if(chatRoomBean.getAttachment() != null) {
 				attachment = chatRoomBean.getAttachment().getBytes();
 			}
-			if(availibility == null) {
-				chatRoom = new ChatRoom();
-				chatRoom.setCorporateId(chatRoomBean.getCorporateId());
-				chatRoom.setStudentId(chatRoomBean.getStudentId());
-				chatRoomReturn = chatRoomRepository.save(chatRoom);
-				message = new Message();
-				message.setChatRoomId(chatRoomReturn.getChatRoomId());
-				message.setAttachment(attachment);
-				message.setSenderType(chatRoomBean.getSenderType());
-				message.setTxtMessage(chatRoomBean.getTxtMsg());
-				message.setIsSeen(chatRoomBean.getIsSeen());
-				messageRepository.save(message);
-			}
-			else {
-				message = new Message();
-				message.setChatRoomId(availibility);
-				message.setAttachment(attachment);
-				message.setSenderType(chatRoomBean.getSenderType());
-				message.setTxtMessage(chatRoomBean.getTxtMsg());
-				message.setIsSeen(chatRoomBean.getIsSeen());
-				messageRepository.save(message);
-			}
+			message = new Message();
+			message.setChatRoomId(chatRoom.getChatRoomId());
+			message.setAttachment(attachment);
+			message.setSenderType(chatRoomBean.getSenderType());
+			message.setTxtMessage(chatRoomBean.getTxtMsg());
+			message.setIsSeen(chatRoomBean.getIsSeen());
+			messageRepository.save(message);
 			map = new HashMap<String, Object>();
 			map.put("status", "Success");
 			map.put("responseCode", 200);
 			map.put("message", "Message Sent");
+			LOGGER.info("Message sent using ChatRoomServiceImpl.sendMessage(-)");
 		}
 		catch (IOException e) {
 			LOGGER.error("sending Message Failed in ChatRoomServiceImpl.sendMessage(-)");
@@ -85,6 +75,30 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 			map.put("status", "Failed");
 			map.put("responseCode", 500);
 			map.put("message", "Message sending failed!!!");
+		}
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> getMessagesByChatRoomId(Long chatRoomId) {
+		LOGGER.debug("Inside ChatRoomServiceImpl.getMessagesByChatRoomId(-)");
+		Map<String, Object> map = null;
+		List<Message> messages = null;
+		try {
+			messages = messageRepository.getMessagesByChatRoomId(chatRoomId);
+			map = new HashMap<String, Object>();
+			map.put("status", "Success");
+			map.put("responseCode", 200);
+			map.put("data", messages);
+			LOGGER.info("Message retrived using ChatRoomServiceImpl.getMessagesByChatRoomId(-)");
+		}
+		catch (Exception e) {
+			LOGGER.error("retriving Message Failed in ChatRoomServiceImpl.getMessagesByChatRoomId(-)");
+			e.printStackTrace();
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 500);
+			map.put("message", "Message retriving failed!!!");
 		}
 		return map;
 	}

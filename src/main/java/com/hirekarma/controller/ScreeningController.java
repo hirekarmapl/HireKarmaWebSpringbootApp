@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +42,7 @@ public class ScreeningController {
 	private UserRepository userRepository;
 	
 	@PostMapping("/createScreeningQuestion")
-	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
 	public ResponseEntity<Map<String,Object>> createScreeningQuestion(@RequestBody ScreeningBean screeningBean, HttpServletRequest request) {
 		LOGGER.debug("Inside ScreeningController.createScreeningQuestion()");
 		Map<String, Object> map = null;
@@ -57,6 +59,7 @@ public class ScreeningController {
 			screeningBean.setCorporateId(userProfile.getUserId());
 			map = screeningService.createScreeningQuestion(screeningBean);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.debug("Question saved using ScreeningController.createScreeningQuestion()");
 			return responseEntity;
 		}
 		catch (Exception e) {
@@ -66,6 +69,30 @@ public class ScreeningController {
 			map.put("responseCode", 400);
 			map.put("message", "Question saving failed!!!");
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
+	}
+	
+	@PutMapping("/updateScreeningQuestion/{slug}")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Map<String,Object>> updateScreeningQuestion(@PathVariable("slug") String slug,@RequestBody ScreeningBean screeningBean) {
+		LOGGER.debug("Inside ScreeningController.createScreeningQuestion()");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		try {
+			map = screeningService.updateScreeningQuestion(slug,screeningBean);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in ScreeningController.updateScreeningQuestion(-)");
+			map = new HashMap<String, Object>();
+			map.put("status", "Bad Request");
+			map.put("responseCode", 400);
+			map.put("message", "Question updation failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
 			return responseEntity;
 		}
 	}

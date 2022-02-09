@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import com.hirekarma.beans.ScreeningBean;
 import com.hirekarma.model.ScreeninQuestionOptions;
 import com.hirekarma.model.ScreeningEntity;
+import com.hirekarma.model.ScreeningResponse;
 import com.hirekarma.repository.ScreeninQuestionOptionsRepository;
 import com.hirekarma.repository.ScreeningEntityRepository;
+import com.hirekarma.repository.ScreeningResponseRepository;
 import com.hirekarma.service.ScreeningService;
 
 @Service("screeningServiceImpl")
@@ -27,6 +29,9 @@ public class ScreeningServiceImpl implements ScreeningService{
 	
 	@Autowired
 	private ScreeninQuestionOptionsRepository screeninQuestionOptionsRepository;
+	
+	@Autowired
+	private ScreeningResponseRepository screeningResponseRepository;
 
 	@Override
 	public Map<String, Object> createScreeningQuestion(ScreeningBean screeningBean) {
@@ -168,6 +173,44 @@ public class ScreeningServiceImpl implements ScreeningService{
 			e.printStackTrace();
 		}
 		return map;
+	}
+	
+	@Override
+	public Map<String, Object> sendScreeningQuestions(Long jobApplyId, String screeningSlug) {
+		LOGGER.debug("Starting of ScreeningServiceImpl.sendScreeningQuestions(-,-)");
+		Map<String, Object> map = null;
+		Long screeningTableId = null;
+		ScreeningResponse screeningResponse = null;
+		try {
+			screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(screeningSlug);
+			if(screeningTableId!=null) {
+				screeningResponse = new ScreeningResponse();
+				screeningResponse.setJobApplyId(jobApplyId);
+				screeningResponse.setScreeningId(screeningTableId);
+				screeningResponseRepository.save(screeningResponse);
+				map = new HashMap<String, Object>();
+				map.put("status", "Success");
+				map.put("responseCode", 200);
+				map.put("message", "Question sent successfully");
+				LOGGER.info("Question sent successfully using ScreeningServiceImpl.deleteScreeningQuestion()");
+			}
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 400);
+				map.put("message", "Question sending failed!!!");
+			}
+			return map;
+		}
+		catch (Exception e) {
+			LOGGER.error("Question sending failed using ScreeningServiceImpl.sendScreeningQuestions()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Question sending failed!!!");
+			e.printStackTrace();
+			return map;
+		}
 	}
 	
 	private static String generateRandomString() {

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.ScreeningBean;
@@ -65,7 +66,7 @@ public class ScreeningController {
 			}
 			map = screeningService.createScreeningQuestion(screeningBean);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
-			LOGGER.debug("Question saved using ScreeningController.createScreeningQuestion()");
+			LOGGER.info("Question saved using ScreeningController.createScreeningQuestion()");
 			return responseEntity;
 		}
 		catch (Exception e) {
@@ -89,6 +90,7 @@ public class ScreeningController {
 		try {
 			map = screeningService.updateScreeningQuestion(slug,screeningBean);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.info("Question updated using ScreeningController.updateScreeningQuestion()");
 			return responseEntity;
 		}
 		catch (Exception e) {
@@ -112,6 +114,7 @@ public class ScreeningController {
 		try {
 			map = screeningService.deleteScreeningQuestion(slug);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.info("Question deleted using ScreeningController.deleteScreeningQuestion()");
 			return responseEntity;
 		}
 		catch (Exception e) {
@@ -120,6 +123,30 @@ public class ScreeningController {
 			map.put("status", "Bad Request");
 			map.put("responseCode", 400);
 			map.put("message", "Question deletion failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
+	}
+	
+	@PostMapping("/sendScreeningQuestions/{slug}")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Map<String,Object>> sendScreeningQuestions(@RequestParam("jobApplyId") Long jobApplyId,@PathVariable("slug") String slug) {
+		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		try {
+			map = screeningService.sendScreeningQuestions(jobApplyId,slug);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.info("Question sent using ScreeningController.sendScreeningQuestions()");
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in ScreeningController.sendScreeningQuestions(-,-)");
+			map = new HashMap<String, Object>();
+			map.put("status", "Bad Request");
+			map.put("responseCode", 400);
+			map.put("message", "Question sending failed!!!");
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			e.printStackTrace();
 			return responseEntity;

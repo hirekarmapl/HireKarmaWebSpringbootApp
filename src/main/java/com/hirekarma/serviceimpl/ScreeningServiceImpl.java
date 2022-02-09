@@ -1,102 +1,76 @@
 package com.hirekarma.serviceimpl;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.ScreeningBean;
-import com.hirekarma.exception.StudentUserDefindException;
-import com.hirekarma.model.ScreeningModel;
-import com.hirekarma.model.ScreeningQuestions;
-import com.hirekarma.repository.ScreeningQuestionsRepository;
-import com.hirekarma.repository.ScreeningRepository;
+import com.hirekarma.model.ScreeninQuestionOptions;
+import com.hirekarma.model.ScreeningEntity;
+import com.hirekarma.repository.ScreeninQuestionOptionsRepository;
+import com.hirekarma.repository.ScreeningEntityRepository;
 import com.hirekarma.service.ScreeningService;
 
 @Service("screeningServiceImpl")
-public class ScreeningServiceImpl implements ScreeningService {
+public class ScreeningServiceImpl implements ScreeningService{
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScreeningServiceImpl.class);
 	
 	@Autowired
-	private ScreeningRepository screeningRepository;
+	private ScreeningEntityRepository screeningEntityRepository;
 	
 	@Autowired
-	private ScreeningQuestionsRepository screeningQuestionsRepository;
+	private ScreeninQuestionOptionsRepository screeninQuestionOptionsRepository;
 
 	@Override
-	public ScreeningBean insertScreeningQuestions(ScreeningBean screeningBean) {
-		LOGGER.debug("ScreeningServiceImpl.insertScreeningQuestions(-)");
-		ScreeningBean screeningBeanReturn = null;
-		ScreeningModel screeningModel = null;
-		ScreeningModel screeningModelReturn = null;
-		ScreeningQuestions screeningQuestions = null;
-		String[] questionArray = null;
+	public Map<String, Object> createScreeningQuestion(ScreeningBean screeningBean) {
+		LOGGER.debug("starting of ScreeningServiceImpl.createScreeningQuestion()");
+		ScreeningEntity screeningEntity = null, screeningEntityReturn = null;
+		ScreeninQuestionOptions screeninQuestionOptions = null;
+		String slug =null;
+		List<String> options = null;
+		Map<String, Object> map = null;
 		try {
-			LOGGER.debug("Inside try block of ScreeningServiceImpl.insertScreeningQuestions(-)");
-			if(screeningBean!=null) {
-				screeningModel = new ScreeningModel();
-				screeningModel.setCorporateId(screeningBean.getCorporateId());
-				screeningModel.setStatus("Active");
-				screeningModelReturn = screeningRepository.save(screeningModel);
-				screeningBeanReturn = new ScreeningBean();
-				screeningBeanReturn.setCorporateId(screeningModelReturn.getCorporateId());
-				screeningBeanReturn.setCreatedOn(screeningModelReturn.getCreatedOn());
-				screeningBeanReturn.setUpdatedOn(screeningModelReturn.getUpdatedOn());
-				screeningBeanReturn.setScreeningId(screeningModelReturn.getScreeningId());
-				screeningBeanReturn.setStatus(screeningModelReturn.getStatus());
-				screeningBeanReturn.setUpdatedOn(screeningModelReturn.getUpdatedOn());
-				if(screeningBean.getQuestions() != null) {
-					questionArray = new String[screeningBean.getQuestions().length];
-					for(int i = 0; i<screeningBean.getQuestions().length; i++) {
-						screeningQuestions = new ScreeningQuestions();
-						screeningQuestions.setScreeningId(screeningModelReturn.getScreeningId());
-						screeningQuestions.setQuestions(screeningBean.getQuestions()[i]);
-						screeningQuestions.setStatus("Active");
-						questionArray[i] = screeningQuestionsRepository.save(screeningQuestions).getQuestions();
-					}
-					screeningBeanReturn.setQuestions(questionArray);
-				}
-				LOGGER.info("data saved successfully using ScreeningServiceImpl.insertScreeningQuestions(-)");
+			screeningEntity = new ScreeningEntity();
+			screeningEntity.setCorporateId(screeningBean.getCorporateId());
+			screeningEntity.setQuestions(screeningBean.getQuestions());
+			screeningEntity.setQuestionType(screeningBean.getQuestionType());
+			slug = screeningBean.getQuestions().substring(0, 6)+generateRandomString();
+			screeningEntity.setSlug(slug);
+			screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
+			options = screeningBean.getOptions();
+			for(String option:options) {
+				screeninQuestionOptions = new ScreeninQuestionOptions();
+				screeninQuestionOptions.setScreeningTableId(screeningEntityReturn.getScreeningTableId());
+				screeninQuestionOptions.setOptions(option);
+				screeninQuestionOptionsRepository.save(screeninQuestionOptions);
 			}
-			return screeningBeanReturn;
+			map = new HashMap<String, Object>();
+			map.put("status", "Success");
+			map.put("responseCode", 200);
+			map.put("message", "Screening details are saved successfully");
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error("data saving failed using ScreeningServiceImpl.insertScreeningQuestions(-)");
-			throw new StudentUserDefindException(e.getMessage());
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Screening details saving failed!!!");
 		}
+		return map;
 	}
-
-	@Override
-	public ScreeningBean getScreeningQuestionsByCorporateId(Long corporateId) {
-		LOGGER.debug("ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
-		ScreeningBean screeningBean = null;
-		ScreeningModel screeningModel = null;
-		String[] questionsArray = null;
-		try {
-			LOGGER.debug("Inside try block of ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
-			screeningModel = screeningRepository.getScreeningQuestionsByCorporateId(corporateId);
-			if(screeningModel!=null) {
-				screeningBean = new ScreeningBean();
-				BeanUtils.copyProperties(screeningModel, screeningBean);
-				if(screeningModel.getQuestionsList() != null) {
-					questionsArray = new String[screeningModel.getQuestionsList().size()];
-					for(int i = 0; i < screeningModel.getQuestionsList().size(); i++) {
-						questionsArray[i] = (screeningModel.getQuestionsList().get(i).getQuestions());
-					}
-					screeningBean.setQuestions(questionsArray);
-				}
-			}
-			LOGGER.info("getting of questions done using ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
-			return screeningBean;
-		}
-		catch (Exception e) {
-			LOGGER.error("getting of questions failed using ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
-			e.printStackTrace();
-			throw new StudentUserDefindException(e.getMessage());
-		}
+	
+	private static String generateRandomString() {
+		byte[] array = new byte[7];
+		new Random().nextBytes(array);
+		String generatedString = new String(array,Charset.forName("UTF-8"));
+		return generatedString;
 	}
 
 }

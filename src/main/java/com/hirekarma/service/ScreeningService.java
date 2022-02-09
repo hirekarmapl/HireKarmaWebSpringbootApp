@@ -1,10 +1,11 @@
 package com.hirekarma.service;
 
+import java.util.Map;
+
 import com.hirekarma.beans.ScreeningBean;
 
 public interface ScreeningService {
 	
-	public ScreeningBean insertScreeningQuestions(ScreeningBean screeningBean);
-	public ScreeningBean getScreeningQuestionsByCorporateId(Long corporateId);
+	public Map<String,Object> createScreeningQuestion(ScreeningBean screeningBean);
 
 }

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -91,6 +92,29 @@ public class ScreeningController {
 			map.put("status", "Bad Request");
 			map.put("responseCode", 400);
 			map.put("message", "Question updation failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
+	}
+	
+	@DeleteMapping("/deleteScreeningQuestion/{slug}")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Map<String,Object>> deleteScreeningQuestion(@PathVariable("slug") String slug) {
+		LOGGER.debug("Inside ScreeningController.deleteScreeningQuestion()");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		try {
+			map = screeningService.deleteScreeningQuestion(slug);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in ScreeningController.deleteScreeningQuestion(-)");
+			map = new HashMap<String, Object>();
+			map.put("status", "Bad Request");
+			map.put("responseCode", 400);
+			map.put("message", "Question deletion failed!!!");
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			e.printStackTrace();
 			return responseEntity;

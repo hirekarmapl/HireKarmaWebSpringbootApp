@@ -124,6 +124,52 @@ public class ScreeningServiceImpl implements ScreeningService{
 		return map;
 	}
 	
+	@Override
+	public Map<String, Object> deleteScreeningQuestion(String slug) {
+		LOGGER.debug("Starting of ScreeningServiceImpl.deleteScreeningQuestion(-)");
+		Optional<ScreeningEntity> optional = null;
+		ScreeningEntity screeningEntity = null;
+		Map<String, Object> map = null;
+		Long screeningTableId = null;
+		try {
+			screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(slug);
+			if(screeningTableId!=null) {
+				optional = screeningEntityRepository.findById(screeningTableId);
+				if(!optional.isEmpty()) {
+					screeningEntity = optional.get();
+					screeninQuestionOptionsRepository.deleteScreeningQuestionOptions(screeningTableId);
+					screeningEntityRepository.delete(screeningEntity);
+					map = new HashMap<String, Object>();
+					map.put("status", "Success");
+					map.put("responseCode", 200);
+					map.put("message", "Screening details are deleted successfully!!!");
+					LOGGER.info("Question deleted using ScreeningServiceImpl.deleteScreeningQuestion()");
+				}
+				else {
+					map = new HashMap<String, Object>();
+					map.put("status", "Failed");
+					map.put("responseCode", 400);
+					map.put("message", "Screening details deletion failed!!!");
+				}
+			}
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 400);
+				map.put("message", "Screening details deletion failed!!!");
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error("Question deleting failed using ScreeningServiceImpl.deleteScreeningQuestion()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Deletion of screening details failed!!!");
+			e.printStackTrace();
+		}
+		return map;
+	}
+	
 	private static String generateRandomString() {
 		String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 + "0123456789"

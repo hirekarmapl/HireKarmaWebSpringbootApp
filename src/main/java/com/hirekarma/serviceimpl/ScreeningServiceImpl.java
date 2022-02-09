@@ -213,6 +213,12 @@ public class ScreeningServiceImpl implements ScreeningService{
 		}
 	}
 	
+	@Override
+	public Map<String, Object> responseToScreeningQuestions(String response) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	private static String generateRandomString() {
 		String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 + "0123456789"

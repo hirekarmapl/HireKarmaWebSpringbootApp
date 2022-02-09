@@ -129,9 +129,9 @@ public class ScreeningController {
 		}
 	}
 	
-	@PostMapping("/sendScreeningQuestions/{slug}")
+	@PostMapping("/sendScreeningQuestions")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> sendScreeningQuestions(@RequestParam("jobApplyId") Long jobApplyId,@PathVariable("slug") String slug) {
+	public ResponseEntity<Map<String,Object>> sendScreeningQuestions(@RequestParam("jobApplyId") Long jobApplyId,@RequestParam("slug") String slug) {
 		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;

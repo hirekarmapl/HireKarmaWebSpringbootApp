@@ -57,7 +57,12 @@ public class ScreeningController {
 			jwtToken = authorizationHeader.substring(7);
 			email = jwtTokenUtil.extractUsername(jwtToken);
 			userProfile = userRepository.findUserByEmail(email);
-			screeningBean.setCorporateId(userProfile.getUserId());
+			if(userProfile!=null) {
+				screeningBean.setCorporateId(userProfile.getUserId());
+			}
+			else {
+				screeningBean.setCorporateId(null);
+			}
 			map = screeningService.createScreeningQuestion(screeningBean);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.debug("Question saved using ScreeningController.createScreeningQuestion()");

@@ -14,9 +14,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
 
-import lombok.Data;
-import lombok.ToString;
-
 @Entity
 @Table(name = "JOB_APPLY")
 //@Data
@@ -33,6 +30,9 @@ public class JobApply implements Serializable {
 
 	@Column(name = "STUDENT_ID")
 	private Long studentId;
+	
+	@Column(name = "JOB_ID")
+	private Long jobId;
 
 	@Column(name = "CORPORATE_ID")
 	private Long corporateId;
@@ -61,8 +61,8 @@ public class JobApply implements Serializable {
 
 	@Override
 	public String toString() {
-		return "JobApply [jobApplyId=" + jobApplyId + ", studentId=" + studentId + ", corporateId=" + corporateId
-				+ ", hireReason=" + hireReason + ", coverLetter=" + coverLetter + ", earliestJoiningDate="
+		return "JobApply [jobApplyId=" + jobApplyId + ", studentId=" + studentId + ", jobId=" + jobId + ", corporateId="
+				+ corporateId + ", hireReason=" + hireReason + ", coverLetter=" + coverLetter + ", earliestJoiningDate="
 				+ earliestJoiningDate + ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn="
 				+ updatedOn + ", applicationStatus=" + applicationStatus + "]";
 	}
@@ -81,6 +81,14 @@ public class JobApply implements Serializable {
 
 	public void setStudentId(Long studentId) {
 		this.studentId = studentId;
+	}
+
+	public Long getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(Long jobId) {
+		this.jobId = jobId;
 	}
 
 	public Long getCorporateId() {

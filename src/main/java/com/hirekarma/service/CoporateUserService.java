@@ -1,6 +1,7 @@
 package com.hirekarma.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.StudentDetails;
@@ -25,4 +26,6 @@ public interface CoporateUserService {
 	public List<Corporate> corporateList();
 
 	public List<StudentDetails> applyStudentDetails(CampusDriveResponseBean campus, String token);
+	
+	public Map<String,Object> shortListStudent(Long corporateId, Long jobApplyId);
 }

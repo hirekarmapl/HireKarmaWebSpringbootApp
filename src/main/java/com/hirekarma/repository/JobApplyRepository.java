@@ -7,5 +7,5 @@ import com.hirekarma.model.JobApply;
 
 @Repository("jobApplyRepository")
 public interface JobApplyRepository extends JpaRepository<JobApply, Long>{
-
+	
 }

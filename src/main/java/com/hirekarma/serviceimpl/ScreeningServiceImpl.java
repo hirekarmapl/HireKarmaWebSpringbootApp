@@ -1,102 +1,233 @@
 package com.hirekarma.serviceimpl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.ScreeningBean;
-import com.hirekarma.exception.StudentUserDefindException;
-import com.hirekarma.model.ScreeningModel;
-import com.hirekarma.model.ScreeningQuestions;
-import com.hirekarma.repository.ScreeningQuestionsRepository;
-import com.hirekarma.repository.ScreeningRepository;
+import com.hirekarma.model.ScreeninQuestionOptions;
+import com.hirekarma.model.ScreeningEntity;
+import com.hirekarma.model.ScreeningResponse;
+import com.hirekarma.repository.ScreeninQuestionOptionsRepository;
+import com.hirekarma.repository.ScreeningEntityRepository;
+import com.hirekarma.repository.ScreeningResponseRepository;
 import com.hirekarma.service.ScreeningService;
 
 @Service("screeningServiceImpl")
-public class ScreeningServiceImpl implements ScreeningService {
+public class ScreeningServiceImpl implements ScreeningService{
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScreeningServiceImpl.class);
 	
 	@Autowired
-	private ScreeningRepository screeningRepository;
+	private ScreeningEntityRepository screeningEntityRepository;
 	
 	@Autowired
-	private ScreeningQuestionsRepository screeningQuestionsRepository;
+	private ScreeninQuestionOptionsRepository screeninQuestionOptionsRepository;
+	
+	@Autowired
+	private ScreeningResponseRepository screeningResponseRepository;
 
 	@Override
-	public ScreeningBean insertScreeningQuestions(ScreeningBean screeningBean) {
-		LOGGER.debug("ScreeningServiceImpl.insertScreeningQuestions(-)");
-		ScreeningBean screeningBeanReturn = null;
-		ScreeningModel screeningModel = null;
-		ScreeningModel screeningModelReturn = null;
-		ScreeningQuestions screeningQuestions = null;
-		String[] questionArray = null;
+	public Map<String, Object> createScreeningQuestion(ScreeningBean screeningBean) {
+		LOGGER.debug("starting of ScreeningServiceImpl.createScreeningQuestion()");
+		ScreeningEntity screeningEntity = null, screeningEntityReturn = null;
+		ScreeninQuestionOptions screeninQuestionOptions = null;
+		String slug =null;
+		List<String> options = null;
+		Map<String, Object> map = null;
 		try {
-			LOGGER.debug("Inside try block of ScreeningServiceImpl.insertScreeningQuestions(-)");
-			if(screeningBean!=null) {
-				screeningModel = new ScreeningModel();
-				screeningModel.setCorporateId(screeningBean.getCorporateId());
-				screeningModel.setStatus("Active");
-				screeningModelReturn = screeningRepository.save(screeningModel);
-				screeningBeanReturn = new ScreeningBean();
-				screeningBeanReturn.setCorporateId(screeningModelReturn.getCorporateId());
-				screeningBeanReturn.setCreatedOn(screeningModelReturn.getCreatedOn());
-				screeningBeanReturn.setUpdatedOn(screeningModelReturn.getUpdatedOn());
-				screeningBeanReturn.setScreeningId(screeningModelReturn.getScreeningId());
-				screeningBeanReturn.setStatus(screeningModelReturn.getStatus());
-				screeningBeanReturn.setUpdatedOn(screeningModelReturn.getUpdatedOn());
-				if(screeningBean.getQuestions() != null) {
-					questionArray = new String[screeningBean.getQuestions().length];
-					for(int i = 0; i<screeningBean.getQuestions().length; i++) {
-						screeningQuestions = new ScreeningQuestions();
-						screeningQuestions.setScreeningId(screeningModelReturn.getScreeningId());
-						screeningQuestions.setQuestions(screeningBean.getQuestions()[i]);
-						screeningQuestions.setStatus("Active");
-						questionArray[i] = screeningQuestionsRepository.save(screeningQuestions).getQuestions();
-					}
-					screeningBeanReturn.setQuestions(questionArray);
-				}
-				LOGGER.info("data saved successfully using ScreeningServiceImpl.insertScreeningQuestions(-)");
+			screeningEntity = new ScreeningEntity();
+			screeningEntity.setCorporateId(screeningBean.getCorporateId());
+			screeningEntity.setQuestions(screeningBean.getQuestions());
+			screeningEntity.setQuestionType(screeningBean.getQuestionType());
+			slug = screeningBean.getQuestions().substring(0, 6)+generateRandomString();
+			screeningEntity.setSlug(slug);
+			screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
+			options = screeningBean.getOptions();
+			for(String option:options) {
+				screeninQuestionOptions = new ScreeninQuestionOptions();
+				screeninQuestionOptions.setScreeningTableId(screeningEntityReturn.getScreeningTableId());
+				screeninQuestionOptions.setOptions(option);
+				screeninQuestionOptionsRepository.save(screeninQuestionOptions);
 			}
-			return screeningBeanReturn;
+			map = new HashMap<String, Object>();
+			map.put("status", "Success");
+			map.put("responseCode", 200);
+			map.put("message", "Screening details are saved successfully");
+			LOGGER.info("Question saved using ScreeningServiceImpl.createScreeningQuestion()");
 		}
 		catch (Exception e) {
+			LOGGER.error("Question saving failed using ScreeningServiceImpl.createScreeningQuestion()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Screening details saving failed!!!");
 			e.printStackTrace();
-			LOGGER.error("data saving failed using ScreeningServiceImpl.insertScreeningQuestions(-)");
-			throw new StudentUserDefindException(e.getMessage());
 		}
+		return map;
 	}
-
+	
 	@Override
-	public ScreeningBean getScreeningQuestionsByCorporateId(Long corporateId) {
-		LOGGER.debug("ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
-		ScreeningBean screeningBean = null;
-		ScreeningModel screeningModel = null;
-		String[] questionsArray = null;
+	public Map<String, Object> updateScreeningQuestion(String slug, ScreeningBean screeningBean) {
+		LOGGER.debug("Starting of ScreeningServiceImpl.updateScreeningQuestion(-)");
+		Optional<ScreeningEntity> optional = null;
+		ScreeningEntity screeningEntity = null, screeningEntityReturn = null;
+		ScreeninQuestionOptions screeninQuestionOptions = null;
+		List<String> options = null;
+		Map<String, Object> map = null;
+		Long screeningTableId = null;
 		try {
-			LOGGER.debug("Inside try block of ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
-			screeningModel = screeningRepository.getScreeningQuestionsByCorporateId(corporateId);
-			if(screeningModel!=null) {
-				screeningBean = new ScreeningBean();
-				BeanUtils.copyProperties(screeningModel, screeningBean);
-				if(screeningModel.getQuestionsList() != null) {
-					questionsArray = new String[screeningModel.getQuestionsList().size()];
-					for(int i = 0; i < screeningModel.getQuestionsList().size(); i++) {
-						questionsArray[i] = (screeningModel.getQuestionsList().get(i).getQuestions());
+			screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(slug);
+			if(screeningTableId!=null) {
+				optional = screeningEntityRepository.findById(screeningTableId);
+				if(!optional.isEmpty()) {
+					screeningEntity = optional.get();
+					screeningEntity.setQuestions(screeningBean.getQuestions());
+					screeninQuestionOptionsRepository.deleteScreeningQuestionOptions(screeningTableId);
+					screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
+					options = screeningBean.getOptions();
+					for(String option:options) {
+						screeninQuestionOptions = new ScreeninQuestionOptions();
+						screeninQuestionOptions.setScreeningTableId(screeningEntityReturn.getScreeningTableId());
+						screeninQuestionOptions.setOptions(option);
+						screeninQuestionOptionsRepository.save(screeninQuestionOptions);
 					}
-					screeningBean.setQuestions(questionsArray);
+					map = new HashMap<String, Object>();
+					map.put("status", "Success");
+					map.put("responseCode", 200);
+					map.put("message", "Screening details are updated successfully!!!");
+					LOGGER.info("Question updated using ScreeningServiceImpl.createScreeningQuestion()");
+				}
+				else {
+					map = new HashMap<String, Object>();
+					map.put("status", "Failed");
+					map.put("responseCode", 400);
+					map.put("message", "Screening details updation failed!!!");
 				}
 			}
-			LOGGER.info("getting of questions done using ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
-			return screeningBean;
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 400);
+				map.put("message", "Screening details updation failed!!!");
+			}
 		}
 		catch (Exception e) {
-			LOGGER.error("getting of questions failed using ScreeningServiceImpl.getScreeningQuestionsByCorporateId()");
+			LOGGER.error("Question saving failed using ScreeningServiceImpl.createScreeningQuestion()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Screening details saving failed!!!");
 			e.printStackTrace();
-			throw new StudentUserDefindException(e.getMessage());
+		}
+		return map;
+	}
+	
+	@Override
+	public Map<String, Object> deleteScreeningQuestion(String slug) {
+		LOGGER.debug("Starting of ScreeningServiceImpl.deleteScreeningQuestion(-)");
+		Optional<ScreeningEntity> optional = null;
+		ScreeningEntity screeningEntity = null;
+		Map<String, Object> map = null;
+		Long screeningTableId = null;
+		try {
+			screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(slug);
+			if(screeningTableId!=null) {
+				optional = screeningEntityRepository.findById(screeningTableId);
+				if(!optional.isEmpty()) {
+					screeningEntity = optional.get();
+					screeninQuestionOptionsRepository.deleteScreeningQuestionOptions(screeningTableId);
+					screeningEntityRepository.delete(screeningEntity);
+					map = new HashMap<String, Object>();
+					map.put("status", "Success");
+					map.put("responseCode", 200);
+					map.put("message", "Screening details are deleted successfully!!!");
+					LOGGER.info("Question deleted using ScreeningServiceImpl.deleteScreeningQuestion()");
+				}
+				else {
+					map = new HashMap<String, Object>();
+					map.put("status", "Failed");
+					map.put("responseCode", 400);
+					map.put("message", "Screening details deletion failed!!!");
+				}
+			}
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 400);
+				map.put("message", "Screening details deletion failed!!!");
+			}
+		}
+		catch (Exception e) {
+			LOGGER.error("Question deleting failed using ScreeningServiceImpl.deleteScreeningQuestion()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Deletion of screening details failed!!!");
+			e.printStackTrace();
+		}
+		return map;
+	}
+	
+	@Override
+	public Map<String, Object> sendScreeningQuestions(Long jobApplyId, String screeningSlug) {
+		LOGGER.debug("Starting of ScreeningServiceImpl.sendScreeningQuestions(-,-)");
+		Map<String, Object> map = null;
+		Long screeningTableId = null;
+		ScreeningResponse screeningResponse = null;
+		try {
+			screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(screeningSlug);
+			if(screeningTableId!=null) {
+				screeningResponse = new ScreeningResponse();
+				screeningResponse.setJobApplyId(jobApplyId);
+				screeningResponse.setScreeningId(screeningTableId);
+				screeningResponseRepository.save(screeningResponse);
+				map = new HashMap<String, Object>();
+				map.put("status", "Success");
+				map.put("responseCode", 200);
+				map.put("message", "Question sent successfully");
+				LOGGER.info("Question sent successfully using ScreeningServiceImpl.deleteScreeningQuestion()");
+			}
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 400);
+				map.put("message", "Question sending failed!!!");
+			}
+			return map;
+		}
+		catch (Exception e) {
+			LOGGER.error("Question sending failed using ScreeningServiceImpl.sendScreeningQuestions()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Question sending failed!!!");
+			e.printStackTrace();
+			return map;
 		}
 	}
-
+	
+	@Override
+	public Map<String, Object> responseToScreeningQuestions(String response) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private static String generateRandomString() {
+		String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                + "0123456789"
+                + "abcdefghijklmnopqrstuvxyz";
+		StringBuilder sb = new StringBuilder(7);
+		for (int i = 0; i < 7; i++) {
+            int index = (int)(alphaNumericString.length()* Math.random());
+            sb.append(alphaNumericString.charAt(index));
+        }
+		return sb.toString();
+	}
 }

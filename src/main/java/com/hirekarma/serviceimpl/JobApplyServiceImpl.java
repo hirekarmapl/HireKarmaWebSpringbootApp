@@ -61,7 +61,7 @@ public class JobApplyServiceImpl implements JobApplyService {
 				jobApply.setDeleteStatus(false);
 				jobApply.setApplicationStatus(false);
 				jobApply.setCorporateId(jobApplyBean.getCorporateId());
-				jobApply.setStudentId(studentList.get(0).getStudentId());
+				jobApply.setStudentId(jobApplyBean.getStudentId());
 
 				jobApplyReturn = jobApplyRepository.save(jobApply);
 

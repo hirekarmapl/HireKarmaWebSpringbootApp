@@ -3,12 +3,9 @@ package com.hirekarma.controller;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
-import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,7 +24,6 @@ import com.hirekarma.beans.JwtRequest;
 import com.hirekarma.beans.JwtResponse;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
-import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.serviceimpl.UserDetailsServiceImpl;

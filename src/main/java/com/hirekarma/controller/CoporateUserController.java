@@ -3,7 +3,11 @@ package com.hirekarma.controller;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -38,9 +43,15 @@ import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
+
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
 import com.hirekarma.utilty.CalendarApi;
+
+import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.service.CoporateUserService;
+import com.hirekarma.utilty.JwtUtil;
+
 import com.hirekarma.utilty.Validation;
 
 @RestController("coporateUserController")
@@ -52,6 +63,12 @@ public class CoporateUserController {
 
 	@Autowired
 	private CoporateUserService coporateUserService;
+	
+	@Autowired
+	private JwtUtil jwtTokenUtil;
+	
+	@Autowired
+	private CorporateRepository corporateRepository;
 
 	@Autowired
 	private BlogService blogService;
@@ -412,6 +429,7 @@ public class CoporateUserController {
 		return responseEntity;
 	}
 
+
 	@PostMapping("/calendar")
 	@PreAuthorize("hasRole('corporate')")
 	public Response createEvent(@RequestBody GoogleCalenderRequest request) {
@@ -433,5 +451,32 @@ public class CoporateUserController {
 			e.printStackTrace();
 		}
 		return new Response("error", 400, "Bad Request", null, null);
+	}
+	
+	@PatchMapping("/shortListStudent/{jobApplyId}")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Map<String,Object>> shortListStudent(@PathVariable("jobApplyId") Long jobApplyId, HttpServletRequest request) {		
+		LOGGER.debug("Inside CoporateUserController.shortListStudent(-)");
+		String jwtToken = null;
+		String authorizationHeader = null;
+		String email=null;
+		Corporate corporate = null;
+		Map<String, Object> map = null;
+		try {
+			authorizationHeader = request.getHeader("Authorization");
+			jwtToken = authorizationHeader.substring(7);
+			email = jwtTokenUtil.extractUsername(jwtToken);
+			corporate = corporateRepository.findByEmail(email);
+			map = coporateUserService.shortListStudent(corporate.getCorporateId(), jobApplyId);
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in CoporateUserController.shortListStudent(-)");
+			map = new HashMap<String,Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", "400");
+			map.put("message", "Bad Request");
+		}
+		return new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+
 	}
 }

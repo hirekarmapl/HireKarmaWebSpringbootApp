@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,17 +22,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.api.services.calendar.Calendar;
+import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.GoogleCalenderRequest;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
+import com.hirekarma.model.Blog;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
 import com.hirekarma.utilty.CalendarApi;
 import com.hirekarma.utilty.Validation;
@@ -45,6 +52,9 @@ public class CoporateUserController {
 
 	@Autowired
 	private CoporateUserService coporateUserService;
+
+	@Autowired
+	private BlogService blogService;
 
 //	@PostMapping("/saveCoporateUrl")
 //	public ResponseEntity<CoporateUserBean> createUser(@RequestBody CoporateUserBean coporateUserBean) {
@@ -69,6 +79,59 @@ public class CoporateUserController {
 //			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
+
+	@PreAuthorize("hasRole('corporate')")
+	@GetMapping("/corporate/blog/{slug}")
+	public ResponseEntity<Response> getBlogByCorporateBySlug(@PathVariable("slug") String slug,
+			@RequestHeader(value = "Authorization") String token) {
+		try {
+			Blog blog = this.blogService.getBlogByCoporateBySlug(slug, token);
+			return new ResponseEntity<Response>(new Response("success", 201, "", blog, null), HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@PreAuthorize("hasRole('corporate')")
+	@RequestMapping(value = "/corporate/blog", method = RequestMethod.POST, consumes = "multipart/form-data")
+	public ResponseEntity<Response> addBlogByCooperate(@RequestPart("data") BlogBean bean,
+			@RequestHeader(value = "Authorization") String token, @RequestPart("file") MultipartFile file) {
+		try {
+			Blog blog = this.blogService.addBlogByCooperate(bean, token, file);
+			return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", blog, null),
+					HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@DeleteMapping("/corporate/blog/{slug}")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> deleteBlogBySlug(@RequestHeader(value = "Authorization") String token,
+			@PathVariable("slug") String slug) {
+		try {
+			this.blogService.deleteBlogBySlug(token, slug);
+			return new ResponseEntity<Response>(new Response("success", 201, "deleted succesfully", null, null),
+					HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@PreAuthorize("hasRole('corporate')")
+	@GetMapping("/corporate/blog/")
+	public ResponseEntity<Response> getAllBlogsByCoporate(@RequestHeader(value = "Authorization") String token) {
+		try {
+			List<Blog> blogs = this.blogService.getAllBlogsByCoporate(token);
+			return new ResponseEntity<Response>(new Response("success", 200, "", blogs, null), HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	@PostMapping("/saveCorporateUrl")
 	public ResponseEntity<Response> createUser(@RequestBody UserBean bean) {
@@ -348,27 +411,27 @@ public class CoporateUserController {
 		}
 		return responseEntity;
 	}
-	
+
 	@PostMapping("/calendar")
 	@PreAuthorize("hasRole('corporate')")
 	public Response createEvent(@RequestBody GoogleCalenderRequest request) {
-		
+
 		try {
 			CalendarApi calendarQuickstart = new CalendarApi();
 			System.out.println(request.toString());
-			String op =  calendarQuickstart.insert(request.getEventName(), request.getDescription(),request.getLocation(), request.getAttendees().size(), request.getAttendees(), request.getStartTime()+"+05:30", request.getEndTime()+"+05:30");
-			return new Response("success",200,op , request, null );
-		} 
-		catch (GeneralSecurityException e) {
+			String op = calendarQuickstart.insert(request.getEventName(), request.getDescription(),
+					request.getLocation(), request.getAttendees().size(), request.getAttendees(),
+					request.getStartTime() + "+05:30", request.getEndTime() + "+05:30");
+			return new Response("success", 200, op, request, null);
+		} catch (GeneralSecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new Response("error",400,"Bad Request" , null, null );
+		return new Response("error", 400, "Bad Request", null, null);
 	}
 }

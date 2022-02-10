@@ -2,6 +2,8 @@ package com.hirekarma.beans;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -9,6 +11,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hirekarma.model.Skill;
 import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -50,4 +53,6 @@ public class UserBean implements Serializable {
 	private Double cgpa;
 	private Long batch;
 	private Long universityId;
+	private List<Skill> skills = new ArrayList<Skill>();
+	
 }

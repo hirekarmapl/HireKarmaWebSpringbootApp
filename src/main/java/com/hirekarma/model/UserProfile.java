@@ -2,7 +2,9 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,11 +14,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hirekarma.beans.AuthenticationProvider;
 import com.sun.istack.NotNull;
 
@@ -87,6 +93,57 @@ public class UserProfile implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "AUTH_PROVIDER")
 	private AuthenticationProvider authProvider;
+	
+	@ManyToMany
+	private List<Skill> skills = new ArrayList<Skill>();
+	
+
+	@OneToMany(mappedBy = "userProfile")
+
+	@JsonIgnore
+	List<Project> projects = new ArrayList<Project>();
+	
+	@OneToMany(mappedBy = "userProfile")
+	@JsonIgnore
+	List<Education> educations = new ArrayList<Education>();
+	
+	
+	@OneToMany(mappedBy = "userProfile")
+	@JsonIgnore
+	List<Experience> experiences = new ArrayList<Experience>();
+	public List<Experience> getExperiences() {
+		return experiences;
+	}
+
+	public void setExperiences(List<Experience> experiences) {
+		this.experiences = experiences;
+	}
+
+	public List<Project> getProjects() {
+		return projects;
+	}
+
+	public List<Education> getEducations() {
+		return educations;
+	}
+
+	public void setEducations(List<Education> educations) {
+		this.educations = educations;
+	}
+
+	public void setProjects(List<Project> projects) {
+		this.projects = projects;
+	}
+
+	public List<Skill> getSkills() {
+		return skills;
+	}
+
+	public void setSkills(List<Skill> skills) {
+		this.skills = skills;
+	}
+
+
 
 	@Override
 	public String toString() {
@@ -94,7 +151,8 @@ public class UserProfile implements Serializable {
 				+ universityEmailAddress + ", phoneNo=" + phoneNo + ", image=" + Arrays.toString(image) + ", userType="
 				+ userType + ", password=" + password + ", address=" + address + ", createdOn=" + createdOn
 				+ ", updatedOn=" + updatedOn + ", status=" + status + ", shareJobId=" + shareJobId + ", response="
-				+ response + ", authProvider=" + authProvider + "]";
+				+ response + ", authProvider=" + authProvider + ", skills=" + skills + ", projects=" + projects
+				+ ", educations=" + educations + ", experiences=" + experiences + "]";
 	}
 
 	public UserProfile() {

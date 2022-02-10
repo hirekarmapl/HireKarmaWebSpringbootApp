@@ -7,6 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.model.Education;
+import com.hirekarma.model.Experience;
+import com.hirekarma.model.Skill;
 import com.hirekarma.model.UserProfile;
 
 public interface StudentService {
@@ -22,5 +25,13 @@ public interface StudentService {
 	public List<UserBean> importStudentDataExcel(MultipartFile file);
 	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean);
 	public List<?> jobDetails(String token) throws ParseException;
-
+	public UserProfile addSkill(int id,String token) throws Exception;
+	public Boolean addSkills(List<Skill> skills,String token) throws Exception;
+	public Boolean updateSkills(List<Skill> skillIds,String token) throws Exception;
+	public UserProfile addAllSkillsToStudent(List<Skill> skills,String token) throws Exception;
+	public List<Skill> getAllSkillsOfStudent(String token) throws Exception;
+	public UserProfile addAllExperienceToStudent(List<Experience> experience,String token) throws Exception;
+	public List<Experience> getAllExperiencesOfStudent(String token) throws Exception;
+	List<Education> addAllEducationToStudent(List<Education> education, String token) throws Exception;
+	public List<Education> getAllEducationsOfStudent(String token) throws Exception;
 }

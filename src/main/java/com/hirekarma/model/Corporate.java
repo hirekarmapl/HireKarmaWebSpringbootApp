@@ -2,6 +2,7 @@ package com.hirekarma.model;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,10 +10,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -46,6 +49,8 @@ public class Corporate {
     @Column(name = "PROFILE_IMAGE")
     private byte[] profileImage;
 	
+	
+	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
@@ -58,6 +63,20 @@ public class Corporate {
 	
 	@Column(name = "BADGE")
 	private Long corporateBadge;
+	
+	
+
+	@OneToMany(mappedBy = "corporate")
+	@JsonIgnore
+	private List<Blog> blogs;
+
+	public List<Blog> getBlogs() {
+		return blogs;
+	}
+
+	public void setBlogs(List<Blog> blogs) {
+		this.blogs = blogs;
+	}
 
 	public Long getCorporateId() {
 		return corporateId;

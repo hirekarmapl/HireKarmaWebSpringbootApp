@@ -214,9 +214,48 @@ public class ScreeningServiceImpl implements ScreeningService{
 	}
 	
 	@Override
-	public Map<String, Object> responseToScreeningQuestions(String response) {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, Object> getScreeningQuestionsByScreeningTableId(String slug) {
+		LOGGER.debug("Starting of ScreeningServiceImpl.getScreeningQuestionsByScreeningTableId(-)");
+		Optional<ScreeningEntity> optional = null;
+		ScreeningEntity screeningEntity = null;
+		Map<String, Object> map = null;
+		Long screeningTableId = null;
+		try {
+			screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(slug);
+			if(screeningTableId != null) {
+				optional = screeningEntityRepository.findById(screeningTableId);
+				if(!optional.isEmpty()) {
+					screeningEntity = optional.get();
+					map = new HashMap<String, Object>();
+					map.put("status", "Success");
+					map.put("responseCode", 200);
+					map.put("data", screeningEntity);
+					LOGGER.info("Getting success in ScreeningServiceImpl.getScreeningQuestionsByScreeningTableId(-)");
+				}
+				else {
+					map = new HashMap<String, Object>();
+					map.put("status", "Failed");
+					map.put("responseCode", 400);
+					map.put("message", "No screening details found with this id");
+				}
+			}
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 400);
+				map.put("message", "No screening details found with this id");
+			}
+			return map;
+		}
+		catch (Exception e) {
+			LOGGER.error("error in ScreeningServiceImpl.getScreeningQuestionsByScreeningTableId(-)");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Bad Request");
+			e.printStackTrace();
+			return map;
+		}
 	}
 	
 	private static String generateRandomString() {
@@ -229,5 +268,11 @@ public class ScreeningServiceImpl implements ScreeningService{
             sb.append(alphaNumericString.charAt(index));
         }
 		return sb.toString();
+	}
+
+	@Override
+	public Map<String, Object> responseToScreeningQuestions(Long response) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

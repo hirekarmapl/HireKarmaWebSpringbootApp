@@ -10,5 +10,6 @@ public interface ScreeningService {
 	public Map<String,Object> updateScreeningQuestion(String slug,ScreeningBean screeningBean);
 	public Map<String,Object> deleteScreeningQuestion(String slug);
 	public Map<String,Object> sendScreeningQuestions(Long jobApplyId,String screeningSlug);
-	public Map<String,Object> responseToScreeningQuestions(String response);
+	public Map<String,Object> responseToScreeningQuestions(Long  response);
+	public Map<String,Object> getScreeningQuestionsByScreeningTableId(String slug);
 }

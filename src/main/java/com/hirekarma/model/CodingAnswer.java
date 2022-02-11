@@ -59,5 +59,10 @@ public class CodingAnswer {
 		this.q_uid = q_uid;
 	}
 
+	@Override
+	public String toString() {
+		return "CodingAnswer [id=" + id + ", testCases=" + testCases + ", uid=" + uid + ", q_uid=" + q_uid + "]";
+	}
+
 
 }

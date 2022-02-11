@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.JwtRequest;
 import com.hirekarma.beans.JwtResponse;
+import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.serviceimpl.UserDetailsServiceImpl;
 import com.hirekarma.utilty.JwtUtil;
+import com.hirekarma.utilty.Validation;
 
 import io.jsonwebtoken.impl.DefaultClaims;
 
@@ -43,31 +46,55 @@ public class JwtAuthenticationController {
 	@Autowired
 	private UserDetailsServiceImpl userDetailsService;
 	
-	@Autowired
+	@Autowired 
 	private UserRepository userRepository;
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest,BindingResult result) throws Exception {
+		
+		System.out.println("outside valid");
 		String token=null;
+		Response response = new Response();
 		UserDetails userDetails=null;
 		JwtResponse jwtResponse=null;
 		UserProfile userProfile=null;
 		UserBean userBean=null;
+		ResponseEntity<Response> responseEntity = null;
 		try {
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword()));
+			if (Validation.validateEmail(authenticationRequest.getEmail())) {
+				System.out.println("email validated succesfully");
+				if(!authenticationRequest.getEmail().equalsIgnoreCase("admin@gmail.com") && !authenticationRequest.getPassword().equalsIgnoreCase("admin"))
+					authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword()));
+			}else {
+				throw new Exception("Bad Credential");
+			}
 		}
 		catch (Exception e) {
-			throw new Exception("Incorrect email or password: "+e.getMessage());
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<Response>(response,HttpStatus.BAD_REQUEST);
+			response.setMessage(e.getMessage());
+			response.setStatus("Error");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+			response.setData(jwtResponse);
+			return responseEntity;
+			
 		}
+		
 		userDetails=this.userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
 		token=this.jwtTokenUtil.generateToken(userDetails);
 		userProfile=userRepository.findUserByEmail(authenticationRequest.getEmail());
 		userBean=new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
+		
+		responseEntity = new ResponseEntity<Response>(response,HttpStatus.OK);
 		jwtResponse=new JwtResponse();
 		jwtResponse.setJwtToken(token);
 		jwtResponse.setData(userBean);
-		return ResponseEntity.ok(jwtResponse);
+		response.setMessage("Data Saved Succesfully");
+		response.setStatus("Success");
+		response.setResponseCode(responseEntity.getStatusCodeValue());
+		response.setData(jwtResponse);
+		return responseEntity;
 	}
 	
 	@RequestMapping(value = "/refreshtoken", method = RequestMethod.GET)

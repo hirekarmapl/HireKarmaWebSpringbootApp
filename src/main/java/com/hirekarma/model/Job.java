@@ -11,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -19,6 +18,8 @@ import com.sun.istack.NotNull;
 
 @Entity
 @Table(name = "JOB")
+//@Data
+//@ToString
 public class Job implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -29,8 +30,8 @@ public class Job implements Serializable{
 	@Column(name = "JOB_ID")
 	private Long jobId;
 	
-	@Column(name = "USER_ID")
-	private Long userId;
+	@Column(name = "CORPORATE_ID")
+	private Long corporateId;
 	
 	@Column(name = "JOB_TITLE")
 	private String jobTitle;
@@ -67,10 +68,10 @@ public class Job implements Serializable{
 	private byte[] descriptionFile;
 	
 	@Column(name = "STATUS")
-	private String status;
+	private Boolean status;
 	
 	@Column(name = "DELETE_STATUS")
-	private String deleteStatus;
+	private Boolean deleteStatus;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
@@ -78,22 +79,14 @@ public class Job implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
-	
-	@Transient
-	private String response;
-	
-	
 
-	public String getResponse() {
-		return response;
-	}
-
-	public void setResponse(String response) {
-		this.response = response;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	@Override
+	public String toString() {
+		return "Job [jobId=" + jobId + ", corporateId=" + corporateId + ", jobTitle=" + jobTitle + ", category="
+				+ category + ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city="
+				+ city + ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description="
+				+ description + ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status
+				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
 	}
 
 	public Long getJobId() {
@@ -104,12 +97,12 @@ public class Job implements Serializable{
 		this.jobId = jobId;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public Long getCorporateId() {
+		return corporateId;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
 	}
 
 	public String getJobTitle() {
@@ -200,19 +193,19 @@ public class Job implements Serializable{
 		this.descriptionFile = descriptionFile;
 	}
 
-	public String getStatus() {
+	public Boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(Boolean status) {
 		this.status = status;
 	}
 
-	public String getDeleteStatus() {
+	public Boolean getDeleteStatus() {
 		return deleteStatus;
 	}
 
-	public void setDeleteStatus(String deleteStatus) {
+	public void setDeleteStatus(Boolean deleteStatus) {
 		this.deleteStatus = deleteStatus;
 	}
 
@@ -232,12 +225,10 @@ public class Job implements Serializable{
 		this.updatedOn = updatedOn;
 	}
 
-	@Override
-	public String toString() {
-		return "Job [jobId=" + jobId + ", userId=" + userId + ", jobTitle=" + jobTitle + ", category=" + category
-				+ ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city=" + city
-				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
-				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
-				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
+	
+	
+
 }

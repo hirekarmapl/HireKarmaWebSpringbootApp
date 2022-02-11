@@ -16,8 +16,13 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
 
+import lombok.Data;
+import lombok.ToString;
+
 @Entity
 @Table(name = "ORGANIZATION")
+//@Data
+//@ToString
 public class Organization implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -28,8 +33,8 @@ public class Organization implements Serializable{
 	@Column(name = "ORGANIZATION_ID")
 	private Long organizationId;
 	
-	@Column(name = "USER_ID")
-	private Long userId;
+	@Column(name = "CORPORATE_ID")
+	private Long corporateId;
 	
 	@Column(name = "ORG_NAME")
 	private String orgName;
@@ -55,7 +60,15 @@ public class Organization implements Serializable{
 	private Timestamp updatedOn;
 	
 	@Column(name = "STATUS")
-	private String status;
+	private Boolean status;
+
+	@Override
+	public String toString() {
+		return "Organization [organizationId=" + organizationId + ", corporateId=" + corporateId + ", orgName="
+				+ orgName + ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum + ", logo=" + Arrays.toString(logo)
+				+ ", description=" + description + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status="
+				+ status + "]";
+	}
 
 	public Long getOrganizationId() {
 		return organizationId;
@@ -65,12 +78,12 @@ public class Organization implements Serializable{
 		this.organizationId = organizationId;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public Long getCorporateId() {
+		return corporateId;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
 	}
 
 	public String getOrgName() {
@@ -129,19 +142,19 @@ public class Organization implements Serializable{
 		this.updatedOn = updatedOn;
 	}
 
-	public String getStatus() {
+	public Boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(Boolean status) {
 		this.status = status;
 	}
 
-	@Override
-	public String toString() {
-		return "Organization [organizationId=" + organizationId + ", userId=" + userId + ", orgName=" + orgName
-				+ ", orgEmail=" + orgEmail + ", cinGstNum=" + cinGstNum + ", logo=" + Arrays.toString(logo)
-				+ ", description=" + description + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status="
-				+ status + "]";
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
+
+	
+	
+	
 }

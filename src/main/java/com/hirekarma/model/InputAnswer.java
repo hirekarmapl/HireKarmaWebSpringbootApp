@@ -58,5 +58,10 @@ public class InputAnswer {
 		this.q_uid = q_uid;
 	}
 
+	@Override
+	public String toString() {
+		return "InputAnswer [id=" + id + ", inputAnswer=" + inputAnswer + ", uid=" + uid + ", q_uid=" + q_uid + "]";
+	}
+
 
 }

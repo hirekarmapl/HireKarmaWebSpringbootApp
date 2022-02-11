@@ -1,7 +1,4 @@
 package com.hirekarma.model;
-
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -23,9 +20,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="hire_karma_qandatable")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class QuestionANdanswer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -127,6 +121,13 @@ public class QuestionANdanswer {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	@Override
+	public String toString() {
+		return "QuestionANdanswer [id=" + id + ", question=" + question + ", type=" + type + ", codingDescription="
+				+ codingDescription + ", corporateId=" + corporateId + ", uID=" + uID + ", status=" + status
+				+ ", mcqAnswer=" + mcqAnswer + ", longAnswer=" + longAnswer + ", inputAnswer=" + inputAnswer
+				+ ", codingAnswer=" + codingAnswer + "]";
 	}
 
 	

@@ -10,7 +10,10 @@ import com.hirekarma.model.Organization;
 @Repository("organizationRepository")
 public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 	
-	@Query(value = "select u from Organization u where u.status='Active' and u.userId = :userId")
-	Organization findOrganizationByUserId(@Param("userId")Long userId);
+	@Query(value = "select u from Organization u where u.status = :status and u.corporateId = :corporateId and u.organizationId = :organizationId")
+	Organization findOrganizationByUserId(@Param("corporateId")Long corporateId,@Param("status") Boolean status,@Param("organizationId") Long organizationId);
+
+	@Query(value = "select u from Organization u where u.status = :status and u.corporateId = :corporateId")
+	Organization findOrganizationByCorporateId(@Param("corporateId")Long corporateId,@Param("status") Boolean status);
 	
 }

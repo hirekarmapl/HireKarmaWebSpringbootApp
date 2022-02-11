@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.api.services.calendar.Calendar;
 import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.GoogleCalenderRequest;
@@ -43,15 +42,11 @@ import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
-
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
 import com.hirekarma.utilty.CalendarApi;
-
-import com.hirekarma.repository.CorporateRepository;
-import com.hirekarma.service.CoporateUserService;
 import com.hirekarma.utilty.JwtUtil;
-
 import com.hirekarma.utilty.Validation;
 
 @RestController("coporateUserController")
@@ -150,6 +145,7 @@ public class CoporateUserController {
 		}
 	}
 
+	
 	@PostMapping("/saveCorporateUrl")
 	public ResponseEntity<Response> createUser(@RequestBody UserBean bean) {
 
@@ -163,17 +159,36 @@ public class CoporateUserController {
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.createUser(-)");
 
-			userProfile=new UserProfile();
-			userBean=new UserBean();
-			BeanUtils.copyProperties(bean, userProfile);
-			userProfileReturn=coporateUserService.insert(userProfile);
-			LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
-			BeanUtils.copyProperties(userProfileReturn,userBean);
-			userBean.setPassword(null);
-			return new ResponseEntity<UserBean>(userBean,HttpStatus.CREATED);
-		}
-		catch (Exception e) {
-			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): "+e);
+			// validating email
+			if (Validation.validateEmail(bean.getEmail())) {
+
+				// validating password
+				if (!Validation.validatePassword(bean.getPassword())) {
+					throw new CoporateUserDefindException(
+							"Password must contain at least eight characters, at least one uppercase, one lowercase and one number:");
+				}
+
+				userProfile = new UserProfile();
+				BeanUtils.copyProperties(bean, userProfile);
+
+				userProfileReturn = coporateUserService.insert(userProfile);
+
+				LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
+//					BeanUtils.copyProperties(userProfileReturn, userBean);
+				userProfileReturn.setPassword(null);
+
+				responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
+
+				response.setMessage("Data Saved Successfully...");
+				response.setStatus("Success");
+				response.setResponseCode(responseEntity.getStatusCodeValue());
+				response.setData(userProfileReturn);
+			} else {
+				throw new CoporateUserDefindException("Please Enter A Valid Email Address !!");
+			}
+
+		} catch (Exception e) {
+			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): " + e);
 			e.printStackTrace();
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

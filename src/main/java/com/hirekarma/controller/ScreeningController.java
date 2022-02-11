@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -147,6 +148,30 @@ public class ScreeningController {
 			map.put("status", "Bad Request");
 			map.put("responseCode", 400);
 			map.put("message", "Question sending failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
+	}
+	
+	@GetMapping("/getScreeningQuestion")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Map<String,Object>> getScreeningQuestionsByScreeningTableId(@RequestParam("slug") String slug) {
+		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		try {
+			map = screeningService.getScreeningQuestionsByScreeningTableId(slug);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.info("Question sent using ScreeningController.sendScreeningQuestions()");
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in ScreeningController.sendScreeningQuestions(-,-)");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Bad Request!!!");
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			e.printStackTrace();
 			return responseEntity;

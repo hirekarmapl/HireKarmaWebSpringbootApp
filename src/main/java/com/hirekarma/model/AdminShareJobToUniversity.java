@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.sun.istack.NotNull;
@@ -19,50 +20,83 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "ADMIN_SHARE_JOB_TO_UNIVERSITY")
-public class AdminShareJobToUniversity implements Serializable{
-	
+public class AdminShareJobToUniversity implements Serializable {
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
 	@Column(name = "SHARE_JOB_ID")
 	private Long shareJobId;
-	
+
 	@Column(name = "JOB_ID")
 	private Long jobId;
-	
+
 	@Column(name = "UNIVERSITY_ID")
 	private Long universityId;
-	
+
 	@Column(name = "JOB_STATUS")
 	private String jobStatus;
-	
+
 	@Column(name = "UNIVERSITY_RESPONSE_STATUS")
 	private Boolean universityResponseStatus;
-	
+
 	@Column(name = "REJECTION_FEEDBACK")
 	private String rejectionFeedback;
-	
+
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
-	
+
 	@Column(name = "CREATED_BY")
 	private String createdBy;
-	
+
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
-	
+
 	@Column(name = "UPDATED_BY")
 	private String updatedBy;
+
+	private String lookUp;
+
+	public String getLookUp() {
+		return lookUp;
+	}
+
+	public void setLookUp(String lookUp) {
+		this.lookUp = lookUp;
+	}
 
 	@Override
 	public String toString() {
 		return "AdminShareJobToUniversity [shareJobId=" + shareJobId + ", jobId=" + jobId + ", universityId="
 				+ universityId + ", jobStatus=" + jobStatus + ", universityResponseStatus=" + universityResponseStatus
 				+ ", rejectionFeedback=" + rejectionFeedback + ", createdOn=" + createdOn + ", createdBy=" + createdBy
-				+ ", updatedOn=" + updatedOn + ", updatedBy=" + updatedBy + "]";
+				+ ", updatedOn=" + updatedOn + ", updatedBy=" + updatedBy + ", lookUp=" + lookUp + ", jdUpdation="
+				+ jdUpdation + "]";
+	}
+
+	public AdminShareJobToUniversity(Long shareJobId, Long jobId, Long universityId, String jobStatus,
+			Boolean universityResponseStatus, String rejectionFeedback, Timestamp createdOn, String createdBy,
+			Timestamp updatedOn, String updatedBy, int jdUpdation) {
+		super();
+		this.shareJobId = shareJobId;
+		this.jobId = jobId;
+		this.universityId = universityId;
+		this.jobStatus = jobStatus;
+		this.universityResponseStatus = universityResponseStatus;
+		this.rejectionFeedback = rejectionFeedback;
+		this.createdOn = createdOn;
+		this.createdBy = createdBy;
+		this.updatedOn = updatedOn;
+		this.updatedBy = updatedBy;
+		this.jdUpdation = jdUpdation;
+	}
+
+	public AdminShareJobToUniversity() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	public Long getShareJobId() {
@@ -145,11 +179,19 @@ public class AdminShareJobToUniversity implements Serializable{
 		this.updatedBy = updatedBy;
 	}
 
+	public int getJdUpdation() {
+		return jdUpdation;
+	}
+
+	public void setJdUpdation(int jdUpdation) {
+		this.jdUpdation = jdUpdation;
+	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	
 
-	
+	@ColumnDefault("0")
+	private int jdUpdation;
+
 }

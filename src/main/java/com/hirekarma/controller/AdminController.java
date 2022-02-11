@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,8 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.BadgeShareBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Skill;
 import com.hirekarma.service.AdminService;
+import org.json.simple.JSONObject;
 
 @RestController("adminController")
 @CrossOrigin
@@ -69,7 +73,31 @@ public class AdminController {
 		}
 		return resEntity;
 	}
-
+	@PutMapping("/admin/shareJob/jd/{id}")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<?> requestCorporateToUpdateJD(@PathVariable("id") long adminShareJobId){
+		try {
+			AdminShareJobToUniversity adminShareJobToUniversity = this.adminService.requestCorporateToUpdateJD(adminShareJobId);
+			return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", adminShareJobToUniversity, null),
+					HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	@PutMapping("/admin/shareJob/lookup/{id}")
+	@PreAuthorize("hasRole('admin')")
+	ResponseEntity<?> updateShareJob( @RequestBody JSONObject lookup,@PathVariable("id") long id) {
+		System.out.println(lookup.toString());
+		try {
+			AdminShareJobToUniversity adminShareJobToUniversity = this.adminService.updateShareJob(lookup,id);
+			return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", adminShareJobToUniversity, null),
+					HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	@PostMapping("/shareJob")
 	@PreAuthorize("hasRole('admin')")
 	public ResponseEntity<?> shareJob(@RequestBody AdminShareJobToUniversityBean adminShareJobToUniversityBean) {

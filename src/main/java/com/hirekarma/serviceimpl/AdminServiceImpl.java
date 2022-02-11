@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +28,7 @@ import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.University;
+import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.BadgesRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobApplyRepository;
@@ -57,6 +59,9 @@ public class AdminServiceImpl implements AdminService {
 
 	@Autowired
 	private BadgesRepository badgesRepository;
+	
+	@Autowired
+	private AdminShareJobToUniversityRepository adminShareJobToUniversityRepository;
 
 	@Scheduled(cron = "0 0 0 * * *")
 	public void jobApplicationStatusChange() {
@@ -130,6 +135,15 @@ public class AdminServiceImpl implements AdminService {
 		return response;
 	}
 
+	public AdminShareJobToUniversity updateShareJob(JSONObject lookup,long id) throws Exception{
+		AdminShareJobToUniversity adminShareJobToUniversity = this.adminShareJobToUniversityRepository.getById(id);
+		if(adminShareJobToUniversity==null) {
+			throw new Exception("no user found");
+		}
+		adminShareJobToUniversity.setLookUp(lookup.toString());
+		adminShareJobToUniversity.setJdUpdation(2);
+		return this.adminShareJobToUniversityRepository.save(adminShareJobToUniversity);
+	}
 	@Override
 	public Map<String, Object> shareJob(AdminShareJobToUniversityBean adminShareJobToUniversityBean) {
 
@@ -171,7 +185,7 @@ public class AdminServiceImpl implements AdminService {
 							AdminShareJobToUniversity.setJobStatus("ACTIVE");
 							AdminShareJobToUniversity.setCreatedBy("Biswa");
 							AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
-
+							AdminShareJobToUniversity.setLookUp(adminShareJobToUniversityBean.getJsonObject().toString());
 							shareJobRepository.save(AdminShareJobToUniversity);
 							BeanUtils.copyProperties(AdminShareJobToUniversity, user);
 							list.add(AdminShareJobToUniversity);
@@ -262,5 +276,16 @@ public class AdminServiceImpl implements AdminService {
 		}
 		return corporate;
 	}
+
+	@Override
+	public AdminShareJobToUniversity requestCorporateToUpdateJD(long adminShareJobId) throws Exception {
+		AdminShareJobToUniversity adminShareJobToUniversity = this.adminShareJobToUniversityRepository.getById(adminShareJobId);
+		adminShareJobToUniversity.setJdUpdation(1);
+		return this.adminShareJobToUniversityRepository.save(adminShareJobToUniversity);
+		
+	}
+
+	
+	
 
 }

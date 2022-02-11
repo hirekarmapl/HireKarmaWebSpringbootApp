@@ -4,6 +4,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -27,6 +30,8 @@ public class ExcelHelper {
     	System.out.println(is.toString());
       Workbook workbook = new XSSFWorkbook(is);
       Sheet sheet = workbook.getSheetAt(0);
+      String sheetName=sheet.getSheetName();
+      System.out.println(sheet.getSheetName());
       Iterator<Row> rows = sheet.iterator();
       List<QuestionAndAnswerBean> tutorials = new ArrayList<QuestionAndAnswerBean>();
       int rowNumber = 0;
@@ -40,35 +45,104 @@ public class ExcelHelper {
         Iterator<Cell> cellsInRow = currentRow.iterator();
         QuestionAndAnswerBean tutorial = new QuestionAndAnswerBean();
         int cellIdx = 0;
-        while (cellsInRow.hasNext()) {
-          Cell currentCell = cellsInRow.next();
-          switch (cellIdx) {
-          case 0:
-        	  String [] question=currentCell.getStringCellValue().split(",");
-            tutorial.setQuestion(question);
-            break;
-          case 1:
-            tutorial.setType(currentCell.getStringCellValue());
-            break;
-          case 2:
-        	  String [] mcqAnswer=currentCell.getStringCellValue().split(",");
-            tutorial.setMcqAnswer(mcqAnswer);
-            break;
-          case 3:
-            tutorial.setCodingDescription(currentCell.getStringCellValue());
-            break;
-          case 4:
-        	  String [] testCases=currentCell.getStringCellValue().split(",");
-              tutorial.setTestCase(testCases);
-            break;
-          case 5:
-            tutorial.setCorporateId(currentCell.getStringCellValue());
-            break;
-          default:
-            break;
-          }
-          cellIdx++;
-        }
+				while (cellsInRow.hasNext()) {
+					Cell currentCell = cellsInRow.next();
+					if (sheetName.equalsIgnoreCase("QNA")) {
+
+						switch (cellIdx) {
+						case 0:
+							String[] question = currentCell.getStringCellValue().split(",");
+							tutorial.setQuestion(question);
+							break;
+						case 1:
+							tutorial.setCorporateId(currentCell.getStringCellValue());
+							break;
+						default:
+							break;
+						}
+						tutorial.setType("QNA");
+					} else if (sheetName.equalsIgnoreCase("Input")) {
+
+						switch (cellIdx) {
+						case 0:
+							String[] question = currentCell.getStringCellValue().split(",");
+							tutorial.setQuestion(question);
+							break;
+						case 1:
+							tutorial.setCorporateId(currentCell.getStringCellValue());
+							break;
+						default:
+							break;
+						}
+						tutorial.setType("Input");
+					} else if (sheetName.equalsIgnoreCase("MCQ")) {
+
+						switch (cellIdx) {
+						case 0:
+							String[] question = currentCell.getStringCellValue().split(",");
+							tutorial.setQuestion(question);
+							break;
+						case 1:
+							String[] mcqAnswer = currentCell.getStringCellValue().split(",");
+							tutorial.setMcqAnswer(mcqAnswer);
+							break;
+						case 2:
+							tutorial.setCorporateId(currentCell.getStringCellValue());
+							break;
+						default:
+							break;
+						}
+						tutorial.setType("MCQ");
+					} else if (sheetName.equalsIgnoreCase("Coding")) {
+
+						switch (cellIdx) {
+						case 0:
+							String[] question = currentCell.getStringCellValue().split(",");
+							tutorial.setQuestion(question);
+							break;
+						case 1:
+							tutorial.setCodingDescription(currentCell.getStringCellValue());
+							break;
+						case 2:
+							String[] testCases = currentCell.getStringCellValue().split(",");
+							tutorial.setTestCase(testCases);
+							break;
+						case 3:
+							tutorial.setCorporateId(currentCell.getStringCellValue());
+							break;
+						default:
+							break;
+						}
+						tutorial.setType("Coding");
+					} else {
+						switch (cellIdx) {
+						case 0:
+							String[] question = currentCell.getStringCellValue().split(",");
+							tutorial.setQuestion(question);
+							break;
+						case 1:
+							tutorial.setType(currentCell.getStringCellValue());
+							break;
+						case 2:
+							String[] mcqAnswer = currentCell.getStringCellValue().split(",");
+							tutorial.setMcqAnswer(mcqAnswer);
+							break;
+						case 3:
+							tutorial.setCodingDescription(currentCell.getStringCellValue());
+							break;
+						case 4:
+							String[] testCases = currentCell.getStringCellValue().split(",");
+							tutorial.setTestCase(testCases);
+							break;
+						case 5:
+							tutorial.setCorporateId(currentCell.getStringCellValue());
+							break;
+						default:
+							break;
+						}
+					}
+					cellIdx++;
+				}
         tutorials.add(tutorial);
       }
       workbook.close();
@@ -77,4 +151,5 @@ public class ExcelHelper {
       throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
     }
   }
+
 }

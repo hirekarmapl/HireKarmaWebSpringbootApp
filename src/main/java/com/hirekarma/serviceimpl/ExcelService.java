@@ -3,6 +3,9 @@ package com.hirekarma.serviceimpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +20,6 @@ public class ExcelService {
     try {
     	 
        tutorials = ExcelHelper.excelToTutorials(file.getInputStream());
-     // service.CreateQuestionAndAnswer(tutorials);
     } catch (IOException e) {
       throw new RuntimeException("fail to store excel data: " + e.getMessage());
     }

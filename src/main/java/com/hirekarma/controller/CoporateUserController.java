@@ -92,36 +92,17 @@ public class CoporateUserController {
 		try {
 			LOGGER.debug("Inside try block of CoporateUserController.createUser(-)");
 
-			// validating email
-			if (Validation.validateEmail(bean.getEmail())) {
-
-				// validating password
-				if (!Validation.validatePassword(bean.getPassword())) {
-					throw new CoporateUserDefindException(
-							"Password must contain at least eight characters, at least one uppercase, one lowercase and one number:");
-				}
-
-				userProfile = new UserProfile();
-				BeanUtils.copyProperties(bean, userProfile);
-
-				userProfileReturn = coporateUserService.insert(userProfile);
-
-				LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
-//					BeanUtils.copyProperties(userProfileReturn, userBean);
-				userProfileReturn.setPassword(null);
-
-				responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
-
-				response.setMessage("Data Saved Successfully...");
-				response.setStatus("Success");
-				response.setResponseCode(responseEntity.getStatusCodeValue());
-				response.setData(userProfileReturn);
-			} else {
-				throw new CoporateUserDefindException("Please Enter A Valid Email Address !!");
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): " + e);
+			userProfile=new UserProfile();
+			userBean=new UserBean();
+			BeanUtils.copyProperties(bean, userProfile);
+			userProfileReturn=coporateUserService.insert(userProfile);
+			LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
+			BeanUtils.copyProperties(userProfileReturn,userBean);
+			userBean.setPassword(null);
+			return new ResponseEntity<UserBean>(userBean,HttpStatus.CREATED);
+		}
+		catch (Exception e) {
+			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): "+e);
 			e.printStackTrace();
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,7 +1,7 @@
 package com.hirekarma.serviceimpl;
 
 import static java.util.stream.Collectors.toMap;
-
+import com.hirekarma.repository.SkillRespository;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,17 +44,26 @@ import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
+import com.hirekarma.model.Education;
+import com.hirekarma.model.Experience;
+import com.hirekarma.model.Project;
+import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.EducationRepository;
+import com.hirekarma.repository.ExperienceRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.ProjectRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
+import com.hirekarma.service.SkillService;
 import com.hirekarma.service.StudentService;
 import com.hirekarma.utilty.ExcelUploadUtil;
+import com.hirekarma.utilty.Validation;
 
 @Service("studentServiceImpl")
 public class StudentServiceImpl implements StudentService {
@@ -84,6 +93,167 @@ public class StudentServiceImpl implements StudentService {
 
 	@Autowired
 	private EmailController emailController;
+
+	@Autowired
+	private ProjectRepository projectRepository;
+
+	@Autowired
+	private ExperienceRepository experienceRepository;
+
+	@Autowired
+	private SkillService skillService;
+	@Autowired
+	private SkillRespository skillRespository;
+	
+	@Autowired
+	private EducationRepository educationRepository;
+
+	public Boolean updateSkills(List<Skill> skills, String token) throws Exception {
+
+		addAllSkillsToStudent(skills, token);
+
+		return true;
+	}
+
+	public List<Skill> getAllSkillsOfStudent(String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile user = userRepository.findByEmail(email, "student");
+		if (user == null) {
+			throw new Exception("user or skill not found");
+		}
+		return user.getSkills();
+	}
+	
+	public List<Education> getAllEducationsOfStudent(String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile user = userRepository.findByEmail(email, "student");
+		if (user == null) {
+			throw new Exception("user or skill not found");
+		}
+		return user.getEducations();
+	}
+
+	public List<Experience> getAllExperiencesOfStudent(String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile user = userRepository.findByEmail(email, "student");
+		if (user == null) {
+			throw new Exception("user or skill not found");
+		}
+		return user.getExperiences();
+	}
+
+	public UserProfile addAllSkillsToStudent(List<Skill> skills, String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile userProfile = this.userRepository.findUserByEmail(email);
+		List<Skill> skillToBeSaved = null;
+		userProfile.setSkills(new ArrayList<Skill>());
+
+		for (Skill s : skills) {
+			Skill checkIfSaved = this.skillRespository.findByName(s.getName());
+			if (checkIfSaved == null) {
+				checkIfSaved = this.skillRespository.save(s);
+			}
+			userProfile.getSkills().add(checkIfSaved);
+
+		}
+		return this.userRepository.save(userProfile);
+
+	}
+
+	@Override
+	public UserProfile addAllExperienceToStudent(List<Experience> experience, String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile user = userRepository.findByEmail(email, "student");
+		if (user == null) {
+			throw new Exception("user not found");
+		}
+		System.out.println(user.getExperiences());
+		experienceRepository.deleteAll(user.getExperiences());
+		for (Experience e : experience) {
+			e.setUserProfile(user);
+		}
+
+		List<Experience> experienceDB = experienceRepository.saveAll(experience);
+
+		return user;
+	}
+
+	@Override
+	public List<Education> addAllEducationToStudent(List<Education> education, String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile user = userRepository.findByEmail(email, "student");
+		if (user == null) {
+			throw new Exception("user not found");
+		}
+		System.out.println(user.getExperiences());
+		educationRepository.deleteAll(user.getEducations());
+		
+		for (Education e : education) {
+			e.setUserProfile(user);
+		}
+
+		List<Education> educationDB = educationRepository.saveAll(education);
+
+		return educationDB;
+	}
+
+	public Boolean addSkills(List<Skill> skills, String token) throws Exception {
+
+		UserProfile user = null;
+		Skill skill = null;
+		LOGGER.debug("Inside StudentServicimpl.addSkill(-)");
+
+//			getting email from token	
+		String email = Validation.validateToken(token);
+		user = userRepository.findByEmail(email, "student");
+		if (user == null) {
+			throw new Exception("user not found");
+		}
+
+//		saving the skill not present in SKILL table
+		List<Skill> skillToBeSaved = new ArrayList<Skill>();
+		for (int i = 0; i < skills.size(); i++) {
+			Skill name = this.skillRespository.findByName(skills.get(i).getName());
+			if (name == null) {
+				skills.set(i, this.skillRespository.save(skills.get(i)));
+			} else {
+				skills.set(i, name);
+			}
+		}
+		this.skillRespository.saveAll(skillToBeSaved);
+		user.getSkills().addAll(skills);
+//		 add skill to user
+
+		this.userRepository.save(user);
+		return true;
+
+	}
+
+	@Override
+	public UserProfile addSkill(int skillId, String token) throws Exception {
+		// TODO Auto-generated method stub
+		UserProfile user = null;
+		Skill skill = null;
+		try {
+
+			LOGGER.debug("Inside StudentServicimpl.addSkill(-)");
+
+//			getting email from token	
+			String email = Validation.validateToken(token);
+			user = userRepository.findByEmail(email, "student");
+			skill = skillRespository.getById(skillId);
+			if (!(skill != null && user != null)) {
+				throw new Exception("user or skill not found");
+			}
+			user.getSkills().add(skill);
+
+			user = this.userRepository.save(user);
+			return user;
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 
 	@Override
 	public UserProfile insert(UserProfile student) {

@@ -1,11 +1,24 @@
 package com.hirekarma.serviceimpl;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.poi.sl.usermodel.ObjectMetaData.Application;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.QuestionAndAnswerBean;
 import com.hirekarma.beans.QuestionAndAnswerResponseBean;
@@ -17,12 +30,19 @@ import com.hirekarma.model.QuestionANdanswer;
 import com.hirekarma.repository.MCQRepository;
 import com.hirekarma.repository.QuestionAndAnswerRepository;
 import com.hirekarma.service.QuestionAndANswerService;
+import com.hirekarma.utilty.CSVHelper;
+import com.hirekarma.utilty.CSVService;
+import com.hirekarma.utilty.CsvDownload;
+import com.hirekarma.utilty.DummyExcel;
+import com.hirekarma.utilty.ExcelDownload;
+import com.hirekarma.utilty.ExcelHelper;
 @Service("QuestionAndAnswerServiceImpl")
 public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	@Autowired
 	QuestionAndAnswerRepository QARepo;
 	@Autowired
 	MCQRepository mcqRepo;
+
 
 	public QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA) {
 		QuestionAndAnswerResponseBean bean=new QuestionAndAnswerResponseBean();
@@ -111,6 +131,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 
 
 	private void createQNARecord(QuestionAndAnswerBean QAbean, QuestionAndAnswerRepository QARepo2, QuestionAndAnswerResponseBean bean) {
+		try {
 		String [] question=QAbean.getQuestion();
 		for(int j=0;j<question.length;j++) {
 			QuestionANdanswer QAs=new QuestionANdanswer();
@@ -122,7 +143,9 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		}
 		bean.setStatus(200);
 		bean.setMessage("Data Saved Successfully!!");
-		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -262,6 +285,137 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		bean.setStatus(200);
 		bean.setMessage("Data deleted successfully!!");
 		return bean;
+	}
+
+
+	@Override
+	public ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file) {
+		String message = "";
+		int status=0;
+		ExcelService fileService=new ExcelService();
+		CSVService csvService=new CSVService();
+	    if (ExcelHelper.hasExcelFormat(file)) {
+	      try {
+	    	  List<QuestionAndAnswerBean> tutorial= fileService.save(file);
+	    	  CreateQuestionAndAnswer(tutorial);
+	        status=200;
+	        message = "Uploaded the file successfully: " + file.getOriginalFilename();
+	        return ResponseEntity.status(HttpStatus.OK).body(new QuestionAndAnswerResponseBean(status,message));
+	      } catch (Exception e) {
+	    	 status=210; 
+	        message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+	        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new QuestionAndAnswerResponseBean(status,message));
+	      }
+	    }else  if (CSVHelper.hasCSVFormat(file)){
+	    	try {
+		    	  List<QuestionAndAnswerBean> tutorial= csvService.save(file);
+		    	  CreateQuestionAndAnswer(tutorial);
+		        status=200;
+		        message = "Uploaded the file successfully: " + file.getOriginalFilename();
+		        return ResponseEntity.status(HttpStatus.OK).body(new QuestionAndAnswerResponseBean(status,message));
+		      } catch (Exception e) {
+		    	 status=210; 
+		        message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+		        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new QuestionAndAnswerResponseBean(status,message));
+		      }
+	    }
+	    status=210;
+	    message = "Please upload an excel file!";
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new QuestionAndAnswerResponseBean(status,message));
+	}
+
+
+	@Override
+	public ResponseEntity<Resource> downloadFile(String type) {
+		List<QuestionAndAnswerBean> tutorials = getAllDetail();
+		if (type.contains("CSV")) {
+			String filename = "QandA.csv";
+			ByteArrayInputStream in = CsvDownload.tutorialsToCSV(tutorials);
+			InputStreamResource files = new InputStreamResource(in);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+					.contentType(MediaType.parseMediaType("application/csv")).body(files);
+		} else if (type.contains("xlsx")) {
+			String filename = "QandA.xlsx";
+			ByteArrayInputStream in = ExcelDownload.tutorialsToExcel(tutorials);
+			InputStreamResource files = new InputStreamResource(in);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
+		}else {
+			String filename = "QandA.xlsx";
+			String sheet="Questionaries";
+			String[] HEADERs = {"question", "type", "mcqanswer", "codingdescription","testcase","corporateid" };
+			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
+			InputStreamResource files = new InputStreamResource(in);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
+		}
+	}
+
+
+	private List<QuestionAndAnswerBean> getAllDetail() {
+		List<QuestionANdanswer> tutorials =QARepo.findAll();
+		List<QuestionAndAnswerBean> tutorial =new ArrayList();
+		for(QuestionANdanswer ans:tutorials) {
+			QuestionAndAnswerBean bean=new QuestionAndAnswerBean();
+			bean.setQuestion(new String[]{ans.getQuestion()});
+			bean.setType(ans.getType());
+			List<MCQAnswer> mcq=ans.getMcqAnswer();
+			String[] ary=new String[mcq.size()];
+			for(int i=0;i<mcq.size();i++) {
+				ary[i]=mcq.get(i).getMcqAnswer();
+			}
+			bean.setMcqAnswer(ary);
+			bean.setCodingDescription(ans.getCodingDescription());
+			List<CodingAnswer> testcase=ans.getCodingAnswer();
+			String[] testCases=new String[testcase.size()];
+			for(int j=0;j<testcase.size();j++) {
+				testCases[j]=testcase.get(j).getTestCases();
+			}
+			bean.setTestCase(testCases);
+			bean.setCorporateId(ans.getCorporateId());
+			tutorial.add(bean);
+		}
+		return tutorial;
+	}
+
+
+	@Override
+	public ResponseEntity<Resource> downloadDummyFile(String type) {
+		List<QuestionAndAnswerBean> tutorials=new ArrayList();
+		if(type.equals("Coding")) {
+			String filename = "QandA.xlsx";
+			String sheet="Coding";
+			String[] HEADERs = {"question","codingdescription","testcase","corporateid" };
+			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
+			InputStreamResource files = new InputStreamResource(in);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
+		}else if(type.equals("Input")) {
+			String filename = "QandA.xlsx";
+			String sheet="Input";
+			String[] HEADERs = {"question","corporateid" };
+			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
+			InputStreamResource files = new InputStreamResource(in);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
+		}else if(type.equals("MCQ")) {
+			String filename = "QandA.xlsx";
+			String sheet="MCQ";
+			String[] HEADERs = {"question", "mcqanswer","corporateid" };
+			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
+			InputStreamResource files = new InputStreamResource(in);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
+		}else if(type.equals("QNA")) {
+			String filename = "QandA.xlsx";
+			String sheet="QNA";
+			String[] HEADERs = {"question","corporateid" };
+			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
+			InputStreamResource files = new InputStreamResource(in);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
+		}else
+		return null;
 	}
 
 }

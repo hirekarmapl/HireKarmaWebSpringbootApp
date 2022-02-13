@@ -373,6 +373,39 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		return map;
 	}
 
+	@Override
+	public Map<String, Object> getAllJobApplicationsByCorporate(Long corporateId) {
+		LOGGER.debug("Inside CoporateUserServiceImpl.getAllJobApplicationsByStudent(-)");
+		List<JobApply> jobApplies = null;
+		Map<String,Object> map = null;
+		try {
+			jobApplies = jobApplyRepository.getAllJobApplicationsByCorporate(corporateId);
+			if(jobApplies != null && jobApplies.size()>0) {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 500);
+				map.put("data", jobApplies);
+				return map;
+			}
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 500);
+				map.put("message", "No student applied for your job!!!");
+				return map;
+			}
+		}
+		catch (Exception e) {
+			LOGGER.info("Data getting Failed In CoporateUserServiceImpl.universityResponse(-)" + e);
+			e.printStackTrace();
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 500);
+			map.put("message", "Bad Request!!!");
+			return map;
+		}
+	}
+
 //	@Override
 //	public CoporateUserBean findCorporateById(Long corpUserId) {
 //		LOGGER.debug("Inside CoporateUserServiceImpl.findCorporateById(-)");

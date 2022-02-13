@@ -1,6 +1,7 @@
 package com.hirekarma.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.json.simple.parser.ParseException;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,4 +35,5 @@ public interface StudentService {
 	public List<Experience> getAllExperiencesOfStudent(String token) throws Exception;
 	List<Education> addAllEducationToStudent(List<Education> education, String token) throws Exception;
 	public List<Education> getAllEducationsOfStudent(String token) throws Exception;
+	public Map<String,Object> getAllJobApplicationsByStudent(Long studentId);
 }

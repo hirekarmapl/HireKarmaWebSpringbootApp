@@ -1,7 +1,7 @@
 package com.hirekarma.serviceimpl;
 
 import static java.util.stream.Collectors.toMap;
-import com.hirekarma.repository.SkillRespository;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,7 +46,7 @@ import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
-import com.hirekarma.model.Project;
+import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
@@ -54,8 +54,10 @@ import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.EducationRepository;
 import com.hirekarma.repository.ExperienceRepository;
+import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ProjectRepository;
+import com.hirekarma.repository.SkillRespository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
@@ -102,11 +104,15 @@ public class StudentServiceImpl implements StudentService {
 
 	@Autowired
 	private SkillService skillService;
+	
 	@Autowired
 	private SkillRespository skillRespository;
 	
 	@Autowired
 	private EducationRepository educationRepository;
+	
+	@Autowired
+	private JobApplyRepository jobApplyRepository;
 
 	public Boolean updateSkills(List<Skill> skills, String token) throws Exception {
 
@@ -579,7 +585,7 @@ public class StudentServiceImpl implements StudentService {
 		UniversityJobShareToStudentBean jobShareBean = new UniversityJobShareToStudentBean();
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		try {
-			LOGGER.debug("Inside UniversityServiceImpl.universityResponse(-)");
+			LOGGER.debug("Inside StudentServiceImpl.universityResponse(-)");
 			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getID());
 			universityJobShareToStudent = new UniversityJobShareToStudent();
 			universityJobShareToStudent = optional.get();
@@ -595,14 +601,14 @@ public class StudentServiceImpl implements StudentService {
 				BeanUtils.copyProperties(universityJobShareToStudent, jobShareBean);
 
 			}
-			LOGGER.info("Data Updated Successfully In UniversityServiceImpl.universityResponse(-)");
+			LOGGER.info("Data Updated Successfully In StudentServiceImpl.universityResponse(-)");
 
 		} catch (NoSuchElementException e) {
-			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
+			LOGGER.info("Data Updatation Failed In StudentServiceImpl.universityResponse(-)" + e);
 			throw new UniversityJobShareToStudentException("Please Re-Check This Job May Not Be Available Now !!");
 		} catch (Exception e) {
 			jobShareBean.setResponse("FAILED");
-			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.universityResponse(-)" + e);
+			LOGGER.info("Data Updatation Failed In StudentServiceImpl.universityResponse(-)" + e);
 			throw e;
 		}
 		return jobShareBean;
@@ -664,6 +670,39 @@ public class StudentServiceImpl implements StudentService {
 		}
 
 		return universitySharedJobList;
+	}
+
+	@Override
+	public Map<String,Object> getAllJobApplicationsByStudent(Long studentId) {
+		LOGGER.debug("Inside StudentServiceImpl.getAllJobApplicationsByStudent(-)");
+		List<JobApply> jobApplies = null;
+		Map<String,Object> map = null;
+		try {
+			jobApplies = jobApplyRepository.getAllJobApplicationsByStudentId(studentId);
+			if(jobApplies != null && jobApplies.size()>0) {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 500);
+				map.put("data", jobApplies);
+				return map;
+			}
+			else {
+				map = new HashMap<String, Object>();
+				map.put("status", "Failed");
+				map.put("responseCode", 500);
+				map.put("message", "You are not applied for any job!!!");
+				return map;
+			}
+		}
+		catch (Exception e) {
+			LOGGER.info("Data getting Failed In StudentServiceImpl.universityResponse(-)" + e);
+			e.printStackTrace();
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 500);
+			map.put("message", "Bad Request!!!");
+			return map;
+		}
 	}
 
 //	@Override

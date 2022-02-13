@@ -258,6 +258,31 @@ public class ScreeningServiceImpl implements ScreeningService{
 		}
 	}
 	
+	@Override
+	public Map<String, Object> getAllScreeningQuestions() {
+		LOGGER.debug("Starting of ScreeningServiceImpl.getAllScreeningQuestions()");
+		List<ScreeningEntity> screeningEntities = null;
+		Map<String, Object> map = null;
+		try {
+			screeningEntities = screeningEntityRepository.findAll();
+			map = new HashMap<String, Object>();
+			map.put("status", "Success");
+			map.put("responseCode", 200);
+			map.put("data", screeningEntities);
+			LOGGER.info("Getting success in ScreeningServiceImpl.getAllScreeningQuestions()");
+			return map;
+		}
+		catch (Exception e) {
+			LOGGER.error("error in ScreeningServiceImpl.getAllScreeningQuestions()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Bad Request");
+			e.printStackTrace();
+			return map;
+		}
+	}
+	
 	private static String generateRandomString() {
 		String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 + "0123456789"

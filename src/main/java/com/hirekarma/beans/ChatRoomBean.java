@@ -15,6 +15,7 @@ public class ChatRoomBean implements Serializable {
 	
 	private Long studentId;
 	private Long corporateId;
+	private Long chatRoomId;
 	private String txtMsg;
 	private MultipartFile attachment;
 	private String senderType;

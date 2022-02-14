@@ -74,6 +74,44 @@ public class ScreeningServiceImpl implements ScreeningService{
 	}
 	
 	@Override
+	public Map<String, Object> createListScreeningQuestion(List<ScreeningBean> screeningBeans, Long corporateId) {
+		LOGGER.debug("starting of ScreeningServiceImpl.createScreeningQuestion()");
+		Map<String, Object> map = null;
+		try {
+			screeningBeans.forEach(screeningBean->{
+				ScreeningEntity screeningEntity = new ScreeningEntity();
+				screeningEntity.setCorporateId(corporateId);
+				screeningEntity.setQuestions(screeningBean.getQuestions());
+				screeningEntity.setQuestionType(screeningBean.getQuestionType());
+				String slug = screeningBean.getQuestions().substring(0, 6)+generateRandomString();
+				screeningEntity.setSlug(slug);
+				ScreeningEntity screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
+				List<String> options = screeningBean.getOptions();
+				for(String option:options) {
+					ScreeninQuestionOptions screeninQuestionOptions = new ScreeninQuestionOptions();
+					screeninQuestionOptions.setScreeningTableId(screeningEntityReturn.getScreeningTableId());
+					screeninQuestionOptions.setOptions(option);
+					screeninQuestionOptionsRepository.save(screeninQuestionOptions);
+				}
+			});
+			map = new HashMap<String, Object>();
+			map.put("status", "Success");
+			map.put("responseCode", 200);
+			map.put("message", "Screening details are saved successfully");
+			LOGGER.info("Question saved using ScreeningServiceImpl.createScreeningQuestion()");
+		}
+		catch (Exception e) {
+			LOGGER.error("Question saving failed using ScreeningServiceImpl.createScreeningQuestion()");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Screening details saving failed!!!");
+			e.printStackTrace();
+		}
+		return map;
+	}
+	
+	@Override
 	public Map<String, Object> updateScreeningQuestion(String slug, ScreeningBean screeningBean) {
 		LOGGER.debug("Starting of ScreeningServiceImpl.updateScreeningQuestion(-)");
 		Optional<ScreeningEntity> optional = null;

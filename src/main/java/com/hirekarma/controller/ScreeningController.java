@@ -1,6 +1,7 @@
 package com.hirekarma.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,6 +67,45 @@ public class ScreeningController {
 				screeningBean.setCorporateId(null);
 			}
 			map = screeningService.createScreeningQuestion(screeningBean);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.info("Question saved using ScreeningController.createScreeningQuestion()");
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in ScreeningController.createScreeningQuestion(-)");
+			map = new HashMap<String, Object>();
+			map.put("status", "Bad Request");
+			map.put("responseCode", 400);
+			map.put("message", "Question saving failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
+	}
+	
+	@PostMapping("/createListScreeningQuestion")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Map<String,Object>> createListScreeningQuestion(@RequestBody List<ScreeningBean> screeningBeans, HttpServletRequest request) {
+		LOGGER.debug("Inside ScreeningController.createScreeningQuestion()");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		String jwtToken = null;
+		String authorizationHeader = null;
+		String email=null;
+		UserProfile userProfile = null;
+		Long corporateId = null;
+		try {
+			authorizationHeader = request.getHeader("Authorization");
+			jwtToken = authorizationHeader.substring(7);
+			email = jwtTokenUtil.extractUsername(jwtToken);
+			userProfile = userRepository.findUserByEmail(email);
+			if(userProfile!=null) {
+				corporateId = userProfile.getUserId();
+			}
+			else {
+				corporateId = null;
+			}
+			map = screeningService.createListScreeningQuestion(screeningBeans, corporateId);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question saved using ScreeningController.createScreeningQuestion()");
 			return responseEntity;

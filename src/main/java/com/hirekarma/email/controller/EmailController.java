@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,18 +40,32 @@ public class EmailController {
 	 * 
 	 */
 	
-	@PostMapping("/welcomeEmail")
-	public ResponseEntity<String> welcomeEmail(@RequestBody Map<String,String> map)
+	@Async
+	public void welcomeEmail(@RequestBody Map<String,String> map)
 	{
 		Logger.info("Inside SendingEmailList() Controller...");
 		try{
-			mailSender.sendEmailWithoutAttachment(map.get("email"),"Welcome to HireKarma Org","Welcome to HireKarma");
+			String welcomeBody = "<p>Welcome to HireKarma Org</p><a href='www.hirekarma.org'>you can log in from here</a>";
+			mailSender.sendEmailWithoutAttachment(map.get("email"),welcomeBody,"Welcome to HireKarma");
+			mailSender.sendEmailWithoutAttachment(map.get("email"),"OnBoarding email","Onboarding email");
 			Logger.info("Mail sent using EmailController.SendingEmailList(-)");
-			return new ResponseEntity<String>("Mail sended successfully",HttpStatus.OK);
 		}
 		catch (Exception e) {
 			Logger.error("Mail sending failed using EmailController.SendingEmailList(-)");
-			return new ResponseEntity<String>("Mail sending Failed!!!",HttpStatus.OK);
+		}
+	}
+	
+	@Async
+	public void resetPasswordLink(String mailFrom,String token,String email)
+	{
+		Logger.info("Inside resetPasswordLink() Controller...");
+		try{
+			String resetPasswordBody = "<p>Welcome to HireKarma Org</p><a href='www.hirekarma.org?token="+ token+"&email="+email+"'>you can log in from here</a>";
+			mailSender.sendEmailWithoutAttachment(email,resetPasswordBody,"Welcome to HireKarma");
+			Logger.info("Mail sent using EmailController.resetPasswordLink(-)");
+		}
+		catch (Exception e) {
+			Logger.error("Mail sending failed using EmailController.resetPasswordLink(-)");
 		}
 	}
 	

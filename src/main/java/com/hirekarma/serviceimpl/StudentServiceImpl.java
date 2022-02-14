@@ -41,6 +41,7 @@ import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversitySharedJobList;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.email.controller.EmailController;
+import com.hirekarma.email.service.EmailSenderService;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
@@ -113,6 +114,9 @@ public class StudentServiceImpl implements StudentService {
 	
 	@Autowired
 	private JobApplyRepository jobApplyRepository;
+	
+	@Autowired
+	private EmailSenderService emailSenderService;
 
 	public Boolean updateSkills(List<Skill> skills, String token) throws Exception {
 

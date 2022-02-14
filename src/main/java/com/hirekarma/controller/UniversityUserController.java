@@ -77,7 +77,6 @@ public class UniversityUserController {
 //	}
 
 	@PostMapping("/universitySaveUrl")
-//	@Async(value = "taskExecutor")
 	public ResponseEntity<Response> createUser(@RequestBody UserBean universityUserBean) {
 		LOGGER.debug("Inside UniversityUserController.createUser(-)");
 		UserProfile universityUser = null;

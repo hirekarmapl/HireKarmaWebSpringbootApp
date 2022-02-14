@@ -43,6 +43,7 @@ import com.hirekarma.model.Blog;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
 import com.hirekarma.utilty.CalendarApi;
@@ -67,6 +68,9 @@ public class CoporateUserController {
 
 	@Autowired
 	private BlogService blogService;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 //	@PostMapping("/saveCoporateUrl")
 //	public ResponseEntity<CoporateUserBean> createUser(@RequestBody CoporateUserBean coporateUserBean) {
@@ -474,5 +478,39 @@ public class CoporateUserController {
 		}
 		return new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 
+	}
+	
+	@GetMapping("/getAllJobApplicationsByCorporate")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Map<String,Object>> getAllJobApplicationsByCorporate(HttpServletRequest request) {
+		LOGGER.debug("Inside CoporateUserController.getAllJobApplicationsByCorporate(-)");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		String jwtToken = null;
+		String authorizationHeader = null;
+		String email=null;
+		UserProfile userProfile = null;
+		Long studentId = null;
+		try {
+			authorizationHeader = request.getHeader("Authorization");
+			jwtToken = authorizationHeader.substring(7);
+			email = jwtTokenUtil.extractUsername(jwtToken);
+			userProfile = userRepository.findUserByEmail(email);
+			studentId = userProfile.getUserId();
+			map = coporateUserService.getAllJobApplicationsByCorporate(studentId);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.error("Getting applications success StudentController.getAllJobApplicationsByCorporate(-)");
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Getting applications failed StudentController.getAllJobApplicationsByCorporate(-): " + e);
+			map = new HashMap<String, Object>();
+			map.put("status", "Bad Request");
+			map.put("responseCode", 400);
+			map.put("message", "getting applications failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
 	}
 }

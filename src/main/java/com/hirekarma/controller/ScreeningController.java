@@ -177,4 +177,28 @@ public class ScreeningController {
 			return responseEntity;
 		}
 	}
+	
+	@GetMapping("/getAllScreeningQuestions")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Map<String,Object>> getAllScreeningQuestions() {
+		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		try {
+			map = screeningService.getAllScreeningQuestions();
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.info("Question sent using ScreeningController.sendScreeningQuestions()");
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in ScreeningController.sendScreeningQuestions(-)");
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 400);
+			map.put("message", "Bad Request!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
+	}
 }

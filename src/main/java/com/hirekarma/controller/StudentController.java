@@ -1,8 +1,11 @@
 package com.hirekarma.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +32,12 @@ import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
-import com.hirekarma.model.Project;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.SkillRespository;
+import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.StudentService;
+import com.hirekarma.utilty.JwtUtil;
 import com.hirekarma.utilty.Validation;
 
 @RestController("studentController")
@@ -45,8 +49,15 @@ public class StudentController {
 
 	@Autowired
 	private StudentService studentService;
+	
 	@Autowired
 	private SkillRespository skillRespository;
+	
+	@Autowired
+	private JwtUtil jwtTokenUtil;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@PostMapping("/saveStudentUrl")
 	public ResponseEntity<Response> createUser(@RequestBody UserBean studentBean,BindingResult result) {
@@ -368,6 +379,40 @@ public class StudentController {
 			
 			}catch(Exception e) {
 			return new ResponseEntity(new Response("error",HttpStatus.BAD_REQUEST,e.getMessage(),null,null), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/getAllJobApplicationsByStudent")
+	@PreAuthorize("hasRole('student')")
+	public ResponseEntity<Map<String,Object>> getAllJobApplicationsByStudent(HttpServletRequest request) {
+		LOGGER.debug("Inside StudentController.getAllJobApplicationsByStudent(-)");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		String jwtToken = null;
+		String authorizationHeader = null;
+		String email=null;
+		UserProfile userProfile = null;
+		Long studentId = null;
+		try {
+			authorizationHeader = request.getHeader("Authorization");
+			jwtToken = authorizationHeader.substring(7);
+			email = jwtTokenUtil.extractUsername(jwtToken);
+			userProfile = userRepository.findUserByEmail(email);
+			studentId = userProfile.getUserId();
+			map = studentService.getAllJobApplicationsByStudent(studentId);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.error("Getting applications success StudentController.getAllJobApplicationsByStudent(-)");
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Getting applications failed StudentController.getAllJobApplicationsByStudent(-): " + e);
+			map = new HashMap<String, Object>();
+			map.put("status", "Bad Request");
+			map.put("responseCode", 400);
+			map.put("message", "getting applications failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
 		}
 	}
 	

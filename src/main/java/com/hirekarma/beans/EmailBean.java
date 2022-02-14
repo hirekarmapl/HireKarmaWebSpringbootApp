@@ -22,5 +22,7 @@ public class EmailBean {
 	private String meetLink;
 	
 	private String response;
+	
+	private String fromEmail;
 
 }

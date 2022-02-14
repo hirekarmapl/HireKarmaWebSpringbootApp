@@ -114,9 +114,10 @@ public class BlogServiceImpl implements BlogService {
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
 		Blog blog = blogRepository.findBySlug(slug);
-		if(corporate==null) {
+		if(corporate==null||blog==null) {
 			throw new Exception("unauthorized");
 		}
+		
 		if(corporate.getCorporateId()!=blog.getCorporate().getCorporateId()) {
 			throw new Exception("unauthorized");
 		}

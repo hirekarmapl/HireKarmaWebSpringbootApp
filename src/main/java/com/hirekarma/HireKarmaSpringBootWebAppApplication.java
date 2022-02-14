@@ -15,7 +15,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = { "com.hirekarma.repository" })
 @EnableScheduling
-@EnableAsync
 public class HireKarmaSpringBootWebAppApplication extends SpringBootServletInitializer {
 
 	@Override
@@ -27,14 +26,5 @@ public class HireKarmaSpringBootWebAppApplication extends SpringBootServletIniti
 		SpringApplication.run(HireKarmaSpringBootWebAppApplication.class, args);
 	}
 
-	@Bean
-	public Executor taskExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(2);
-		executor.setMaxPoolSize(2);
-		executor.setQueueCapacity(500);
-		executor.setThreadNamePrefix("Async-Tread");
-		executor.initialize();
-		return executor;
-	}
+	
 }

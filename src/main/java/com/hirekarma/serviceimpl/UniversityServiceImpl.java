@@ -121,7 +121,7 @@ public class UniversityServiceImpl implements UniversityService {
 	@Override
 	public Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception {
-
+		System.out.println("JobId:"+universityJobShareToStudentBean.getJobId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		UserProfile userProfile = null;
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();

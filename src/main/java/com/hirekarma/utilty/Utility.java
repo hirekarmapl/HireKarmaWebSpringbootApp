@@ -3,6 +3,7 @@ package com.hirekarma.utilty;
 import java.io.IOException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -44,7 +45,10 @@ public class Utility {
 		// return the resultant string
 		return r.toString();
 	}
-
+	public static String passwordTokenGenerator() {
+		return getAlphaNumericString(20);
+		
+	}
 	public static String createSlug(String input) {
 		input = input.replaceAll("[^a-zA-Z0-9]", "");
 		if (input.length() >= 10) {
@@ -54,5 +58,11 @@ public class Utility {
 		input += getAlphaNumericString(10);
 		return input;
 	}
-
+	public static String getEncriptedString(String password) {
+		return Base64.getEncoder().encodeToString(password.getBytes());
+	}
+	
+	public  static String getDecoderString(String encriptedPassword) {
+		return new String(Base64.getMimeDecoder().decode(encriptedPassword));
+	}
 }

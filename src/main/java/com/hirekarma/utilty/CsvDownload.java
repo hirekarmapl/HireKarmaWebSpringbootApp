@@ -68,8 +68,8 @@ public class CsvDownload {
       throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
     }
   }
-  public static void main(String args[]) {
-	  CsvDownload.tutorialsToCSV(new ArrayList());
-	  
-  }
+//  public static void main(String args[]) {
+//	  CsvDownload.tutorialsToCSV(new ArrayList());
+//	  
+//  }
 }

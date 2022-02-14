@@ -111,6 +111,17 @@ public class UserProfile implements Serializable {
 	@OneToMany(mappedBy = "userProfile")
 	@JsonIgnore
 	List<Experience> experiences = new ArrayList<Experience>();
+	
+	@Column(name = "RESET_PASSWORD_TOKEN")
+	String resetPasswordToken;
+	public String getResetPasswordToken() {
+		return resetPasswordToken;
+	}
+
+	public void setResetPasswordToken(String resetPasswordToken) {
+		this.resetPasswordToken = resetPasswordToken;
+	}
+
 	public List<Experience> getExperiences() {
 		return experiences;
 	}

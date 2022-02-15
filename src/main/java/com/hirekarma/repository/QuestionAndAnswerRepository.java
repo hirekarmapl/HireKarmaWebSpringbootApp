@@ -16,6 +16,6 @@ public interface QuestionAndAnswerRepository extends JpaRepository<QuestionANdan
 
 	int deleteByuID(String qNA_id);
 
-	QuestionANdanswer findByuIDAndStatusNot(String qNA_id, String string);
+	QuestionANdanswer findByuIDAndStatusIsNullOrStatusNot(String qNA_id, String string);
 
 }

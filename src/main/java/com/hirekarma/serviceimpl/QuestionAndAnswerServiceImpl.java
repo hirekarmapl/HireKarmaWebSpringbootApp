@@ -261,7 +261,8 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 
 	@Override
 	public QuestionANdanswer getQNADetail(String qNA_id) {		
-		return QARepo.findByuIDAndStatusNot(qNA_id,"deleted");
+		QuestionANdanswer questionANdanswer =  QARepo.findByuIDAndStatusIsNullOrStatusNot(qNA_id,"deleted");
+	return questionANdanswer;
 	}
 
 	@Override

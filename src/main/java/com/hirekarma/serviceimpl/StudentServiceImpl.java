@@ -300,8 +300,9 @@ public class StudentServiceImpl implements StudentService {
 
 				body = new HashMap<String, String>();
 				body.put("email", student.getEmail());
-
-				emailController.welcomeEmail(body);
+				body.put("name", studentReturn.getName());
+				body.put("type", "student");
+				emailController.welcomeAndOnBoardEmail(body);
 
 				LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
 			} else {

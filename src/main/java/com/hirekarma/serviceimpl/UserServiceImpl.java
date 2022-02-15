@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
 		}
 		String resetPasswordToken = Utility.passwordTokenGenerator();
 		userProfile.setResetPasswordToken(resetPasswordToken);
+		
 		emailController.resetPasswordLink("noreply@hirekarma.org", resetPasswordToken,userProfile.getEmail());
 		this.userRepository.save(userProfile);
 		return true;

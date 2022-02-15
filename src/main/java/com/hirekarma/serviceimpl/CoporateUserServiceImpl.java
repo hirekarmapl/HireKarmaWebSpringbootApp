@@ -107,12 +107,10 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				organizationRepository.save(organization);
 
 				body = new HashMap<String, String>();
-				body.put("email", userProfile.getEmail());
-
-				//email sent
-				
-				emailController.welcomeEmail(body);
-				emailController.letsGetStarted(body);
+				body.put("email", corporate.getCorporateEmail());
+				body.put("name", corporate.getCorporateName());
+				body.put("type", "corporate");
+				emailController.welcomeAndOnBoardEmail(body);
 
 			} else {
 				throw new StudentUserDefindException("This Email Is Already Present !!");

@@ -60,7 +60,7 @@ public class EmailController {
 	{
 		Logger.info("Inside resetPasswordLink() Controller...");
 		try{
-			String resetPasswordBody = "<p>Welcome to HireKarma Org</p><a href='www.hirekarma.org?token="+ token+"&email="+email+"'>you can log in from here</a>";
+			String resetPasswordBody = "<p>Welcome to HireKarma Org</p><a href='www.hirekarma.org?token="+ token+"&email="+email+"'>click here to change your password</a>";
 			mailSender.sendEmailWithoutAttachment(email,resetPasswordBody,"Welcome to HireKarma");
 			Logger.info("Mail sent using EmailController.resetPasswordLink(-)");
 		}

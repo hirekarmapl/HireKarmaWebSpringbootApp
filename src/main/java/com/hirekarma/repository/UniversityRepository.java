@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 
 @Repository("universityRepository")
@@ -29,7 +28,7 @@ public interface UniversityRepository extends JpaRepository<University, Long> {
 	@Query("select s from University s where s.universityEmail = :email")
 	List<University> getDetailsByEmail1(@Param("email")String email);
 
-	@Query("select u from University u where u.status = 1 ")
-	List<University> displayUniversityList();
+	@Query("select u from University u where u.status = ?1 ")
+	List<University> displayUniversityList(boolean status);
 
 }

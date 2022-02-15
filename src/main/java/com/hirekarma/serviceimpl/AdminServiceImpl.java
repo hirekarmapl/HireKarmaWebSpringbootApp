@@ -234,7 +234,7 @@ public class AdminServiceImpl implements AdminService {
 		try {
 			LOGGER.debug("Inside AdminServiceImpl.displayUniversityList(-)");
 
-			UniversityList = universityRepository.displayUniversityList();
+			UniversityList = universityRepository.displayUniversityList(true);
 
 			System.out.println("Total DisplayUniversityList : " + UniversityList.size());
 

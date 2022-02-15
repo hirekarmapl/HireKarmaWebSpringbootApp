@@ -55,27 +55,35 @@ public class ChatRoomController {
 			LOGGER.debug("Inside try block of ChatRoomController.sendMessage(-)");
 			authorizationHeader = request.getHeader("Authorization");
 			jwtToken = authorizationHeader.substring(7);
-			email = jwtTokenUtil.extractUsername(jwtToken);
-			userProfile = userRepository.findUserByEmail(email);
-			if(userProfile != null) {
-				if(userProfile.getUserType().equals("corporate")) {
-					chatRoomBean.setCorporateId(userProfile.getUserId());
-					chatRoomBean.setStudentId(null);
-					chatRoomBean.setSenderType("corporate");
+			if(chatRoomBean.getChatRoomId() != null) {
+				email = jwtTokenUtil.extractUsername(jwtToken);
+				userProfile = userRepository.findUserByEmail(email);
+				if(userProfile != null) {
+					if(userProfile.getUserType().equals("corporate")) {
+						chatRoomBean.setCorporateId(userProfile.getUserId());
+						chatRoomBean.setStudentId(null);
+						chatRoomBean.setSenderType("corporate");
+					}
+					else {
+						chatRoomBean.setStudentId(userProfile.getUserId());
+						chatRoomBean.setCorporateId(null);
+						chatRoomBean.setSenderType("student");
+					}
+					map = chatRoomService.sendMessage(chatRoomBean);
+					LOGGER.info("Message sent using ChatRoomController.sendMessage(-)");
 				}
 				else {
-					chatRoomBean.setStudentId(userProfile.getUserId());
-					chatRoomBean.setCorporateId(null);
-					chatRoomBean.setSenderType("student");
+					map = new HashMap<String, Object>();
+					map.put("status", "Bad Request");
+					map.put("responseCode", 400);
+					map.put("message", "Message sending failed!!!");
 				}
-				map = chatRoomService.sendMessage(chatRoomBean);
-				LOGGER.info("Message sent using ChatRoomController.sendMessage(-)");
 			}
 			else {
 				map = new HashMap<String, Object>();
 				map.put("status", "Bad Request");
 				map.put("responseCode", 400);
-				map.put("message", "Message sending failed!!!");
+				map.put("message", "Please provide chat room id!!!");
 			}
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			return responseEntity;

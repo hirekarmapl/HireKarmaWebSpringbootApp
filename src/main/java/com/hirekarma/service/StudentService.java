@@ -24,7 +24,7 @@ public interface StudentService {
 	public UserBean findStudentById(Long studentId);
 	public List<UserBean> getAllStudents();
 	public List<UserBean> importStudentDataExcel(MultipartFile file);
-	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean);
+	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean,String token);
 	public List<?> jobDetails(String token) throws ParseException;
 	public UserProfile addSkill(int id,String token) throws Exception;
 	public Boolean addSkills(List<Skill> skills,String token) throws Exception;

@@ -50,6 +50,8 @@ public class UniversityServiceImpl implements UniversityService {
 	@Autowired
 	private ShareJobRepository shareJobRepository;
 
+
+
 	@Autowired
 	private CorporateRepository corporateRepository;
 
@@ -121,6 +123,11 @@ public class UniversityServiceImpl implements UniversityService {
 	@Override
 	public Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception {
+		AdminShareJobToUniversity adminShareJobToUniversity = adminShareJobToUniversityRepository.getById(universityJobShareToStudentBean.getShareJobId());
+		if(adminShareJobToUniversity==null) {
+			throw new UserProfileException("invalid shareJobid");
+		}
+		universityJobShareToStudentBean.setJobId(adminShareJobToUniversity.getJobId());
 		System.out.println("JobId:"+universityJobShareToStudentBean.getJobId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		UserProfile userProfile = null;
@@ -245,16 +252,17 @@ public class UniversityServiceImpl implements UniversityService {
 //					optional = jobRepository.findById(campus.getJobId());
 
 					if (optional.isPresent()) {
-
+						LOGGER.info("FOUNDED JOB ");
 						Long campusList = campusDriveResponseRepository.findSharedCampus(university.getUniversityId(),
 								campus.getCorporateId(), campus.getJobId());
 						System.out.println("*********\n\n\n" + campusList + "\n\n\n************");
-
+						LOGGER.info("{} {} {}",university.getUniversityId(),
+								campus.getJobId(), campus.getCorporateId());
 						Object object = shareJobRepository.getRequestVerificationDetails(university.getUniversityId(),
 								campus.getJobId(), campus.getCorporateId());
 
 						if (object != null) {
-
+							LOGGER.info("object is not null");
 							if (campusList == 0) {
 
 								driveResponse = new CampusDriveResponse();
@@ -314,6 +322,7 @@ public class UniversityServiceImpl implements UniversityService {
 		String email = (String) jsonObject.get("sub");
 
 		Long id = universityRepository.findIdByEmail(email);
+LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		AdminSharedJobList adminSharedJobList = null;
 		List<AdminSharedJobList> SharedJobList = new ArrayList<AdminSharedJobList>();
 		try {
@@ -336,7 +345,8 @@ public class UniversityServiceImpl implements UniversityService {
 						adminSharedJobList.setSalary(String.valueOf(obj1[9]));
 						adminSharedJobList.setAbout((String) obj1[10]);
 						adminSharedJobList.setDescription((String) obj1[11]);
-
+						adminSharedJobList.setJobId(String.valueOf(obj1[12]));
+						adminSharedJobList.setCorporateId(String.valueOf(obj1[12]));
 						SharedJobList.add(adminSharedJobList);
 					}
 

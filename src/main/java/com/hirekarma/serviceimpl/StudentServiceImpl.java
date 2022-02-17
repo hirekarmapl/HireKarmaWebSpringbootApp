@@ -586,10 +586,11 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean) {
+	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean,String token) {
 		UniversityJobShareToStudentBean jobShareBean = new UniversityJobShareToStudentBean();
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		try {
+			
 			LOGGER.debug("Inside StudentServiceImpl.universityResponse(-)");
 			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getID());
 			universityJobShareToStudent = new UniversityJobShareToStudent();
@@ -637,10 +638,15 @@ public class StudentServiceImpl implements StudentService {
 		List<UniversitySharedJobList> universitySharedJobList = new ArrayList<UniversitySharedJobList>();
 
 		studentList = studentRepository.getDetailsByEmail1(email);
-
+//		student -> university id -> university
+		University university = universityRepository.getById(studentList.get(0).getUniversityId());
+	
 		try {
 			if (studentList.size() == 1) {
-				List<Object[]> list = jobRepository.getStudentJobAllDetails(studentList.get(0).getUniversityId(),
+				
+				LOGGER.info("jobRepository.getStudentJobAllDetails {} {}",university.getUserId(),
+						studentList.get(0).getStudentId());
+				List<Object[]> list = jobRepository.getStudentJobAllDetails(university.getUserId(),
 						studentList.get(0).getStudentId());
 
 				if (list.size() != 0) {

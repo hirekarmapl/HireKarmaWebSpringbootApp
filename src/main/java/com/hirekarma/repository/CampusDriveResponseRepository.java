@@ -13,5 +13,5 @@ public interface CampusDriveResponseRepository extends JpaRepository<CampusDrive
 	@Query("select count(*) from CampusDriveResponse where universityId = :universityId and corporateId = :corporateId and jobId = :jobId")
 	Long findSharedCampus(@Param("universityId") Long universityId, @Param("corporateId") Long corporateId,
 			@Param("jobId") Long jobId);
-
+//	Long findRegisteredStudentForCampus();
 }

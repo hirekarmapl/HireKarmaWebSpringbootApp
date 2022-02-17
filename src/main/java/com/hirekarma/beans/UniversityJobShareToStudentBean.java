@@ -41,5 +41,7 @@ public class UniversityJobShareToStudentBean {
 	private Long branchId;
 	
 	private Double cgpaId;
+	
+	private Long shareJobId;
 
 }

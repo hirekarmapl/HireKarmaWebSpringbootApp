@@ -25,6 +25,7 @@ import com.hirekarma.model.ChatRoom;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Organization;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.ChatRoomRepository;
@@ -32,6 +33,7 @@ import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.OrganizationRepository;
 import com.hirekarma.repository.StudentRepository;
+import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.CoporateUserService;
 
@@ -67,6 +69,8 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 	@Autowired
 	private ChatRoomRepository chatRoomRepository;
 
+	@Autowired
+	private UniversityRepository universityRepository;
 	@Override
 	public UserProfile insert(UserProfile userProfile) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.insert(-)");
@@ -205,9 +209,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 					driveResponse.setCorporateResponseOn(new Timestamp(new java.util.Date().getTime()));
 
 					campusDriveResponseRepository.save(driveResponse);
-
+					University university = universityRepository.getById(driveResponse.getUniversityId());
+					if(university==null) {
+						throw new CoporateUserDefindException("no such university found");
+					}
 					if (driveResponse.getCorporateResponse() && driveResponse.getUniversityAsk()) {
-						List<Object[]> list = studentRepository.findApplyStudentDetails(driveResponse.getUniversityId(),
+						List<Object[]> list = studentRepository.findApplyStudentDetails(university.getUserId(),
 								driveResponse.getJobId());
 
 						if (list.size() != 0) {

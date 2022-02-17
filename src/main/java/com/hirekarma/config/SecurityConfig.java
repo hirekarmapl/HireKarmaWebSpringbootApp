@@ -65,17 +65,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.authenticated()
 			.and()
 			.oauth2Login()
-			.loginPage("/googleLogin")
-			.userInfoEndpoint()
-			.userService(customOauth2UserService)
+//			.userInfoEndpoint()
+//			.userService(customOauth2UserService)
+//			.and()
+//			.successHandler(oauth2LoginSuccessHandler)
 			.and()
-			.successHandler(oauth2LoginSuccessHandler)
-			.and()
-			.exceptionHandling()
-			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-			.and()
-			.sessionManagement()
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//			.exceptionHandling()
+//			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//			.and()
+//			.sessionManagement()
+//			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//			.and()
+			.logout().permitAll().and().rememberMe();
+//			.and()
+//			.exceptionHandling()
+//			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//			.and()
+//			.sessionManagement()
+//			.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		http.cors();
 	}

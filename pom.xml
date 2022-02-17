@@ -122,6 +122,13 @@
 			<version>0.11.1</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    <version>2.6.3</version>
+</dependency>
+		
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
@@ -200,8 +207,16 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-			<version>2.3.3.RELEASE</version>
+	
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.social/spring-social-google -->
+<dependency>
+    <groupId>org.springframework.social</groupId>
+    <artifactId>spring-social-google</artifactId>
+    <version>1.0.0.RELEASE</version>
+</dependency>
+		
+
 
 	</dependencies>
 	<!-- <dependencyManagement> <dependencies> <dependency> <groupId>org.springframework.cloud</groupId> 

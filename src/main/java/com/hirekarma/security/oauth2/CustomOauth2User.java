@@ -5,10 +5,12 @@ import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Component;
+
 
 public class CustomOauth2User implements OAuth2User {
 	
-	private OAuth2User oauth2User;
+	public OAuth2User oauth2User;
 
 	public CustomOauth2User(OAuth2User oauth2User) {
 		this.oauth2User = oauth2User;
@@ -26,6 +28,8 @@ public class CustomOauth2User implements OAuth2User {
 
 	@Override
 	public String getName() {
+//		System.out.println(oauth2User.getAttributes().get("name"));
+		
 		return oauth2User.getAttribute("name");
 	}
 	

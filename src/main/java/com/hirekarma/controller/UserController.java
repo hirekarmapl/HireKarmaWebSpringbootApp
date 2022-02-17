@@ -40,6 +40,12 @@ public class UserController {
 	}
 	
 
+	@GetMapping("/google")
+	public String googleSignin() {
+		return "done";
+	}
+	
+	
 	@RequestMapping(value="/validate", method = RequestMethod.GET)
 	public ResponseEntity<Response> validateToken(@RequestParam("token") String token,@RequestParam("email") String email) {
 		try{

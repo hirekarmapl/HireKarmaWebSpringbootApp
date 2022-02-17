@@ -28,11 +28,12 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-		
+		System.out.println(authentication.toString());
 		CustomOauth2User oauth2User = (CustomOauth2User) authentication.getPrincipal();
+		System.out.println("inside onAuth");
 		String email = oauth2User.getEmail();
 		String name = oauth2User.getName();
-		
+		System.out.println(oauth2User.getAttributes());
 		LOGGER.info("Social Login Email Is : "+email);
 		
 		UserProfile bean = oauth2LoginServiceImpl.getStudentByEmail(email);

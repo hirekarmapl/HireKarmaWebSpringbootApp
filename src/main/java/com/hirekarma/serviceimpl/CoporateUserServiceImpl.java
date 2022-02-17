@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.hirekarma.beans.CampusDriveInviteBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
@@ -25,6 +26,7 @@ import com.hirekarma.model.ChatRoom;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Organization;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.ChatRoomRepository;
@@ -397,6 +399,61 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		}
 		catch (Exception e) {
 			LOGGER.info("Data getting Failed In CoporateUserServiceImpl.universityResponse(-)" + e);
+			e.printStackTrace();
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 500);
+			map.put("message", "Bad Request!!!");
+			return map;
+		}
+	}
+
+	@Override
+	public Map<String, Object> getAllCampusDriveInvitesByCorporateId(Long corporateId) {
+		LOGGER.debug("Inside CoporateUserServiceImpl.getAllCampusDriveInvitesByCorporateId(-)");
+		List<CampusDriveInviteBean> campusDriveInviteBeans = null;
+		CampusDriveInviteBean campusDriveInviteBean = null;
+		Map<String,Object> map = null;
+		List<CampusDriveResponse> campusDriveResponses = null;
+		University university =null;
+		try {
+			campusDriveResponses = campusDriveResponseRepository.getAllCampusDriveResponseByCorporateId(corporateId);
+			if(campusDriveResponses!=null && campusDriveResponses.size()>0) {
+				campusDriveInviteBeans = new ArrayList<CampusDriveInviteBean>();
+				for(CampusDriveResponse campusDriveResponse : campusDriveResponses) {
+					university = campusDriveResponseRepository.getUniversityByUniversityId(campusDriveResponse.getUniversityId());
+					if(university != null) {
+						campusDriveInviteBean = new CampusDriveInviteBean();
+						campusDriveInviteBean.setCampusDriveId(campusDriveResponse.getCampusDriveId());
+						campusDriveInviteBean.setCorporateId(campusDriveResponse.getCorporateId());
+						campusDriveInviteBean.setJobId(campusDriveResponse.getJobId());
+						campusDriveInviteBean.setUniversityId(university.getUniversityId());
+						campusDriveInviteBean.setUniversityAsk(campusDriveResponse.getUniversityAsk());
+						campusDriveInviteBean.setCorporateResponse(campusDriveResponse.getCorporateResponse());
+						campusDriveInviteBean.setUniversityAskedOn(campusDriveResponse.getUniversityAskedOn());
+						campusDriveInviteBean.setCorporateResponseOn(campusDriveResponse.getCorporateResponseOn());
+						campusDriveInviteBean.setUserId(university.getUserId());
+						campusDriveInviteBean.setUniversityName(university.getUniversityName());
+						campusDriveInviteBean.setUniversityEmail(university.getUniversityEmail());
+						campusDriveInviteBean.setUniversityAddress(university.getUniversityAddress());
+						campusDriveInviteBean.setUniversityPhoneNumber(university.getUniversityPhoneNumber());
+						campusDriveInviteBean.setUniversityImage(university.getUniversityImage());
+						campusDriveInviteBean.setCreatedOn(university.getCreatedOn());
+						campusDriveInviteBean.setCreatedOn(university.getCreatedOn());
+						campusDriveInviteBean.setStatus(university.getStatus());
+						campusDriveInviteBeans.add(campusDriveInviteBean);
+					}
+				}
+			}
+			map = new HashMap<String, Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", 500);
+			map.put("data", campusDriveInviteBeans);
+			LOGGER.info("Data fetched Successfully In CoporateUserServiceImpl.getAllCampusDriveInvitesByCorporateId(-)");
+			return map;
+		}
+		catch (Exception e) {
+			LOGGER.info("Data getting Failed In CoporateUserServiceImpl.getAllCampusDriveInvitesByCorporateId(-)" + e);
 			e.printStackTrace();
 			map = new HashMap<String, Object>();
 			map.put("status", "Failed");

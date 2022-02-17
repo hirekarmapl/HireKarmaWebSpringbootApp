@@ -499,15 +499,49 @@ public class CoporateUserController {
 			studentId = userProfile.getUserId();
 			map = coporateUserService.getAllJobApplicationsByCorporate(studentId);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
-			LOGGER.error("Getting applications success StudentController.getAllJobApplicationsByCorporate(-)");
+			LOGGER.info("Getting applications success CoporateUserController.getAllJobApplicationsByCorporate(-)");
 			return responseEntity;
 		}
 		catch (Exception e) {
-			LOGGER.error("Getting applications failed StudentController.getAllJobApplicationsByCorporate(-): " + e);
+			LOGGER.error("Getting applications failed CoporateUserController.getAllJobApplicationsByCorporate(-): " + e);
 			map = new HashMap<String, Object>();
 			map.put("status", "Bad Request");
 			map.put("responseCode", 400);
 			map.put("message", "getting applications failed!!!");
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			e.printStackTrace();
+			return responseEntity;
+		}
+	}
+	
+	@GetMapping("/getAllCampusDriveInvitesByCorporate")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Map<String,Object>> getAllCampusDriveInvitesByCorporate(HttpServletRequest request) {
+		LOGGER.debug("Inside CoporateUserController.getAllCampusDriveInvitesByCorporate(-)");
+		Map<String, Object> map = null;
+		ResponseEntity<Map<String, Object>> responseEntity = null;
+		String jwtToken = null;
+		String authorizationHeader = null;
+		String email=null;
+		UserProfile userProfile = null;
+		Long corporateId = null;
+		try {
+			authorizationHeader = request.getHeader("Authorization");
+			jwtToken = authorizationHeader.substring(7);
+			email = jwtTokenUtil.extractUsername(jwtToken);
+			userProfile = userRepository.findUserByEmail(email);
+			corporateId = userProfile.getUserId();
+			map = coporateUserService.getAllCampusDriveInvitesByCorporateId(corporateId);
+			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			LOGGER.info("Getting applications success CoporateUserController.getAllCampusDriveInvitesByCorporate(-)");
+			return responseEntity;
+		}
+		catch (Exception e) {
+			LOGGER.error("Getting applications failed CoporateUserController.getAllCampusDriveInvitesByCorporate(-): " + e);
+			map = new HashMap<String, Object>();
+			map.put("status", "Bad Request");
+			map.put("responseCode", 400);
+			map.put("message", "getting invitations failed!!!");
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			e.printStackTrace();
 			return responseEntity;

@@ -30,4 +30,6 @@ public interface CoporateUserService {
 	public Map<String,Object> shortListStudent(Long corporateId, Long jobApplyId);
 	
 	public Map<String,Object> getAllJobApplicationsByCorporate(Long corporateId);
+	
+	public Map<String,Object> getAllCampusDriveInvitesByCorporateId(Long corporateId);
 }

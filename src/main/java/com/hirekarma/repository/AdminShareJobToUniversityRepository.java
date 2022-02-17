@@ -15,7 +15,7 @@ public interface AdminShareJobToUniversityRepository extends JpaRepository<Admin
 	@Query("select a.universityResponseStatus , a.shareJobId , j.jobTitle , j.category , "
 			+ "j.jobType , j.wfhCheckbox , j.skills , j.city , j.openings , j.salary , j.about , j.description  "
 			+ "from AdminShareJobToUniversity a inner join Job j on a.jobId = j.jobId "
-			+ "where a.universityId = :id and j.deleteStatus='Active'")
+			+ "where a.universityId = :id and j.deleteStatus= true")
 	List<Object[]> getJobDetailsByUniversityId(@Param("id")Long id);
 
 }

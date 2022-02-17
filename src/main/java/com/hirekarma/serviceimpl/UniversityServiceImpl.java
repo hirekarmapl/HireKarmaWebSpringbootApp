@@ -27,6 +27,7 @@ import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.CampusDriveResponse;
+import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
@@ -243,23 +244,19 @@ public class UniversityServiceImpl implements UniversityService {
 
 			if (university != null) {
 
-				optional = corporateRepository.findById(campus.getCorporateId());
-
-				if (optional.isPresent()) {
-
-					optional = null;
-					optional = jobRepository.getJobDetails(campus.getJobId(), campus.getCorporateId());
-//					optional = jobRepository.findById(campus.getJobId());
-
-					if (optional.isPresent()) {
+				 Job job = jobRepository.getById(campus.getJobId());
+				 if(job==null)
+				 {
+					 throw new Exception("Corporate not found");
+				 }
 						LOGGER.info("FOUNDED JOB ");
 						Long campusList = campusDriveResponseRepository.findSharedCampus(university.getUniversityId(),
-								campus.getCorporateId(), campus.getJobId());
+								job.getCorporateId(), job.getJobId());
 						System.out.println("*********\n\n\n" + campusList + "\n\n\n************");
 						LOGGER.info("{} {} {}",university.getUniversityId(),
-								campus.getJobId(), campus.getCorporateId());
+								job.getJobId(), job.getCorporateId());
 						Object object = shareJobRepository.getRequestVerificationDetails(university.getUniversityId(),
-								campus.getJobId(), campus.getCorporateId());
+								job.getJobId(), job.getCorporateId());
 
 						if (object != null) {
 							LOGGER.info("object is not null");
@@ -267,8 +264,8 @@ public class UniversityServiceImpl implements UniversityService {
 
 								driveResponse = new CampusDriveResponse();
 
-								driveResponse.setJobId(campus.getJobId());
-								driveResponse.setCorporateId(campus.getCorporateId());
+								driveResponse.setJobId(job.getJobId());
+								driveResponse.setCorporateId(job.getCorporateId());
 								driveResponse.setUniversityId(university.getUniversityId());
 								driveResponse.setUniversityAskedOn(new Timestamp(new java.util.Date().getTime()));
 								driveResponse.setCorporateResponse(false);
@@ -288,14 +285,10 @@ public class UniversityServiceImpl implements UniversityService {
 							throw new CampusDriveResponseException(
 									"No Shared Job Found From This Corporate  To Your University !!");
 						}
-					} else {
-						throw new CampusDriveResponseException("Job Details Not Found With This Corporate!!");
-					}
-				} else {
-					throw new CampusDriveResponseException("Corporate Details Not Found!!");
-				}
+					
+			
 			} else {
-				throw new CampusDriveResponseException("Something went wrong !! Try Later...");
+				throw new CampusDriveResponseException("Token invalid");
 			}
 
 		} catch (Exception e) {

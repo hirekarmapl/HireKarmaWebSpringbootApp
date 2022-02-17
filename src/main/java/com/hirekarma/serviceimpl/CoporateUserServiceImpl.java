@@ -446,8 +446,8 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				}
 			}
 			map = new HashMap<String, Object>();
-			map.put("status", "Failed");
-			map.put("responseCode", 500);
+			map.put("status", "Success");
+			map.put("responseCode", 200);
 			map.put("data", campusDriveInviteBeans);
 			LOGGER.info("Data fetched Successfully In CoporateUserServiceImpl.getAllCampusDriveInvitesByCorporateId(-)");
 			return map;

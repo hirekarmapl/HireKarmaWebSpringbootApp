@@ -198,14 +198,14 @@ public class StudentController {
 
 	@PostMapping("/studentJobResponse")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<Response> studentJobResponse(@RequestBody UniversityJobShareToStudentBean jobBean) {
+	public ResponseEntity<Response> studentJobResponse(@RequestBody UniversityJobShareToStudentBean jobBean,@RequestHeader("Authorization") String token) {
 		LOGGER.debug("Inside StudentController.studentJobResponse(-)");
 		UniversityJobShareToStudentBean universityJobShareToStudentBean = new UniversityJobShareToStudentBean();
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of StudentController.studentJobResponse(-)");
-			universityJobShareToStudentBean = studentService.studentJobResponse(jobBean);
+			universityJobShareToStudentBean = studentService.studentJobResponse(jobBean,token);
 			LOGGER.info("Response Successfully Updated using UniversityController.studentJobResponse(-)");
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.ACCEPTED);

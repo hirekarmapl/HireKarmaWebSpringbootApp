@@ -27,6 +27,7 @@ import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.CampusDriveResponse;
+import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
@@ -49,6 +50,8 @@ public class UniversityServiceImpl implements UniversityService {
 
 	@Autowired
 	private ShareJobRepository shareJobRepository;
+
+
 
 	@Autowired
 	private CorporateRepository corporateRepository;
@@ -121,6 +124,11 @@ public class UniversityServiceImpl implements UniversityService {
 	@Override
 	public Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception {
+		AdminShareJobToUniversity adminShareJobToUniversity = adminShareJobToUniversityRepository.getById(universityJobShareToStudentBean.getShareJobId());
+		if(adminShareJobToUniversity==null) {
+			throw new UserProfileException("invalid shareJobid");
+		}
+		universityJobShareToStudentBean.setJobId(adminShareJobToUniversity.getJobId());
 		System.out.println("JobId:"+universityJobShareToStudentBean.getJobId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		UserProfile userProfile = null;
@@ -236,31 +244,28 @@ public class UniversityServiceImpl implements UniversityService {
 
 			if (university != null) {
 
-				optional = corporateRepository.findById(campus.getCorporateId());
-
-				if (optional.isPresent()) {
-
-					optional = null;
-					optional = jobRepository.getJobDetails(campus.getJobId(), campus.getCorporateId());
-//					optional = jobRepository.findById(campus.getJobId());
-
-					if (optional.isPresent()) {
-
+				 Job job = jobRepository.getById(campus.getJobId());
+				 if(job==null)
+				 {
+					 throw new Exception("Corporate not found");
+				 }
+						LOGGER.info("FOUNDED JOB ");
 						Long campusList = campusDriveResponseRepository.findSharedCampus(university.getUniversityId(),
-								campus.getCorporateId(), campus.getJobId());
+								job.getCorporateId(), job.getJobId());
 						System.out.println("*********\n\n\n" + campusList + "\n\n\n************");
-
+						LOGGER.info("{} {} {}",university.getUniversityId(),
+								job.getJobId(), job.getCorporateId());
 						Object object = shareJobRepository.getRequestVerificationDetails(university.getUniversityId(),
-								campus.getJobId(), campus.getCorporateId());
+								job.getJobId(), job.getCorporateId());
 
 						if (object != null) {
-
+							LOGGER.info("object is not null");
 							if (campusList == 0) {
 
 								driveResponse = new CampusDriveResponse();
 
-								driveResponse.setJobId(campus.getJobId());
-								driveResponse.setCorporateId(campus.getCorporateId());
+								driveResponse.setJobId(job.getJobId());
+								driveResponse.setCorporateId(job.getCorporateId());
 								driveResponse.setUniversityId(university.getUniversityId());
 								driveResponse.setUniversityAskedOn(new Timestamp(new java.util.Date().getTime()));
 								driveResponse.setCorporateResponse(false);
@@ -280,14 +285,10 @@ public class UniversityServiceImpl implements UniversityService {
 							throw new CampusDriveResponseException(
 									"No Shared Job Found From This Corporate  To Your University !!");
 						}
-					} else {
-						throw new CampusDriveResponseException("Job Details Not Found With This Corporate!!");
-					}
-				} else {
-					throw new CampusDriveResponseException("Corporate Details Not Found!!");
-				}
+					
+			
 			} else {
-				throw new CampusDriveResponseException("Something went wrong !! Try Later...");
+				throw new CampusDriveResponseException("Token invalid");
 			}
 
 		} catch (Exception e) {
@@ -314,6 +315,7 @@ public class UniversityServiceImpl implements UniversityService {
 		String email = (String) jsonObject.get("sub");
 
 		Long id = universityRepository.findIdByEmail(email);
+LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		AdminSharedJobList adminSharedJobList = null;
 		List<AdminSharedJobList> SharedJobList = new ArrayList<AdminSharedJobList>();
 		try {
@@ -336,7 +338,8 @@ public class UniversityServiceImpl implements UniversityService {
 						adminSharedJobList.setSalary(String.valueOf(obj1[9]));
 						adminSharedJobList.setAbout((String) obj1[10]);
 						adminSharedJobList.setDescription((String) obj1[11]);
-
+						adminSharedJobList.setJobId(String.valueOf(obj1[12]));
+						adminSharedJobList.setCorporateId(String.valueOf(obj1[12]));
 						SharedJobList.add(adminSharedJobList);
 					}
 

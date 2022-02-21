@@ -3,6 +3,7 @@ package com.hirekarma.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.hirekarma.beans.QuestionAndAnswerBean;
@@ -16,6 +17,7 @@ public interface QuestionAndAnswerRepository extends JpaRepository<QuestionANdan
 
 	int deleteByuID(String qNA_id);
 
+	@Query("SELECT q FROM QuestionANdanswer q WHERE q.uID= :qNA_id AND (q.status is null or status!=:string)")
 	QuestionANdanswer findByuIDAndStatusIsNullOrStatusNot(String qNA_id, String string);
 
 }

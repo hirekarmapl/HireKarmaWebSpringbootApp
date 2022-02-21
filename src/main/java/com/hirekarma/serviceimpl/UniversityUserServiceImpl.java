@@ -79,9 +79,9 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 
 				body = new HashMap<String, String>();
 				body.put("email", universityUser.getEmail());
-
-				emailController.welcomeEmail(body);
-				emailController.letsGetStarted(body);
+				body.put("name", universityUser.getName());
+				body.put("type", "university");
+				emailController.welcomeAndOnBoardEmail(body);
 
 				LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
 			} else {

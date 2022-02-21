@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.hirekarma.beans.AuthenticationProvider;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.UserRepository;
+import com.hirekarma.utilty.Utility;
 
 @Service
 public class Oauth2LoginServiceImpl {
@@ -24,6 +25,9 @@ public class Oauth2LoginServiceImpl {
 		user.setEmail(email);
 		user.setName(name);
 		user.setAuthProvider(provider);
+		user.setPassword(Utility.passwordTokenGenerator());
+		
+		System.out.println(user.toString());
 		userRepository.save(user);
 	}
 

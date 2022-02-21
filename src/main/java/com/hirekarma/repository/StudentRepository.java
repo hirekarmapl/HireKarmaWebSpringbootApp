@@ -48,5 +48,6 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 	@Query("select s from Student s where s.universityId = :universityId and s.batch = :batchId and s.branch = :branchId and s.cgpa >= :cgpa")
 	List<Student> getStudentFilter(@Param("universityId")Long universityId,@Param("batchId") Long batchId,@Param("branchId") Long branchId,@Param("cgpa") Double cgpa);
 	
+	Student findByStudentEmail(String studentEmail);
 	
 }

@@ -65,6 +65,19 @@ public class Corporate {
 	@JsonIgnore
 	private List<Blog> blogs;
 
+	@OneToMany(mappedBy = "corporate")
+	@JsonIgnore
+	private List<OnlineAssessment> onlineAssessments;
+	
+	
+	public List<OnlineAssessment> getOnlineAssessments() {
+		return onlineAssessments;
+	}
+
+	public void setOnlineAssessments(List<OnlineAssessment> onlineAssessments) {
+		this.onlineAssessments = onlineAssessments;
+	}
+
 	public List<Blog> getBlogs() {
 		return blogs;
 	}

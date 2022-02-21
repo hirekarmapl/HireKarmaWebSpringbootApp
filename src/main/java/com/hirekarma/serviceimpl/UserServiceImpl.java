@@ -73,13 +73,18 @@ public class UserServiceImpl implements UserService {
 		this.userRepository.save(userProfile);
 		return true;
 	}
-	public boolean updatePassword(String newPassword,String email) throws Exception{
+	public boolean updatePassword(String newPassword,String email,String token) throws Exception{
 		UserProfile userProfile = userRepository.findUserByEmail(email);
+		if(!userProfile.getResetPasswordToken().equals(token)) {
+			throw new Exception("Invalid Request");
+		}
 		System.out.println(userProfile);
 		if(userProfile==null) {
 			throw new NoSuchElementException("no such user found");
 		}
-		userProfile.setPassword(Utility.getEncriptedString(newPassword));
+		userProfile.setPassword(passwordEncoder.encode(newPassword));
+		this.userRepository.save(userProfile);
+		System.out.println(userProfile.getPassword());
 		return true;
 	}
 }

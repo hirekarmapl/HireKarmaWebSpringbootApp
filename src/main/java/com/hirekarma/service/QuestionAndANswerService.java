@@ -27,5 +27,7 @@ public interface QuestionAndANswerService {
 	ResponseEntity<Resource> downloadFile(String type);
 
 	ResponseEntity<Resource> downloadDummyFile(String type);
+	
+	List<QuestionANdanswer> getQNAByType(String type);
 
 }

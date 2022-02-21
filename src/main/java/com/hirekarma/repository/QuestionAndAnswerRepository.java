@@ -19,5 +19,7 @@ public interface QuestionAndAnswerRepository extends JpaRepository<QuestionANdan
 
 	@Query("SELECT q FROM QuestionANdanswer q WHERE q.uID= :qNA_id AND (q.status is null or status!=:string)")
 	QuestionANdanswer findByuIDAndStatusIsNullOrStatusNot(String qNA_id, String string);
+	
+	List<QuestionANdanswer> findByType(String type);
 
 }

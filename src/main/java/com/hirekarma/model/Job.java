@@ -2,7 +2,9 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,8 +21,6 @@ import com.sun.istack.NotNull;
 
 @Entity
 @Table(name = "JOB")
-//@Data
-//@ToString
 public class Job implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -79,6 +80,64 @@ public class Job implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
+	
+	private String eligibilityCriteria;
+	
+	private String rolesAndResponsibility;
+	
+	private Double salaryAfterProbation;
+	
+	private Integer serviceAgreement;
+	
+	@ManyToMany
+	private List<Stream> streams = new ArrayList<Stream>();
+	
+	@ManyToMany
+	private List<StudentBranch> branchs = new ArrayList<StudentBranch>();
+	
+	
+	public List<Stream> getStreams() {
+		return streams;
+	}
+
+	public void setStreams(List<Stream> streams) {
+		this.streams = streams;
+	}
+
+	public String getRolesAndResponsibility() {
+		return rolesAndResponsibility;
+	}
+
+	public void setRolesAndResponsibility(String rolesAndResponsibility) {
+		this.rolesAndResponsibility = rolesAndResponsibility;
+	}
+
+	public String getEligibilityCriteria() {
+		return eligibilityCriteria;
+	}
+
+	public void setEligibilityCriteria(String eligibilityCriteria) {
+		this.eligibilityCriteria = eligibilityCriteria;
+	}
+
+	public Double getSalaryAfterProbation() {
+		return salaryAfterProbation;
+	}
+
+	public void setSalaryAfterProbation(Double salaryAfterProbation) {
+		this.salaryAfterProbation = salaryAfterProbation;
+	}
+
+	public Integer getServiceAgreement() {
+		return serviceAgreement;
+	}
+
+	public void setServiceAgreement(Integer serviceAgreement) {
+		this.serviceAgreement = serviceAgreement;
+	}
+
+	
+	
 
 	@Override
 	public String toString() {
@@ -86,8 +145,20 @@ public class Job implements Serializable{
 				+ category + ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city="
 				+ city + ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description="
 				+ description + ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status
-				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn
+				+ ", eligibilityCriteria=" + eligibilityCriteria + ", salaryAfterProbation=" + salaryAfterProbation
+				+ ", serviceAgreement=" + serviceAgreement +  ", branchs=" + branchs + "]";
 	}
+
+	public List<StudentBranch> getBranchs() {
+		return branchs;
+	}
+
+	public void setBranchs(List<StudentBranch> branchs) {
+		this.branchs = branchs;
+	}
+
+
 
 	public Long getJobId() {
 		return jobId;

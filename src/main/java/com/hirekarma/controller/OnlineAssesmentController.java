@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,11 +57,25 @@ public class OnlineAssesmentController {
 	}
 	
 	@PreAuthorize("hasRole('corporate')")
-	@PutMapping("/corporate/assessment")
-	public ResponseEntity<Response> updateOnlineAssessment(@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token){
+	@PutMapping("/corporate/assessment/{slug}")
+	public ResponseEntity<Response> updateOnlineAssessment(@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token,@PathVariable("slug")String slug){
 		try {
 			OnlineAssessment onlineAssessment = this.onlineAssessmentService
-					.updateOnlineAssessment(onlineAssessmentBean, token);
+					.updateOnlineAssessment(onlineAssessmentBean, token,slug);
+			return new ResponseEntity<Response>(
+					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	@PreAuthorize("hasRole('corporate')")
+	@GetMapping("/corporate/assessment/{slug}")
+	public ResponseEntity<Response> getOnlineAssessmentBySlug(@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token,@PathVariable("slug")String slug){
+		try {
+			OnlineAssessment onlineAssessment = this.onlineAssessmentService
+					.getOnlineAssessmentBySlug( token,slug);
 			return new ResponseEntity<Response>(
 					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
 

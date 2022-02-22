@@ -77,29 +77,31 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	}
 
 	public OnlineAssessment updateOnlineAssessmentForBeanNotNull(OnlineAssessment onlineAssessment,OnlineAssessmentBean onlineAssessmentBean) {
+		System.out.println(onlineAssessmentBean.toString());
 		if(onlineAssessmentBean.getTitle()!=null) {
 			onlineAssessment.setTitle(onlineAssessmentBean.getTitle());
 		}
-		if(onlineAssessmentBean.getTotalMarks()!=null) {
-			onlineAssessment.setTotalMarks(onlineAssessment.getTotalMarks());
+		if(onlineAssessmentBean.getTotalMarks()>=0) {
+			
+			onlineAssessment.setTotalMarks(onlineAssessmentBean.getTotalMarks());
 		}
-		if(onlineAssessmentBean.getCodingMarks()!=0) {
-			onlineAssessment.setCodingMarks(onlineAssessment.getCodingMarks());
+		if(onlineAssessmentBean.getCodingMarks()>=0) {
+			onlineAssessment.setCodingMarks(onlineAssessmentBean.getCodingMarks());
 		}
-		if(onlineAssessmentBean.getMcqMarks()!=0) {
+		if(onlineAssessmentBean.getMcqMarks()>=0) {
 			onlineAssessment.setMcqMarks(onlineAssessmentBean.getMcqMarks());
 		}
-		if(onlineAssessmentBean.getParagraphMarks()!=0) {
+		if(onlineAssessmentBean.getParagraphMarks()>=0) {
 			onlineAssessment.setParagraphMarks(onlineAssessmentBean.getParagraphMarks());
 		}
-		if(onlineAssessmentBean.getQnaMarks()!=0) {
+		if(onlineAssessmentBean.getQnaMarks()>=0) {
 			onlineAssessment.setQnaMarks(onlineAssessmentBean.getQnaMarks());
 		}
 		return onlineAssessment;
 	}
 	
-	public OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception{
-		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.getById(onlineAssessmentBean.getOnlineAssessmentId());
+	public OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception{
+		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(slug);
 		if(onlineAssessment==null) {
 			throw new Exception("please enter proper assesemnet id");
 		}
@@ -128,6 +130,18 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		Corporate corporate = corporateRepository.findByEmail(email);
 		return corporate.getOnlineAssessments();
 	}
+
+	@Override
+	public OnlineAssessment getOnlineAssessmentBySlug(String token, String slug) throws Exception {
+		String email =  Validation.validateToken(token);
+		OnlineAssessment onlineAssessment = onlineAssessmentRepository.findBySlug(slug);
+		if(onlineAssessment==null) {
+			throw new Exception("Bad Request");
+		}
+		return onlineAssessment;
+	}
+	
+	
 
 
 	

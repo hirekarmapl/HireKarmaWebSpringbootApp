@@ -297,14 +297,14 @@ public class UniversityUserController {
 	// download student details as excel
 	@GetMapping("/exportStudentDataExcel")
 	@PreAuthorize("hasRole('university')")
-	public ModelAndView exportStudentDataExcel(HttpServletResponse res) {
+	public ModelAndView exportStudentDataExcel(HttpServletResponse res,@RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside UniversityUserController.exportStudentDataExcel(-)");
 		List<UserBean> studentBeans = null;
 		Map<String, Object> model = null;
 		Date date = null;
 		try {
 			LOGGER.debug("Inside try block of UniversityUserController.exportStudentDataExcel(-)");
-			studentBeans = studentService.getAllStudents();
+			studentBeans = studentService.getAllStudents(token);
 			model = new HashMap<String, Object>();
 			date = new Date();
 			res.setContentType("application/ms-excel");
@@ -315,8 +315,9 @@ public class UniversityUserController {
 		} catch (Exception e) {
 			LOGGER.error("UniversityUserController.exportStudentDataExcel(-) excel creation failed: " + e.getMessage());
 			e.printStackTrace();
-			throw e;
+			
 		}
+		return null;
 	}
 
 	// upload student details as excel

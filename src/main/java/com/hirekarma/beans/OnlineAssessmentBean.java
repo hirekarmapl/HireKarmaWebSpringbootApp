@@ -8,7 +8,7 @@ public class OnlineAssessmentBean {
 	
 	List<Integer> questions;
 	String title;
-	String totalMarks;
+	int totalMarks;
 	int codingMarks;
 	int qnaMarks;
 	
@@ -34,10 +34,10 @@ public class OnlineAssessmentBean {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public String getTotalMarks() {
+	public int getTotalMarks() {
 		return totalMarks;
 	}
-	public void setTotalMarks(String totalMarks) {
+	public void setTotalMarks(int totalMarks) {
 		this.totalMarks = totalMarks;
 	}
 	public int getCodingMarks() {
@@ -64,5 +64,12 @@ public class OnlineAssessmentBean {
 	public void setParagraphMarks(int paragraphMarks) {
 		this.paragraphMarks = paragraphMarks;
 	}
+	@Override
+	public String toString() {
+		return "OnlineAssessmentBean [questions=" + questions + ", title=" + title + ", totalMarks=" + totalMarks
+				+ ", codingMarks=" + codingMarks + ", qnaMarks=" + qnaMarks + ", mcqMarks=" + mcqMarks
+				+ ", paragraphMarks=" + paragraphMarks + ", onlineAssessmentId=" + onlineAssessmentId + "]";
+	}
+	
 
 }

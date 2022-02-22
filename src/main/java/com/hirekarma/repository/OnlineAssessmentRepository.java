@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import com.hirekarma.model.OnlineAssessment;
 @Repository
 public interface OnlineAssessmentRepository extends JpaRepository<OnlineAssessment, Integer> {
-
+	OnlineAssessment findBySlug(String slug);
 }

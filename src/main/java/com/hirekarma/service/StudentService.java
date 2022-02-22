@@ -22,7 +22,7 @@ public interface StudentService {
 	public UserProfile insert(UserProfile student);
 	public UserBean updateStudentProfile(UserBean studentBean, String token) throws Exception;
 	public UserBean findStudentById(Long studentId);
-	public List<UserBean> getAllStudents();
+	public List<UserBean> getAllStudents(String token) throws Exception;
 	public List<UserBean> importStudentDataExcel(MultipartFile file);
 	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean,String token);
 	public List<?> jobDetails(String token) throws ParseException;

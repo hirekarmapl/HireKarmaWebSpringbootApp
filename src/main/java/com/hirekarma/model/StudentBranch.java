@@ -1,11 +1,19 @@
 package com.hirekarma.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.ToString;
@@ -24,14 +32,20 @@ public class StudentBranch {
 	@Column(name = "BRANCH_NAME")
 	private String branchName;
 
-	@Override
-	public String toString() {
-		return "StudentBranch [id=" + id + ", branchName=" + branchName + "]";
-	}
+	@ManyToOne
+	@JsonIgnore
+	private Stream stream ;
+	
+	@ManyToMany(mappedBy = "branchs")
+	@JsonIgnore
+	List<Job> jobs = new ArrayList<Job>();
+
 
 	public Long getId() {
 		return id;
 	}
+
+	
 
 	public void setId(Long id) {
 		this.id = id;
@@ -44,6 +58,27 @@ public class StudentBranch {
 	public void setBranchName(String branchName) {
 		this.branchName = branchName;
 	}
+
+	public Stream getStream() {
+		return stream;
+	}
+
+	public void setStream(Stream stream) {
+		this.stream = stream;
+	}
+
+
+
+	public List<Job> getJobs() {
+		return jobs;
+	}
+
+
+
+	public void setJobs(List<Job> jobs) {
+		this.jobs = jobs;
+	}
+	
 
 
 	

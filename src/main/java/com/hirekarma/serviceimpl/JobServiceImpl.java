@@ -19,8 +19,12 @@ import com.hirekarma.beans.JobBean;
 import com.hirekarma.exception.JobException;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.Stream;
+import com.hirekarma.model.StudentBranch;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.StreamRepository;
+import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.service.JobService;
 
 @Service("jobService")
@@ -33,7 +37,12 @@ public class JobServiceImpl implements JobService {
 
 	@Autowired
 	private CorporateRepository corporateRepository;
+	
+	@Autowired
+	private StudentBranchRepository studentBranchRepository;
 
+	@Autowired
+	private StreamRepository streamRepository;
 	@Override
 	public JobBean insert(JobBean jobBean, String token) {
 		LOGGER.debug("Inside JobServiceImpl.insert()");
@@ -60,12 +69,36 @@ public class JobServiceImpl implements JobService {
 
 			corporate = corporateRepository.findByEmail(email);
 
+			//adding branch to job
+			List<StudentBranch> branchesToBeAddToJob = new ArrayList<>();
+			for(Integer j :jobBean.getBranchIds()) {
+				StudentBranch studentBranch = studentBranchRepository.getById((long)j);
+				if(studentBranch==null) {
+					throw new Exception("incorrect branch id");
+				}
+				System.out.println(studentBranch);
+				jobBean.getBranchs().add(studentBranch);
+				
+			}
+			
+//			add stream to job
+			List<Stream> streamsTobeAddedToJob = new ArrayList<>();
+			for(Integer j:jobBean.getStreamIds()) {
+				Stream stream = streamRepository.getById(j);
+				if(stream==null) {
+					throw new Exception("inccorect stream id");
+				}
+				jobBean.getStreams().add(stream);
+			}
+			System.out.println("streamsss"+jobBean.getStreams());
 //			if cooperate found then
 			if (corporate != null) {
 
 				image = jobBean.getFile().getBytes();
+				
 				jobBean.setDescriptionFile(image);
 				jobBean.setDeleteStatus(false);
+				
 				jobBean.setCorporateId(corporate.getCorporateId());
 				if (corporate.getCorporateBadge() != null && corporate.getCorporateBadge() == 3) {
 					jobBean.setStatus(true);

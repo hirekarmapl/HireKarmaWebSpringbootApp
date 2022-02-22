@@ -121,6 +121,7 @@ public class UniversityServiceImpl implements UniversityService {
 		return response;
 	}
 
+	//over here university id is user_profile id of university
 	@Override
 	public Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception {
@@ -129,6 +130,7 @@ public class UniversityServiceImpl implements UniversityService {
 			throw new UserProfileException("invalid shareJobid");
 		}
 		universityJobShareToStudentBean.setJobId(adminShareJobToUniversity.getJobId());
+		universityJobShareToStudentBean.setUniversityId(adminShareJobToUniversity.getUniversityId());
 		System.out.println("JobId:"+universityJobShareToStudentBean.getJobId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		UserProfile userProfile = null;
@@ -149,7 +151,7 @@ public class UniversityServiceImpl implements UniversityService {
 			studentIdList = studentRepository.getStudentList();
 		} else {
 			studentIdList = studentRepository.getStudentList(universityJobShareToStudentBean.getBatchId(),
-					universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getCgpaId());
+					universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getCgpaId(),adminShareJobToUniversity.getUniversityId());
 		}
 
 		System.out.println(universityJobShareToStudentBean.getBatchId()

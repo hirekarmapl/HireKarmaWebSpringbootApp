@@ -22,8 +22,8 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 	@Query("select s.studentId from Student s "
 			+ "inner join StudentBatch sbc on s.batch = sbc.id "
 			+ "inner join StudentBranch sbr on s.branch = sbr.id "
-			+ "where s.batch = :batchId and s.branch = :branchId and s.cgpa >= :cgpaId")
-	List<Long> getStudentList(@Param("batchId")Long batchId, @Param("branchId")Long branchId,@Param("cgpaId") Double cgpaId);
+			+ "where s.batch = :batchId and s.branch = :branchId and s.cgpa >= :cgpaId and s.universityId = :universityId")
+	List<Long> getStudentList(@Param("batchId")Long batchId, @Param("branchId")Long branchId,@Param("cgpaId") Double cgpaId,@Param("universityId")Long universityId);
 
 	@Query("select studentId from Student")
 	List<Long> getStudentList();

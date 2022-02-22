@@ -116,7 +116,9 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 			ans.add(answer);					
 		}
 		QA.setMcqAnswer(ans);
-		QA.setCorporateId(QAbean.getCorporateId());			
+		QA.setCorporateId(QAbean.getCorporateId());	
+		QA.setCorrectOption(QAbean.getAnswer());
+		
 		QARepo.save(QA);
 		}
 		bean.setStatus(200);
@@ -412,6 +414,11 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 					.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
 		}else
 		return null;
+	}
+	
+	@Override
+	public List<QuestionANdanswer> getQNAByType(String type){
+		return this.QARepo.findByType(type);
 	}
 
 }

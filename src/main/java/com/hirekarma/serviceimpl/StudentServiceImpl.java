@@ -265,6 +265,32 @@ public class StudentServiceImpl implements StudentService {
 		}
 	}
 
+	public UserProfile insert2(String email,String password,String name) {
+		
+		email = email.toLowerCase();
+		
+		UserProfile userProfile =  new UserProfile();
+		userProfile.setName(name);
+		userProfile.setEmail(email);
+		userProfile.setPassword(passwordEncoder.encode(password));
+		userProfile.setStatus("Active");
+		userProfile.setUserType("student");
+		UserProfile userProfileDB = this.userRepository.save(userProfile);
+		
+		Student student = new Student();
+		student.setUserId(userProfileDB.getUserId());
+		student.setStudentEmail(email);
+		this.studentRepository.save(student);
+		
+		Map<String, String> body = null;
+		body = new HashMap<String, String>();
+		body.put("email", userProfileDB.getEmail());
+		body.put("name", userProfileDB.getName());
+		body.put("type", "student");
+		emailController.welcomeAndOnBoardEmail(body);
+		
+		return userProfileDB;
+	}
 	@Override
 	public UserProfile insert(UserProfile student) {
 
@@ -314,6 +340,81 @@ public class StudentServiceImpl implements StudentService {
 			LOGGER.error("Data Insertion failed using StudentServiceImpl.insert(-): " + e);
 			throw new StudentUserDefindException(e.getMessage());
 		}
+	}
+	
+
+	public UserProfile updateUserAttributeByBean(UserProfile user, UserBean userBean) {
+		if(userBean.getName()!=null) {
+			user.setName(userBean.getName());
+		}
+		if(userBean.getEmail()!=null) {
+			user.setEmail(userBean.getEmail());
+		}
+		if(userBean.getPhoneNo()!=null) {
+			user.setPhoneNo(userBean.getPhoneNo());
+		}
+		if(userBean.getImage()!=null) {
+			user.setImage(userBean.getImage());
+		}
+		if(userBean.getAddress()!=null) {
+			user.setAddress(userBean.getAddress());
+		}
+		user.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+	
+		return user;
+	}
+	@Override
+	public UserBean updateStudentProfile2(UserBean userBean, String token) throws Exception{
+		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
+		
+		String email = Validation.validateToken(token);
+		Student student = studentRepository.findByStudentEmail(email);
+		UserProfile user  = userRepository.findUserByEmail(email);
+		if(student==null) {
+			throw new Exception("Invalid token");
+		}
+		
+		UserProfile studentReturn = this.userRepository.save(updateUserAttributeByBean(user,userBean));
+	
+		student.setStudentName(studentReturn.getName());
+		student.setStudentEmail(studentReturn.getEmail());
+		if(studentReturn.getImage()!=null) {
+
+			student.setStudentImage(studentReturn.getImage());
+		}
+		if(studentReturn.getPhoneNo()!=null) {
+			student.setStudentPhoneNumber(Long.valueOf(studentReturn.getPhoneNo()));
+		}
+		student.setStatus(true);
+		if(userBean.getUniversityId()!=null) {
+
+			student.setUniversityId(userBean.getUniversityId());
+		}
+		student.setStudentAddress(studentReturn.getAddress());
+		if(userBean.getBranch()!=null) {
+			student.setBranch(userBean.getBranch());
+		}
+		if(userBean.getBatch()!=null) {
+			student.setBatch(userBean.getBatch());
+		}
+		if(userBean.getCgpa()!=null) {
+			student.setCgpa(userBean.getCgpa());
+		}
+		student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+		student = studentRepository.save(student);
+		
+		UserBean studentBeanReturn = new UserBean();
+		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
+		studentBeanReturn.setBatch(student.getBatch());
+		studentBeanReturn.setBranch(student.getBranch());
+		studentBeanReturn.setCgpa(student.getCgpa());
+		studentBeanReturn.setUniversityId(student.getUniversityId());
+		
+
+		LOGGER.info(
+				"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+	
+		return studentBeanReturn;
 	}
 
 	@Override

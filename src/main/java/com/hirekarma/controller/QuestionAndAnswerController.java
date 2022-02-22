@@ -58,6 +58,10 @@ public class QuestionAndAnswerController {
 		return respDetail;
 	}
 	
+	@GetMapping("/getQNA/type/{type}")
+	public List<QuestionANdanswer> getQNAByType(@PathVariable String type){
+		return QAService.getQNAByType(type);
+	}
 	@DeleteMapping("/deleteQNA/{QNA_id}")
 	public QuestionAndAnswerResponseBean deleteQNA(@PathVariable String QNA_id){
 		QuestionAndAnswerResponseBean respDetail=new QuestionAndAnswerResponseBean();

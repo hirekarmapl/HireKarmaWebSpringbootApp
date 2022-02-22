@@ -36,4 +36,10 @@ public interface StudentService {
 	List<Education> addAllEducationToStudent(List<Education> education, String token) throws Exception;
 	public List<Education> getAllEducationsOfStudent(String token) throws Exception;
 	public Map<String,Object> getAllJobApplicationsByStudent(Long studentId);
+	
+	
+	
+//	this is better verison of above function
+	public UserProfile insert2(String email,String password,String name);
+	public UserBean updateStudentProfile2(UserBean userBean, String token) throws Exception;
 }

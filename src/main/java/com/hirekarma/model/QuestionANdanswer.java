@@ -8,10 +8,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -36,6 +40,27 @@ public class QuestionANdanswer {
     private String corporateId;
     @Column(name="UID")
     private String uID;
+    @ManyToMany(mappedBy = "questionANdanswers")
+   
+
+	@JsonManagedReference
+    List<OnlineAssessment> onlineAssessments;
+
+    public List<OnlineAssessment> getOnlineAssessments() {
+		return onlineAssessments;
+	}
+	public void setOnlineAssessments(List<OnlineAssessment> onlineAssessments) {
+		this.onlineAssessments = onlineAssessments;
+	}
+	public String getCorrectOption() {
+		return correctOption;
+	}
+	public void setCorrectOption(String correctOption) {
+		this.correctOption = correctOption;
+	}
+
+
+	private String correctOption;
     
     @Column(name="status")
     private String status;
@@ -122,6 +147,8 @@ public class QuestionANdanswer {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+
 	@Override
 	public String toString() {
 		return "QuestionANdanswer [id=" + id + ", question=" + question + ", type=" + type + ", codingDescription="

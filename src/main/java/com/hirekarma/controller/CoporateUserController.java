@@ -35,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.GoogleCalenderRequest;
+import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
@@ -43,6 +44,7 @@ import com.hirekarma.model.Blog;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.OnlineAssessmentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
@@ -61,6 +63,9 @@ public class CoporateUserController {
 	private CoporateUserService coporateUserService;
 	
 	@Autowired
+	private OnlineAssessmentRepository onlineAssessmentRepository;
+	
+	@Autowired
 	private JwtUtil jwtTokenUtil;
 	
 	@Autowired
@@ -72,30 +77,19 @@ public class CoporateUserController {
 	@Autowired
 	private UserRepository userRepository;
 
-//	@PostMapping("/saveCoporateUrl")
-//	public ResponseEntity<CoporateUserBean> createUser(@RequestBody CoporateUserBean coporateUserBean) {
-//		LOGGER.debug("Inside CoporateUserController.createUser(-)");
-//		CoporateUser coporateUser=null;
-//		CoporateUser coporateUserReturn=null;
-//		CoporateUserBean userBean=null;
+
+////	create an online assesement 
+//	@PreAuthorize("hasRole('corporate')")
+//	@GetMapping("/corporate/assessment")
+//	public ResponseEntity<Response> createNewOnlineAssessment(@RequestBody OnlineAssessmentBean onlineAssessmentBean){
 //		try {
-//			LOGGER.debug("Inside try block of CoporateUserController.createUser(-)");
-//			coporateUser=new CoporateUser();
-//			userBean=new CoporateUserBean();
-//			BeanUtils.copyProperties(coporateUserBean, coporateUser);
-//			coporateUserReturn=coporateUserService.insert(coporateUser);
-//			LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
-//			BeanUtils.copyProperties(coporateUserReturn,userBean);
-//			userBean.setPassword(null);
-//			return new ResponseEntity<>(userBean,HttpStatus.CREATED);
+//			
 //		}
-//		catch (Exception e) {
-//			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): "+e);
-//			e.printStackTrace();
-//			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+//		catch(Exeption e){
+//			
 //		}
 //	}
-
+	
 	@PreAuthorize("hasRole('corporate')")
 	@GetMapping("/corporate/blog/{slug}")
 	public ResponseEntity<Response> getBlogByCorporateBySlug(@PathVariable("slug") String slug,
@@ -203,6 +197,32 @@ public class CoporateUserController {
 		}
 		return responseEntity;
 	}
+	
+	
+
+//	@PostMapping("/saveCoporateUrl")
+//	public ResponseEntity<CoporateUserBean> createUser(@RequestBody CoporateUserBean coporateUserBean) {
+//		LOGGER.debug("Inside CoporateUserController.createUser(-)");
+//		CoporateUser coporateUser=null;
+//		CoporateUser coporateUserReturn=null;
+//		CoporateUserBean userBean=null;
+//		try {
+//			LOGGER.debug("Inside try block of CoporateUserController.createUser(-)");
+//			coporateUser=new CoporateUser();
+//			userBean=new CoporateUserBean();
+//			BeanUtils.copyProperties(coporateUserBean, coporateUser);
+//			coporateUserReturn=coporateUserService.insert(coporateUser);
+//			LOGGER.info("Data successfully saved using CoporateUserController.createUser(-)");
+//			BeanUtils.copyProperties(coporateUserReturn,userBean);
+//			userBean.setPassword(null);
+//			return new ResponseEntity<>(userBean,HttpStatus.CREATED);
+//		}
+//		catch (Exception e) {
+//			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): "+e);
+//			e.printStackTrace();
+//			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//	}
 
 //	@PostMapping("/checkCopporateLoginCredentials")
 //	public ResponseEntity<CoporateUserBean> checkLoginCredentials(@RequestBody LoginBean loginBean) {

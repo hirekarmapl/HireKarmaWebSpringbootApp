@@ -76,7 +76,7 @@ public class UserController {
 	@PostMapping("/update")
 	public ResponseEntity<Response> updatePassword(@RequestBody Map<String, String> map) {
 		try {
-			boolean ans = userService.updatePassword(map.get("new"),map.get("email"));
+			boolean ans = userService.updatePassword(map.get("new"),map.get("email"),map.get("token"));
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "password changed successfully", null, null),
 					HttpStatus.OK);
 		} catch (Exception e) {

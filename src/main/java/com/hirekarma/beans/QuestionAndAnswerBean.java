@@ -24,6 +24,7 @@ public class QuestionAndAnswerBean {
     private String[] testCase;
     private String corporateId;
     private String universityId;
+    private String answer;
     private String adminId;
     private String uId;
 	public Long getId() {

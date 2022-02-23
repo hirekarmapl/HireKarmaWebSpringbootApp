@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
@@ -91,7 +92,7 @@ public class StudentController {
 	public ResponseEntity<Response> updateStudentProfile(@ModelAttribute UserBean studentBean,
 			@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside StudentController.updateStudentProfile(-)");
-		UserBean bean = null;
+		UserBeanResponse bean = null;
 		byte[] image = null;
 		Response response = new Response();
 		ResponseEntity<Response> responseEntity = null;
@@ -254,7 +255,7 @@ public class StudentController {
 		}
 	}
 
-	@PostMapping("/student/addSkills/")
+	@PostMapping("/student/addSkills")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<?> addSkills(@RequestHeader(value = "Authorization") String token,
 			@RequestBody Map<String, List<Skill>> skills) {
@@ -270,7 +271,7 @@ public class StudentController {
 
 	}
 
-	@PostMapping("/student/experience/")
+	@PostMapping("/student/experience")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<?> addExperience(@RequestHeader(value = "Authorization") String token,
 			@RequestBody Map<String, List<Experience>> experience) {
@@ -286,7 +287,7 @@ public class StudentController {
 
 	}
 
-	@PutMapping("/student/experience/")
+	@PutMapping("/student/experience")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<?> updateExperience(@RequestHeader(value = "Authorization") String token,
 			@RequestBody Map<String, List<Experience>> experience) {
@@ -302,7 +303,7 @@ public class StudentController {
 
 	}
 
-	@GetMapping("/student/education/")
+	@GetMapping("/student/education")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<Response> getAllEducationsOfStudent(@RequestHeader(value = "Authorization") String token) {
 		try {
@@ -316,7 +317,7 @@ public class StudentController {
 		}
 	}
 
-	@PutMapping("/student/education/")
+	@PutMapping("/student/education")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<?> updateAllEducationToStudent(@RequestHeader(value = "Authorization") String token,
 			@RequestBody Map<String, List<Education>> education) {
@@ -333,7 +334,7 @@ public class StudentController {
 
 	}
 
-	@PostMapping("/student/education/")
+	@PostMapping("/student/education")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<?> addAllEducationToStudent(@RequestHeader(value = "Authorization") String token,
 			@RequestBody Map<String, List<Education>> education) {
@@ -350,12 +351,12 @@ public class StudentController {
 
 	}
 
-	@GetMapping("/student/experience/")
+	@GetMapping("/student/experience")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<Response> getAllExperienceOfStudent(@RequestHeader(value = "Authorization") String token) {
 		try {
 			List<Experience> experiences = this.studentService.getAllExperiencesOfStudent(token);
-			return new ResponseEntity<Response>(new Response("success", 200, "added succesfully", experiences, null),
+			return new ResponseEntity<Response>(new Response("success", 200, "", experiences, null),
 					HttpStatus.OK);
 
 		} catch (Exception e) {
@@ -364,7 +365,7 @@ public class StudentController {
 		}
 	}
 
-	@PutMapping("/student/skills/")
+	@PutMapping("/student/skills")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<?> updateSkills(@RequestHeader(value = "Authorization") String token,
 			@RequestBody Map<String, List<Skill>> ids) {
@@ -379,7 +380,7 @@ public class StudentController {
 		}
 	}
 
-	@GetMapping("/student/getSkills/")
+	@GetMapping("/student/getSkills")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<Response> getAllSkillsOfStudent(@RequestHeader(value = "Authorization") String token)
 			throws Exception {

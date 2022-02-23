@@ -18,9 +18,11 @@ import com.hirekarma.beans.InternshipBean;
 import com.hirekarma.exception.InternshipException;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Internship;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.InternshipRepository;
 import com.hirekarma.service.InternshipService;
+import com.hirekarma.utilty.Validation;
 
 @Service("internshipService")
 public class InternshipServiceImpl implements InternshipService {
@@ -330,5 +332,19 @@ public class InternshipServiceImpl implements InternshipService {
 			LOGGER.error("Error occured in InternshipServiceImpl.updateInternshipById(-): " + e);
 			throw new InternshipException(e.getMessage());
 		}
+	}
+
+	@Override
+	public void activateInternship(String token, Long internshipId,boolean active) throws Exception {
+
+	
+		Optional<Internship> internshipOptional = internshipRepository.findById(internshipId);
+		if(internshipOptional.isEmpty()) {
+			throw new Exception("no internship found");
+			
+		}
+		Internship internship = internshipOptional.get();
+		internship.setStatus(active);
+		internshipRepository.save(internship);
 	}
 }

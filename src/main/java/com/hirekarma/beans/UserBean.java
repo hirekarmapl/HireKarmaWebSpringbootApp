@@ -13,6 +13,8 @@ import javax.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.model.Skill;
+import com.hirekarma.model.StudentBatch;
+import com.hirekarma.model.StudentBranch;
 import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -45,6 +47,7 @@ public class UserBean implements Serializable {
 	private Long branch;
 	private Double cgpa;
 	private Long batch;
+	
 	private Long universityId;
 	private List<Skill> skills = new ArrayList<Skill>();
 	public Long getUserId() {

@@ -16,6 +16,7 @@ import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.UserService;
 import com.hirekarma.utilty.HirekarmaPasswordVerifier;
 import com.hirekarma.utilty.Utility;
+import com.hirekarma.utilty.Validation;
 
 @Service("UserService")
 public class UserServiceImpl implements UserService {
@@ -86,5 +87,25 @@ public class UserServiceImpl implements UserService {
 		this.userRepository.save(userProfile);
 		System.out.println(userProfile.getPassword());
 		return true;
+	}
+	@Override
+	public String updateAbout(String about,String token) throws Exception {
+		String email =  Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		if(userProfile==null) {
+			throw new Exception("invalid token");
+		}
+		userProfile.setAbout(about);
+		userRepository.save(userProfile);
+		return about;
+	}
+	@Override
+	public String getAbout(String token) throws Exception {
+		String email =  Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		if(userProfile==null) {
+			throw new Exception("invalid token");
+		}
+		return userProfile.getAbout();
 	}
 }

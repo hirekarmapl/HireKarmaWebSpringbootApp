@@ -8,4 +8,6 @@ public interface UserService {
 	boolean validateToken(String token,String email) throws Exception;
 	boolean resetPassword(String newPassword,String oldPassword,String email) throws Exception;
 	boolean updatePassword(String newPassword,String email,String token) throws Exception;
+	String updateAbout(String about,String token) throws Exception;
+	String getAbout(String token) throws Exception;
 }

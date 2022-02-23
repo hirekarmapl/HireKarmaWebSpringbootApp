@@ -10,4 +10,5 @@ public interface InternshipService {
 	public InternshipBean findInternshipById(Long internshipId, String token);
 	public List<InternshipBean> deleteInternshipById(Long internshipId, String token);
 	public InternshipBean updateInternshipById(InternshipBean internshipBean, String token);
+	public void activateInternship(String token,Long internshipId,boolean active) throws Exception;
 }

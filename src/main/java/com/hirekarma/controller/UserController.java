@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,6 +80,32 @@ public class UserController {
 		try {
 			boolean ans = userService.updatePassword(map.get("new"),map.get("email"),map.get("token"));
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "password changed successfully", null, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+
+	}
+	
+	@PutMapping("/profile/about")
+	public ResponseEntity<Response> updateAbout(@RequestBody Map<String, String> map,@RequestHeader("Authorization") String token) {
+		try {
+			String about = this.userService.updateAbout(map.get("about"), token);
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", about, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+
+	}
+	
+	@GetMapping("/profile/about")
+	public ResponseEntity<Response> updateAbout(@RequestHeader("Authorization") String token) {
+		try {
+			String about = this.userService.getAbout(token);
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", about, null),
 					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),

@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversitySharedJobList;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.email.service.EmailSenderService;
 import com.hirekarma.exception.StudentUserDefindException;
@@ -50,6 +51,8 @@ import com.hirekarma.model.Experience;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.StudentBatch;
+import com.hirekarma.model.StudentBranch;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
@@ -59,6 +62,8 @@ import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ProjectRepository;
 import com.hirekarma.repository.SkillRespository;
+import com.hirekarma.repository.StudentBatchRepository;
+import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
@@ -117,6 +122,14 @@ public class StudentServiceImpl implements StudentService {
 	
 	@Autowired
 	private EmailSenderService emailSenderService;
+	
+	@Autowired
+	private StudentBatchRepository studentBatchRepository;
+	
+	@Autowired
+	private StudentBranchRepository studentBranchRepository;
+	
+
 
 	public Boolean updateSkills(List<Skill> skills, String token) throws Exception {
 
@@ -364,15 +377,22 @@ public class StudentServiceImpl implements StudentService {
 		return user;
 	}
 	@Override
-	public UserBean updateStudentProfile2(UserBean userBean, String token) throws Exception{
+	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception{
 		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
 		
 		String email = Validation.validateToken(token);
 		Student student = studentRepository.findByStudentEmail(email);
 		UserProfile user  = userRepository.findUserByEmail(email);
+		
+		//checking for token
 		if(student==null) {
 			throw new Exception("Invalid token");
 		}
+		List<Object[]> namesOfBatchBranchUniversity = studentRepository.getBranchNBatchNUniversityIdNUniveristyNameFromIds(userBean.getBatch(), userBean.getBranch(), userBean.getUniversityId());
+		if(namesOfBatchBranchUniversity.size()==0) {
+			throw new Exception("Check your inputs for batch,branch,name");
+		}
+		
 		
 		UserProfile studentReturn = this.userRepository.save(updateUserAttributeByBean(user,userBean));
 	
@@ -402,9 +422,12 @@ public class StudentServiceImpl implements StudentService {
 		}
 		student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 		student = studentRepository.save(student);
-		
-		UserBean studentBeanReturn = new UserBean();
+		UserBeanResponse studentBeanReturn = new UserBeanResponse();
 		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
+		System.out.println(namesOfBatchBranchUniversity.toString());
+		studentBeanReturn.setStudentBatchName((String)namesOfBatchBranchUniversity.get(0)[1]);
+		studentBeanReturn.setStudentBranchName((String)namesOfBatchBranchUniversity.get(0)[3]);
+		studentBeanReturn.setUniversityName((String)namesOfBatchBranchUniversity.get(0)[5]);
 		studentBeanReturn.setBatch(student.getBatch());
 		studentBeanReturn.setBranch(student.getBranch());
 		studentBeanReturn.setCgpa(student.getCgpa());

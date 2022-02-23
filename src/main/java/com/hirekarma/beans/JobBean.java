@@ -62,8 +62,10 @@ public class JobBean {
 	
 	private Integer serviceAgreement;
 	
+	//INPUT
 	private List<Integer> branchIds = new ArrayList<>();
 	
+	//OUPTUT
 	private List<StudentBranch> branchs= new ArrayList<>();
 	
 	private List<Integer> streamIds = new ArrayList<>();

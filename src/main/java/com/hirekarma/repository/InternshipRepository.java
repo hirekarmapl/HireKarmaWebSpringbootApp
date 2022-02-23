@@ -18,4 +18,10 @@ public interface InternshipRepository extends JpaRepository<Internship, Long>{
 
 	@Query(value = "select u from Internship u where u.internshipId = :internshipId and u.corporateId = :corporateId")
 	Optional<Internship> getInternshipDetails(@Param("internshipId")Long internshipId,@Param("corporateId") Long corporateId);
+	
+	@Query("select u from Internship u where u.deleteStatus = FALSE and u.status= TRUE")
+	List<Internship> findInternshipForStudents();
+	
+	@Query("select u from Internship u where u.deleteStatus = FALSE ")
+	List<Internship> findInternshipForAdmin();
 }

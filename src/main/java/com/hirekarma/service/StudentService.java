@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
 import com.hirekarma.model.Skill;
@@ -41,5 +42,5 @@ public interface StudentService {
 	
 //	this is better verison of above function
 	public UserProfile insert2(String email,String password,String name);
-	public UserBean updateStudentProfile2(UserBean userBean, String token) throws Exception;
+	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception;
 }

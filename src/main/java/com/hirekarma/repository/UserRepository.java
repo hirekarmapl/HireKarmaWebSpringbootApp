@@ -14,9 +14,9 @@ public interface UserRepository extends JpaRepository<UserProfile, Long> {
 
 	@Query("select u from UserProfile u where u.email = :email")
 	UserProfile findUserByEmail(@Param("email") String email);
-
-	@Query("select u from UserProfile u where u.userType = 'student' and u.status = 'Active'")
-	List<UserProfile> getAllStudents();
+//	select u.* from user_profile u inner join  tbl_student student on student.user_id = u.user_id where student.university_id = 21 and status='Active';
+	@Query("select u from UserProfile u inner join  Student student on student.userId = u.userId where student.universityId = :universityId and u.status='Active'")
+	List<UserProfile> getAllStudents(@Param("universityId")Long universityId);
 
 	@Query("select u from UserProfile u where u.email = :email and u.userType = :usertype")
 	UserProfile findByEmail(@Param("email") String tokenKey, @Param("usertype") String usertype);

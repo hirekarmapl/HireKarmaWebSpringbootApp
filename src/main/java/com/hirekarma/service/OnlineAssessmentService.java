@@ -18,6 +18,7 @@ public interface OnlineAssessmentService {
 	
 	List<OnlineAssessment> getOnlineAssesmentsAddedByCorporated(String token) throws Exception;
 	
-	OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception;
+	OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception;
 	
+	OnlineAssessment getOnlineAssessmentBySlug(String token,String slug) throws Exception;
 }

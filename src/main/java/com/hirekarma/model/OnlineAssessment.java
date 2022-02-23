@@ -1,5 +1,6 @@
 package com.hirekarma.model;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-public class OnlineAssessment {
+public class OnlineAssessment implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +26,7 @@ public class OnlineAssessment {
 	@ManyToOne
 	Corporate corporate;
 	String title;
-	String totalMarks;
+	int totalMarks;
 	int codingMarks;
 	int qnaMarks;
 	int mcqMarks;
@@ -36,8 +37,8 @@ public class OnlineAssessment {
 	Timestamp scheduledAt;
 	
 	@ManyToMany
-	 @JsonBackReference
-	List<QuestionANdanswer> questionANdanswers;
+	@JsonIgnore
+	public List<QuestionANdanswer> questionANdanswers;
 	
 	public List<QuestionANdanswer> getQuestionANdanswers() {
 		return questionANdanswers;
@@ -64,10 +65,10 @@ public class OnlineAssessment {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public String getTotalMarks() {
+	public int getTotalMarks() {
 		return totalMarks;
 	}
-	public void setTotalMarks(String totalMarks) {
+	public void setTotalMarks(int totalMarks) {
 		this.totalMarks = totalMarks;
 	}
 	public int getCodingMarks() {

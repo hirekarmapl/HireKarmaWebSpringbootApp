@@ -156,6 +156,7 @@ public class UserProfile implements Serializable {
 
 
 
+
 	@Override
 	public String toString() {
 		return "UserProfile [userId=" + userId + ", name=" + name + ", email=" + email + ", universityEmailAddress="
@@ -163,7 +164,8 @@ public class UserProfile implements Serializable {
 				+ userType + ", password=" + password + ", address=" + address + ", createdOn=" + createdOn
 				+ ", updatedOn=" + updatedOn + ", status=" + status + ", shareJobId=" + shareJobId + ", response="
 				+ response + ", authProvider=" + authProvider + ", skills=" + skills + ", projects=" + projects
-				+ ", educations=" + educations + ", experiences=" + experiences + "]";
+				+ ", educations=" + educations + ", experiences=" + experiences + ", resetPasswordToken="
+				+ resetPasswordToken + "]";
 	}
 
 	public UserProfile() {

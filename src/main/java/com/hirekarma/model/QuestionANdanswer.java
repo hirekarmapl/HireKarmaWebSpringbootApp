@@ -1,4 +1,5 @@
 package com.hirekarma.model;
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -24,7 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="hire_karma_qandatable")
-public class QuestionANdanswer {
+public class QuestionANdanswer implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
@@ -41,10 +42,8 @@ public class QuestionANdanswer {
     @Column(name="UID")
     private String uID;
     @ManyToMany(mappedBy = "questionANdanswers")
-   
-
-	@JsonManagedReference
-    List<OnlineAssessment> onlineAssessments;
+ 
+    public List<OnlineAssessment> onlineAssessments;
 
     public List<OnlineAssessment> getOnlineAssessments() {
 		return onlineAssessments;

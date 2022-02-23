@@ -1,8 +1,13 @@
 package com.hirekarma.beans;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
+
+import com.hirekarma.model.Stream;
+import com.hirekarma.model.StudentBranch;
 
 import lombok.Data;
 import lombok.ToString;
@@ -48,5 +53,20 @@ public class JobBean {
 	private MultipartFile file;
 
 	private String response;
-
+	
+	private String eligibilityCriteria;
+	
+	private String rolesAndResponsibility;
+	
+	private Double salaryAfterProbation;
+	
+	private Integer serviceAgreement;
+	
+	private List<Integer> branchIds = new ArrayList<>();
+	
+	private List<StudentBranch> branchs= new ArrayList<>();
+	
+	private List<Integer> streamIds = new ArrayList<>();
+	
+	private List<Stream> streams= new ArrayList<>();
 }

@@ -574,14 +574,22 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public List<UserBean> getAllStudents() {
+	public List<UserBean> getAllStudents(String token) throws Exception {
+		String email = Validation.validateToken(token);
+		University university = universityRepository.findByEmail(email);
+		if(university==null) {
+			throw new Exception("no university found");
+		}
+		
 		LOGGER.debug("Inside StudentServiceImpl.getAllStudents()");
 		List<UserProfile> students = null;
 		UserBean studentBean = null;
 		List<UserBean> studentBeans = null;
+		System.out.println("universityId:"+university.getUniversityId());
 		try {
 			LOGGER.debug("Inside try block of StudentServiceImpl.getAllStudents()");
-			students = userRepository.getAllStudents();
+			students = userRepository.getAllStudents(university.getUniversityId());
+//			System.out.println(students);
 			if (students != null && students.size() > 0) {
 				studentBeans = new ArrayList<UserBean>();
 				for (UserProfile student : students) {

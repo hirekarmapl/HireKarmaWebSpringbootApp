@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.ProjectResponseBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.model.Project;
 import com.hirekarma.model.Skill;
@@ -25,7 +26,7 @@ import com.hirekarma.service.ProjectService;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/project/")
+@RequestMapping("/hirekarma/")
 public class ProjectController {
 
 	@Autowired
@@ -35,10 +36,10 @@ public class ProjectController {
 	ProjectRepository projectRepository;
 	
 	@PreAuthorize("hasRole('student')")
-	@PostMapping("/addProject")
+	@PostMapping("/project/addProject")
 	public ResponseEntity<Response> addProject(@RequestHeader(value = "Authorization") String token,@RequestBody Project project) {
 		try {
-			Project projectSaved =  this.projectService.addProject(project, token);
+			ProjectResponseBean projectSaved =  this.projectService.addProject(project, token);
 			
 			return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", projectSaved, null),
 					HttpStatus.CREATED);
@@ -50,13 +51,26 @@ public class ProjectController {
 	}
 
 	@PreAuthorize("hasRole('student')")
+	@PostMapping("/project/addProjects")
+	public ResponseEntity<Response> addProjects(@RequestHeader(value = "Authorization") String token,@RequestBody List<Project> projects) {
+		try {
+			 List<ProjectResponseBean> projectResponses =  this.projectService.addprojects(projects, token);
+			
+			return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", projectResponses,null ),
+					HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	@PreAuthorize("hasRole('student')")
 	@GetMapping("/dummy")
 	public Project getdummy() {
 		return new Project();
 	}
 
 	@PreAuthorize("hasRole('student')")
-	@GetMapping("/")
+	@GetMapping("/projects")
 	public ResponseEntity<?> getProjects() {
 		try {
 			List<Project> projects = this.projectRepository.findAll();
@@ -69,7 +83,7 @@ public class ProjectController {
 	}
 
 	@PreAuthorize("hasRole('student')")
-	@GetMapping("/{id}")
+	@GetMapping("/project/{id}")
 	public ResponseEntity<Response> getProjectById(@PathVariable("id") int projectId) {
 		try {
 
@@ -88,12 +102,12 @@ public class ProjectController {
 	}
 	
 	@PreAuthorize("hasRole('student')")
-	@GetMapping("/user/")
-	public ResponseEntity<Response> getProjectsOfSpecificUser(@RequestHeader(value = "Authorization") String token,@PathVariable("id") int projectId) {
+	@GetMapping("/user/project")
+	public ResponseEntity<Response> getProjectsOfSpecificUser(@RequestHeader(value = "Authorization") String token) {
 		try {
-			List<Project> projects = this.projectService.getProjects( token);		
+			List<ProjectResponseBean> projects = this.projectService.getProjects( token);		
 
-			return new ResponseEntity<Response>(new Response("success", 200, "", projects, null), HttpStatus.OK);
+			return new ResponseEntity<Response>(new Response("success", 200, "", null, projects), HttpStatus.OK);
 
 		} catch (Exception e) {
 
@@ -105,7 +119,7 @@ public class ProjectController {
 	
 
 	@PreAuthorize("hasRole('student')")
-	@DeleteMapping("/user/{id}")
+	@DeleteMapping("/user/project/{id}")
 	public ResponseEntity<Response> deleteProjectById(@RequestHeader(value = "Authorization") String token,@PathVariable("id") int projectId) {
 		try {
 			this.projectService.deleteById(projectId, token);

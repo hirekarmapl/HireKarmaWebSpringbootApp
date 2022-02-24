@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.JobBean;
+import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.exception.JobException;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
@@ -26,6 +27,7 @@ import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.service.JobService;
+import com.hirekarma.utilty.Validation;
 
 @Service("jobService")
 public class JobServiceImpl implements JobService {
@@ -43,6 +45,75 @@ public class JobServiceImpl implements JobService {
 
 	@Autowired
 	private StreamRepository streamRepository;
+	
+	public JobResponseBean saveJob(JobBean jobBean,String token) throws Exception {
+		Job jobSaved = new Job();
+		JobResponseBean jobResponseBean = new JobResponseBean();
+		byte[]  image = null;
+		LOGGER.debug("Inside insertJob()");
+		String email = Validation.validateToken(token);
+		
+		//finding corporate
+		Corporate corporate = corporateRepository.findByEmail(email);
+		if(corporate==null) {
+			throw new Exception("corporate not found");
+		}
+		
+		//adding branch to job and getting name of all branch
+		List<String> branchNamesAdded =  new ArrayList<>();
+		jobBean.setBranchNames(new ArrayList<>());
+		List<StudentBranch> branchesToBeAddToJob = new ArrayList<>();
+		for(Integer j :jobBean.getBranchIds()) {
+			StudentBranch studentBranch = studentBranchRepository.getById((long)j);
+			if(studentBranch==null) {
+				throw new Exception("incorrect branch id");
+			}
+			
+			jobBean.getBranchNames().add(studentBranch.getBranchName());
+			System.out.println(studentBranch);
+			jobBean.getBranchs().add(studentBranch);
+			
+		}
+		
+		
+		
+//		add stream to job
+		List<String> streamNames =  new ArrayList<>();
+		jobBean.setStreamName(new ArrayList<>());
+		List<Stream> streamsTobeAddedToJob = new ArrayList<>();
+		for(Integer j:jobBean.getStreamIds()) {
+			Stream stream = streamRepository.getById(j);
+			if(stream==null) {
+				throw new Exception("inccorect stream id");
+			}
+			jobBean.getStreamName().add(stream.getName());
+			jobBean.getStreams().add(stream);
+		}
+		
+		if(jobBean.getFile()!=null) {
+			image = jobBean.getFile().getBytes();
+		}
+		
+		
+		jobBean.setDescriptionFile(image);
+		jobBean.setDeleteStatus(false);
+		jobBean.setCorporateId(corporate.getCorporateId());
+		
+		//for admin set status true otherwise set false
+		if (corporate.getCorporateBadge() != null && corporate.getCorporateBadge() == 3) {
+			jobBean.setStatus(true);
+		} else {
+			jobBean.setStatus(false);
+		}
+		
+		BeanUtils.copyProperties(jobBean, jobSaved);
+		jobSaved = jobRepository.save(jobSaved);
+		BeanUtils.copyProperties(jobBean, jobResponseBean);
+		
+		return jobResponseBean;
+		
+		
+	}
 	@Override
 	public JobBean insert(JobBean jobBean, String token) {
 		LOGGER.debug("Inside JobServiceImpl.insert()");
@@ -90,6 +161,7 @@ public class JobServiceImpl implements JobService {
 				}
 				jobBean.getStreams().add(stream);
 			}
+			
 			System.out.println("streamsss"+jobBean.getStreams());
 //			if cooperate found then
 			if (corporate != null) {
@@ -365,6 +437,28 @@ public class JobServiceImpl implements JobService {
 			LOGGER.error("Error occured in JobServiceImpl.updateJobById(-): " + e);
 			throw new JobException(e.getMessage());
 		}
+	}
+	@Override
+	public List<JobResponseBean> getAllJobsForAdmin() throws Exception {
+		List<Job> jobs = this.jobRepository.getAllJobsForAdmin();
+		List<JobResponseBean> jobResponseBeans = new ArrayList<>();
+		for(Job j: jobs) {
+			JobResponseBean jobResponseBean = new JobResponseBean();
+			BeanUtils.copyProperties(j, jobResponseBean);
+			jobResponseBeans.add(jobResponseBean);
+		}
+		return jobResponseBeans;
+	}
+	@Override
+	public List<JobResponseBean> getAllJobsForStudent() throws Exception {
+		List<Job> jobs = this.jobRepository.getAllJobsForStudents();
+		List<JobResponseBean> jobResponseBeans = new ArrayList<>();
+		for(Job j: jobs) {
+			JobResponseBean jobResponseBean = new JobResponseBean();
+			BeanUtils.copyProperties(j, jobResponseBean);
+			jobResponseBeans.add(jobResponseBean);
+		}
+		return jobResponseBeans;
 	}
 
 }

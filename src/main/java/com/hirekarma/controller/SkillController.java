@@ -30,7 +30,7 @@ import ch.qos.logback.core.joran.util.beans.BeanUtil;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/hirekarma/skill/")
+@RequestMapping("/hirekarma/skill")
 public class SkillController {
 
 	@Autowired
@@ -74,7 +74,7 @@ public class SkillController {
 	}
 
 	@PreAuthorize("hasRole('student')")
-	@GetMapping("/")
+	@GetMapping("")
 	public ResponseEntity<?> getSkills() {
 		try {
 			List<Skill> skills = skillRespository.findAll();

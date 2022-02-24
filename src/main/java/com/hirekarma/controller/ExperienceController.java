@@ -65,7 +65,7 @@ public class ExperienceController {
 	}
 	
 	@PreAuthorize("hasRole('student')")
-	@GetMapping("/{id}")
+	@GetMapping("/experience/{id}")
 	public ResponseEntity<Response> getExperience(@PathVariable("id") int experienceId) {
 		try {
 
@@ -84,7 +84,7 @@ public class ExperienceController {
 	}
 	
 	@PreAuthorize("hasRole('student')")
-	@GetMapping("/user/{id}")
+	@GetMapping("/experience/user/{id}")
 	public ResponseEntity<Response> getExperienceById(@RequestHeader(value = "Authorization") String token,@PathVariable("id") int experienceId) {
 		try {
 			Experience experience = this.experienceService.getExperienceById(experienceId,token);		
@@ -99,7 +99,7 @@ public class ExperienceController {
 	}
 	
 	@PreAuthorize("hasRole('student')")
-	@DeleteMapping("/user/{id}")
+	@DeleteMapping("/experience/user/{id}")
 	public ResponseEntity<Response> deleteExperienceById(@RequestHeader(value = "Authorization") String token,@PathVariable("id") int experienceId) {
 		try {
 			this.experienceService.deleteById(experienceId, token);
@@ -112,7 +112,7 @@ public class ExperienceController {
 	}
 	
 	@PreAuthorize("hasRole('student')")
-	@GetMapping("/user/")
+	@GetMapping("/experience/user")
 	public ResponseEntity<Response> getExperienceUsingToken(@RequestHeader(value = "Authorization") String token) {
 		try {
 

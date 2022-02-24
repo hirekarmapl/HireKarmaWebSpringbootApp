@@ -83,6 +83,17 @@ public class UserProfile implements Serializable {
 
 	@Column(name = "STATUS")
 	private String status;
+	
+
+	public String about;
+
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
 
 	@Column(name = "share_job_id")
 	private Long shareJobId;
@@ -99,7 +110,6 @@ public class UserProfile implements Serializable {
 	
 
 	@OneToMany(mappedBy = "userProfile")
-
 	@JsonIgnore
 	List<Project> projects = new ArrayList<Project>();
 	
@@ -156,17 +166,7 @@ public class UserProfile implements Serializable {
 
 
 
-
-	@Override
-	public String toString() {
-		return "UserProfile [userId=" + userId + ", name=" + name + ", email=" + email + ", universityEmailAddress="
-				+ universityEmailAddress + ", phoneNo=" + phoneNo + ", image=" + Arrays.toString(image) + ", userType="
-				+ userType + ", password=" + password + ", address=" + address + ", createdOn=" + createdOn
-				+ ", updatedOn=" + updatedOn + ", status=" + status + ", shareJobId=" + shareJobId + ", response="
-				+ response + ", authProvider=" + authProvider + ", skills=" + skills + ", projects=" + projects
-				+ ", educations=" + educations + ", experiences=" + experiences + ", resetPasswordToken="
-				+ resetPasswordToken + "]";
-	}
+	
 
 	public UserProfile() {
 		super();

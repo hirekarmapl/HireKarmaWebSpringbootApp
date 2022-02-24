@@ -50,4 +50,7 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 	
 	Student findByStudentEmail(String studentEmail);
 	
+	@Query("select sbh.id,sbh.batchName,sbr.id,sbr.branchName,u.universityId,u.universityName from StudentBatch sbh,StudentBranch sbr,University u where sbh.id = :batchId and sbr.id = :branchId and u.universityId = :universityId")
+	List<Object[]> getBranchNBatchNUniversityIdNUniveristyNameFromIds(@Param("batchId")Long batchId,@Param("branchId")Long branchId,@Param("universityId") Long universityId);
+	
 }

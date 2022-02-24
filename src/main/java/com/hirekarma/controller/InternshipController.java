@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.InternshipBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.model.Internship;
+import com.hirekarma.repository.InternshipRepository;
 import com.hirekarma.service.InternshipService;
 
 @RestController("internshipController")
@@ -32,6 +34,9 @@ public class InternshipController {
 	
 	@Autowired
 	private InternshipService internshipService;
+	
+	@Autowired
+	private InternshipRepository internshipRepository;
 	
 	@PostMapping("/saveInternshipUrl")
 	@PreAuthorize("hasRole('corporate')")
@@ -186,6 +191,45 @@ public class InternshipController {
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
 		return responseEntity;
+	}
+	
+	@GetMapping("/student/internships")
+	@PreAuthorize("hasRole('student')")
+	public ResponseEntity<Response> getAllInternshipForStudent(@RequestHeader("Authorization")String token){
+		try {
+			List<Internship> internships = this.internshipRepository.findInternshipForStudents();
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", internships, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/admin/internships")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<Response> getAllInternshipForAdmin(@RequestHeader("Authorization")String token){
+		try {
+			List<Internship> internships = this.internshipRepository.findInternshipForAdmin();
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", internships, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PutMapping("/admin/internship")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<Response> activateInternship(@RequestHeader("Authorization")String token,@RequestParam(name = "id") Long internshipId,@RequestParam(name="active")boolean active){
+		try {
+			this.internshipService.activateInternship(token, internshipId,active);
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", null, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
 	}
 	
 }

@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.JobBean;
+import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.model.Internship;
+import com.hirekarma.model.Job;
 import com.hirekarma.service.JobService;
 
 @RestController("jobController")
@@ -43,12 +46,12 @@ public class JobController {
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> saveJobDetails(@ModelAttribute JobBean jobBean,@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside JobController.saveJobDetails(-)");
-		JobBean bean=null;
+		JobResponseBean bean=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of JobController.saveJobDetails(-)");
-			bean=jobService.insert(jobBean,token);
+			bean=jobService.saveJob(jobBean,token);
 			LOGGER.info("Data successfully saved using JobController.saveJobDetails(-)");
 			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
 
@@ -105,6 +108,31 @@ public class JobController {
 		return responseEntity;
 	}
 	
+	@GetMapping("/admin/jobs")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<Response> getAllJobsForAdmin(){
+		try {
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.jobService.getAllJobsForAdmin(), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/student/jobs")
+	@PreAuthorize("hasRole('student')")
+	public ResponseEntity<Response> getAllJobsForStudents(){
+		try {
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.jobService.getAllJobsForStudent(), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 	/*
 	 * This findJobsByCorporateId() method used find out
@@ -224,5 +252,7 @@ public class JobController {
 		}
 		return responseEntity;
 	}
+	
+	
 	
 }

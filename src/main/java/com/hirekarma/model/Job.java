@@ -85,10 +85,29 @@ public class Job implements Serializable{
 	
 	private String rolesAndResponsibility;
 	
-	private Double salaryAfterProbation;
+	private Double salaryAtProbation;
 	
 	private Integer serviceAgreement;
 	
+	private boolean forcampusDrive;
+	
+	
+	public Double getSalaryAtProbation() {
+		return salaryAtProbation;
+	}
+
+	public void setSalaryAtProbation(Double salaryAtProbation) {
+		this.salaryAtProbation = salaryAtProbation;
+	}
+
+	public boolean isForcampusDrive() {
+		return forcampusDrive;
+	}
+
+	public void setForcampusDrive(boolean isForcampusDrive) {
+		this.forcampusDrive = isForcampusDrive;
+	}
+
 	@ManyToMany
 	private List<Stream> streams = new ArrayList<Stream>();
 	
@@ -121,11 +140,11 @@ public class Job implements Serializable{
 	}
 
 	public Double getSalaryAfterProbation() {
-		return salaryAfterProbation;
+		return salaryAtProbation;
 	}
 
 	public void setSalaryAfterProbation(Double salaryAfterProbation) {
-		this.salaryAfterProbation = salaryAfterProbation;
+		this.salaryAtProbation = salaryAfterProbation;
 	}
 
 	public Integer getServiceAgreement() {
@@ -146,7 +165,7 @@ public class Job implements Serializable{
 				+ city + ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description="
 				+ description + ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status
 				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn
-				+ ", eligibilityCriteria=" + eligibilityCriteria + ", salaryAfterProbation=" + salaryAfterProbation
+				+ ", eligibilityCriteria=" + eligibilityCriteria + ", salaryAfterProbation=" + salaryAtProbation
 				+ ", serviceAgreement=" + serviceAgreement +  ", branchs=" + branchs + "]";
 	}
 

@@ -1,7 +1,6 @@
 package com.hirekarma.beans;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +13,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class JobBean {
+public class JobResponseBean {
 
 	private Long jobId;
 
@@ -41,18 +40,6 @@ public class JobBean {
 	private String description;
 
 	private byte[] descriptionFile;
-
-	private Boolean status;
-
-	private Boolean deleteStatus;
-
-	private Timestamp createdOn;
-
-	private Timestamp updatedOn;
-
-	private MultipartFile file;
-
-	private String response;
 	
 	private String eligibilityCriteria;
 	
@@ -62,19 +49,9 @@ public class JobBean {
 	
 	private Integer serviceAgreement;
 	
-	//INPUT
-	private List<Integer> branchIds = new ArrayList<>();
-	
-	//OUPTUT
-	private List<StudentBranch> branchs= new ArrayList<>();
-	
-	private List<Integer> streamIds = new ArrayList<>();
-	
-	private List<Stream> streams= new ArrayList<>();
-	
-	private boolean forcampusDrive;
-	
-private List<String> branchNames;
+	private List<String> branchNames;
 	
 	private List<String> streamName;
+	
+	private boolean forcampusDrive;
 }

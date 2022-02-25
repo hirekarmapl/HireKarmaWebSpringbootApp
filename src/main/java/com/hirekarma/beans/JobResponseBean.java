@@ -1,7 +1,9 @@
 package com.hirekarma.beans;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,9 +51,8 @@ public class JobResponseBean {
 	
 	private Integer serviceAgreement;
 	
-	private List<String> branchNames;
+	private List<Stream> streams= new ArrayList<>();
+	private List<StudentBranch> branchs= new ArrayList<>();
 	
-	private List<String> streamName;
-	
-	private boolean forcampusDrive;
+	private Boolean forcampusDrive;
 }

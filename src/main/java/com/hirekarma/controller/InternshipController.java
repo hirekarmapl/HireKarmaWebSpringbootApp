@@ -232,4 +232,17 @@ public class InternshipController {
 		}
 	}
 	
+	@GetMapping("/admin/internship/unactiveInternship")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<Response> findInternshipForAdminForActivation(){
+		try {
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.internshipRepository.findInternshipForAdminForActivation(), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 }

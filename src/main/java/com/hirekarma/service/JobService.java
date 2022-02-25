@@ -19,4 +19,8 @@ public interface JobService {
 	public JobResponseBean saveJob(JobBean jobBean,String token) throws Exception;
 	public List<JobResponseBean> getAllJobsForAdmin() throws Exception;
 	public List<JobResponseBean> getAllJobsForStudent() throws Exception;
+	public List<JobResponseBean> getAllJobsAccordingToToken(String token) throws Exception;
+	
+//	updateversion
+	public Job updateJobById2(JobBean jobBean, String token) throws Exception;
 }

@@ -42,6 +42,7 @@ import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.UniversityService;
+import com.hirekarma.utilty.Validation;
 
 @Service("universityServiceImpl")
 public class UniversityServiceImpl implements UniversityService {
@@ -133,7 +134,7 @@ public class UniversityServiceImpl implements UniversityService {
 		universityJobShareToStudentBean.setUniversityId(adminShareJobToUniversity.getUniversityId());
 		System.out.println("JobId:"+universityJobShareToStudentBean.getJobId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
-		UserProfile userProfile = null;
+	
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();
 		Long count = 0L;
 
@@ -165,21 +166,10 @@ public class UniversityServiceImpl implements UniversityService {
 			if (jobId != 0) {
 
 				if (studentIdList.size() != 0) {
-					String[] chunks1 = universityJobShareToStudentBean.getToken().split(" ");
-					String[] chunks = chunks1[1].split("\\.");
-					Base64.Decoder decoder = Base64.getUrlDecoder();
-
-					String payload = new String(decoder.decode(chunks[1]));
-					JSONParser jsonParser = new JSONParser();
-					Object obj = jsonParser.parse(payload);
-
-					JSONObject jsonObject = (JSONObject) obj;
-
-					String email = (String) jsonObject.get("sub");
-
-					userProfile = userRepository.findByEmail(email, "university");
-
-					if (userProfile != null) {
+					
+					String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
+					University university = universityRepository.findByEmail(email);
+					if (university != null) {
 
 						if (universityJobShareToStudentBean != null) {
 
@@ -187,7 +177,7 @@ public class UniversityServiceImpl implements UniversityService {
 								count++;
 								universityJobShareToStudent = new UniversityJobShareToStudent();
 								universityJobShareToStudent.setJobId(universityJobShareToStudentBean.getJobId());
-								universityJobShareToStudent.setUniversityId(userProfile.getUserId());
+								universityJobShareToStudent.setUniversityId(university.getUniversityId());
 								universityJobShareToStudent.setJobStatus(true);
 								universityJobShareToStudent.setStudentId(studentIdList.get(i));
 								universityJobShareToStudent.setCreatedBy("Biswa");

@@ -19,8 +19,6 @@ public class Stream {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	int id;
 	String name;
-	@OneToMany(mappedBy = "stream")
-	List<StudentBranch> branchs= new ArrayList<StudentBranch>();
 	
 	@ManyToMany(mappedBy = "streams")
 	@JsonIgnore
@@ -45,15 +43,10 @@ public class Stream {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public List<StudentBranch> getBranchs() {
-		return branchs;
-	}
-	public void setBranchs(List<StudentBranch> branchs) {
-		this.branchs = branchs;
-	}
+	
 
 	@Override
 	public String toString() {
-		return "Stream [id=" + id + ", name=" + name + ", branchs=" + branchs + "]";
+		return "Stream [id=" + id + ", name=" + name + "]";
 	}
 }

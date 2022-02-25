@@ -1,11 +1,15 @@
 package com.hirekarma.serviceimpl;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.hibernate.internal.build.AllowSysOut;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -22,10 +26,12 @@ import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Stream;
 import com.hirekarma.model.StudentBranch;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBranchRepository;
+import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.JobService;
 import com.hirekarma.utilty.Validation;
 
@@ -46,6 +52,10 @@ public class JobServiceImpl implements JobService {
 	@Autowired
 	private StreamRepository streamRepository;
 	
+	@Autowired
+	private UserRepository userRepository;
+	
+	//save job
 	public JobResponseBean saveJob(JobBean jobBean,String token) throws Exception {
 		Job jobSaved = new Job();
 		JobResponseBean jobResponseBean = new JobResponseBean();
@@ -60,35 +70,36 @@ public class JobServiceImpl implements JobService {
 		}
 		
 		//adding branch to job and getting name of all branch
-		List<String> branchNamesAdded =  new ArrayList<>();
-		jobBean.setBranchNames(new ArrayList<>());
-		List<StudentBranch> branchesToBeAddToJob = new ArrayList<>();
+		Map<Long,String> branchOutput = new HashMap<>();
+		jobBean.setBranchs(new ArrayList<>());
 		for(Integer j :jobBean.getBranchIds()) {
-			StudentBranch studentBranch = studentBranchRepository.getById((long)j);
-			if(studentBranch==null) {
+			Optional<StudentBranch> studentBranch = studentBranchRepository.findById((long)j);
+			if(studentBranch.isEmpty()) {
 				throw new Exception("incorrect branch id");
 			}
 			
-			jobBean.getBranchNames().add(studentBranch.getBranchName());
-			System.out.println(studentBranch);
-			jobBean.getBranchs().add(studentBranch);
+			jobBean.getBranchs().add(studentBranch.get());
+			
 			
 		}
+		LOGGER.info("succesfully fetched all branch");
 		
 		
 		
 //		add stream to job
-		List<String> streamNames =  new ArrayList<>();
-		jobBean.setStreamName(new ArrayList<>());
 		List<Stream> streamsTobeAddedToJob = new ArrayList<>();
+		jobBean.setStreams(new ArrayList<>());
 		for(Integer j:jobBean.getStreamIds()) {
-			Stream stream = streamRepository.getById(j);
-			if(stream==null) {
+			Optional<Stream> stream = streamRepository.findById(j);
+			if(stream.isEmpty()) {
 				throw new Exception("inccorect stream id");
 			}
-			jobBean.getStreamName().add(stream.getName());
-			jobBean.getStreams().add(stream);
+			
+//			System.out.println(stream);
+			jobBean.getStreams().add(stream.get());
 		}
+	
+		LOGGER.info("succesfully fetched all stream");
 		
 		if(jobBean.getFile()!=null) {
 			image = jobBean.getFile().getBytes();
@@ -108,11 +119,36 @@ public class JobServiceImpl implements JobService {
 		
 		BeanUtils.copyProperties(jobBean, jobSaved);
 		jobSaved = jobRepository.save(jobSaved);
+		jobBean.setJobId(jobSaved.getJobId());
 		BeanUtils.copyProperties(jobBean, jobResponseBean);
 		
 		return jobResponseBean;
 		
 		
+	}
+	
+//	get all job according to token
+	
+	@Override
+	public List<JobResponseBean> getAllJobsAccordingToToken(String token) throws Exception {
+		String email  = Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		System.out.println(userProfile.getUserType());
+		System.out.println(userProfile.getUserType()=="corporate");
+		System.out.println(userProfile.getUserType().equals("corporate"));
+		if(userProfile.getUserType().equals("admin")) {
+			return getAllJobsForAdmin();
+		}
+		else if(userProfile.getUserType().equals("student")) {
+			return getAllJobsForStudent();
+		}
+		else if(userProfile.getUserType().equals("corporate")) {
+			System.out.print("insidde corporate");
+			Corporate corporate = corporateRepository.findByUserProfile(userProfile.getUserId());
+			return getAllJobsForCorporate(corporate.getCorporateId());
+		}
+		
+		throw new Exception("not a valid user");
 	}
 	@Override
 	public JobBean insert(JobBean jobBean, String token) {
@@ -360,7 +396,76 @@ public class JobServiceImpl implements JobService {
 			throw new JobException(e.getMessage());
 		}
 	}
+@Override
 
+	public Job updateJobById2(JobBean jobBean, String token) throws Exception{
+		String email = Validation.validateToken(token);
+		Corporate corporate = corporateRepository.findByEmail(email);
+		Job job = jobRepository.findByJobId(jobBean.getJobId());
+		if(job==null || job.getCorporateId()!=corporate.getCorporateId()|| job.getDeleteStatus()) {
+			throw new Exception("unauthorized");
+		}
+		job = copyPropertiesFromBeanToJobForNotNull(job,jobBean);
+		return this.jobRepository.save(job);
+
+	}
+	Job copyPropertiesFromBeanToJobForNotNull(Job job,JobBean jobBean) throws Exception {
+		if(jobBean.getJobTitle()!=null) {
+			job.setJobTitle(jobBean.getJobTitle());
+		}
+		if(jobBean.getWfhCheckbox()!=null) {
+			job.setWfhCheckbox(jobBean.getWfhCheckbox());
+		}
+		if(jobBean.getCity()!=null) {
+			job.setCity(jobBean.getCity());
+		}
+		if(jobBean.getOpenings()!=null) {
+			job.setOpenings(jobBean.getOpenings());
+		}
+		if(jobBean.getSalary()!=null) {
+			job.setSalary(jobBean.getSalary());
+		}
+		if(jobBean.getAbout()!=null) {
+			job.setAbout(jobBean.getAbout());
+		}
+		if(jobBean.getDescription()!=null) {
+			job.setDescription(jobBean.getDescription());
+		}
+		if(jobBean.getFile()!=null && !jobBean.getFile().isEmpty()) {
+			job.setDescriptionFile(jobBean.getFile().getBytes());
+		}
+		if(jobBean.getEligibilityCriteria()!=null) {
+			job.setEligibilityCriteria(jobBean.getEligibilityCriteria());
+		}
+		if(jobBean.getRolesAndResponsibility()!=null) {
+			job.setRolesAndResponsibility(jobBean.getRolesAndResponsibility());
+		}
+		if(jobBean.getSalary()!=null) {
+			job.setSalary(jobBean.getSalary());
+		}
+		if(jobBean.getSalaryAtProbation()!=null) {
+			job.setSalaryAtProbation(jobBean.getSalaryAtProbation());;
+		}
+		if(jobBean.getServiceAgreement()!=null) {
+			job.setServiceAgreement(jobBean.getServiceAgreement());
+		}
+		if(jobBean.getForcampusDrive()!=null) {
+			job.setForcampusDrive(jobBean.getForcampusDrive());
+		}
+		if(jobBean.getBranchIds()!=null && jobBean.getBranchIds().size()>0) {
+			job.setBranchs(getAllBranchFromtheirIds(jobBean.getBranchIds()));
+		}
+		if(jobBean.getStreamIds()!=null && jobBean.getStreamIds().size()>0) {
+			job.setStreams(getAllStreamsFromtheirIds(jobBean.getStreamIds()));
+		}
+		LOGGER.info("succesfully fetched all branch");
+		
+		
+		
+//		
+		job.setStatus(false);
+		return job;
+	}
 	@Override
 	public JobBean updateJobById(JobBean jobBean, String token) throws ParseException {
 
@@ -460,5 +565,49 @@ public class JobServiceImpl implements JobService {
 		}
 		return jobResponseBeans;
 	}
+	
+	
+
+	public List<JobResponseBean> getAllJobsForCorporate(Long corporateId) throws Exception {
+		List<Job> jobs = this.jobRepository.findJobsByUserId(corporateId,false);
+		List<JobResponseBean> jobResponseBeans = new ArrayList<>();
+		for(Job j: jobs) {
+			JobResponseBean jobResponseBean = new JobResponseBean();
+			BeanUtils.copyProperties(j, jobResponseBean);
+			jobResponseBeans.add(jobResponseBean);
+		}
+		return jobResponseBeans;
+	}
+	
+	public List<StudentBranch> getAllBranchFromtheirIds(List<Integer> branchIds) throws Exception{
+		List<StudentBranch> branches = new ArrayList<>();
+		for(Integer j :branchIds) {
+			Optional<StudentBranch> studentBranch = studentBranchRepository.findById((long)j);
+			if(studentBranch.isEmpty()) {
+				throw new Exception("incorrect branch id");
+			}
+			
+			branches.add(studentBranch.get());
+			
+			
+		}
+		return branches;
+	}
+	public List<Stream> getAllStreamsFromtheirIds(List<Integer> streamIds) throws Exception{
+		List<Stream> streams = new ArrayList<>();
+		for(Integer j :streamIds) {
+			Optional<Stream> stream = streamRepository.findById(j);
+			if(stream.isEmpty()) {
+				throw new Exception("incorrect branch id");
+			}
+			
+			streams.add(stream.get());
+			
+			
+		}
+		return streams;
+	}
+	
+	
 
 }

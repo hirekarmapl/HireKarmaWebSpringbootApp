@@ -15,7 +15,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -108,14 +110,14 @@ public class UserProfile implements Serializable {
 	@ManyToMany
 	private List<Skill> skills = new ArrayList<Skill>();
 	
-
+	
 	@OneToMany(mappedBy = "userProfile")
 	@JsonIgnore
 	List<Project> projects = new ArrayList<Project>();
 	
 	@OneToMany(mappedBy = "userProfile")
 	@JsonIgnore
-	List<Education> educations = new ArrayList<Education>();
+	List<Education> educations;
 	
 	
 	@OneToMany(mappedBy = "userProfile")
@@ -127,6 +129,7 @@ public class UserProfile implements Serializable {
 	public String getResetPasswordToken() {
 		return resetPasswordToken;
 	}
+
 
 	public void setResetPasswordToken(String resetPasswordToken) {
 		this.resetPasswordToken = resetPasswordToken;
@@ -173,28 +176,7 @@ public class UserProfile implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public UserProfile(Long userId, String name,
-			@Email(message = "Email is not valid", regexp = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])") String email,
-			String universityEmailAddress, String phoneNo, byte[] image, String userType, String password,
-			String address, Timestamp createdOn, Timestamp updatedOn, String status, Long shareJobId, String response,
-			AuthenticationProvider authProvider) {
-		super();
-		this.userId = userId;
-		this.name = name;
-		this.email = email;
-		this.universityEmailAddress = universityEmailAddress;
-		this.phoneNo = phoneNo;
-		this.image = image;
-		this.userType = userType;
-		this.password = password;
-		this.address = address;
-		this.createdOn = createdOn;
-		this.updatedOn = updatedOn;
-		this.status = status;
-		this.shareJobId = shareJobId;
-		this.response = response;
-		this.authProvider = authProvider;
-	}
+	
 
 	public Long getUserId() {
 		return userId;

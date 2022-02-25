@@ -331,7 +331,7 @@ public class StudentServiceImpl implements StudentService {
 				stud.setUserId(studentReturn.getUserId());
 				stud.setStudentEmail(LowerCaseEmail);
 				stud.setStudentName(studentReturn.getName());
-
+				
 				studentRepository.save(stud);
 
 				headers = new HttpHeaders();
@@ -355,6 +355,55 @@ public class StudentServiceImpl implements StudentService {
 		}
 	}
 	
+	public UserProfile createStudentIntoDatabaseFromExcel(UserProfile student,Long universityId) {
+
+		LOGGER.debug("Inside StudentServiceImpl.insert(-)");
+
+		UserProfile studentReturn = null;
+		HttpHeaders headers = null;
+		Map<String, String> body = null;
+		Student stud = new Student();
+
+		String LowerCaseEmail = student.getEmail().toLowerCase();
+		Long count = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
+
+		try {
+			LOGGER.debug("Inside try block of StudentServiceImpl.insert(-)");
+			if (count == 0) {
+
+				student.setStatus("Active");
+				student.setUserType("student");
+				student.setEmail(LowerCaseEmail);
+				student.setPassword(passwordEncoder.encode(student.getPassword()));
+
+				studentReturn = userRepository.save(student);
+
+				stud.setUserId(studentReturn.getUserId());
+				stud.setStudentEmail(LowerCaseEmail);
+				stud.setStudentName(studentReturn.getName());
+				stud.setUniversityId(universityId);
+				studentRepository.save(stud);
+
+				headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+
+				body = new HashMap<String, String>();
+				body.put("email", student.getEmail());
+				body.put("name", studentReturn.getName());
+				body.put("type", "student");
+				emailController.welcomeAndOnBoardEmail(body);
+
+				LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
+			} else {
+				throw new StudentUserDefindException("This Email Is Already Present !!");
+			}
+
+			return studentReturn;
+		} catch (Exception e) {
+			LOGGER.error("Data Insertion failed using StudentServiceImpl.insert(-): " + e);
+			throw new StudentUserDefindException(e.getMessage());
+		}
+	}
 
 	public UserProfile updateUserAttributeByBean(UserProfile user, UserBean userBean) {
 		if(userBean.getName()!=null) {
@@ -390,7 +439,7 @@ public class StudentServiceImpl implements StudentService {
 		}
 		List<Object[]> namesOfBatchBranchUniversity = studentRepository.getBranchNBatchNUniversityIdNUniveristyNameFromIds(userBean.getBatch(), userBean.getBranch(), userBean.getUniversityId());
 		if(namesOfBatchBranchUniversity.size()==0) {
-			throw new Exception("Check your inputs for batch,branch,name");
+			throw new Exception("Check your inputs for batch,branch,name,universityID if not provided please provide them");
 		}
 		
 		
@@ -630,8 +679,10 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public List<UserBean> importStudentDataExcel(MultipartFile file) {
+	public List<UserBean> importStudentDataExcel(MultipartFile file,String token) throws Exception {
 		LOGGER.debug("StudentServiceImpl.importStudentDataExcel(-)");
+		String email = Validation.validateToken(token);
+		University university = universityRepository.findByEmail(email);
 		Path path = null;
 		File tempFile = null;
 		Workbook workbook = null;
@@ -676,7 +727,7 @@ public class StudentServiceImpl implements StudentService {
 				studentProfile.setEmail(student.get("Email"));
 				generatedPassword = generateRandomPassword(passwordLength);
 				studentProfile.setPassword(generatedPassword);
-				studentProfileReturn = insert(studentProfile);
+				studentProfileReturn = createStudentIntoDatabaseFromExcel(studentProfileReturn, university.getUniversityId());
 				studentReturnBean = new UserBean();
 				BeanUtils.copyProperties(studentProfileReturn, studentReturnBean);
 				// this password is not encrypted this is the original random password and
@@ -776,9 +827,9 @@ public class StudentServiceImpl implements StudentService {
 		try {
 			if (studentList.size() == 1) {
 				
-				LOGGER.info("jobRepository.getStudentJobAllDetails {} {}",university.getUserId(),
+				LOGGER.info("jobRepository.getStudentJobAllDetails {} {}",university.getUniversityId(),
 						studentList.get(0).getStudentId());
-				List<Object[]> list = jobRepository.getStudentJobAllDetails(university.getUserId(),
+				List<Object[]> list = jobRepository.getStudentJobAllDetails(university.getUniversityId(),
 						studentList.get(0).getStudentId());
 
 				if (list.size() != 0) {

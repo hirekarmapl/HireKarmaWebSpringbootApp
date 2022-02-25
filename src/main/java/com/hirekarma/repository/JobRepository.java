@@ -37,7 +37,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 	@Query("select j from Job j where j.jobId = :jobId and j.corporateId = :corporateId")
 	Optional<Job> getJobDetails(@Param("jobId") Long jobId, @Param("corporateId") Long corporateId);
 	
-	@Query("select j from Job j where j.status = TRUE and j.deleteStatus = FALSE and j.forcampusDrive=FALSE")
+	@Query("select j from Job j where j.status = TRUE and j.deleteStatus = FALSE and (j.forcampusDrive=FALSE or j.forcampusDrive=NULL)")
 	List<Job> getAllJobsForStudents();
 	
 
@@ -46,6 +46,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 	@Query("select j from Job j where j.deleteStatus = FALSE")
 	List<Job> getAllJobsForAdmin();
 	
-	
+	@Query("select j from Job j where j.deleteStatus = FALSE and j.status=FALSE")
+	List<Job> getAllJobsForAdminForActivation();
 
 }

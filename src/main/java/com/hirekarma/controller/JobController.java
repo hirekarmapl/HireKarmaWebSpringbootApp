@@ -26,6 +26,7 @@ import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Internship;
 import com.hirekarma.model.Job;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.JobRepository;
 import com.hirekarma.service.JobService;
 import com.hirekarma.utilty.Validation;
 
@@ -41,6 +42,9 @@ public class JobController {
 	
 	@Autowired
 	private CorporateRepository corporateRepository;
+	
+	@Autowired
+	private JobRepository jobRepository;
 	
 	/*
 	 * By using saveJobDetails() corporate can
@@ -146,6 +150,19 @@ public class JobController {
 		try {
 			
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.jobService.getAllJobsForStudent(), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/admin/job/unactiveJob")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<Response> getAllJobsForAdminForActivation(){
+		try {
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.jobRepository.getAllJobsForAdminForActivation(), null),
 					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),

@@ -46,6 +46,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 	@Query("select j from Job j where j.deleteStatus = FALSE")
 	List<Job> getAllJobsForAdmin();
 	
-	
+	@Query("select j from Job j where j.deleteStatus = FALSE and j.status=FALSE")
+	List<Job> getAllJobsForAdminForActivation();
 
 }

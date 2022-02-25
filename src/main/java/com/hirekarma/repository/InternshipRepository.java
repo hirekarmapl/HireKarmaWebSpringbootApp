@@ -24,4 +24,7 @@ public interface InternshipRepository extends JpaRepository<Internship, Long>{
 	
 	@Query("select u from Internship u where u.deleteStatus = FALSE ")
 	List<Internship> findInternshipForAdmin();
+	
+	@Query("select u from Internship u where u.deleteStatus = FALSE and u.status=FALSE")
+	List<Internship> findInternshipForAdminForActivation();
 }

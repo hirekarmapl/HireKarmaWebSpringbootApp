@@ -72,9 +72,8 @@ public class JobBean {
 	
 	private List<Stream> streams= new ArrayList<>();
 	
-	private boolean forcampusDrive;
+	private Boolean forcampusDrive;
 	
-private List<String> branchNames;
 	
-	private List<String> streamName;
+	
 }

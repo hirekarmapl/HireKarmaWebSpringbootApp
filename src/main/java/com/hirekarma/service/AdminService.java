@@ -25,4 +25,7 @@ public interface AdminService {
 	AdminShareJobToUniversity requestCorporateToUpdateJD(long adminShareJobId) throws Exception;
 	
 	AdminShareJobToUniversity updateShareJob(JSONObject lookup,long id) throws Exception;
+	
+	//better version of above api
+	public Map<String,Object> shareJob2(AdminShareJobToUniversityBean adminShareJobToUniversityBean) throws Exception;
 }

@@ -89,7 +89,7 @@ public class Job implements Serializable{
 	
 	private Integer serviceAgreement;
 	
-	private boolean forcampusDrive;
+	private Boolean forcampusDrive;
 	
 	
 	public Double getSalaryAtProbation() {
@@ -100,13 +100,17 @@ public class Job implements Serializable{
 		this.salaryAtProbation = salaryAtProbation;
 	}
 
-	public boolean isForcampusDrive() {
+	
+
+	public Boolean getForcampusDrive() {
 		return forcampusDrive;
 	}
 
-	public void setForcampusDrive(boolean isForcampusDrive) {
-		this.forcampusDrive = isForcampusDrive;
+	public void setForcampusDrive(Boolean forcampusDrive) {
+		this.forcampusDrive = forcampusDrive;
 	}
+
+
 
 	@ManyToMany
 	private List<Stream> streams = new ArrayList<Stream>();

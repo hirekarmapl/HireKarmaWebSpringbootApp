@@ -32,9 +32,6 @@ public class StudentBranch {
 	@Column(name = "BRANCH_NAME")
 	private String branchName;
 
-	@ManyToOne
-	@JsonIgnore
-	private Stream stream ;
 	
 	@ManyToMany(mappedBy = "branchs")
 	@JsonIgnore
@@ -59,13 +56,7 @@ public class StudentBranch {
 		this.branchName = branchName;
 	}
 
-	public Stream getStream() {
-		return stream;
-	}
 
-	public void setStream(Stream stream) {
-		this.stream = stream;
-	}
 
 
 

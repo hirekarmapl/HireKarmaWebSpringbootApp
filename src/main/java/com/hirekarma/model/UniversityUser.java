@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
+import javax.persistence.Column;
+
 //@Entity
 //@Table(name="UNIVERSITY_USER")
 public class UniversityUser  implements Serializable {
@@ -19,10 +21,12 @@ public class UniversityUser  implements Serializable {
 //	@Column(name = "UNIVERSITY_NAME")
 	private String universityName;
 	
-//	@Column(name="EMAIL_ADDRESS")
+//	@Column(name="EMAIL_ADDRESS",)
+	@Column(unique=true)
 	private String emailAddress;
 	
 //	@Column(name="UNIVERSITY_EMAIL_ADDRESS")
+	@Column(unique=true)
 	private String universityEmailAddress;
 	
 //	@Column(name="PHONE_NO")

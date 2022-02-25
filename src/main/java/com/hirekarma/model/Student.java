@@ -42,7 +42,7 @@ public class Student implements Serializable{
 	@Column(name = "STUDENT_PHONE_NUMBER")
 	private Long studentPhoneNumber;
 	
-	@Column(name = "STUDENT_EMAIL")
+	@Column(name = "STUDENT_EMAIL",unique=true)
 	private String studentEmail;
 	
 	@Column(name = "UNIVERSITY_ID")

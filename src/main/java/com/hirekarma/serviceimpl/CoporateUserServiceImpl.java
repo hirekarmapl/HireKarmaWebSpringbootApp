@@ -92,6 +92,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				userProfile.setUserType("corporate");
 				userProfile.setStatus("Active");
 				userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
+			
 
 				user = userRepository.save(userProfile);
 
@@ -100,7 +101,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				corporate.setCorporateEmail(LowerCaseEmail);
 				corporate.setCorporateName(user.getName());
 				corporate.setStatus(true);
-
+				corporate.setUserProfile(user.getUserId());
 				corporateRepository.save(corporate);
 				
 				//save Into Organization Table
@@ -214,6 +215,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 					if(university==null) {
 						throw new CoporateUserDefindException("no such university found");
 					}
+//					check this part not working
 					if (driveResponse.getCorporateResponse() && driveResponse.getUniversityAsk()) {
 						List<Object[]> list = studentRepository.findApplyStudentDetails(university.getUserId(),
 								driveResponse.getJobId());
@@ -426,6 +428,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				campusDriveInviteBeans = new ArrayList<CampusDriveInviteBean>();
 				for(CampusDriveResponse campusDriveResponse : campusDriveResponses) {
 					university = campusDriveResponseRepository.getUniversityByUniversityId(campusDriveResponse.getUniversityId());
+					
 					if(university != null) {
 						campusDriveInviteBean = new CampusDriveInviteBean();
 						campusDriveInviteBean.setCampusDriveId(campusDriveResponse.getCampusDriveId());

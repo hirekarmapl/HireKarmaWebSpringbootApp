@@ -22,9 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hirekarma.beans.JobBean;
 import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Internship;
 import com.hirekarma.model.Job;
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.service.JobService;
+import com.hirekarma.utilty.Validation;
 
 @RestController("jobController")
 @CrossOrigin
@@ -36,13 +39,16 @@ public class JobController {
 	@Autowired
 	private JobService jobService;
 	
+	@Autowired
+	private CorporateRepository corporateRepository;
+	
 	/*
 	 * By using saveJobDetails() corporate can
 	 * 
 	 * create a job.
 	 * 
 	 */
-	@PostMapping("/saveJobUrl")
+	@PostMapping("/job")
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> saveJobDetails(@ModelAttribute JobBean jobBean,@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside JobController.saveJobDetails(-)");
@@ -79,16 +85,15 @@ public class JobController {
 	 * 
 	 */
 	
-	@GetMapping("/findJobs")
-	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<?> findJobsByCorporateId(@RequestHeader(value = "Authorization") String token){
+	@GetMapping("/jobs")
+	public ResponseEntity<?> getAllJobsAccordingToToken(@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside JobController.findJobsByCorporateId(-)");
-		List<JobBean> jobBeans=null;
+		List<JobResponseBean> jobBeans=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of JobController.findJobsByCorporateId(-)");
-			jobBeans=jobService.findJobsByUserId(token);
+			jobBeans=jobService.getAllJobsAccordingToToken(token);
 			LOGGER.info("Data successfully saved using JobController.saveJobDetails(-)");
 			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
 
@@ -106,6 +111,20 @@ public class JobController {
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
 		return responseEntity;
+	}
+	
+	@GetMapping("/corporate/campusDrive/jobs")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> findInActiveCampusDriveJobsForCorporate(@RequestHeader("Authorization")String token){
+		try {
+			String email = Validation.validateToken(token);
+			Corporate corporate = corporateRepository.findByEmail(email);
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.corporateRepository.findInActiveCampusDriveJobsForCorporate(corporate.getCorporateId()), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
 	}
 	
 	@GetMapping("/admin/jobs")
@@ -228,19 +247,19 @@ public class JobController {
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> updateJobById(@ModelAttribute JobBean jobBean,@RequestHeader(value = "Authorization") String token){
 		LOGGER.debug("Inside JobController.updateJobById(-)");
-		JobBean bean=null;
+		Job job=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of JobController.updateJobById(-)");
-			bean=jobService.updateJobById(jobBean,token);
+			job=jobService.updateJobById2(jobBean,token);
 			LOGGER.info("Data successfully updated using JobController.updateJobById(-)");
 			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);
 
 			response.setMessage("Job Updated Successfully...");
 			response.setStatus("Success");
 			response.setResponseCode(responseEntity.getStatusCodeValue());
-			response.setData(bean);
+			response.setData(job);
 		}
 		catch (Exception e) {
 			LOGGER.error("Data saving failed in JobController.updateJobById(-): "+e);

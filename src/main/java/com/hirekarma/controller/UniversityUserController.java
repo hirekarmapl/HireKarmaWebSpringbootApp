@@ -323,11 +323,11 @@ public class UniversityUserController {
 	// upload student details as excel
 	@PostMapping("/importStudentDataExcel")
 	@PreAuthorize("hasRole('university')")
-	public ResponseEntity<List<UserBean>> importStudentDataExcel(@RequestPart("file") MultipartFile file) {
+	public ResponseEntity<List<UserBean>> importStudentDataExcel(@RequestPart("file") MultipartFile file,@RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside UniversityUserController.importStudentDataExcel(-)");
 		List<UserBean> studentBeans = null;
 		try {
-			studentBeans = studentService.importStudentDataExcel(file);
+			studentBeans = studentService.importStudentDataExcel(file,token);
 			return new ResponseEntity<List<UserBean>>(studentBeans, HttpStatus.OK);
 		} catch (Exception e) {
 			LOGGER.error("UniversityUserController.importStudentDataExcel(-) excel creation failed: " + e.getMessage());

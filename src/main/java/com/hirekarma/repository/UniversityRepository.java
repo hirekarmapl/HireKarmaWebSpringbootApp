@@ -30,5 +30,9 @@ public interface UniversityRepository extends JpaRepository<University, Long> {
 
 	@Query("select u from University u where u.status = ?1 ")
 	List<University> displayUniversityList(boolean status);
+	
+	@Query("select u.universityId from University u where  u.universityId in (:universityIds)")
+	List<Object[]> findUniveristyByIds(@Param("universityIds")List<Long> universityIds);
+	
 
 }

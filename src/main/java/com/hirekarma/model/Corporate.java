@@ -10,7 +10,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,45 +23,51 @@ import com.sun.istack.NotNull;
 @Entity
 @Table(name = "TBL_CORPORATE")
 public class Corporate {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
 	@Column(name = "CORPORATE_ID")
 	private Long corporateId;
-	
+
 	@Column(name = "CORPORATE_NAME")
 	private String corporateName;
-	
-	@Column(name = "CORPORATE_EMAIL")
+
+	@Column(name = "CORPORATE_EMAIL", unique = true)
 	private String corporateEmail;
-	
+
 	@Column(name = "CORPORATE_PHONE_NUMBER")
 	private Long corporatePhoneNumber;
-	
+
 	@Column(name = "CORPORATE_ADDRESS")
 	private String corporateAddress;
-	
+
 	@Lob
-    @Column(name = "PROFILE_IMAGE")
-    private byte[] profileImage;
-	
-	
-	
+	@Column(name = "PROFILE_IMAGE")
+	private byte[] profileImage;
+
+	private Long userProfile;
+
+	public Long getUserProfile() {
+		return userProfile;
+	}
+
+	public void setUserProfile(Long userProfile) {
+		this.userProfile = userProfile;
+	}
+
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
-	
+
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
-	
+
 	@Column(name = "STATUS")
 	private Boolean status;
-	
+
 	@Column(name = "BADGE")
 	private Long corporateBadge;
-	
-	
 
 	@OneToMany(mappedBy = "corporate")
 	@JsonIgnore
@@ -68,8 +76,7 @@ public class Corporate {
 	@OneToMany(mappedBy = "corporate")
 	@JsonIgnore
 	private List<OnlineAssessment> onlineAssessments;
-	
-	
+
 	public List<OnlineAssessment> getOnlineAssessments() {
 		return onlineAssessments;
 	}
@@ -173,7 +180,5 @@ public class Corporate {
 				+ corporateAddress + ", profileImage=" + Arrays.toString(profileImage) + ", createdOn=" + createdOn
 				+ ", updatedOn=" + updatedOn + ", status=" + status + ", corporateBadge=" + corporateBadge + "]";
 	}
-
-	
 
 }

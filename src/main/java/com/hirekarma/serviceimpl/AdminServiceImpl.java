@@ -144,6 +144,57 @@ public class AdminServiceImpl implements AdminService {
 		adminShareJobToUniversity.setJdUpdation(2);
 		return this.adminShareJobToUniversityRepository.save(adminShareJobToUniversity);
 	}
+	
+	public Map<String,Object> shareJob2(AdminShareJobToUniversityBean adminShareJobToUniversityBean) throws Exception{
+		LOGGER.debug("Inside AdminServiceImpl.shareJob(-)");
+		AdminShareJobToUniversityBean user = new AdminShareJobToUniversityBean();
+		AdminShareJobToUniversity AdminShareJobToUniversity = null;
+		List<AdminShareJobToUniversity> list = new ArrayList<AdminShareJobToUniversity>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		// checking all the ids are valid
+		if(this.universityRepository.findUniveristyByIds(adminShareJobToUniversityBean.getUniversityId()).size() !=adminShareJobToUniversityBean.getUniversityId().size())
+		{
+			throw new Exception("please check uour list");
+		}
+		
+//		getting job
+		Optional<Job> optional = jobRepository.findById(adminShareJobToUniversityBean.getJobId());
+		if(optional.isEmpty()) {
+			throw new Exception("no such job found");
+		}
+		Job job = optional.get();
+		if(!job.getStatus() || !job.getForcampusDrive()) {
+			throw new Exception("job is either not active or its not avialable for campus drive");
+		}
+		int count = 0;
+		if (adminShareJobToUniversityBean.getUniversityId().size() != 0) {
+
+			for (int i = 0; i < adminShareJobToUniversityBean.getUniversityId().size(); i++) {
+				count++;
+				System.out.println("\n\n************"
+						+ adminShareJobToUniversityBean.getUniversityId().get(i) + "***************");
+				AdminShareJobToUniversity = new AdminShareJobToUniversity();
+				AdminShareJobToUniversity.setJobId(adminShareJobToUniversityBean.getJobId());
+				AdminShareJobToUniversity
+						.setUniversityId(adminShareJobToUniversityBean.getUniversityId().get(i));
+				AdminShareJobToUniversity.setJobStatus("ACTIVE");
+				AdminShareJobToUniversity.setCreatedBy("Biswa");
+				AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
+				AdminShareJobToUniversity.setLookUp(adminShareJobToUniversityBean.getJsonObject().toString());
+				shareJobRepository.save(AdminShareJobToUniversity);
+				BeanUtils.copyProperties(AdminShareJobToUniversity, user);
+				list.add(AdminShareJobToUniversity);
+			}
+			user.setResponse("SHARED");
+		} else {
+			throw new AdminException("No University Selected !!");
+		}
+		response.put("shareJob", list);
+		response.put("totalSharedJob", count);
+		response.put("done", true);
+		
+		return response;
+	}
 	@Override
 	public Map<String, Object> shareJob(AdminShareJobToUniversityBean adminShareJobToUniversityBean) {
 

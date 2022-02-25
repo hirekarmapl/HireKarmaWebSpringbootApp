@@ -107,7 +107,7 @@ public class AdminController {
 		Map<String, Object> details = new HashMap<String, Object>();
 		try {
 			LOGGER.debug("Inside try block of AdminController.shareJob(-)");
-			Map<String, Object> fieldDetails = adminService.shareJob(adminShareJobToUniversityBean);
+			Map<String, Object> fieldDetails = adminService.shareJob2(adminShareJobToUniversityBean);
 			LOGGER.info("Status Successfully Updated using AdminController.shareJob(-)");
 
 			resEntity = new ResponseEntity<>(details, HttpStatus.ACCEPTED);

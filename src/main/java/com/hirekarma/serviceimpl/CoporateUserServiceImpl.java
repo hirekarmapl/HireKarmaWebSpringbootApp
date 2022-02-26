@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.hibernate.internal.build.AllowSysOut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +25,7 @@ import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.ChatRoom;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Organization;
 import com.hirekarma.model.University;
@@ -32,6 +34,7 @@ import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.ChatRoomRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobApplyRepository;
+import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.OrganizationRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
@@ -45,6 +48,9 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private JobRepository jobRepository;
 
 	@Autowired
 	private OrganizationRepository organizationRepository;
@@ -215,11 +221,14 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 					if(university==null) {
 						throw new CoporateUserDefindException("no such university found");
 					}
+					
 //					check this part not working
 					if (driveResponse.getCorporateResponse() && driveResponse.getUniversityAsk()) {
-						List<Object[]> list = studentRepository.findApplyStudentDetails(university.getUserId(),
+						System.out.print("checkning studentRepository.findApplyStudentDetail" );
+						System.out.print(university.getUserId()+" "+driveResponse.getJobId());
+						List<Object[]> list = studentRepository.findApplyStudentDetails(university.getUniversityId(),
 								driveResponse.getJobId());
-
+						System.out.println(list.size());
 						if (list.size() != 0) {
 							for (Object[] obj : list) {
 
@@ -430,6 +439,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 					university = campusDriveResponseRepository.getUniversityByUniversityId(campusDriveResponse.getUniversityId());
 					
 					if(university != null) {
+						Job job = jobRepository.getById(campusDriveResponse.getJobId());
 						campusDriveInviteBean = new CampusDriveInviteBean();
 						campusDriveInviteBean.setCampusDriveId(campusDriveResponse.getCampusDriveId());
 						campusDriveInviteBean.setCorporateId(campusDriveResponse.getCorporateId());
@@ -448,6 +458,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 						campusDriveInviteBean.setCreatedOn(university.getCreatedOn());
 						campusDriveInviteBean.setCreatedOn(university.getCreatedOn());
 						campusDriveInviteBean.setStatus(university.getStatus());
+						campusDriveInviteBean.setJobName(job.getJobTitle());
 						campusDriveInviteBeans.add(campusDriveInviteBean);
 					}
 				}

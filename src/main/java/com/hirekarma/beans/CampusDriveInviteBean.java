@@ -22,7 +22,15 @@ public class CampusDriveInviteBean {
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 	private Boolean status;
+	private String jobName;
 	
+	
+	public String getJobName() {
+		return jobName;
+	}
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
 	public Long getCampusDriveId() {
 		return campusDriveId;
 	}

@@ -102,6 +102,18 @@ public class CoporateUserController {
 					HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+//	@PreAuthorize("hasRole('corporate')")
+//	@GetMapping("/corporate/getAllStudentsReadyForCampusDrive/{campusDriveId}")
+//	public ResponseEntity<Response> getAllStudentsReadyForCampusDriveByCampusDriveId(@PathVariable("campusDriveId") Long campusDriveId) {
+//		try {
+//			Campusdri
+//			return new ResponseEntity<Response>(new Response("success", 201, "", blog, null), HttpStatus.CREATED);
+//		} catch (Exception e) {
+//			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+//					HttpStatus.BAD_REQUEST);
+//		}
+//	}
 
 	@PreAuthorize("hasRole('corporate')")
 	@RequestMapping(value = "/corporate/blog", method = RequestMethod.POST, consumes = "multipart/form-data")
@@ -510,14 +522,14 @@ public class CoporateUserController {
 		String authorizationHeader = null;
 		String email=null;
 		UserProfile userProfile = null;
-		Long studentId = null;
+		Corporate corporate = null;
 		try {
 			authorizationHeader = request.getHeader("Authorization");
 			jwtToken = authorizationHeader.substring(7);
 			email = jwtTokenUtil.extractUsername(jwtToken);
 			userProfile = userRepository.findUserByEmail(email);
-			studentId = userProfile.getUserId();
-			map = coporateUserService.getAllJobApplicationsByCorporate(studentId);
+			corporate = corporateRepository.findByEmail(email);
+			map = coporateUserService.getAllJobApplicationsByCorporate(corporate.getCorporateId());
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Getting applications success CoporateUserController.getAllJobApplicationsByCorporate(-)");
 			return responseEntity;
@@ -550,7 +562,8 @@ public class CoporateUserController {
 			jwtToken = authorizationHeader.substring(7);
 			email = jwtTokenUtil.extractUsername(jwtToken);
 			userProfile = userRepository.findUserByEmail(email);
-			corporateId = userProfile.getUserId();
+			Corporate corporate = corporateRepository.findByEmail(email);
+			corporateId = corporate.getCorporateId();
 			map = coporateUserService.getAllCampusDriveInvitesByCorporateId(corporateId);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Getting applications success CoporateUserController.getAllCampusDriveInvitesByCorporate(-)");

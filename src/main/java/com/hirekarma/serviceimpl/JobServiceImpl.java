@@ -144,7 +144,8 @@ public class JobServiceImpl implements JobService {
 		}
 		else if(userProfile.getUserType().equals("corporate")) {
 			System.out.print("insidde corporate");
-			Corporate corporate = corporateRepository.findByUserProfile(userProfile.getUserId());
+			Corporate corporate = corporateRepository.findByEmail(email);
+//			Corporate corporate = corporateRepository.findByUserProfile(userProfile.getUserId());
 			return getAllJobsForCorporate(corporate.getCorporateId());
 		}
 		

@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.StudentBranch;
+import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
 
 @RestController
@@ -21,6 +23,21 @@ public class StudentBranchController {
 	
 	@Autowired
 	StudentBranchRepository studentBranchRepository;
+	
+	@Autowired
+	StudentBatchRepository studentBatchRepository;
+	
+	@PostMapping("/batch")
+	public StudentBatch addBatch(@RequestBody Map<String,String> request) {
+		StudentBatch studentBatch = new StudentBatch();
+		studentBatch.setBatchName(request.get("name"));
+		return studentBatchRepository.save(studentBatch);
+	}
+	
+	@GetMapping("/batch")
+	public List<StudentBatch> getAllBatch() {
+		return studentBatchRepository.findAll();
+	}
 	@PostMapping("/branch")
 	public StudentBranch addBranch(@RequestBody Map<String, String> request) {
 		StudentBranch studentBranch = new StudentBranch();

@@ -55,4 +55,6 @@ public class JobResponseBean {
 	private List<StudentBranch> branchs= new ArrayList<>();
 	
 	private Boolean forcampusDrive;
+	
+	private Boolean status;
 }

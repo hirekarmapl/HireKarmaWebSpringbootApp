@@ -304,6 +304,57 @@ public class StudentServiceImpl implements StudentService {
 		
 		return userProfileDB;
 	}
+	
+	public UserProfile insertForExcel(UserProfile student,Long universityId) {
+		LOGGER.debug("Inside StudentServiceImpl.insert(-)");
+
+		UserProfile studentReturn = null;
+		HttpHeaders headers = null;
+		Map<String, String> body = null;
+		Student stud = new Student();
+
+		String LowerCaseEmail = student.getEmail().toLowerCase();
+		Long count = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
+
+		try {
+			LOGGER.debug("Inside try block of StudentServiceImpl.insert(-)");
+			if (count == 0) {
+
+				student.setStatus("Active");
+				student.setUserType("student");
+				student.setEmail(LowerCaseEmail);
+				student.setPassword("Admin@123");
+				student.setPassword(passwordEncoder.encode(student.getPassword()));
+
+				studentReturn = userRepository.save(student);
+
+				stud.setUniversityId(universityId);
+				stud.setUserId(studentReturn.getUserId());
+				stud.setStudentEmail(LowerCaseEmail);
+				stud.setStudentName(studentReturn.getName());
+				
+				studentRepository.save(stud);
+
+				headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+
+				body = new HashMap<String, String>();
+				body.put("email", student.getEmail());
+				body.put("name", studentReturn.getName());
+				body.put("type", "student");
+				emailController.welcomeAndOnBoardEmail(body);
+
+				LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
+			} else {
+				throw new StudentUserDefindException("This Email Is Already Present !!");
+			}
+
+			return studentReturn;
+		} catch (Exception e) {
+			LOGGER.error("Data Insertion failed using StudentServiceImpl.insert(-): " + e);
+			throw new StudentUserDefindException(e.getMessage());
+		}
+	}
 	@Override
 	public UserProfile insert(UserProfile student) {
 
@@ -680,9 +731,9 @@ public class StudentServiceImpl implements StudentService {
 
 	@Override
 	public List<UserBean> importStudentDataExcel(MultipartFile file,String token) throws Exception {
-		LOGGER.debug("StudentServiceImpl.importStudentDataExcel(-)");
 		String email = Validation.validateToken(token);
 		University university = universityRepository.findByEmail(email);
+		LOGGER.debug("StudentServiceImpl.importStudentDataExcel(-)");
 		Path path = null;
 		File tempFile = null;
 		Workbook workbook = null;
@@ -727,7 +778,7 @@ public class StudentServiceImpl implements StudentService {
 				studentProfile.setEmail(student.get("Email"));
 				generatedPassword = generateRandomPassword(passwordLength);
 				studentProfile.setPassword(generatedPassword);
-				studentProfileReturn = createStudentIntoDatabaseFromExcel(studentProfileReturn, university.getUniversityId());
+				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId());
 				studentReturnBean = new UserBean();
 				BeanUtils.copyProperties(studentProfileReturn, studentReturnBean);
 				// this password is not encrypted this is the original random password and
@@ -747,8 +798,7 @@ public class StudentServiceImpl implements StudentService {
 		} catch (Exception e) {
 			LOGGER.error("Error occured in StudentServiceImpl.importStudentDataExcel(-)");
 			throw new StudentUserDefindException(e.getMessage());
-		}
-	}
+		}	}
 
 	private String generateRandomPassword(int passwordLength) {
 		Random random = null;

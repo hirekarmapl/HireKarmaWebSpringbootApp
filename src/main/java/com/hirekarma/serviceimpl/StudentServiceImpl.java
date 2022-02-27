@@ -37,6 +37,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hirekarma.beans.JobApplyResponseBean;
+import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversitySharedJobList;
 import com.hirekarma.beans.UserBean;
@@ -46,8 +48,10 @@ import com.hirekarma.email.service.EmailSenderService;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
+import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
@@ -56,6 +60,7 @@ import com.hirekarma.model.StudentBranch;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.EducationRepository;
 import com.hirekarma.repository.ExperienceRepository;
 import com.hirekarma.repository.JobApplyRepository;
@@ -128,6 +133,9 @@ public class StudentServiceImpl implements StudentService {
 	
 	@Autowired
 	private StudentBranchRepository studentBranchRepository;
+	
+	@Autowired
+	private CorporateRepository corporateRepository;
 	
 
 
@@ -920,14 +928,27 @@ public class StudentServiceImpl implements StudentService {
 	public Map<String,Object> getAllJobApplicationsByStudent(Long studentId) {
 		LOGGER.debug("Inside StudentServiceImpl.getAllJobApplicationsByStudent(-)");
 		List<JobApply> jobApplies = null;
+		List<JobApplyResponseBean> jobApplyResponseBeans = null;
 		Map<String,Object> map = null;
 		try {
 			jobApplies = jobApplyRepository.getAllJobApplicationsByStudentId(studentId);
 			if(jobApplies != null && jobApplies.size()>0) {
+				
+				jobApplyResponseBeans = new ArrayList<>();
+				for(JobApply j:jobApplies)
+				{
+					JobApplyResponseBean jr = new JobApplyResponseBean();
+					BeanUtils.copyProperties(j, jr);
+					Corporate corporate = corporateRepository.getById(j.getCorporateId());
+					Job job = jobRepository.getById(j.getJobId());
+					jr.setJob(job);
+					jr.setCorporate(corporate);
+					jobApplyResponseBeans.add(jr);
+				}
 				map = new HashMap<String, Object>();
-				map.put("status", "Failed");
+				map.put("status", "success");
 				map.put("responseCode", 500);
-				map.put("data", jobApplies);
+				map.put("data", jobApplyResponseBeans);
 				return map;
 			}
 			else {

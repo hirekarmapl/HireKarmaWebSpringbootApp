@@ -3,6 +3,7 @@ package com.hirekarma.serviceimpl;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -14,12 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.InternshipApplyBean;
+import com.hirekarma.beans.InternshipApplyResponseBean;
 import com.hirekarma.beans.UniversitySharedJobList;
 import com.hirekarma.exception.InternshipApplyException;
 import com.hirekarma.exception.UniversityException;
+import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Internship;
 import com.hirekarma.model.InternshipApply;
 import com.hirekarma.model.Student;
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.InternshipApplyRepository;
+import com.hirekarma.repository.InternshipRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.service.InternshipApplyService;
 
@@ -33,6 +39,12 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private InternshipRepository internshipRepository;
+	
+	@Autowired
+	private CorporateRepository corporateRepository;
 
 	@Override
 	public InternshipApplyBean insert(InternshipApplyBean internshipApplyBean, String token) throws ParseException {
@@ -56,8 +68,17 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 		String email = (String) jsonObject.get("sub");
 
 		studentList = studentRepository.getDetailsByEmail1(email);
-
+		
+		
+		
 		try {
+			
+			Optional<Internship> optional = internshipRepository.findById(internshipApplyBean.getInternshipId());
+			if(!optional.isPresent()) {
+				throw new Exception("no such internship present");
+			}
+			Internship internship = optional.get();
+			
 			LOGGER.debug("Inside try block of InternshipApplyServiceImpl.insert()");
 			if (studentList != null && studentList.size() >= 1) {
 
@@ -66,8 +87,8 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 				internshipApply.setDeleteStatus(false);
 				internshipApply.setApplicatinStatus(false);
 				internshipApply.setStudentId(studentList.get(0).getStudentId());
-				internshipApply.setCorporateId(internshipApplyBean.getCorporateId());
-				
+				internshipApply.setCorporateId(internship.getCorporateId());
+				internshipApply.setInternshipId(internship.getInternshipId());
 				internshipApplyReturn = internshipApplyRepository.save(internshipApply);
 				
 				applyBean = new InternshipApplyBean();
@@ -83,6 +104,24 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 			LOGGER.error("Data Insertion failed using InternshipApplyServiceImpl.insert(-): " + e);
 			throw new InternshipApplyException(e.getMessage());
 		}
+	}
+	public List<InternshipApplyResponseBean> getAllInternshipsForAStudent(Long studentId){
+		List<InternshipApplyResponseBean> internshipApplyResponseBeans = new ArrayList<InternshipApplyResponseBean>();
+		List<InternshipApply> internshipApplies = internshipApplyRepository.getAllInternshipByStudentId(studentId);
+		System.out.println("inside loop");
+		for(InternshipApply i:internshipApplies) {
+			
+			InternshipApplyResponseBean internshipApplyResponseBean = new InternshipApplyResponseBean();
+			BeanUtils.copyProperties(i, internshipApplyResponseBean);
+			Internship internship = internshipRepository.getById(internshipApplyResponseBean.getInternshipId());
+			Corporate corporate = corporateRepository.getById(internshipApplyResponseBean.getInternshipId());
+			internshipApplyResponseBean.setCorporate(corporate);
+			internshipApplyResponseBean.setInternship(internship);
+			internshipApplyResponseBeans.add(internshipApplyResponseBean);
+			
+		}
+		System.out.println("completetd loop");
+		return internshipApplyResponseBeans;
 	}
 
 }

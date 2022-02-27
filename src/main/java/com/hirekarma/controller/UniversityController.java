@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,6 +27,13 @@ import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.exception.UserProfileException;
+import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.CampusDriveResponse;
+import com.hirekarma.model.Job;
+import com.hirekarma.model.Student;
+import com.hirekarma.repository.AdminShareJobToUniversityRepository;
+import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.service.UniversityService;
 
 @RestController("universityController")
@@ -35,6 +45,16 @@ public class UniversityController {
 
 	@Autowired
 	private UniversityService universityService;
+	
+	@Autowired
+	private AdminShareJobToUniversityRepository adminShareJobToUniversityRepository;
+	
+	@Autowired
+	private JobRepository jobRepository;
+	
+	@Autowired
+	private StudentRepository studentRepository;
+	
 
 	@PostMapping("/universityResponse")
 	@PreAuthorize("hasRole('university')")
@@ -176,6 +196,28 @@ public class UniversityController {
 		return responseEntity;
 	}
 
+	@PreAuthorize("hasRole('university')")
+	@GetMapping("/university/getAllStudentsReadyForCampusDrive/{shareJobId}")
+	public ResponseEntity<Response> getAllStudentsReadyForCampusDriveByShareJobId(@PathVariable("shareJobId") Long shareJobId) {
+		try {
+			Optional<AdminShareJobToUniversity> optional = adminShareJobToUniversityRepository.findById(shareJobId);
+			if(!optional.isPresent()) {
+				throw new Exception("invalid share Job Id");
+			}
+			AdminShareJobToUniversity adminShareJobToUniversity = optional.get();
+		
+			
+			List<Student> students = studentRepository.getAllStudentsReadyForCampusDriveByCampusDriveId(adminShareJobToUniversity.getUniversityId(), adminShareJobToUniversity.getJobId());
+			Job job = jobRepository.getById(adminShareJobToUniversity.getJobId());
+			Map<Object,Object> map = new HashMap<Object, Object>();
+			map.put("students", students);
+			map.put("job", job);
+			return new ResponseEntity<Response>(new Response("success", 200, "", map, null), HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	@RequestMapping("/seeShareJobListToStudent")
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<Response> seeShareJobListToStudent(@RequestHeader(value = "Authorization") String token) {

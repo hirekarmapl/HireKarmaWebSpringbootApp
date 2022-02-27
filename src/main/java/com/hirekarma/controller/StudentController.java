@@ -34,8 +34,10 @@ import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
 import com.hirekarma.model.Skill;
+import com.hirekarma.model.Student;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.SkillRespository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.StudentService;
 import com.hirekarma.utilty.JwtUtil;
@@ -59,6 +61,9 @@ public class StudentController {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private StudentRepository studentRepository;
 
 	
 	@PostMapping("/saveStudentUrl")
@@ -411,7 +416,8 @@ public class StudentController {
 			email = jwtTokenUtil.extractUsername(jwtToken);
 			userProfile = userRepository.findUserByEmail(email);
 			studentId = userProfile.getUserId();
-			map = studentService.getAllJobApplicationsByStudent(studentId);
+			Student student = studentRepository.findByStudentEmail(email);
+			map = studentService.getAllJobApplicationsByStudent(student.getStudentId());
 			responseEntity = new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
 			LOGGER.error("Getting applications success StudentController.getAllJobApplicationsByStudent(-)");
 			return responseEntity;

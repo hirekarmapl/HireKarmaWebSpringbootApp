@@ -58,6 +58,17 @@ public class InternshipApply implements Serializable{
 	
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
+	
+	private Long internshipId;
+	
+
+	public Long getInternshipId() {
+		return internshipId;
+	}
+
+	public void setInternshipId(Long internshipId) {
+		this.internshipId = internshipId;
+	}
 
 	@Override
 	public String toString() {

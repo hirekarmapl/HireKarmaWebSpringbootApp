@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.gson.JsonObject;
 import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.GoogleCalenderRequest;
@@ -41,10 +43,16 @@ import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.model.Blog;
+import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Job;
+import com.hirekarma.model.Student;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.OnlineAssessmentRepository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
@@ -66,6 +74,12 @@ public class CoporateUserController {
 	private OnlineAssessmentRepository onlineAssessmentRepository;
 	
 	@Autowired
+	private StudentRepository studentRepository;
+	
+	@Autowired
+	private JobRepository jobRepository;
+	
+	@Autowired
 	private JwtUtil jwtTokenUtil;
 	
 	@Autowired
@@ -76,6 +90,9 @@ public class CoporateUserController {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private CampusDriveResponseRepository campusDriveResponseRepository;
 
 
 ////	create an online assesement 
@@ -103,17 +120,27 @@ public class CoporateUserController {
 		}
 	}
 	
-//	@PreAuthorize("hasRole('corporate')")
-//	@GetMapping("/corporate/getAllStudentsReadyForCampusDrive/{campusDriveId}")
-//	public ResponseEntity<Response> getAllStudentsReadyForCampusDriveByCampusDriveId(@PathVariable("campusDriveId") Long campusDriveId) {
-//		try {
-//			Campusdri
-//			return new ResponseEntity<Response>(new Response("success", 201, "", blog, null), HttpStatus.CREATED);
-//		} catch (Exception e) {
-//			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
-//					HttpStatus.BAD_REQUEST);
-//		}
-//	}
+	@PreAuthorize("hasRole('corporate')")
+	@GetMapping("/corporate/getAllStudentsReadyForCampusDrive/{campusDriveId}")
+	public ResponseEntity<Response> getAllStudentsReadyForCampusDriveByCampusDriveId(@PathVariable("campusDriveId") Long campusDriveId) {
+		try {
+			Optional<CampusDriveResponse>  optional = campusDriveResponseRepository.findById(campusDriveId);
+			if(!optional.isPresent()) {
+				throw new Exception("wrong campus drive id");
+			}
+			CampusDriveResponse campusDriveResponse = optional.get();
+			
+			List<Student> students = studentRepository.getAllStudentsReadyForCampusDriveByCampusDriveId(campusDriveResponse.getUniversityId(), campusDriveResponse.getJobId());
+			Job job = jobRepository.getById(campusDriveResponse.getJobId());
+			Map<Object,Object> map = new HashMap<Object, Object>();
+			map.put("students", students);
+			map.put("job", job);
+			return new ResponseEntity<Response>(new Response("success", 200, "", map, null), HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	@PreAuthorize("hasRole('corporate')")
 	@RequestMapping(value = "/corporate/blog", method = RequestMethod.POST, consumes = "multipart/form-data")

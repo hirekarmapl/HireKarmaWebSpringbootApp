@@ -313,7 +313,7 @@ public class StudentServiceImpl implements StudentService {
 		return userProfileDB;
 	}
 	
-	public UserProfile insertForExcel(UserProfile student,Long universityId) {
+	public UserProfile insertForExcel(UserProfile student,Long universityId,String universityName) {
 		LOGGER.debug("Inside StudentServiceImpl.insert(-)");
 
 		UserProfile studentReturn = null;
@@ -331,7 +331,7 @@ public class StudentServiceImpl implements StudentService {
 				student.setStatus("Active");
 				student.setUserType("student");
 				student.setEmail(LowerCaseEmail);
-				student.setPassword("Admin@123");
+				student.setPassword(universityName+"@123");
 				student.setPassword(passwordEncoder.encode(student.getPassword()));
 
 				studentReturn = userRepository.save(student);
@@ -786,7 +786,7 @@ public class StudentServiceImpl implements StudentService {
 				studentProfile.setEmail(student.get("Email"));
 				generatedPassword = generateRandomPassword(passwordLength);
 				studentProfile.setPassword(generatedPassword);
-				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId());
+				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId(),university.getUniversityName());
 				studentReturnBean = new UserBean();
 				BeanUtils.copyProperties(studentProfileReturn, studentReturnBean);
 				// this password is not encrypted this is the original random password and

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -58,6 +59,12 @@ public class UniversityJobShareToStudent {
 
 	@Column(name = "STUDENT_RESPONSE_STATUS")
 	private Boolean studentResponseStatus;
+	
+	@ManyToOne
+	private StudentBatch studentBatch;
+	
+	@ManyToOne
+	private StudentBranch studentBranch;
 
 	@Override
 	public String toString() {
@@ -66,6 +73,27 @@ public class UniversityJobShareToStudent {
 				+ updatedBy + ", updatedOn=" + updatedOn + ", jobStatus=" + jobStatus + ", feedBack=" + feedBack
 				+ ", studentResponseStatus=" + studentResponseStatus + "]";
 	}
+
+	
+	public StudentBatch getStudentBatch() {
+		return studentBatch;
+	}
+
+
+	public void setStudentBatch(StudentBatch studentBatch) {
+		this.studentBatch = studentBatch;
+	}
+
+
+	public StudentBranch getStudentBranch() {
+		return studentBranch;
+	}
+
+
+	public void setStudentBranch(StudentBranch studentBranch) {
+		this.studentBranch = studentBranch;
+	}
+
 
 	public Long getiD() {
 		return iD;

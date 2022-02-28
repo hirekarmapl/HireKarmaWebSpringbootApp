@@ -19,22 +19,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
+import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.Blog;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.University;
 import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.StudentRepository;
+import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.service.UniversityService;
+import com.hirekarma.utilty.Validation;
 
 @RestController("universityController")
 @CrossOrigin
@@ -54,6 +62,9 @@ public class UniversityController {
 	
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private UniversityRepository universityRepository;
 	
 
 	@PostMapping("/universityResponse")
@@ -311,72 +322,20 @@ public class UniversityController {
 		}
 		return responseEntity;
 	}
+	@PreAuthorize("hasRole('university')")
+	@GetMapping("/university/shareJobs")
+	public ResponseEntity<?> getAllSharedByUniversity(@RequestHeader("Authorization")String token) {
+		try {
+			String email =  Validation.validateToken(token);
+			University university = universityRepository.findByEmail(email);
+			Map<String,Object> output = this.universityService.getAllJobsSharedByUniversity(university);
+			return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", output.get("data"), null),
+					HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 
-//	@PostMapping("/shareJobStudent")
-//	@PreAuthorize("hasRole('student')")
-//	public String shareJobStudent(@RequestBody UniversityJobShareToStudentBean  universityJobShareToStudentBean,@RequestHeader(value = "Authorization")String token) throws Exception
-//	{
-//		
-//		
-//		
-//		
-//		String[] chunks = universityJobShareToStudentBean.getToken().split("\\.");
-//		String[] chunks1 = token.split(" ");
-//		
-//		String[] chunks = chunks1[1].split("\\.");
-//		
-//		
-//		
-//		SignatureAlgorithm sa = SignatureAlgorithm.HS256;
-//		SecretKeySpec secretKeySpec = new SecretKeySpec(universityJobShareToStudentBean.getCreatedBy().getBytes(), sa.getJcaName());
-//		
-//		String tokenWithoutSignature = chunks[0] + "." + chunks[1];
-//		String signature = chunks[2];
-//		
-//		DefaultJwtSignatureValidator validator = new DefaultJwtSignatureValidator(sa, secretKeySpec);
-//
-//		if (!validator.isValid(tokenWithoutSignature, signature)) {
-//		    throw new Exception("Could not verify JWT token integrity!");
-//		}else {
-//			signature +="biswa";
-//		}
-//		
-//		
-//		
-//		
-//		
-//		
-//		
-//		Base64.Decoder decoder = Base64.getUrlDecoder();
-//
-//		String header = new String(decoder.decode(chunks[0]));
-//		String payload = new String(decoder.decode(chunks[1]));
-//		JSONParser jsonParser = new JSONParser();
-//		Object obj = jsonParser.parse(payload);
-//		
-//		
-//		JSONObject jsonObject = (JSONObject)obj;
-//		
-//		String name = (String) jsonObject.get("sub");
-//		
-//		System.out.println("payload : \n\n"+payload+"\n\nName Is : "+name);
-//		return  name;
-//	}
-//
-//	
-//	@PostMapping("/testing")
-//	@PreAuthorize("hasRole('university')")
-//	public String shareJobStudent(@RequestParam("email") Long email)
-//	{
-//		String name = null;
-//		if(Validation.phoneNumberValidation(email))
-//		{
-//			 name = "biswa";
-//		}else {
-//			name = "ranjan";
-//		}
-//		
-//		return name;
-//	}
 
 }

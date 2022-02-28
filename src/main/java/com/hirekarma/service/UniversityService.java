@@ -9,6 +9,7 @@ import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.University;
 
 public interface UniversityService {
 
@@ -27,4 +28,5 @@ public interface UniversityService {
 
 	List<?> studentFilter(String token, Long batchId, Long branchId, Double cgpa) throws ParseException;
 
+	Map<String,Object> getAllJobsSharedByUniversity(University university);
 }

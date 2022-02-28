@@ -4,9 +4,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,6 +27,7 @@ import com.hirekarma.beans.AdminSharedJobList;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.StudentResponseToUniversity;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
+import com.hirekarma.beans.UniversityShareJobToStudentResponse;
 import com.hirekarma.exception.CampusDriveResponseException;
 import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UserProfileException;
@@ -29,6 +35,7 @@ import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
@@ -52,6 +59,8 @@ public class UniversityServiceImpl implements UniversityService {
 	@Autowired
 	private ShareJobRepository shareJobRepository;
 
+	@PersistenceContext
+	  private EntityManager em;
 
 
 	@Autowired
@@ -492,6 +501,29 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		}
 
 		return studentList;
+	}
+	
+	public Map<String,Object> getAllJobsSharedByUniversity(University university){
+		Map<String,Object> result = new HashMap<String,Object>();
+		List<UniversityJobShareToStudent> universityJobShareToStudents = this.universityJobShareRepository.findByUniversityId(university.getUniversityId());
+		
+		List<Job> jobs = new ArrayList<Job>();
+		Set<Long> jobIds = new HashSet<>();
+		List<UniversityShareJobToStudentResponse> universityShareJobToStudentResponses = new ArrayList<UniversityShareJobToStudentResponse>();
+		for(UniversityJobShareToStudent u:universityJobShareToStudents) {
+			if(!jobIds.contains(u.getJobId())) {
+				UniversityShareJobToStudentResponse universityShareJobToStudentResponse = new UniversityShareJobToStudentResponse();
+				jobIds.add(u.getJobId());
+				Job job = jobRepository.getById(u.getJobId());
+				AdminShareJobToUniversity adminShareJobToUniversity = this.adminShareJobToUniversityRepository.findByJobIdAndUniversityId(job.getJobId(), university.getUniversityId());
+				
+				universityShareJobToStudentResponse.setJob(job);
+				universityShareJobToStudentResponse.setShareJobId(adminShareJobToUniversity.getShareJobId());
+				universityShareJobToStudentResponses.add(universityShareJobToStudentResponse);
+			}
+		}
+		result.put("data", universityShareJobToStudentResponses);
+		return result;
 	}
 
 }

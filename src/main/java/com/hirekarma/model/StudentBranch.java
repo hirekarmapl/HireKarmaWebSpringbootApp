@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -37,12 +38,26 @@ public class StudentBranch {
 	@JsonIgnore
 	List<Job> jobs = new ArrayList<Job>();
 
-
+	@OneToMany(mappedBy = "studentBranch")
+	@JsonIgnore
+	List<UniversityJobShareToStudent> universityJobShareToStudents;
 	public Long getId() {
 		return id;
 	}
 
 	
+
+	public List<UniversityJobShareToStudent> getUniversityJobShareToStudents() {
+		return universityJobShareToStudents;
+	}
+
+
+
+	public void setUniversityJobShareToStudents(List<UniversityJobShareToStudent> universityJobShareToStudents) {
+		this.universityJobShareToStudents = universityJobShareToStudents;
+	}
+
+
 
 	public void setId(Long id) {
 		this.id = id;

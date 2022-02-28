@@ -23,7 +23,6 @@ public class Skill {
 	public String name;
 
 	@ManyToMany(mappedBy = "skills")
-
 	@JsonIgnore
 	List<UserProfile> users =  new ArrayList<UserProfile>();
 

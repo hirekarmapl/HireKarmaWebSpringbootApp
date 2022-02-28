@@ -37,6 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hirekarma.beans.EducationBean;
 import com.hirekarma.beans.JobApplyResponseBean;
 import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
@@ -83,6 +84,7 @@ public class StudentServiceImpl implements StudentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StudentServiceImpl.class);
 
+	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
@@ -228,6 +230,35 @@ public class StudentServiceImpl implements StudentService {
 		return educationDB;
 	}
 
+	@Override
+	public void deleteEducationOfAStudentbyId(String token,int id)throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		Optional<Education> education = educationRepository.findById(id);
+		if(!education.isPresent()) {
+			throw new Exception("invalid request - wrong id");
+		}
+		if(!userProfile.getEducations().contains(education.get())) {
+			throw new Exception("invalid request - user profile doest not contain education");
+		}
+		this.educationRepository.delete(education.get());
+	}
+	@Override
+	public Education addEducationToAStudent(EducationBean educationBean,String token) throws Exception{
+		String email = Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		Optional<StudentBatch> studentBatch = this.studentBatchRepository.findById(educationBean.getBatchId());
+		Optional<StudentBranch> studentBranch = this.studentBranchRepository.findById(educationBean.getBranchId());
+		if(!studentBatch.isPresent() || !studentBranch.isPresent()) {
+			throw new Exception("please check batch or branch id");
+		}
+		educationBean.setStudentBatch(studentBatch.get());
+		educationBean.setStudentBranch(studentBranch.get());
+		Education education = new Education();
+		BeanUtils.copyProperties(educationBean, education);
+		education.setUserProfile(userProfile);
+		return this.educationRepository.save(education);		
+	}
 	public Boolean addSkills(List<Skill> skills, String token) throws Exception {
 
 		UserProfile user = null;
@@ -260,31 +291,6 @@ public class StudentServiceImpl implements StudentService {
 
 	}
 
-	@Override
-	public UserProfile addSkill(int skillId, String token) throws Exception {
-		// TODO Auto-generated method stub
-		UserProfile user = null;
-		Skill skill = null;
-		try {
-
-			LOGGER.debug("Inside StudentServicimpl.addSkill(-)");
-
-//			getting email from token	
-			String email = Validation.validateToken(token);
-			user = userRepository.findByEmail(email, "student");
-			skill = skillRespository.getById(skillId);
-			if (!(skill != null && user != null)) {
-				throw new Exception("user or skill not found");
-			}
-			user.getSkills().add(skill);
-
-			user = this.userRepository.save(user);
-			return user;
-
-		} catch (Exception e) {
-			throw e;
-		}
-	}
 
 	public UserProfile insert2(String email,String password,String name) {
 		
@@ -970,6 +976,49 @@ public class StudentServiceImpl implements StudentService {
 		}
 	}
 
+	@Override
+	public Map<String,Object> addSkillToAStudent(Skill skill, String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		Map<String,Object> result = new HashMap<String,Object>();
+		
+		skill.setName(skill.getName().toLowerCase());
+		
+		Skill skillExist = skillRespository.findByName(skill.getName());
+		
+		if(skillExist==null) {
+			;
+			skillExist = this.skillRespository.save(skill);
+		}
+		if(userProfile.getSkills().contains(skill)){
+			throw new Exception("already skill exist");
+		}
+		
+		userProfile.getSkills().add(skillExist);
+		this.userRepository.save(userProfile);
+		result.put("skill", skill.getName());
+		return result;
+	}
+
+	@Override
+	public Map<String, Object> deleteSkillOfAStudent(int id, String token) throws Exception {
+		
+		String email = Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		Map<String,Object> result = new HashMap<String,Object>();
+		
+		Skill skill = skillRespository.getById(id);
+		if(skill==null) {
+			throw new Exception("no such skill exist");
+		}
+		Boolean ans = userProfile.getSkills().remove(skill);
+		this.userRepository.save(userProfile);
+		
+		return result;
+		
+	}
+
+	
 //	@Override
 //	public StudentBean checkLoginCredentials(String email, String password) {
 //		LOGGER.debug("Inside StudentServiceImpl.checkLoginCredentials(-,-)");

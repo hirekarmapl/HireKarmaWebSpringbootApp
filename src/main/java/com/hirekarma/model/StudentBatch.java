@@ -34,6 +34,18 @@ public class StudentBatch {
 	@OneToMany(mappedBy = "studentBatch")
 	@JsonIgnore
 	private List<UniversityJobShareToStudent> universityJobShareToStudents;
+	
+	@OneToMany(mappedBy = "studentBatch")
+	@JsonIgnore
+	private List<Education> educations;
+
+	public List<Education> getEducations() {
+		return educations;
+	}
+
+	public void setEducations(List<Education> educations) {
+		this.educations = educations;
+	}
 
 	@Override
 	public String toString() {

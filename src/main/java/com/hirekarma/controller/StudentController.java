@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,8 +25,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.EducationBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
@@ -245,28 +248,15 @@ public class StudentController {
 		return responseEntity;
 	}
 
-	@RequestMapping("/addSkill/{id}")
-	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<?> addSkill(@RequestHeader(value = "Authorization") String token,
-			@PathVariable("id") int skillId) {
-		try {
-			UserProfile userProfile = studentService.addSkill(skillId, token);
-			return new ResponseEntity<Response>(new Response("success", 200, "added succesfully", null, null),
-					HttpStatus.OK);
-		} catch (Exception e) {
-			// TODO: handle exception
-			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
-					HttpStatus.BAD_REQUEST);
-		}
-	}
+	
 
-	@PostMapping("/student/addSkills")
+	@PostMapping("/student/skill")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<?> addSkills(@RequestHeader(value = "Authorization") String token,
-			@RequestBody Map<String, List<Skill>> skills) {
+	public ResponseEntity<?> addSkillToAStudent(@RequestHeader(value = "Authorization") String token,
+			@RequestBody Skill skill) {
 		try {
-			Boolean answer = this.studentService.addSkills(skills.get("skills"), token);
-			return new ResponseEntity<Response>(new Response("success", 200, "added succesfully", null, null),
+			Map<String,Object> answer = this.studentService.addSkillToAStudent(skill, token);
+			return new ResponseEntity<Response>(new Response("success", 200, "added succesfully", answer, null),
 					HttpStatus.OK);
 
 		} catch (Exception e) {
@@ -275,6 +265,24 @@ public class StudentController {
 		}
 
 	}
+	
+	@DeleteMapping("/student/skill")
+	@PreAuthorize("hasRole('student')")
+	public ResponseEntity<?> deleteSkillOfAStudent(@RequestHeader(value = "Authorization") String token,
+			@RequestBody Skill skill) {
+		try {
+			
+			Map<String,Object> answer = this.studentService.deleteSkillOfAStudent(skill.getName(), token);
+			return new ResponseEntity<Response>(new Response("success", 200, "deleted succesfully", answer, null),
+					HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+
+	}
+	
 
 	@PostMapping("/student/experience")
 	@PreAuthorize("hasRole('student')")
@@ -308,7 +316,7 @@ public class StudentController {
 
 	}
 
-	@GetMapping("/student/education")
+	@GetMapping("/student/educations")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<Response> getAllEducationsOfStudent(@RequestHeader(value = "Authorization") String token) {
 		try {
@@ -321,31 +329,30 @@ public class StudentController {
 					HttpStatus.BAD_REQUEST);
 		}
 	}
-
-	@PutMapping("/student/education")
+	
+	@DeleteMapping("/student/education/{educationId}")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<?> updateAllEducationToStudent(@RequestHeader(value = "Authorization") String token,
-			@RequestBody Map<String, List<Education>> education) {
+	public ResponseEntity<Response> deleteEducationOfAStudentbyId(@RequestHeader(value = "Authorization") String token,@PathVariable("educationId")int educationId) {
 		try {
-			List<Education> educationSaved = this.studentService.addAllEducationToStudent(education.get("educations"),
-					token);
-			return new ResponseEntity<Response>(new Response("success", 200, "added succesfully", educationSaved, null),
+			
+			this.studentService.deleteEducationOfAStudentbyId(token, educationId);
+			return new ResponseEntity<Response>(new Response("success", 200, "deleted succesfully",null , null),
 					HttpStatus.OK);
 
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}
-
 	}
+	
+
 
 	@PostMapping("/student/education")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<?> addAllEducationToStudent(@RequestHeader(value = "Authorization") String token,
-			@RequestBody Map<String, List<Education>> education) {
+	public ResponseEntity<?> addAEducationToStudent(@RequestHeader(value = "Authorization") String token,
+			@RequestBody EducationBean education) {
 		try {
-			List<Education> educationsSaved = this.studentService.addAllEducationToStudent(education.get("educations"),
-					token);
+			Education educationsSaved = this.studentService.addEducationToAStudent(education, token);
 			return new ResponseEntity<Response>(
 					new Response("success", 200, "added succesfully", educationsSaved, null), HttpStatus.OK);
 

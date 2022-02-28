@@ -6,6 +6,7 @@ import java.util.Map;
 import org.json.simple.parser.ParseException;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hirekarma.beans.EducationBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.beans.UserBeanResponse;
@@ -27,8 +28,6 @@ public interface StudentService {
 	public List<UserBean> importStudentDataExcel(MultipartFile file,String token) throws Exception;
 	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean,String token);
 	public List<?> jobDetails(String token) throws ParseException;
-	public UserProfile addSkill(int id,String token) throws Exception;
-	public Boolean addSkills(List<Skill> skills,String token) throws Exception;
 	public Boolean updateSkills(List<Skill> skillIds,String token) throws Exception;
 	public UserProfile addAllSkillsToStudent(List<Skill> skills,String token) throws Exception;
 	public List<Skill> getAllSkillsOfStudent(String token) throws Exception;
@@ -43,4 +42,8 @@ public interface StudentService {
 //	this is better verison of above function
 	public UserProfile insert2(String email,String password,String name);
 	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception;
+	public Map<String,Object> addSkillToAStudent(Skill skill, String token) throws Exception;
+	public Map<String,Object> deleteSkillOfAStudent(String name,String token) throws Exception;
+	public Education addEducationToAStudent(EducationBean educationBean,String token) throws Exception;
+	public void deleteEducationOfAStudentbyId(String token,int id)throws Exception;
 }

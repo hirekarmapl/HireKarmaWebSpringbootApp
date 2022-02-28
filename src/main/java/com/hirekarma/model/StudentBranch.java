@@ -41,11 +41,27 @@ public class StudentBranch {
 	@OneToMany(mappedBy = "studentBranch")
 	@JsonIgnore
 	List<UniversityJobShareToStudent> universityJobShareToStudents;
+	
+	@OneToMany(mappedBy = "studentBranch")
+	@JsonIgnore
+	List<Education> educations;
 	public Long getId() {
 		return id;
 	}
 
 	
+
+	public List<Education> getEducations() {
+		return educations;
+	}
+
+
+
+	public void setEducations(List<Education> educations) {
+		this.educations = educations;
+	}
+
+
 
 	public List<UniversityJobShareToStudent> getUniversityJobShareToStudents() {
 		return universityJobShareToStudents;

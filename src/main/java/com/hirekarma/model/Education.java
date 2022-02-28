@@ -18,9 +18,25 @@ int startDateYear;
 int endDateMonth;
 int endDateYear;
 @ManyToOne
+StudentBatch studentBatch;
+@ManyToOne
+StudentBranch studentBranch;
+@ManyToOne
 UserProfile userProfile;
 public int getId() {
 	return id;
+} 
+public StudentBatch getStudentBatch() {
+	return studentBatch;
+}
+public void setStudentBatch(StudentBatch studentBatch) {
+	this.studentBatch = studentBatch;
+}
+public StudentBranch getStudentBranch() {
+	return studentBranch;
+}
+public void setStudentBranch(StudentBranch studentBranch) {
+	this.studentBranch = studentBranch;
 }
 public void setId(int id) {
 	this.id = id;

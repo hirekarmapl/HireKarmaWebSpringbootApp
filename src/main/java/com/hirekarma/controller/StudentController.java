@@ -266,13 +266,13 @@ public class StudentController {
 
 	}
 	
-	@DeleteMapping("/student/skill")
+	@DeleteMapping("/student/skill/{id}")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<?> deleteSkillOfAStudent(@RequestHeader(value = "Authorization") String token,
-			@RequestBody Skill skill) {
+			@PathVariable("id")int id) {
 		try {
 			
-			Map<String,Object> answer = this.studentService.deleteSkillOfAStudent(skill.getName(), token);
+			Map<String,Object> answer = this.studentService.deleteSkillOfAStudent(id, token);
 			return new ResponseEntity<Response>(new Response("success", 200, "deleted succesfully", answer, null),
 					HttpStatus.OK);
 

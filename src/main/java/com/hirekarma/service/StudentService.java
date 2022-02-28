@@ -43,7 +43,7 @@ public interface StudentService {
 	public UserProfile insert2(String email,String password,String name);
 	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception;
 	public Map<String,Object> addSkillToAStudent(Skill skill, String token) throws Exception;
-	public Map<String,Object> deleteSkillOfAStudent(String name,String token) throws Exception;
+	public Map<String,Object> deleteSkillOfAStudent(int id,String token) throws Exception;
 	public Education addEducationToAStudent(EducationBean educationBean,String token) throws Exception;
 	public void deleteEducationOfAStudentbyId(String token,int id)throws Exception;
 }

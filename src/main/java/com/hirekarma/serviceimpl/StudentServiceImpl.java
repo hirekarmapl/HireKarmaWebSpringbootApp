@@ -1001,19 +1001,19 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public Map<String, Object> deleteSkillOfAStudent(String name, String token) throws Exception {
+	public Map<String, Object> deleteSkillOfAStudent(int id, String token) throws Exception {
 		
 		String email = Validation.validateToken(token);
 		UserProfile userProfile = userRepository.findUserByEmail(email);
 		Map<String,Object> result = new HashMap<String,Object>();
 		
-		Skill skill = skillRespository.findByName(name.toLowerCase());
+		Skill skill = skillRespository.getById(id);
 		if(skill==null) {
 			throw new Exception("no such skill exist");
 		}
 		Boolean ans = userProfile.getSkills().remove(skill);
 		this.userRepository.save(userProfile);
-		result.put("skill", name);
+		
 		return result;
 		
 	}

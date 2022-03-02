@@ -60,9 +60,7 @@ public class Student implements Serializable{
 	@Column(name = "CGPA")
 	private Double cgpa;
 	
-	@Lob
-	@Column(name = "STUDENT_IMAGE")
-	private byte[] studentImage;
+
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
@@ -73,13 +71,24 @@ public class Student implements Serializable{
 
 	@Column(name = "STATUS")
 	private Boolean status;
+	
+	private String imageUrl;
+	
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 
 	@Override
 	public String toString() {
 		return "Student [studentId=" + studentId + ", userId=" + userId + ", studentName=" + studentName
 				+ ", studentPhoneNumber=" + studentPhoneNumber + ", studentEmail=" + studentEmail + ", universityId="
 				+ universityId + ", studentAddress=" + studentAddress + ", branch=" + branch + ", batch=" + batch
-				+ ", cgpa=" + cgpa + ", studentImage=" + Arrays.toString(studentImage) + ", createdOn=" + createdOn
+				+ ", cgpa=" + cgpa + ", createdOn=" + createdOn
 				+ ", updatedOn=" + updatedOn + ", status=" + status + "]";
 	}
 
@@ -163,13 +172,7 @@ public class Student implements Serializable{
 		this.cgpa = cgpa;
 	}
 
-	public byte[] getStudentImage() {
-		return studentImage;
-	}
-
-	public void setStudentImage(byte[] studentImage) {
-		this.studentImage = studentImage;
-	}
+	
 
 	public Timestamp getCreatedOn() {
 		return createdOn;

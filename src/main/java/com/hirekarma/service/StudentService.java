@@ -22,18 +22,17 @@ public interface StudentService {
 //	public StudentBean findStudentById(Long studentId);
 	
 	public UserProfile insert(UserProfile student);
-	public UserBean updateStudentProfile(UserBean studentBean, String token) throws Exception;
+//	public UserBean updateStudentProfile(UserBean studentBean, String token) throws Exception;
 	public UserBean findStudentById(Long studentId);
 	public List<UserBean> getAllStudents(String token) throws Exception;
 	public List<UserBean> importStudentDataExcel(MultipartFile file,String token) throws Exception;
 	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean,String token);
 	public List<?> jobDetails(String token) throws ParseException;
 	public Boolean updateSkills(List<Skill> skillIds,String token) throws Exception;
-	public UserProfile addAllSkillsToStudent(List<Skill> skills,String token) throws Exception;
+	
 	public List<Skill> getAllSkillsOfStudent(String token) throws Exception;
-	public UserProfile addAllExperienceToStudent(List<Experience> experience,String token) throws Exception;
+	
 	public List<Experience> getAllExperiencesOfStudent(String token) throws Exception;
-	List<Education> addAllEducationToStudent(List<Education> education, String token) throws Exception;
 	public List<Education> getAllEducationsOfStudent(String token) throws Exception;
 	public Map<String,Object> getAllJobApplicationsByStudent(Long studentId);
 	
@@ -45,5 +44,10 @@ public interface StudentService {
 	public Map<String,Object> addSkillToAStudent(Skill skill, String token) throws Exception;
 	public Map<String,Object> deleteSkillOfAStudent(int id,String token) throws Exception;
 	public Education addEducationToAStudent(EducationBean educationBean,String token) throws Exception;
-	public void deleteEducationOfAStudentbyId(String token,int id)throws Exception;
+	public void deleteEducationOfAStudentbyId(String token,int id) throws Exception;
+	public Map<String, Object> addAllSkillsToStudent(List<Skill> skills,String token) throws Exception;
+	List<Education> addAllEducationToStudent(List<EducationBean> educationBeans, String token) throws Exception;
+	public List<Experience> addAllExperienceToStudent(List<Experience> experience,String token) throws Exception;
+	Experience addExperienceToAStudent(Experience experience, String token) throws Exception;
+	public void deleteExperienceOfAStudent(int id,String token) throws Exception;
 }

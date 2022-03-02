@@ -1,11 +1,15 @@
 package com.hirekarma.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,18 +19,26 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.hirekarma.beans.Response;
 import com.hirekarma.service.UserService;
+import com.hirekarma.serviceimpl.AWSS3Service;
+import com.hirekarma.utilty.Utility;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/hirekarma/account")
 public class UserController {
 
-	@Autowired
+	@Autowired	
 	UserService userService;
+	
+	@Autowired
+	AWSS3Service awss3Service;
 
 	@PostMapping("/resetPassword")
 	public ResponseEntity<Response> resetPassword(@RequestBody Map<String, String> map) {
@@ -65,6 +77,7 @@ public class UserController {
 	@PostMapping("/reset")
 	public ResponseEntity<Response> resetPasswordToken(@RequestBody Map<String, String> map) {
 		try {
+			System.out.println("inside reset");
 			boolean ans = userService.resetPasswordToken(map.get("email"));
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "", null, null),
 					HttpStatus.OK);
@@ -112,5 +125,13 @@ public class UserController {
 					HttpStatus.BAD_REQUEST);
 		}
 
+	}
+
+	@PostMapping("/upload")
+	public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
+		String publicURL = awss3Service.uploadFile(file);
+		Map<String, String> response = new HashMap<>();
+		response.put("publicURL", publicURL);
+		return new ResponseEntity<Map<String, String>>(response, HttpStatus.CREATED);
 	}
 }

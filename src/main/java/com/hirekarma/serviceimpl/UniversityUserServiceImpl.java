@@ -32,7 +32,8 @@ import com.hirekarma.service.UniversityUserService;
 public class UniversityUserServiceImpl implements UniversityUserService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniversityUserServiceImpl.class);
-
+	@Autowired
+	private AWSS3Service awss3Service;
 	@Autowired
 	private UserRepository userRepository;
 
@@ -146,7 +147,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 //							universityUser.setEmail(universityUserBean.getEmail());
 							universityUser.setPhoneNo(universityUserBean.getPhoneNo());
 							universityUser.setUniversityEmailAddress(universityUserBean.getUniversityEmailAddress());
-							universityUser.setImage(universityUserBean.getImage());
+							universityUser.setImageUrl(awss3Service.uploadFile(universityUserBean.getFile()));
 							universityUser.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 							universityUser.setAddress(universityUserBean.getAddress());
 

@@ -47,6 +47,8 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoporateUserServiceImpl.class);
 
 	@Autowired
+	private AWSS3Service awss3Service;
+	@Autowired
 	private StudentRepository studentRepository;
 	
 	@Autowired
@@ -154,7 +156,8 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 //					updation causig JWT verification error and jwt token not working..
 //					user.setEmail(bean.getEmail());
 					user.setPhoneNo(bean.getPhoneNo());
-					user.setImage(bean.getImage());
+					user.setImageUrl(this.awss3Service.uploadFile(bean.getFile()));
+//					user.setImageUrl(awss3Service.uploadFile(user.get));
 					user.setAddress(bean.getAddress());
 					user.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 					userReturn = userRepository.save(user);

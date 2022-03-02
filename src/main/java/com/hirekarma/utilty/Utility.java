@@ -4,14 +4,25 @@ import java.io.IOException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
 import java.nio.charset.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hirekarma.serviceimpl.AWSS3Service;
+
+
 public class Utility {
+
 	public static byte[] readFile(MultipartFile file) throws IOException {
 
 		byte[] arr = file.getBytes();
@@ -65,4 +76,5 @@ public class Utility {
 	public  static String getDecoderString(String encriptedPassword) {
 		return new String(Base64.getMimeDecoder().decode(encriptedPassword));
 	}
+
 }

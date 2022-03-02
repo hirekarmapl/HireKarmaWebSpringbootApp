@@ -63,9 +63,9 @@ public class UserProfile implements Serializable {
 	@Column(name = "PHONE_NO")
 	private String phoneNo;
 
-	@Lob
-	@Column(name = "IMAGE")
-	private byte[] image;
+	private String imageUrl;
+	
+	
 
 	@Column(name = "USER_TYPE")
 	private String userType;
@@ -88,6 +88,14 @@ public class UserProfile implements Serializable {
 	
 
 	public String about;
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 
 	public String getAbout() {
 		return about;
@@ -218,14 +226,7 @@ public class UserProfile implements Serializable {
 		this.phoneNo = phoneNo;
 	}
 
-	public byte[] getImage() {
-		return image;
-	}
-
-	public void setImage(byte[] image) {
-		this.image = image;
-	}
-
+	
 	public String getUserType() {
 		return userType;
 	}

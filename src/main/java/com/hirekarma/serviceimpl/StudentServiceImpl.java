@@ -84,6 +84,9 @@ public class StudentServiceImpl implements StudentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StudentServiceImpl.class);
 
+	@Autowired
+	private AWSS3Service awss3Service;
+	
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -175,59 +178,77 @@ public class StudentServiceImpl implements StudentService {
 		return user.getExperiences();
 	}
 
-	public UserProfile addAllSkillsToStudent(List<Skill> skills, String token) throws Exception {
+	@Override
+	public Map<String,Object> addAllSkillsToStudent(List<Skill> skills, String token) throws Exception {
 		String email = Validation.validateToken(token);
-		UserProfile userProfile = this.userRepository.findUserByEmail(email);
-		List<Skill> skillToBeSaved = null;
-		userProfile.setSkills(new ArrayList<Skill>());
-
-		for (Skill s : skills) {
-			Skill checkIfSaved = this.skillRespository.findByName(s.getName());
-			if (checkIfSaved == null) {
-				checkIfSaved = this.skillRespository.save(s);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		Map<String,Object> result = new HashMap<String,Object>();
+		for(Skill skill :skills) {
+			skill.setName(skill.getName().toLowerCase());
+			
+			Skill skillExist = skillRespository.findByName(skill.getName());
+			
+			if(skillExist==null) {
+				;
+				skillExist = this.skillRespository.save(skill);
 			}
-			userProfile.getSkills().add(checkIfSaved);
+			if(!userProfile.getSkills().contains(skill)){
 
+				userProfile.getSkills().add(skillExist);
+			}
+			
 		}
-		return this.userRepository.save(userProfile);
+		
+		userProfile = this.userRepository.save(userProfile);
+		result.put("skills", userProfile.getSkills());
+		return result;
 
 	}
 
 	@Override
-	public UserProfile addAllExperienceToStudent(List<Experience> experience, String token) throws Exception {
+	public List<Experience> addAllExperienceToStudent(List<Experience> experience, String token) throws Exception {
 		String email = Validation.validateToken(token);
 		UserProfile user = userRepository.findByEmail(email, "student");
 		if (user == null) {
 			throw new Exception("user not found");
 		}
-		System.out.println(user.getExperiences());
-		experienceRepository.deleteAll(user.getExperiences());
 		for (Experience e : experience) {
 			e.setUserProfile(user);
 		}
 
-		List<Experience> experienceDB = experienceRepository.saveAll(experience);
-
-		return user;
+		return experienceRepository.saveAll(experience);
+	}
+	
+	
+	@Override
+	public Experience addExperienceToAStudent(Experience experience, String token) throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile user = userRepository.findUserByEmail(email);
+		
+		experience.setUserProfile(user);
+		System.out.println(experience);
+		return experienceRepository.save(experience);
 	}
 
 	@Override
-	public List<Education> addAllEducationToStudent(List<Education> education, String token) throws Exception {
+	public List<Education> addAllEducationToStudent(List<EducationBean> educationBeans, String token) throws Exception {
 		String email = Validation.validateToken(token);
-		UserProfile user = userRepository.findByEmail(email, "student");
-		if (user == null) {
-			throw new Exception("user not found");
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		List<Education> educations = new ArrayList<>();
+		for(EducationBean educationBean: educationBeans) {
+			Optional<StudentBatch> studentBatch = this.studentBatchRepository.findById(educationBean.getBatchId());
+			Optional<StudentBranch> studentBranch = this.studentBranchRepository.findById(educationBean.getBranchId());
+			if(!studentBatch.isPresent() || !studentBranch.isPresent()) {
+				throw new Exception("please check batch or branch id");
+			}
+			educationBean.setStudentBatch(studentBatch.get());
+			educationBean.setStudentBranch(studentBranch.get());
+			Education education = new Education();
+			BeanUtils.copyProperties(educationBean, education);
+			education.setUserProfile(userProfile);
+			educations.add(education);
 		}
-		System.out.println(user.getExperiences());
-		educationRepository.deleteAll(user.getEducations());
-		
-		for (Education e : education) {
-			e.setUserProfile(user);
-		}
-
-		List<Education> educationDB = educationRepository.saveAll(education);
-
-		return educationDB;
+		return this.educationRepository.saveAll(educations);
 	}
 
 	@Override
@@ -337,6 +358,7 @@ public class StudentServiceImpl implements StudentService {
 				student.setStatus("Active");
 				student.setUserType("student");
 				student.setEmail(LowerCaseEmail);
+				student.setPhoneNo(student.getPhoneNo());
 				student.setPassword(universityName+"@123");
 				student.setPassword(passwordEncoder.encode(student.getPassword()));
 
@@ -480,12 +502,14 @@ public class StudentServiceImpl implements StudentService {
 		if(userBean.getPhoneNo()!=null) {
 			user.setPhoneNo(userBean.getPhoneNo());
 		}
-		if(userBean.getImage()!=null) {
-			user.setImage(userBean.getImage());
-		}
 		if(userBean.getAddress()!=null) {
 			user.setAddress(userBean.getAddress());
 		}
+		if(userBean.getFile()!=null)
+		{
+			user.setImageUrl(awss3Service.uploadFile(userBean.getFile()));
+		}
+		
 		user.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 	
 		return user;
@@ -512,9 +536,8 @@ public class StudentServiceImpl implements StudentService {
 	
 		student.setStudentName(studentReturn.getName());
 		student.setStudentEmail(studentReturn.getEmail());
-		if(studentReturn.getImage()!=null) {
-
-			student.setStudentImage(studentReturn.getImage());
+		if(studentReturn.getImageUrl()!=null) {
+			student.setImageUrl(studentReturn.getImageUrl());
 		}
 		if(studentReturn.getPhoneNo()!=null) {
 			student.setStudentPhoneNumber(Long.valueOf(studentReturn.getPhoneNo()));
@@ -554,112 +577,112 @@ public class StudentServiceImpl implements StudentService {
 		return studentBeanReturn;
 	}
 
-	@Override
-	public UserBean updateStudentProfile(UserBean studentBean, String token) throws Exception {
-
-		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile(-)");
-
-		UserProfile student = null;
-		UserProfile studentReturn = null;
-		Optional<UserProfile> optional = null;
-		UserBean studentBeanReturn = null;
-		Student stud = new Student();
-		UserProfile userProfile = null;
-
-		String[] chunks1 = token.split(" ");
-		String[] chunks = chunks1[1].split("\\.");
-		Base64.Decoder decoder = Base64.getUrlDecoder();
-
-		String payload = new String(decoder.decode(chunks[1]));
-		JSONParser jsonParser = new JSONParser();
-		Object obj = jsonParser.parse(payload);
-
-		JSONObject jsonObject = (JSONObject) obj;
-
-		String email = (String) jsonObject.get("sub");
-
-		try {
-			LOGGER.debug("Inside try block of StudentServiceImpl.updateStudentProfile(-)");
-
-			userProfile = userRepository.findByEmail(email, "student");
-
-			if (userProfile != null) {
-
-				String LowerCaseEmail = studentBean.getEmail().toLowerCase();
-				Long count1 = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
-
-				Long count2 = studentRepository.getDetailsByEmail(LowerCaseEmail);
-
-				Optional<University> university = universityRepository.findById(studentBean.getUniversityId());
-
-				if (count1 == 1 && count2 == 1) {
-
-					optional = userRepository.findById(userProfile.getUserId());
-
-					Optional<Student> studOptional = studentRepository.getStudentDetails(userProfile.getUserId());
-
-					if (university.isPresent()) {
-
-						if (!optional.isEmpty()) {
-
-							if (studOptional.isPresent()) {
-								student = optional.get();
-								stud = studOptional.get();
-
-								if (student != null) {
-
-									student.setName(studentBean.getName());
-									student.setEmail(studentBean.getEmail());
-									student.setPhoneNo(studentBean.getPhoneNo());
-									student.setImage(studentBean.getImage());
-									student.setAddress(studentBean.getAddress());
-									student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-
-									studentReturn = userRepository.save(student);
-
-									stud.setStudentName(studentReturn.getName());
-									stud.setStudentEmail(studentReturn.getEmail());
-									stud.setStudentImage(studentBean.getImage());
-									stud.setStudentPhoneNumber(Long.valueOf(studentBean.getPhoneNo()));
-									stud.setStatus(true);
-									stud.setUniversityId(studentBean.getUniversityId());
-									stud.setStudentAddress(studentBean.getAddress());
-									stud.setBranch(studentBean.getBranch());
-									stud.setBatch(studentBean.getBatch());
-									stud.setCgpa(studentBean.getCgpa());
-									stud.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-
-									stud = studentRepository.save(stud);
-
-									studentBeanReturn = new UserBean();
-									BeanUtils.copyProperties(studentReturn, studentBeanReturn);
-
-									studentBeanReturn.setBatch(stud.getBatch());
-									studentBeanReturn.setBranch(stud.getBranch());
-									studentBeanReturn.setCgpa(stud.getCgpa());
-									studentBeanReturn.setUniversityId(stud.getUniversityId());
-
-									LOGGER.info(
-											"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
-								}
-							}
-						}
-					} else {
-						throw new StudentUserDefindException("This University Is Not Present !!");
-					}
-				} else {
-					throw new StudentUserDefindException("This Email Is Already Present !!");
-				}
-			} else {
-				throw new StudentUserDefindException("No Data Found !!");
-			}
-
-			return studentBeanReturn;
-		} catch (Exception e) {
-			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): " + e);
-			throw new StudentUserDefindException(e.getMessage());
-		}
-	}
+//	@Override
+//	public UserBean updateStudentProfile(UserBean studentBean, String token) throws Exception {
+//
+//		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile(-)");
+//
+//		UserProfile student = null;
+//		UserProfile studentReturn = null;
+//		Optional<UserProfile> optional = null;
+//		UserBean studentBeanReturn = null;
+//		Student stud = new Student();
+//		UserProfile userProfile = null;
+//
+//		String[] chunks1 = token.split(" ");
+//		String[] chunks = chunks1[1].split("\\.");
+//		Base64.Decoder decoder = Base64.getUrlDecoder();
+//
+//		String payload = new String(decoder.decode(chunks[1]));
+//		JSONParser jsonParser = new JSONParser();
+//		Object obj = jsonParser.parse(payload);
+//
+//		JSONObject jsonObject = (JSONObject) obj;
+//
+//		String email = (String) jsonObject.get("sub");
+//
+//		try {
+//			LOGGER.debug("Inside try block of StudentServiceImpl.updateStudentProfile(-)");
+//
+//			userProfile = userRepository.findByEmail(email, "student");
+//
+//			if (userProfile != null) {
+//
+//				String LowerCaseEmail = studentBean.getEmail().toLowerCase();
+//				Long count1 = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
+//
+//				Long count2 = studentRepository.getDetailsByEmail(LowerCaseEmail);
+//
+//				Optional<University> university = universityRepository.findById(studentBean.getUniversityId());
+//
+//				if (count1 == 1 && count2 == 1) {
+//
+//					optional = userRepository.findById(userProfile.getUserId());
+//
+//					Optional<Student> studOptional = studentRepository.getStudentDetails(userProfile.getUserId());
+//
+//					if (university.isPresent()) {
+//
+//						if (!optional.isEmpty()) {
+//
+//							if (studOptional.isPresent()) {
+//								student = optional.get();
+//								stud = studOptional.get();
+//
+//								if (student != null) {
+//
+//									student.setName(studentBean.getName());
+//									student.setEmail(studentBean.getEmail());
+//									student.setPhoneNo(studentBean.getPhoneNo());
+//									student.setImage(studentBean.getImage());
+//									student.setAddress(studentBean.getAddress());
+//									student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+//
+//									studentReturn = userRepository.save(student);
+//
+//									stud.setStudentName(studentReturn.getName());
+//									stud.setStudentEmail(studentReturn.getEmail());
+//									stud.setStudentImage(studentBean.getImage());
+//									stud.setStudentPhoneNumber(Long.valueOf(studentBean.getPhoneNo()));
+//									stud.setStatus(true);
+//									stud.setUniversityId(studentBean.getUniversityId());
+//									stud.setStudentAddress(studentBean.getAddress());
+//									stud.setBranch(studentBean.getBranch());
+//									stud.setBatch(studentBean.getBatch());
+//									stud.setCgpa(studentBean.getCgpa());
+//									stud.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+//
+//									stud = studentRepository.save(stud);
+//
+//									studentBeanReturn = new UserBean();
+//									BeanUtils.copyProperties(studentReturn, studentBeanReturn);
+//
+//									studentBeanReturn.setBatch(stud.getBatch());
+//									studentBeanReturn.setBranch(stud.getBranch());
+//									studentBeanReturn.setCgpa(stud.getCgpa());
+//									studentBeanReturn.setUniversityId(stud.getUniversityId());
+//
+//									LOGGER.info(
+//											"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+//								}
+//							}
+//						}
+//					} else {
+//						throw new StudentUserDefindException("This University Is Not Present !!");
+//					}
+//				} else {
+//					throw new StudentUserDefindException("This Email Is Already Present !!");
+//				}
+//			} else {
+//				throw new StudentUserDefindException("No Data Found !!");
+//			}
+//
+//			return studentBeanReturn;
+//		} catch (Exception e) {
+//			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): " + e);
+//			throw new StudentUserDefindException(e.getMessage());
+//		}
+//	}
 
 //	@Override
 //	public StudentBean findStudentById(Long studentId) {
@@ -790,6 +813,7 @@ public class StudentServiceImpl implements StudentService {
 				studentProfile = new UserProfile();
 				studentProfile.setName(student.get("Name"));
 				studentProfile.setEmail(student.get("Email"));
+				studentProfile.setPhoneNo(student.get("Phone"));
 				generatedPassword = generateRandomPassword(passwordLength);
 				studentProfile.setPassword(generatedPassword);
 				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId(),university.getUniversityName());
@@ -976,6 +1000,7 @@ public class StudentServiceImpl implements StudentService {
 		}
 	}
 
+	
 	@Override
 	public Map<String,Object> addSkillToAStudent(Skill skill, String token) throws Exception {
 		String email = Validation.validateToken(token);
@@ -1017,7 +1042,21 @@ public class StudentServiceImpl implements StudentService {
 		return result;
 		
 	}
-
+	@Override
+	public void deleteExperienceOfAStudent(int id,String token) throws Exception{
+		String email = Validation.validateToken(token);
+		UserProfile userProfile = userRepository.findUserByEmail(email);
+		Optional<Experience> optional = experienceRepository.findById(id);
+		if(optional.isEmpty()) {
+			throw new Exception("no such experience found");
+		}
+		Experience experience = optional.get();
+		if(experience.getUserProfile().getUserId() != userProfile.getUserId())
+		{
+			throw new Exception("unauthorized");
+		}
+		this.experienceRepository.delete(experience);
+	}
 	
 //	@Override
 //	public StudentBean checkLoginCredentials(String email, String password) {

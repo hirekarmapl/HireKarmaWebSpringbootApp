@@ -32,13 +32,12 @@ public class UserBean implements Serializable {
 	
 	private String name;
 	
-	
+	private String imageUrl;
 	private String email;
 	private String universityEmailAddress;
 	private String phoneNo;
 	private byte[] image;
 	private String userType;
-	
 	private String password;
 	private String address;
 	private Timestamp createdOn;
@@ -52,6 +51,12 @@ public class UserBean implements Serializable {
 	private List<Skill> skills = new ArrayList<Skill>();
 	public Long getUserId() {
 		return userId;
+	}
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 	public void setUserId(Long userId) {
 		this.userId = userId;

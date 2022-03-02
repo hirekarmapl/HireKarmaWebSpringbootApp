@@ -66,7 +66,6 @@ public class EmailSenderService {
 	public void sendEmailWithoutAttachment(String toEmail, String body, String subject) {
 
 		Logger.info("Inside SendEmailWithoutAttachment() Method...");
-
 		try {
 			
 			MimeMessage mailMessage = mailSender.createMimeMessage();
@@ -79,8 +78,9 @@ public class EmailSenderService {
 			helper.setSubject(subject);
 
 			mailMessage.setText(body, "UTF-8", "html");
-			mailSender.send(mailMessage);
 
+//			System.out.println(toEmail+" "+body+" "+subject);
+			mailSender.send(mailMessage);
 			Logger.info("Mail Sended Sussessfully WithOut Attachment...");
 		} catch (Exception e) {
 			Logger.info("Error! failed sending mail");

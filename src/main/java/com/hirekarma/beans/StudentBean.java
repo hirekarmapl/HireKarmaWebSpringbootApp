@@ -10,7 +10,6 @@ public class StudentBean {
 	private String name;
 	private String email;
 	private String phoneNO;
-    private byte[] profileImage;
 	private String address;
 	private String password;
 	private String userType;
@@ -40,12 +39,7 @@ public class StudentBean {
 	public void setPhoneNO(String phoneNO) {
 		this.phoneNO = phoneNO;
 	}
-	public byte[] getProfileImage() {
-		return profileImage;
-	}
-	public void setProfileImage(byte[] profileImage) {
-		this.profileImage = profileImage;
-	}
+	
 	public String getAddress() {
 		return address;
 	}
@@ -74,7 +68,7 @@ public class StudentBean {
 	@Override
 	public String toString() {
 		return "StudentBean [studentId=" + studentId + ", name=" + name + ", email=" + email + ", phoneNO=" + phoneNO
-				+ ", profileImage=" + Arrays.toString(profileImage) + ", address=" + address + ", password=" + password
+				 + ", address=" + address + ", password=" + password
 				+ ", userType=" + userType + ", file=" + file + "]";
 	}
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.email.service.EmailSenderService;
@@ -108,4 +109,7 @@ public class UserServiceImpl implements UserService {
 		}
 		return userProfile.getAbout();
 	}
+	
+	
+	
 }

@@ -131,7 +131,6 @@ public class UniversityServiceImpl implements UniversityService {
 		return response;
 	}
 
-	//over here university id is user_profile id of university
 	@Override
 	public Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception {

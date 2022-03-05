@@ -1,19 +1,30 @@
 package com.hirekarma.serviceimpl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -202,6 +213,32 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 			LOGGER.error("Error occured in UniversityUserServiceImpl.findUniversityById(-): " + e);
 			throw new UniversityUserDefindException(e.getMessage());
 		}
+	}
+
+
+	@Override
+	public ResponseEntity<Resource> getDummyExcelForStudentImport() {
+		String filename = "import_student.xlsx";
+		   String[] HEADERs = {"Name", "Email", "Phone" };
+		   String SHEET="all_Student";
+	    try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+	      Sheet sheet = workbook.createSheet(SHEET);
+	      // Header
+	      Row headerRow = sheet.createRow(0);
+	      for (int col = 0; col < HEADERs.length; col++) {
+	        Cell cell = headerRow.createCell(col);
+	        cell.setCellValue(HEADERs[col]);
+	      }
+	      
+	      workbook.write(out);
+	      ByteArrayInputStream in =  new ByteArrayInputStream(out.toByteArray());
+	  	InputStreamResource files = new InputStreamResource(in);
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+				.contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(files);
+	    } catch (IOException e) {
+	      throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
+	    }
+	  
 	}
 
 //	@Override

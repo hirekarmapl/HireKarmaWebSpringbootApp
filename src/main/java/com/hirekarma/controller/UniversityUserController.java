@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -34,6 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.UniversityUserDefindException;
+import com.hirekarma.model.QuestionANdanswer;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.StudentService;
 import com.hirekarma.service.UniversityUserService;
@@ -320,6 +322,10 @@ public class UniversityUserController {
 		return null;
 	}
 
+	 @GetMapping("/university/getDummyExcelForStudentImport")
+	  public ResponseEntity<Resource> getDummyExcelForStudentImport() {
+		 return universityUserService.getDummyExcelForStudentImport();
+	 }
 	// upload student details as excel
 	@PostMapping("/importStudentDataExcel")
 	@PreAuthorize("hasRole('university')")

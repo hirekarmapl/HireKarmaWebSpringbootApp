@@ -180,7 +180,10 @@ public class AdminServiceImpl implements AdminService {
 				AdminShareJobToUniversity.setJobStatus("ACTIVE");
 				AdminShareJobToUniversity.setCreatedBy("Biswa");
 				AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
-				AdminShareJobToUniversity.setLookUp(adminShareJobToUniversityBean.getJsonObject().toString());
+				if(adminShareJobToUniversityBean.getJsonObject()!=null) {
+
+					AdminShareJobToUniversity.setLookUp(adminShareJobToUniversityBean.getJsonObject().toString());
+				}
 				shareJobRepository.save(AdminShareJobToUniversity);
 				BeanUtils.copyProperties(AdminShareJobToUniversity, user);
 				list.add(AdminShareJobToUniversity);

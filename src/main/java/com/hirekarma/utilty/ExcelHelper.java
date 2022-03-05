@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.QuestionAndAnswerBean;
+import com.hirekarma.model.Corporate;
 public class ExcelHelper {
   public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   static String[] HEADERs = { "question", "type", "mcqanswer", "codingdescription","testcase","corporateid" };
@@ -25,7 +26,7 @@ public class ExcelHelper {
     }
     return true;
   }
-  public static List<QuestionAndAnswerBean> excelToTutorials(InputStream is) {
+  public static List<QuestionAndAnswerBean> excelToTutorials(InputStream is,Corporate corporate) {
     try {
     	System.out.println(is.toString());
       Workbook workbook = new XSSFWorkbook(is);
@@ -55,7 +56,7 @@ public class ExcelHelper {
 							tutorial.setQuestion(question);
 							break;
 						case 1:
-							tutorial.setCorporateId(currentCell.getStringCellValue());
+							tutorial.setCorporate(corporate);
 							break;
 						default:
 							break;
@@ -69,7 +70,7 @@ public class ExcelHelper {
 							tutorial.setQuestion(question);
 							break;
 						case 1:
-							tutorial.setCorporateId(currentCell.getStringCellValue());
+							tutorial.setCorporate(corporate);
 							break;
 						default:
 							break;
@@ -87,7 +88,7 @@ public class ExcelHelper {
 							tutorial.setMcqAnswer(mcqAnswer);
 							break;
 						case 2:
-							tutorial.setCorporateId(currentCell.getStringCellValue());
+							tutorial.setCorporate(corporate);
 							break;
 						default:
 							break;
@@ -108,7 +109,7 @@ public class ExcelHelper {
 							tutorial.setTestCase(testCases);
 							break;
 						case 3:
-							tutorial.setCorporateId(currentCell.getStringCellValue());
+							tutorial.setCorporate(corporate);
 							break;
 						default:
 							break;
@@ -135,7 +136,7 @@ public class ExcelHelper {
 							tutorial.setTestCase(testCases);
 							break;
 						case 5:
-							tutorial.setCorporateId(currentCell.getStringCellValue());
+							tutorial.setCorporate(corporate);
 							break;
 						default:
 							break;

@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.QuestionAndAnswerBean;
 import com.hirekarma.beans.QuestionAndAnswerResponseBean;
 import com.hirekarma.model.CodingAnswer;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.InputAnswer;
 import com.hirekarma.model.LongAnswer;
 import com.hirekarma.model.MCQAnswer;
@@ -39,12 +40,16 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	MCQRepository mcqRepo;
 
 
-	public QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA) {
+	@Override
+	public QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA,Corporate corporate) {
+		
 		QuestionAndAnswerResponseBean bean=new QuestionAndAnswerResponseBean();
+		
 		for(int i=0;i<qAndA.size();i++) {
 			QuestionAndAnswerBean QAbean=new QuestionAndAnswerBean();
 			QuestionANdanswer QA=new QuestionANdanswer();
 			QAbean=qAndA.get(i);
+			QAbean.setCorporate(corporate);
 			String QType=QAbean.getType();
 			if(QType.equals("QNA")) {
 				createQNARecord(QAbean,QARepo,bean);				
@@ -62,12 +67,13 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				QA.setType(QAbean.getType());
 				QA.setCodingDescription(QAbean.getCodingDescription());
 				String[] testCase=QAbean.getTestCase();
-				QA.setCorporateId(QAbean.getCorporateId());
-				QA.setuID(UUID.randomUUID().toString());
+				QA.setCorporate(corporate);
+				
+				QA.setUID(UUID.randomUUID().toString());
 				List<CodingAnswer> codAns=new ArrayList();
 				for(int x=0;x<testCase.length;x++) {
 					CodingAnswer ans=new CodingAnswer();
-					ans.setQ_uid(QA.getuID());
+					ans.setQ_uid(QA.getUID());
 					ans.setTestCases(testCase[x]);
 					codAns.add(ans);
 				}
@@ -90,8 +96,8 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		String [] question=QAbean.getQuestion();
 		QA.setQuestion(question[0]);
 		QA.setType(QAbean.getType());
-		QA.setCorporateId(QAbean.getCorporateId());
-		QA.setuID(UUID.randomUUID().toString());
+		QA.setCorporate(QAbean.getCorporate());
+		QA.setUID(UUID.randomUUID().toString());
 		QARepo.save(QA);
 		bean.setStatus(200);
 		bean.setMessage("Data Saved Successfully!!");
@@ -106,17 +112,17 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		for(int j=0;j<question.length;j++) {
 		QA.setQuestion(question[j]);
 		QA.setType(QAbean.getType());
-		QA.setuID(UUID.randomUUID().toString());
+		QA.setUID(UUID.randomUUID().toString());
 		String[] mcqAnswer=QAbean.getMcqAnswer();
 		List<MCQAnswer> ans=new ArrayList();
 		for(int k=0;k<mcqAnswer.length;k++) {
 			MCQAnswer answer=new MCQAnswer();
 			answer.setMcqAnswer(mcqAnswer[k]);
-			answer.setQ_uid(QA.getuID());
+			answer.setQ_uid(QA.getUID());
 			ans.add(answer);					
 		}
 		QA.setMcqAnswer(ans);
-		QA.setCorporateId(QAbean.getCorporateId());	
+		QA.setCorporate(QAbean.getCorporate());	
 		QA.setCorrectOption(QAbean.getAnswer());
 		
 		QARepo.save(QA);
@@ -134,8 +140,8 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 			QuestionANdanswer QAs=new QuestionANdanswer();
 		QAs.setQuestion(question[j]);
 		QAs.setType(QAbean.getType());
-		QAs.setCorporateId(QAbean.getCorporateId());
-		QAs.setuID(UUID.randomUUID().toString());
+		QAs.setCorporate(QAbean.getCorporate());
+		QAs.setUID(UUID.randomUUID().toString());
 		QARepo.save(QAs);
 		}
 		bean.setStatus(200);
@@ -146,15 +152,17 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	}
 
 
-	public QuestionAndAnswerResponseBean updateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA) {
+	public QuestionAndAnswerResponseBean updateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA,Corporate corporate) {
 		QuestionAndAnswerResponseBean bean=new QuestionAndAnswerResponseBean();
 		for(int i=0;i<qAndA.size();i++) {	
 			QuestionAndAnswerBean QAbean=new QuestionAndAnswerBean();
 			QAbean=qAndA.get(i);
 			String QType=QAbean.getType();
+			QAbean.setCorporate(corporate);
 			if(QType.equals("QNA")) {
 				QuestionANdanswer QABeanDetail=new QuestionANdanswer();
-				QABeanDetail=QARepo.findByuID(QAbean.getuId());
+				QABeanDetail=QARepo.findByuID(QAbean.getUId());
+				
 				LongAnswer lAns=new LongAnswer();
 				if(QABeanDetail==null) {
 					bean.setStatus(207);
@@ -164,10 +172,10 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				String [] question=QAbean.getQuestion();
 				QABeanDetail.setQuestion((question[0]==null || question[0].equals(""))?QABeanDetail.getQuestion():question[0]);
 				QABeanDetail.setType((QAbean.getType()==null ||QAbean.getType().equals(""))?QABeanDetail.getType():QAbean.getType());
-				QABeanDetail.setCorporateId((QAbean.getCorporateId()==null ||QAbean.getCorporateId().equals(""))?QABeanDetail.getCorporateId():QAbean.getCorporateId());
+				QABeanDetail.setCorporate(QAbean.getCorporate());
 				lAns.setId(QABeanDetail.getId());
 				lAns.setLongAnswer(QAbean.getLongAnswer());
-				lAns.setUid(QABeanDetail.getuID());
+				lAns.setUid(QABeanDetail.getUID());
 				QABeanDetail.setLongAnswer(lAns);
 				QARepo.save(QABeanDetail);
 				bean.setStatus(200);
@@ -176,7 +184,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				
 			}else if(QType.equals("MCQ")) {
 				QuestionANdanswer QABeanDetail=new QuestionANdanswer();
-				QABeanDetail=QARepo.findByuID(QAbean.getuId());
+				QABeanDetail=QARepo.findByuID(QAbean.getUId());
 				if(QABeanDetail==null) {
 					bean.setStatus(207);
 					bean.setMessage("Data Can not be Updated because it is not found!!");
@@ -185,7 +193,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				String [] question=QAbean.getQuestion();
 				QABeanDetail.setQuestion((question[0]==null || question[0].equals(""))?QABeanDetail.getQuestion():question[0]);
 				QABeanDetail.setType((QAbean.getType()==null || QAbean.getType().equals(""))?QABeanDetail.getType():QAbean.getType());
-				QABeanDetail.setCorporateId((QAbean.getCorporateId()==null || QAbean.getCorporateId().equals(""))?QABeanDetail.getCorporateId():QAbean.getCorporateId());
+				QABeanDetail.setCorporate(QAbean.getCorporate());
 				List<MCQAnswer> mcqAns=mcqRepo.findAllByUid(QABeanDetail.getId().toString());
 				List<MCQAnswer> mcq=QABeanDetail.getMcqAnswer();
 				List<MCQAnswer> mcqAnswer=QAbean.getMcqAns();
@@ -198,7 +206,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				if(mcqA.getId()==mcqAn.getId()) {					
 					answer.setId(mcqAn.getId());
 					answer.setMcqAnswer((mcqAn.getMcqAnswer()==null || mcqAn.getMcqAnswer().equals(""))?QABeanDetail.getMcqAnswer().get(k).getMcqAnswer():mcqAn.getMcqAnswer());					
-					answer.setQ_uid(QABeanDetail.getuID());
+					answer.setQ_uid(QABeanDetail.getUID());
 					answer.setUid(QABeanDetail.getId().toString());
 					ans.add(answer);	
 					continue;
@@ -206,7 +214,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				}
 				answer.setId(mcqA.getId());
 				answer.setMcqAnswer(mcqA.getMcqAnswer());					
-				answer.setQ_uid(QABeanDetail.getuID());
+				answer.setQ_uid(QABeanDetail.getUID());
 				answer.setUid(QABeanDetail.getId().toString());
 				ans.add(answer);
 				}
@@ -220,7 +228,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				}
 			}else if(QType.equals("Input")) {
 				QuestionANdanswer QABeanDetail=new QuestionANdanswer();
-				QABeanDetail=QARepo.findByuID(QAbean.getuId());
+				QABeanDetail=QARepo.findByuID(QAbean.getUId());
 				if(QABeanDetail==null) {
 					bean.setStatus(207);
 					bean.setMessage("Data Can not be Updated because it is not found!!");
@@ -230,10 +238,10 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				String [] question=QAbean.getQuestion();
 				QABeanDetail.setQuestion((question[0]==null || question[0].equals(""))?QABeanDetail.getQuestion():question[0]);
 				QABeanDetail.setType((QAbean.getType()==null || QAbean.getType().equals(""))?QABeanDetail.getType():QAbean.getType());
-				QABeanDetail.setCorporateId((QAbean.getCorporateId()==null || QAbean.getCorporateId().equals(""))?QABeanDetail.getCorporateId():QAbean.getCorporateId());
+				QABeanDetail.setCorporate(QAbean.getCorporate());
 				answer.setId(QABeanDetail.getId());
 				answer.setInputAnswer(QAbean.getInputAnswer());
-				answer.setUid(QABeanDetail.getuID());
+				answer.setUid(QABeanDetail.getUID());
 				QABeanDetail.setInputAnswer(answer);
 				QARepo.save(QABeanDetail);
 				bean.setStatus(200);
@@ -241,7 +249,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				}
 			}else if(QType.equals("Coding")) {
 				QuestionANdanswer QABeanDetail=new QuestionANdanswer();
-				QABeanDetail=QARepo.findByuID(QAbean.getuId());
+				QABeanDetail=QARepo.findByuID(QAbean.getUId());
 				if(QABeanDetail==null) {
 					bean.setStatus(207);
 					bean.setMessage("Data Can not be Updated because it is not found!!");
@@ -251,7 +259,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				QABeanDetail.setQuestion((question[0]==null || question[0].equals(""))?QABeanDetail.getQuestion():question[0]);
 				QABeanDetail.setType((QAbean.getType()==null || QAbean.getType().equals(""))?QABeanDetail.getType():QAbean.getType());
 				QABeanDetail.setCodingDescription((QAbean.getCodingDescription()==null || QAbean.getCodingDescription().equals(""))?QABeanDetail.getCodingDescription():QAbean.getCodingDescription());
-				QABeanDetail.setCorporateId((QAbean.getCorporateId()==null || QAbean.getCorporateId().equals(""))?QABeanDetail.getCorporateId():QAbean.getCorporateId());
+				QABeanDetail.setCorporate(QAbean.getCorporate());
 				QARepo.save(QABeanDetail);
 				bean.setStatus(200);
 				bean.setMessage("Data Updated Successfully!!");
@@ -287,15 +295,15 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 
 
 	@Override
-	public ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file) {
+	public ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file,Corporate corporate) {
 		String message = "";
 		int status=0;
 		ExcelService fileService=new ExcelService();
 		CSVService csvService=new CSVService();
 	    if (ExcelHelper.hasExcelFormat(file)) {
 	      try {
-	    	  List<QuestionAndAnswerBean> tutorial= fileService.save(file);
-	    	  CreateQuestionAndAnswer(tutorial);
+	    	  List<QuestionAndAnswerBean> tutorial= fileService.save(file,corporate);
+	    	  CreateQuestionAndAnswer(tutorial,corporate);
 	        status=200;
 	        message = "Uploaded the file successfully: " + file.getOriginalFilename();
 	        return ResponseEntity.status(HttpStatus.OK).body(new QuestionAndAnswerResponseBean(status,message));
@@ -304,19 +312,21 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	        message = "Could not upload the file: " + file.getOriginalFilename() + "!";
 	        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new QuestionAndAnswerResponseBean(status,message));
 	      }
-	    }else  if (CSVHelper.hasCSVFormat(file)){
-	    	try {
-		    	  List<QuestionAndAnswerBean> tutorial= csvService.save(file);
-		    	  CreateQuestionAndAnswer(tutorial);
-		        status=200;
-		        message = "Uploaded the file successfully: " + file.getOriginalFilename();
-		        return ResponseEntity.status(HttpStatus.OK).body(new QuestionAndAnswerResponseBean(status,message));
-		      } catch (Exception e) {
-		    	 status=210; 
-		        message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-		        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new QuestionAndAnswerResponseBean(status,message));
-		      }
 	    }
+//	    -------------------------------csv not working --------------------------
+//	    else  if (CSVHelper.hasCSVFormat(file)){
+//	    	try {
+//		    	  List<QuestionAndAnswerBean> tutorial= csvService.save(file);
+//		    	  CreateQuestionAndAnswer(tutorial,corporate);
+//		        status=200;
+//		        message = "Uploaded the file successfully: " + file.getOriginalFilename();
+//		        return ResponseEntity.status(HttpStatus.OK).body(new QuestionAndAnswerResponseBean(status,message));
+//		      } catch (Exception e) {
+//		    	 status=210; 
+//		        message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+//		        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new QuestionAndAnswerResponseBean(status,message));
+//		      }
+//	    }
 	    status=210;
 	    message = "Please upload an excel file!";
 	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new QuestionAndAnswerResponseBean(status,message));
@@ -326,13 +336,14 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	@Override
 	public ResponseEntity<Resource> downloadFile(String type) {
 		List<QuestionAndAnswerBean> tutorials = getAllDetail();
-		if (type.contains("CSV")) {
-			String filename = "QandA.csv";
-			ByteArrayInputStream in = CsvDownload.tutorialsToCSV(tutorials);
-			InputStreamResource files = new InputStreamResource(in);
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-					.contentType(MediaType.parseMediaType("application/csv")).body(files);
-		} else if (type.contains("xlsx")) {
+//		if (type.contains("CSV")) {
+//			String filename = "QandA.csv";
+//			ByteArrayInputStream in = CsvDownload.tutorialsToCSV(tutorials);
+//			InputStreamResource files = new InputStreamResource(in);
+//			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+//					.contentType(MediaType.parseMediaType("application/csv")).body(files);
+//		} else 
+		if (type.contains("xlsx")) {
 			String filename = "QandA.xlsx";
 			ByteArrayInputStream in = ExcelDownload.tutorialsToExcel(tutorials);
 			InputStreamResource files = new InputStreamResource(in);
@@ -370,7 +381,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				testCases[j]=testcase.get(j).getTestCases();
 			}
 			bean.setTestCase(testCases);
-			bean.setCorporateId(ans.getCorporateId());
+			bean.setCorporate(ans.getCorporate());
 			tutorial.add(bean);
 		}
 		return tutorial;
@@ -420,5 +431,12 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	public List<QuestionANdanswer> getQNAByType(String type){
 		return this.QARepo.findByType(type);
 	}
+	
+	public List<QuestionANdanswer> getQNAForCorporate(Corporate corporate){
+		return QARepo.findQandAForCorporate(corporate);
+	}
+
+
+
 
 }

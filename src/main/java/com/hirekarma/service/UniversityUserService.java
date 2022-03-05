@@ -1,5 +1,8 @@
 package com.hirekarma.service;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.UserProfile;
 
@@ -13,5 +16,5 @@ public interface UniversityUserService {
 	public UserProfile insert(UserProfile universityUser);
 	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String token);
 	public UserBean findUniversityById(Long universityId);
-
+	ResponseEntity<Resource> getDummyExcelForStudentImport();
 }

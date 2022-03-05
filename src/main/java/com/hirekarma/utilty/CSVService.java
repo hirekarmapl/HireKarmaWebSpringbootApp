@@ -11,14 +11,14 @@ import com.hirekarma.beans.QuestionAndAnswerBean;
 
 public class CSVService {
 
-  public List<QuestionAndAnswerBean> save(MultipartFile file) {
-	  List<QuestionAndAnswerBean> tutorials=new ArrayList<>();
-    try {
-      tutorials = CSVHelper.csvToTutorials(file.getInputStream());
-    } catch (IOException e) {
-      throw new RuntimeException("fail to store csv data: " + e.getMessage());
-    }
-    return tutorials;
-  }
+//  public List<QuestionAndAnswerBean> save(MultipartFile file) {
+////	  List<QuestionAndAnswerBean> tutorials=new ArrayList<>();
+////    try {
+////      tutorials = CSVHelper.csvToTutorials(file.getInputStream());
+////    } catch (IOException e) {
+////      throw new RuntimeException("fail to store csv data: " + e.getMessage());
+////    }
+////    return tutorials;
+//  }
 
 }

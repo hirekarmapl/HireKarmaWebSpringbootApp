@@ -62,7 +62,8 @@ public class ExcelDownload {
            }
         }
         row.createCell(4).setCellValue(sb1.toString());
-        row.createCell(5).setCellValue(tutorial.getCorporateId());
+       
+        row.createCell(5).setCellValue(tutorial.getCorporate()!=null?tutorial.getCorporate().getCorporateName():"");
       }
       workbook.write(out);
       return new ByteArrayInputStream(out.toByteArray());

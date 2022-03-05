@@ -76,6 +76,10 @@ public class Corporate {
 	@OneToMany(mappedBy = "corporate")
 	@JsonIgnore
 	private List<OnlineAssessment> onlineAssessments;
+	
+	@OneToMany(mappedBy = "corporate")
+	@JsonIgnore
+	private List<QuestionANdanswer> questionANdanswers;
 
 	public List<OnlineAssessment> getOnlineAssessments() {
 		return onlineAssessments;

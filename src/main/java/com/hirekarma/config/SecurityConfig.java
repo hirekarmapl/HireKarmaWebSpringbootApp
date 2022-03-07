@@ -62,10 +62,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/hirekarma/displayJobList",
 				"/hirekarma/branch",
 				"/hirekarma/branchs",
-				"/hirekarma/stream",
+					"/hirekarma/stream",
 				"/hirekarma/streams",
 				"/hirekarma/batch",
-				"/hirekarma/batch"
+				"/hirekarma/batch",
+				"/hirekarma/university/getDummyExcelForStudentImport"
 			).permitAll()
 			.anyRequest()
 			.authenticated()

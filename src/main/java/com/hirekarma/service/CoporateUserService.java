@@ -17,7 +17,7 @@ public interface CoporateUserService {
 
 	public UserProfile insert(UserProfile userProfile);
 
-	public UserBean updateCoporateUserProfile(UserBean userBean);
+	public UserBean updateCoporateUserProfile(UserBean userBean,String token)throws Exception;
 
 	public UserBean findCorporateById(Long userId);
 

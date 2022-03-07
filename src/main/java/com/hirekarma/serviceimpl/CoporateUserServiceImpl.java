@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.hibernate.internal.build.AllowSysOut;
+import org.hibernate.validator.internal.constraintvalidators.bv.number.bound.decimal.DecimalMaxValidatorForNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -19,6 +20,7 @@ import com.hirekarma.beans.CampusDriveInviteBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.exception.StudentUserDefindException;
@@ -40,6 +42,7 @@ import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.CoporateUserService;
+import com.hirekarma.utilty.Validation;
 
 @Service("coporateUserService")
 public class CoporateUserServiceImpl implements CoporateUserService {
@@ -138,39 +141,45 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		}
 	}
 
-	@Override
-	public UserBean updateCoporateUserProfile(UserBean bean) {
-		LOGGER.debug("Inside CoporateUserServiceImpl.updateCoporateUserProfile(-)");
-		UserProfile user = null;
-		UserProfile userReturn = null;
-		Optional<UserProfile> optional = null;
-		UserBean userBean = null;
-		try {
-			LOGGER.debug("Inside try block of CoporateUserServiceImpl.updateCoporateUserProfile(-)");
-			optional = userRepository.findById(bean.getUserId());
-			if (!optional.isEmpty()) {
-				
-				user = optional.get();
-				if (user != null) {
-					user.setName(bean.getName());
-//					updation causig JWT verification error and jwt token not working..
-//					user.setEmail(bean.getEmail());
-					user.setPhoneNo(bean.getPhoneNo());
-					user.setImageUrl(this.awss3Service.uploadFile(bean.getFile()));
-//					user.setImageUrl(awss3Service.uploadFile(user.get));
-					user.setAddress(bean.getAddress());
-					user.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-					userReturn = userRepository.save(user);
-					userBean = new UserBean();
-					BeanUtils.copyProperties(userReturn, userBean);
-					LOGGER.info("Data Successfully updated using CoporateUserServiceImpl.updateCoporateUserProfile(-)");
-				}
-			}
-			return userBean;
-		} catch (Exception e) {
-			LOGGER.error("Error occured in CoporateUserServiceImpl.updateCoporateUserProfile(-): " + e);
-			throw new CoporateUserDefindException(e.getMessage());
+	public UserProfile updateUserProfilefromUserNotNullForCorporate(UserBean bean,UserProfile userProfile) throws Exception {
+		if(bean.getFile()!=null) {
+			userProfile.setImageUrl(awss3Service.uploadFile(bean.getFile()));
 		}
+		if(bean.getPhoneNo()!=null) {
+			if(!Validation.isValidMobileNo(bean.getPhoneNo())) {
+				throw new Exception("Enter proper phone number");
+			}
+			userProfile.setPhoneNo(bean.getPhoneNo());
+		}
+		if(bean.getAddress()!=null && !bean.getAddress().equals("")) {
+			userProfile.setAddress(bean.getAddress());
+		}
+		if(bean.getName()!=null && !bean.getName().equals("")) {
+			userProfile.setName(bean.getName());
+		}
+		return userProfile;
+	}
+	
+	public Corporate updateCorporateFromUserProfileNotNull(UserProfile userProfile,Corporate corporate){
+		corporate.setImageUrl(userProfile.getImageUrl());
+		corporate.setCorporatePhoneNumber(userProfile.getPhoneNo());
+		corporate.setCorporateAddress(userProfile.getAddress());
+		corporate.setCorporateName(userProfile.getName());
+		return corporate;
+	}
+	@Override
+	public UserBean updateCoporateUserProfile(UserBean bean,String token)throws Exception {
+		String email = Validation.validateToken(token);
+		UserProfile userProfile= userRepository.findUserByEmail(email);
+		if(!userProfile.getUserType().equals("corporate")) {
+			throw new Exception("no such corporate exist");
+		}
+		userProfile = this.userRepository.save(updateUserProfilefromUserNotNullForCorporate(bean,userProfile));
+		Corporate corporate = this.corporateRepository.findByEmail(email);
+		corporate  = this.corporateRepository.save(updateCorporateFromUserProfileNotNull(userProfile,corporate));
+		UserBean userBean = new UserBean();
+		BeanUtils.copyProperties(userProfile, userBean);
+		return userBean;
 	}
 
 	@Override
@@ -483,6 +492,8 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			return map;
 		}
 	}
+
+	
 
 //	@Override
 //	public CoporateUserBean findCorporateById(Long corpUserId) {

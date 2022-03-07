@@ -1,8 +1,12 @@
 package com.hirekarma.serviceimpl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +39,9 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		Corporate corporate = corporateRepository.findByEmail(email);
 		
 		OnlineAssessment onlineAssessment = new OnlineAssessment();
-	
-		onlineAssessment.setTitle(bean.getTitle());
+		
 		onlineAssessment.setCorporate(corporate);
-		onlineAssessment.setSlug(Utility.createSlug(""));
-		return onlineAssessmentRepository.save(onlineAssessment);
+		return onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment, bean));
 		
 		
 	}
@@ -58,12 +60,12 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		return questionANdanswers;
 	}
 	@Override
-	public OnlineAssessment addQuestionToOnlineAssesmentByCorporate(int onlineAssessmentId,
+	public OnlineAssessment addQuestionToOnlineAssesmentByCorporate(String onlineAssessmentSlug,
 			List<Integer> questionariesId, String token) throws Exception {
 		String email = Validation.validateToken(token);
 		
 		Corporate corporate = corporateRepository.findByEmail(email);
-		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentId);
+		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentSlug);
 		
 		if(onlineAssessment==null) {
 			throw new Exception("onlineAssesment id incorrect");
@@ -76,7 +78,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		
 	}
 
-	public OnlineAssessment updateOnlineAssessmentForBeanNotNull(OnlineAssessment onlineAssessment,OnlineAssessmentBean onlineAssessmentBean) {
+	public OnlineAssessment updateOnlineAssessmentForBeanNotNull(OnlineAssessment onlineAssessment,OnlineAssessmentBean onlineAssessmentBean) throws Exception {
 		System.out.println(onlineAssessmentBean.toString());
 		if(onlineAssessmentBean.getTitle()!=null) {
 			onlineAssessment.setTitle(onlineAssessmentBean.getTitle());
@@ -97,19 +99,30 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		if(onlineAssessmentBean.getQnaMarks()>=0) {
 			onlineAssessment.setQnaMarks(onlineAssessmentBean.getQnaMarks());
 		}
+		if(onlineAssessmentBean.getScheduledAt()!=null) {
+			try{
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			
+			LocalDateTime dateTime = LocalDateTime.parse(onlineAssessmentBean.getScheduledAt(), formatter);
+			onlineAssessment.setLocalDateTime(dateTime);
+			}
+			catch(Exception e) {
+				throw new Exception("wrong dateFormat");
+			}
+		}
 		return onlineAssessment;
 	}
 	
 	public OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception{
-		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(slug);
-		if(onlineAssessment==null) {
+		Optional<OnlineAssessment> onlineAssessment = this.onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessment.isPresent()) {
 			throw new Exception("please enter proper assesemnet id");
 		}
-		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment,onlineAssessmentBean));
+		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment.get(),onlineAssessmentBean));
 	}
 	
 	@Override
-	public OnlineAssessment updateQuestionOfOnlineAssessmentByCorporate(int onlineAssessmentId,
+	public OnlineAssessment updateQuestionOfOnlineAssessmentByCorporate(String onlineAssessmentId,
 			List<Integer> questionariesId, String token) throws Exception {
 		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentId);
 		
@@ -130,21 +143,57 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		Corporate corporate = corporateRepository.findByEmail(email);
 		return corporate.getOnlineAssessments();
 	}
+	
+	
 
 	@Override
 	public OnlineAssessment getOnlineAssessmentBySlug(String token, String slug) throws Exception {
 		String email =  Validation.validateToken(token);
-		OnlineAssessment onlineAssessment = onlineAssessmentRepository.findBySlug(slug);
-		if(onlineAssessment==null) {
+		Optional<OnlineAssessment> onlineAssessment = onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessment.isPresent()) {
 			throw new Exception("Bad Request");
 		}
-		return onlineAssessment;
+		return onlineAssessment.get();
 	}
-	
-	
 
+	@Override
+	public void deleteQuestionofOnlineAssessment(OnlineAssessmentBean onlineAssesmentBean, String slug)
+			throws Exception {
+	OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssesmentBean.getOnlineAssessmentSlug());
+		
+		if(onlineAssessment==null) {
+			throw new Exception("onlineAssesment id incorrect");
+		}
+		
+		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssesmentBean.getQuestions());
+		if(questionANdanswers.size()!=onlineAssesmentBean.getQuestions().size()) {
+			throw new Exception("Please check your list properly");
+		}
+		onlineAssessment.getQuestionANdanswers().removeAll(questionANdanswers);
+		System.out.println(onlineAssessment.getQuestionANdanswers());
+		this.onlineAssessmentRepository.save(onlineAssessment);
+		
+	}
 
-	
-	
+	@Override
+	public List<OnlineAssessmentBean> getOnlineAssesmentsAddedByCorporatedWithoutQNA(String token) throws Exception {
+		String email = Validation.validateToken(token);
+		Corporate corporate = corporateRepository.findByEmail(email);
+		List<OnlineAssessmentBean> onlineAssessmentBeans  = new ArrayList<>();
+		for(OnlineAssessment o : corporate.getOnlineAssessments()) {
+			OnlineAssessmentBean b = new OnlineAssessmentBean();
+			BeanUtils.copyProperties(o, b);
+			b.setOnlineAssessmentSlug(o.getSlug());
+			onlineAssessmentBeans.add(b);
+		}
+		return onlineAssessmentBeans;
+	}
 
 }
+	
+	
+
+
+	
+	
+

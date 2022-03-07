@@ -2,8 +2,10 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.ManyToAny;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -20,9 +23,13 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 public class OnlineAssessment implements Serializable {
 
+
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
+	@Column(columnDefinition = "CHAR(32)")
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	int id;
+	String slug;
+	
 	@ManyToOne
 	Corporate corporate;
 	String title;
@@ -33,11 +40,10 @@ public class OnlineAssessment implements Serializable {
 	int paragraphMarks;
 	int totalTime;
 	
-	String slug;
-	Timestamp scheduledAt;
+	
+	LocalDateTime localDateTime;
 	
 	@ManyToMany
-	@JsonIgnore
 	public List<QuestionANdanswer> questionANdanswers;
 	
 	public List<QuestionANdanswer> getQuestionANdanswers() {
@@ -47,12 +53,7 @@ public class OnlineAssessment implements Serializable {
 		this.questionANdanswers = questionANdanswers;
 	}
 	
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
+	
 	public Corporate getCorporate() {
 		return corporate;
 	}
@@ -107,12 +108,20 @@ public class OnlineAssessment implements Serializable {
 	public void setSlug(String slug) {
 		this.slug = slug;
 	}
-	public Timestamp getScheduledAt() {
-		return scheduledAt;
+	public LocalDateTime getLocalDateTime() {
+		return localDateTime;
 	}
-	public void setScheduledAt(Timestamp scheduledAt) {
-		this.scheduledAt = scheduledAt;
+	public void setLocalDateTime(LocalDateTime localDateTime) {
+		this.localDateTime = localDateTime;
 	}
+	@Override
+	public String toString() {
+		return "OnlineAssessment [slug=" + slug + ", corporate=" + corporate + ", title=" + title + ", totalMarks="
+				+ totalMarks + ", codingMarks=" + codingMarks + ", qnaMarks=" + qnaMarks + ", mcqMarks=" + mcqMarks
+				+ ", paragraphMarks=" + paragraphMarks + ", totalTime=" + totalTime + ", localDateTime=" + localDateTime
+				+ ", questionANdanswers="  + "]";
+	}
+
 	
 	
 }

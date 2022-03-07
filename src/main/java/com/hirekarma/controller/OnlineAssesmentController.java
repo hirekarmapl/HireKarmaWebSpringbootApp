@@ -1,11 +1,14 @@
 package com.hirekarma.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +22,7 @@ import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.OnlineAssessment;
+import com.hirekarma.model.QuestionANdanswer;
 import com.hirekarma.service.OnlineAssessmentService;
 
 @RestController
@@ -37,6 +41,19 @@ public class OnlineAssesmentController {
 	@GetMapping("/corporate/assessment/dummyBean")
 	public OnlineAssessmentBean dummyBean() {
 		return new OnlineAssessmentBean();
+	}
+	
+	@PreAuthorize("hasRole('corporate')")
+	@GetMapping("/corporate/assessment")
+	public ResponseEntity<Response> getOnlineAssesmentsAddedByCorporatedWithoutQNA(@RequestHeader("Authorization")String token) {
+
+		try {
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.onlineAssessmentService.getOnlineAssesmentsAddedByCorporatedWithoutQNA(token), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
 	}
 	
 	@PreAuthorize("hasRole('corporate')")
@@ -72,7 +89,7 @@ public class OnlineAssesmentController {
 	}
 	@PreAuthorize("hasRole('corporate')")
 	@GetMapping("/corporate/assessment/{slug}")
-	public ResponseEntity<Response> getOnlineAssessmentBySlug(@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token,@PathVariable("slug")String slug){
+	public ResponseEntity<Response> getOnlineAssessmentBySlug( @RequestHeader("Authorization") String token,@PathVariable("slug")String slug){
 		try {
 			OnlineAssessment onlineAssessment = this.onlineAssessmentService
 					.getOnlineAssessmentBySlug( token,slug);
@@ -91,10 +108,10 @@ public class OnlineAssesmentController {
 			@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token) {
 		try {
 			OnlineAssessment onlineAssessment = this.onlineAssessmentService
-					.addQuestionToOnlineAssesmentByCorporate(onlineAssessmentBean.getOnlineAssessmentId(),onlineAssessmentBean.getQuestions(), token);
-
+					.addQuestionToOnlineAssesmentByCorporate(onlineAssessmentBean.getOnlineAssessmentSlug(),onlineAssessmentBean.getQuestions(), token);
+			System.out.println(onlineAssessment.toString());
 			return new ResponseEntity<Response>(
-					new Response("success", 201, "added succesfully", null, null), HttpStatus.CREATED);
+					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
 
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
@@ -108,10 +125,30 @@ public class OnlineAssesmentController {
 			@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token) {
 		try {
 			OnlineAssessment onlineAssessment = this.onlineAssessmentService
-					.updateQuestionOfOnlineAssessmentByCorporate(onlineAssessmentBean.getOnlineAssessmentId(),onlineAssessmentBean.getQuestions(), token);
-
+					.updateQuestionOfOnlineAssessmentByCorporate(onlineAssessmentBean.getOnlineAssessmentSlug(),onlineAssessmentBean.getQuestions(), token);
+			System.out.println(onlineAssessment.toString());
+			for(QuestionANdanswer q: onlineAssessment.getQuestionANdanswers()) {
+				System.out.println(q.getType());
+			}
 			return new ResponseEntity<Response>(
 					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("hasRole('corporate')")
+	@DeleteMapping("/corporate/assessment/questionaries")
+	public ResponseEntity<Response> deleteQuestionofOnlineAssessmentByCorporate(
+			@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token) {
+		try {
+			 this.onlineAssessmentService
+					.deleteQuestionofOnlineAssessment(onlineAssessmentBean, token);
+			
+			return new ResponseEntity<Response>(
+					new Response("success", 200, "deleted succesfully", null, null), HttpStatus.CREATED);
 
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),

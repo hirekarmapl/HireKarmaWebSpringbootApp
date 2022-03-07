@@ -49,6 +49,8 @@ public class QuestionANdanswer implements Serializable{
     @Column(name="UID")
     private String uID;
     @ManyToMany(mappedBy = "questionANdanswers")
+
+	@JsonIgnore
     public List<OnlineAssessment> onlineAssessments;
 
 

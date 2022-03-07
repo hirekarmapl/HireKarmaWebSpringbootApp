@@ -94,18 +94,6 @@ public class CoporateUserController {
 	@Autowired
 	private CampusDriveResponseRepository campusDriveResponseRepository;
 
-
-////	create an online assesement 
-//	@PreAuthorize("hasRole('corporate')")
-//	@GetMapping("/corporate/assessment")
-//	public ResponseEntity<Response> createNewOnlineAssessment(@RequestBody OnlineAssessmentBean onlineAssessmentBean){
-//		try {
-//			
-//		}
-//		catch(Exeption e){
-//			
-//		}
-//	}
 	
 	@PreAuthorize("hasRole('corporate')")
 	@GetMapping("/corporate/blog/{slug}")
@@ -321,54 +309,18 @@ public class CoporateUserController {
 
 	@PutMapping(value = "/updateCoporateUserProfile")
 	@PreAuthorize("hasRole('corporate')")
-	public ResponseEntity<?> updateCoporateUserProfile(@ModelAttribute UserBean bean) {
-		Response response = new Response();
-		LOGGER.debug("Inside CoporateUserController.updateCoporateUserProfile(-)");
-		UserBean userBean = null;
-		byte[] image = null;
+	public ResponseEntity<Response> updateCoporateUserProfile(@ModelAttribute UserBean bean,@RequestHeader("Authorization")String token) {
 		try {
-			LOGGER.debug("Inside try block of CoporateUserController.updateCoporateUserProfile(-)");
-			if (Validation.validateEmail(bean.getEmail())) {
-				if (Validation.phoneNumberValidation(Long.valueOf(bean.getPhoneNo()))) {
-
-					image = bean.getFile().getBytes();
-					bean.setImage(image);
-					userBean = coporateUserService.updateCoporateUserProfile(bean);
-					if (userBean != null) {
-						LOGGER.info(
-								"Coporate details successfully updated in CoporateUserController.updateCoporateUserProfile(-)");
-						userBean.setPassword(null);
-						return new ResponseEntity<>(
-								new Response("success", 200, "successfully created", userBean, null), HttpStatus.OK);
-					} else {
-						LOGGER.info(
-								"Coporate details not found in CoporateUserController.updateCoporateUserProfile(-)");
-						return new ResponseEntity<>(new Response("success", 404, "No such user found", null, null),
-								HttpStatus.NOT_FOUND);
-					}
-				} else {
-					throw new CoporateUserDefindException("Please Enter A Valid Phone Number !!");
-				}
-			} else {
-				throw new CoporateUserDefindException("Please Enter A Valid Email !!");
-			}
-		} catch (IOException e) {
-			LOGGER.error(
-					"Problem occured during image to byte[] conversion in CoporateUserController.updateCoporateUserProfile(-): "
-							+ e);
-			response.setData(null);
-			response.setDataList(null);
-			response.setMessage("Problem occured while uploading profile");
-			response.setStatus("Error");
-			response.setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR);
-			e.printStackTrace();
-			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		} catch (Exception e) {
-			LOGGER.error("Some problem occured in CoporateUserController.updateCoporateUserProfile(-): " + e);
-			e.printStackTrace();
-			return new ResponseEntity<>(new Response("Error", 500, e.getMessage(), null, null),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			UserBean userBean = this.coporateUserService.updateCoporateUserProfile(bean, token);
+			return new ResponseEntity<Response>(
+					new Response("success", HttpStatus.OK,"successfully update" , userBean, null),
+					HttpStatus.OK);
+		}catch(Exception e){
+			return new ResponseEntity<Response>(
+					new Response("Error", HttpStatus.BAD_REQUEST,e.getMessage() , null, null),
+					HttpStatus.BAD_REQUEST);
 		}
+		
 	}
 
 	@GetMapping(value = "/findCorporateById/{corpUserId}")

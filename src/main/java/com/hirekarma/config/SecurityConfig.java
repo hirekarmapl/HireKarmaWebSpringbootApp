@@ -59,7 +59,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/hirekarma/account/reset",
 				"/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl",
 				"/hirekarma/oauth2/**","/hirekarma/masterData","/hirekarma/corporateList",
-				"/hirekarma/displayJobList"
+				"/hirekarma/displayJobList",
+				"/hirekarma/branch",
+				"/hirekarma/branchs",
+				"/hirekarma/stream",
+				"/hirekarma/streams",
+				"/hirekarma/batch",
+				"/hirekarma/batch"
 			).permitAll()
 			.anyRequest()
 			.authenticated()

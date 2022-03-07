@@ -151,6 +151,7 @@ public class StudentServiceImpl implements StudentService {
 		return true;
 	}
 
+	
 	public List<Skill> getAllSkillsOfStudent(String token) throws Exception {
 		String email = Validation.validateToken(token);
 		UserProfile user = userRepository.findByEmail(email, "student");

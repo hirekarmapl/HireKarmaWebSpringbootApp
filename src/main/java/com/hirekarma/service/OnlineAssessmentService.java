@@ -2,6 +2,7 @@ package com.hirekarma.service;
 
 import java.util.List;
 
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.OnlineAssessmentBean;
@@ -25,4 +26,8 @@ public interface OnlineAssessmentService {
 	OnlineAssessment getOnlineAssessmentBySlug(String token,String slug) throws Exception;
 	
 	void deleteQuestionofOnlineAssessment(OnlineAssessmentBean onlineAssesmentBean	,String slug) throws Exception;
+
+	public OnlineAssessment sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception ;
+
+	public List<OnlineAssessment> getAllOnlineAssessmentForStudent(String token) throws ParseException;
 }

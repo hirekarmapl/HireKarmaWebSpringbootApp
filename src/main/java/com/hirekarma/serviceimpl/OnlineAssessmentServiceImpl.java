@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,11 @@ import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.QuestionANdanswer;
+import com.hirekarma.model.Student;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.OnlineAssessmentRepository;
 import com.hirekarma.repository.QuestionAndAnswerRepository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.service.OnlineAssessmentService;
 import com.hirekarma.utilty.Utility;
 import com.hirekarma.utilty.Validation;
@@ -30,7 +33,34 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	CorporateRepository corporateRepository;
 	
 	@Autowired
+	StudentRepository studentRepository;
+	
+	@Autowired
 	OnlineAssessmentRepository onlineAssessmentRepository;
+	
+	@Override
+	public OnlineAssessment sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception {
+		String email = Validation.validateToken(token);
+		Corporate corporate = this.corporateRepository.findByEmail(email);
+		Optional<OnlineAssessment> optional = onlineAssessmentRepository.findById(onlineAssessmentBean.getOnlineAssessmentSlug());
+		if(!optional.isPresent()) {
+			throw new Exception("invalid slug");
+		}
+		OnlineAssessment onlineAssessment = optional.get();
+		List<Student> students = studentRepository.findAllById(onlineAssessmentBean.getStudentIds());
+		onlineAssessment.getStudents().addAll(students);
+		
+		return this.onlineAssessmentRepository.save(onlineAssessment);
+	}
+	
+	public List<OnlineAssessment> getAllOnlineAssessmentForStudent(String token) throws ParseException{
+		String email = Validation.validateToken(token);
+		Student student = this.studentRepository.findByStudentEmail(email);
+		System.out.println(student.getStudentId());
+		System.out.println(student.getOnlineAssessments());
+		return student.getOnlineAssessments();
+		
+	}
 	
 	@Override
 	public OnlineAssessment addOnlineAssessmentByCorporate(OnlineAssessmentBean bean, String token) throws Exception {

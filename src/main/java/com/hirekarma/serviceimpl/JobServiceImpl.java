@@ -455,7 +455,7 @@ public class JobServiceImpl implements JobService {
 		
 		if(jobBean.getTentativeDatesforCampusDrive()!=null && !jobBean.getTentativeDatesforCampusDrive().equals("")) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-			LocalDateTime dateTime = LocalDateTime.parse(jobBean.getTentativeDatesforCampusDrive(), formatter);
+			LocalDateTime dateTime = LocalDateTime.parse(jobBean.getTentativeDatesforCampusDrive()+" 00:00:00", formatter);
 			job.setTentativeDate(dateTime);
 		}
 		LOGGER.info("succesfully fetched all branch");

@@ -2,6 +2,7 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,9 +65,7 @@ public class Job implements Serializable{
 	@Column(name = "DESCRIPTION")
 	private String description;
 	
-	@Lob
-	@Column(name = "DESCRIPTION_FILE")
-	private byte[] descriptionFile;
+	private String descriptionFileUrl;
 	
 	@Column(name = "STATUS")
 	private Boolean status;
@@ -91,9 +90,25 @@ public class Job implements Serializable{
 	
 	private Boolean forcampusDrive;
 	
+	private LocalDateTime tentativeDate;
+	
+
+	@ManyToMany
+	private List<Stream> streams = new ArrayList<Stream>();
+	
+	@ManyToMany
+	private List<StudentBranch> branchs = new ArrayList<StudentBranch>();
 	
 	public Double getSalaryAtProbation() {
 		return salaryAtProbation;
+	}
+
+	public LocalDateTime getTentativeDate() {
+		return tentativeDate;
+	}
+
+	public void setTentativeDate(LocalDateTime tentativeDate) {
+		this.tentativeDate = tentativeDate;
 	}
 
 	public void setSalaryAtProbation(Double salaryAtProbation) {
@@ -112,11 +127,6 @@ public class Job implements Serializable{
 
 
 
-	@ManyToMany
-	private List<Stream> streams = new ArrayList<Stream>();
-	
-	@ManyToMany
-	private List<StudentBranch> branchs = new ArrayList<StudentBranch>();
 	
 	
 	public List<Stream> getStreams() {
@@ -162,16 +172,7 @@ public class Job implements Serializable{
 	
 	
 
-	@Override
-	public String toString() {
-		return "Job [jobId=" + jobId + ", corporateId=" + corporateId + ", jobTitle=" + jobTitle + ", category="
-				+ category + ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city="
-				+ city + ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description="
-				+ description + ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status
-				+ ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn
-				+ ", eligibilityCriteria=" + eligibilityCriteria + ", salaryAfterProbation=" + salaryAtProbation
-				+ ", serviceAgreement=" + serviceAgreement +  ", branchs=" + branchs + "]";
-	}
+	
 
 	public List<StudentBranch> getBranchs() {
 		return branchs;
@@ -182,6 +183,14 @@ public class Job implements Serializable{
 	}
 
 
+
+	public String getDescriptionFileUrl() {
+		return descriptionFileUrl;
+	}
+
+	public void setDescriptionFileUrl(String descriptionFileUrl) {
+		this.descriptionFileUrl = descriptionFileUrl;
+	}
 
 	public Long getJobId() {
 		return jobId;
@@ -277,14 +286,6 @@ public class Job implements Serializable{
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public byte[] getDescriptionFile() {
-		return descriptionFile;
-	}
-
-	public void setDescriptionFile(byte[] descriptionFile) {
-		this.descriptionFile = descriptionFile;
 	}
 
 	public Boolean getStatus() {

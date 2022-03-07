@@ -2,6 +2,8 @@ package com.hirekarma.serviceimpl;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -55,11 +57,45 @@ public class JobServiceImpl implements JobService {
 	@Autowired
 	private UserRepository userRepository;
 	
+
+	@Autowired
+	private AWSS3Service awss3Service;
+	
+//	Job updateJobFromJobBeanForNotNull(JobBean jobBean,Job job) throws Exception {
+////		for adding branches
+//		Map<Long,String> branchOutput = new HashMap<>();
+//		if(jobBean.getBranchIds().size()!=0) {
+//			jobBean.setBranchs(new ArrayList<>());
+//			for(Integer j :jobBean.getBranchIds()) {
+//				Optional<StudentBranch> studentBranch = studentBranchRepository.findById((long)j);
+//				if(studentBranch.isEmpty()) {
+//					throw new Exception("incorrect branch id");
+//				}			
+//				jobBean.getBranchs().add(studentBranch.get());
+//			}
+//		}
+//		
+////		for adding streams
+//		List<Stream> streamsTobeAddedToJob = new ArrayList<>();
+//		if( jobBean.getStreamIds().size()!=0 ) {
+//			jobBean.setStreams(new ArrayList<>());
+//			for(Integer j:jobBean.getStreamIds()) {
+//				Optional<Stream> stream = streamRepository.findById(j);
+//				if(stream.isEmpty()) {
+//					throw new Exception("inccorect stream id");
+//				}
+//				jobBean.getStreams().add(stream.get());
+//			}
+//		}
+//		
+//		
+//		return job;
+//	}
+	
 	//save job
-	public JobResponseBean saveJob(JobBean jobBean,String token) throws Exception {
-		Job jobSaved = new Job();
+	public Job saveJob(JobBean jobBean,String token) throws Exception {
+		Job job = new Job();
 		JobResponseBean jobResponseBean = new JobResponseBean();
-		byte[]  image = null;
 		LOGGER.debug("Inside insertJob()");
 		String email = Validation.validateToken(token);
 		
@@ -69,61 +105,14 @@ public class JobServiceImpl implements JobService {
 			throw new Exception("corporate not found");
 		}
 		
-		//adding branch to job and getting name of all branch
-		Map<Long,String> branchOutput = new HashMap<>();
-		jobBean.setBranchs(new ArrayList<>());
-		for(Integer j :jobBean.getBranchIds()) {
-			Optional<StudentBranch> studentBranch = studentBranchRepository.findById((long)j);
-			if(studentBranch.isEmpty()) {
-				throw new Exception("incorrect branch id");
-			}
-			
-			jobBean.getBranchs().add(studentBranch.get());
-			
-			
-		}
-		LOGGER.info("succesfully fetched all branch");
-		
-		
-		
-//		add stream to job
-		List<Stream> streamsTobeAddedToJob = new ArrayList<>();
-		jobBean.setStreams(new ArrayList<>());
-		for(Integer j:jobBean.getStreamIds()) {
-			Optional<Stream> stream = streamRepository.findById(j);
-			if(stream.isEmpty()) {
-				throw new Exception("inccorect stream id");
-			}
-			
-//			System.out.println(stream);
-			jobBean.getStreams().add(stream.get());
-		}
-	
-		LOGGER.info("succesfully fetched all stream");
-		
-		if(jobBean.getFile()!=null) {
-			image = jobBean.getFile().getBytes();
-		}
-		
-		
-		jobBean.setDescriptionFile(image);
-		jobBean.setDeleteStatus(false);
-		jobBean.setCorporateId(corporate.getCorporateId());
-		
-		//for admin set status true otherwise set false
 		if (corporate.getCorporateBadge() != null && corporate.getCorporateBadge() == 3) {
 			jobBean.setStatus(true);
 		} else {
 			jobBean.setStatus(false);
 		}
-		
-		BeanUtils.copyProperties(jobBean, jobSaved);
-		jobSaved = jobRepository.save(jobSaved);
-		jobBean.setJobId(jobSaved.getJobId());
-		BeanUtils.copyProperties(jobBean, jobResponseBean);
-		
-		return jobResponseBean;
-		
+		job.setCorporateId(corporate.getCorporateId());
+		job = this.jobRepository.save(copyPropertiesFromBeanToJobForNotNull(job, jobBean));
+		return job;
 		
 	}
 	
@@ -205,7 +194,6 @@ public class JobServiceImpl implements JobService {
 
 				image = jobBean.getFile().getBytes();
 				
-				jobBean.setDescriptionFile(image);
 				jobBean.setDeleteStatus(false);
 				
 				jobBean.setCorporateId(corporate.getCorporateId());
@@ -397,8 +385,8 @@ public class JobServiceImpl implements JobService {
 			throw new JobException(e.getMessage());
 		}
 	}
+	
 @Override
-
 	public Job updateJobById2(JobBean jobBean, String token) throws Exception{
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
@@ -411,11 +399,15 @@ public class JobServiceImpl implements JobService {
 
 	}
 	Job copyPropertiesFromBeanToJobForNotNull(Job job,JobBean jobBean) throws Exception {
+		
 		if(jobBean.getJobTitle()!=null) {
 			job.setJobTitle(jobBean.getJobTitle());
 		}
 		if(jobBean.getWfhCheckbox()!=null) {
 			job.setWfhCheckbox(jobBean.getWfhCheckbox());
+		}
+		if(jobBean.getSkills()!=null) {
+			job.setSkills(jobBean.getSkills());
 		}
 		if(jobBean.getCity()!=null) {
 			job.setCity(jobBean.getCity());
@@ -423,6 +415,7 @@ public class JobServiceImpl implements JobService {
 		if(jobBean.getOpenings()!=null) {
 			job.setOpenings(jobBean.getOpenings());
 		}
+		
 		if(jobBean.getSalary()!=null) {
 			job.setSalary(jobBean.getSalary());
 		}
@@ -432,8 +425,14 @@ public class JobServiceImpl implements JobService {
 		if(jobBean.getDescription()!=null) {
 			job.setDescription(jobBean.getDescription());
 		}
-		if(jobBean.getFile()!=null && !jobBean.getFile().isEmpty()) {
-			job.setDescriptionFile(jobBean.getFile().getBytes());
+		if(jobBean.getFile()!=null) {
+			job.setDescriptionFileUrl(awss3Service.uploadFile(jobBean.getFile()));
+		}
+		if(jobBean.getBranchIds()!=null && jobBean.getBranchIds().size()>0) {
+			job.setBranchs(getAllBranchFromtheirIds(jobBean.getBranchIds()));
+		}
+		if(jobBean.getStreamIds()!=null && jobBean.getStreamIds().size()>0) {
+			job.setStreams(getAllStreamsFromtheirIds(jobBean.getStreamIds()));
 		}
 		if(jobBean.getEligibilityCriteria()!=null) {
 			job.setEligibilityCriteria(jobBean.getEligibilityCriteria());
@@ -453,18 +452,14 @@ public class JobServiceImpl implements JobService {
 		if(jobBean.getForcampusDrive()!=null) {
 			job.setForcampusDrive(jobBean.getForcampusDrive());
 		}
-		if(jobBean.getBranchIds()!=null && jobBean.getBranchIds().size()>0) {
-			job.setBranchs(getAllBranchFromtheirIds(jobBean.getBranchIds()));
-		}
-		if(jobBean.getStreamIds()!=null && jobBean.getStreamIds().size()>0) {
-			job.setStreams(getAllStreamsFromtheirIds(jobBean.getStreamIds()));
+		
+		if(jobBean.getTentativeDatesforCampusDrive()!=null && !jobBean.getTentativeDatesforCampusDrive().equals("")) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			LocalDateTime dateTime = LocalDateTime.parse(jobBean.getTentativeDatesforCampusDrive(), formatter);
+			job.setTentativeDate(dateTime);
 		}
 		LOGGER.info("succesfully fetched all branch");
 		
-		
-		
-//		
-		job.setStatus(false);
 		return job;
 	}
 	@Override
@@ -495,7 +490,6 @@ public class JobServiceImpl implements JobService {
 			LOGGER.debug("Inside try block of JobServiceImpl.updateJobById(-)");
 
 			image = jobBean.getFile().getBytes();
-			jobBean.setDescriptionFile(image);
 			corporate = corporateRepository.findByEmail(email);
 
 			if (corporate != null) {
@@ -518,7 +512,6 @@ public class JobServiceImpl implements JobService {
 						job.setSalary(jobBean.getSalary());
 						job.setAbout(jobBean.getAbout());
 						job.setDescription(jobBean.getDescription());
-						job.setDescriptionFile(jobBean.getDescriptionFile());
 						job.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 
 						jobReturn = jobRepository.save(job);

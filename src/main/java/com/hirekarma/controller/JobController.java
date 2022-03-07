@@ -56,7 +56,7 @@ public class JobController {
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> saveJobDetails(@ModelAttribute JobBean jobBean,@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside JobController.saveJobDetails(-)");
-		JobResponseBean bean=null;
+		Job bean=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {

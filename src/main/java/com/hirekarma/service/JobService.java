@@ -16,7 +16,7 @@ public interface JobService {
 	public JobBean updateJobById(JobBean jobBean, String token) throws ParseException;
 	
 	//updated verison of saveJob
-	public JobResponseBean saveJob(JobBean jobBean,String token) throws Exception;
+	public Job saveJob(JobBean jobBean,String token) throws Exception;
 	public List<JobResponseBean> getAllJobsForAdmin() throws Exception;
 	public List<JobResponseBean> getAllJobsForStudent() throws Exception;
 	public List<JobResponseBean> getAllJobsAccordingToToken(String token) throws Exception;

@@ -37,14 +37,12 @@ public class Corporate {
 	private String corporateEmail;
 
 	@Column(name = "CORPORATE_PHONE_NUMBER")
-	private Long corporatePhoneNumber;
+	private String corporatePhoneNumber;
 
 	@Column(name = "CORPORATE_ADDRESS")
 	private String corporateAddress;
 
-	@Lob
-	@Column(name = "PROFILE_IMAGE")
-	private byte[] profileImage;
+	private String imageUrl;
 
 	private Long userProfile;
 
@@ -85,6 +83,22 @@ public class Corporate {
 		return onlineAssessments;
 	}
 
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public List<QuestionANdanswer> getQuestionANdanswers() {
+		return questionANdanswers;
+	}
+
+	public void setQuestionANdanswers(List<QuestionANdanswer> questionANdanswers) {
+		this.questionANdanswers = questionANdanswers;
+	}
+
 	public void setOnlineAssessments(List<OnlineAssessment> onlineAssessments) {
 		this.onlineAssessments = onlineAssessments;
 	}
@@ -121,11 +135,13 @@ public class Corporate {
 		this.corporateEmail = corporateEmail;
 	}
 
-	public Long getCorporatePhoneNumber() {
+	
+
+	public String getCorporatePhoneNumber() {
 		return corporatePhoneNumber;
 	}
 
-	public void setCorporatePhoneNumber(Long corporatePhoneNumber) {
+	public void setCorporatePhoneNumber(String corporatePhoneNumber) {
 		this.corporatePhoneNumber = corporatePhoneNumber;
 	}
 
@@ -137,14 +153,7 @@ public class Corporate {
 		this.corporateAddress = corporateAddress;
 	}
 
-	public byte[] getProfileImage() {
-		return profileImage;
-	}
-
-	public void setProfileImage(byte[] profileImage) {
-		this.profileImage = profileImage;
-	}
-
+	
 	public Timestamp getCreatedOn() {
 		return createdOn;
 	}
@@ -177,12 +186,6 @@ public class Corporate {
 		this.corporateBadge = corporateBadge;
 	}
 
-	@Override
-	public String toString() {
-		return "Corporate [corporateId=" + corporateId + ", corporateName=" + corporateName + ", corporateEmail="
-				+ corporateEmail + ", corporatePhoneNumber=" + corporatePhoneNumber + ", corporateAddress="
-				+ corporateAddress + ", profileImage=" + Arrays.toString(profileImage) + ", createdOn=" + createdOn
-				+ ", updatedOn=" + updatedOn + ", status=" + status + ", corporateBadge=" + corporateBadge + "]";
-	}
+	
 
 }

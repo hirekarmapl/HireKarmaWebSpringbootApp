@@ -1,5 +1,6 @@
 package com.hirekarma.beans;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -7,20 +8,41 @@ public class OnlineAssessmentBean {
 
 	
 	List<Integer> questions;
+
+//	same attributes
 	String title;
 	int totalMarks;
 	int codingMarks;
 	int qnaMarks;
-	
 	int mcqMarks;
 	int paragraphMarks;
-	int onlineAssessmentId;
+	int totalTime;
+	String scheduledAt;
+	LocalDateTime localDateTime;
+//	end of same attributes
 	
-	public int getOnlineAssessmentId() {
-		return onlineAssessmentId;
+//	extra variable
+	String onlineAssessmentSlug;
+	
+	
+	
+	public String getOnlineAssessmentSlug() {
+		return onlineAssessmentSlug;
 	}
-	public void setOnlineAssessmentId(int onlineAssessmentId) {
-		this.onlineAssessmentId = onlineAssessmentId;
+	public void setOnlineAssessmentSlug(String onlineAssessmentSlug) {
+		this.onlineAssessmentSlug = onlineAssessmentSlug;
+	}
+	public int getTotalTime() {
+		return totalTime;
+	}
+	public void setTotalTime(int totalTime) {
+		this.totalTime = totalTime;
+	}
+	public LocalDateTime getLocalDateTime() {
+		return localDateTime;
+	}
+	public void setLocalDateTime(LocalDateTime localDateTime) {
+		this.localDateTime = localDateTime;
 	}
 	public List<Integer> getQuestions() {
 		return questions;
@@ -64,12 +86,14 @@ public class OnlineAssessmentBean {
 	public void setParagraphMarks(int paragraphMarks) {
 		this.paragraphMarks = paragraphMarks;
 	}
-	@Override
-	public String toString() {
-		return "OnlineAssessmentBean [questions=" + questions + ", title=" + title + ", totalMarks=" + totalMarks
-				+ ", codingMarks=" + codingMarks + ", qnaMarks=" + qnaMarks + ", mcqMarks=" + mcqMarks
-				+ ", paragraphMarks=" + paragraphMarks + ", onlineAssessmentId=" + onlineAssessmentId + "]";
+	
+	public String getScheduledAt() {
+		return scheduledAt;
 	}
+	public void setScheduledAt(String scheduledAt) {
+		this.scheduledAt = scheduledAt;
+	}
+	
 	
 
 }

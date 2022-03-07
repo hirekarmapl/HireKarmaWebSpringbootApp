@@ -12,13 +12,17 @@ public interface OnlineAssessmentService {
 
 	OnlineAssessment addOnlineAssessmentByCorporate(OnlineAssessmentBean bean,String token) throws Exception;
 	
-	OnlineAssessment addQuestionToOnlineAssesmentByCorporate(int onlineAssessmentId,List<Integer> questionariesId,String token) throws Exception;
+	OnlineAssessment addQuestionToOnlineAssesmentByCorporate(String onlineAssessmentId,List<Integer> questionariesId,String token) throws Exception;
 	
-	OnlineAssessment updateQuestionOfOnlineAssessmentByCorporate(int onlineAssessmentId,List<Integer> questionariesId,String token) throws Exception;
+	OnlineAssessment updateQuestionOfOnlineAssessmentByCorporate(String onlineAssessmentId,List<Integer> questionariesId,String token) throws Exception;
 	
 	List<OnlineAssessment> getOnlineAssesmentsAddedByCorporated(String token) throws Exception;
+	
+	List<OnlineAssessmentBean> getOnlineAssesmentsAddedByCorporatedWithoutQNA(String token) throws Exception;
 	
 	OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception;
 	
 	OnlineAssessment getOnlineAssessmentBySlug(String token,String slug) throws Exception;
+	
+	void deleteQuestionofOnlineAssessment(OnlineAssessmentBean onlineAssesmentBean	,String slug) throws Exception;
 }

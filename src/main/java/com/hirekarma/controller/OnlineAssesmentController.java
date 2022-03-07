@@ -37,11 +37,15 @@ public class OnlineAssesmentController {
 	public OnlineAssessment dummy() {
 		return new OnlineAssessment();
 	}
+	
+	
 	@PreAuthorize("hasRole('corporate')")
 	@GetMapping("/corporate/assessment/dummyBean")
 	public OnlineAssessmentBean dummyBean() {
 		return new OnlineAssessmentBean();
 	}
+	
+
 	
 	@PreAuthorize("hasRole('corporate')")
 	@GetMapping("/corporate/assessment")
@@ -66,6 +70,40 @@ public class OnlineAssesmentController {
 
 			return new ResponseEntity<Response>(
 					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("hasRole('corporate')")
+	@PostMapping("/corporate/assessment/student")
+	public ResponseEntity<Response> sendOnlineAssessmentToStudents(
+			@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token) {
+		try {
+			OnlineAssessment onlineAssessment = this.onlineAssessmentService
+					.sendOnlineAssessmentToStudents(onlineAssessmentBean, token);
+
+			return new ResponseEntity<Response>(
+					new Response("success", 200, "", onlineAssessment, null), HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("hasRole('student')")
+	@GetMapping("/student/assessment")
+	public ResponseEntity<Response> getAllOnlineAssessmentForStudent(
+			 @RequestHeader("Authorization") String token) {
+		try {
+			List<OnlineAssessment> onlineAssessments = this.onlineAssessmentService
+					.getAllOnlineAssessmentForStudent(token);
+
+			return new ResponseEntity<Response>(
+					new Response("success", 200, "", onlineAssessments, null), HttpStatus.OK);
 
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),

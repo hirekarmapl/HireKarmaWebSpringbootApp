@@ -46,6 +46,17 @@ public class OnlineAssessment implements Serializable {
 	@ManyToMany
 	public List<QuestionANdanswer> questionANdanswers;
 	
+	@ManyToMany
+	public List<Student> students;
+	
+	
+	public List<Student> getStudents() {
+		return students;
+	}
+	
+	public void setStudents(List<Student> students) {
+		this.students = students;
+	}
 	public List<QuestionANdanswer> getQuestionANdanswers() {
 		return questionANdanswers;
 	}

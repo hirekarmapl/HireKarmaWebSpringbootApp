@@ -23,9 +23,17 @@ public class OnlineAssessmentBean {
 	
 //	extra variable
 	String onlineAssessmentSlug;
+//	for sending online assesement to student
+	List<Long> studentIds;
 	
 	
 	
+	public List<Long> getStudentIds() {
+		return studentIds;
+	}
+	public void setStudentIds(List<Long> studentIds) {
+		this.studentIds = studentIds;
+	}
 	public String getOnlineAssessmentSlug() {
 		return onlineAssessmentSlug;
 	}

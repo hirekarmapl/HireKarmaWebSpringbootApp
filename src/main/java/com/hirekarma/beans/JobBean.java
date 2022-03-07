@@ -1,6 +1,7 @@
 package com.hirekarma.beans;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +41,6 @@ public class JobBean {
 
 	private String description;
 
-	private byte[] descriptionFile;
-
 	private Boolean status;
 
 	private Boolean deleteStatus;
@@ -74,6 +73,8 @@ public class JobBean {
 	
 	private Boolean forcampusDrive;
 	
+	private String tentativeDatesforCampusDrive;
 	
+	private LocalDateTime tentativeDate;
 	
 }

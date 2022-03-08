@@ -13,7 +13,7 @@ public interface OnlineAssessmentService {
 
 	OnlineAssessment addOnlineAssessmentByCorporate(OnlineAssessmentBean bean,String token) throws Exception;
 	
-	OnlineAssessment addQuestionToOnlineAssesmentByCorporate(String onlineAssessmentId,List<Integer> questionariesId,String token) throws Exception;
+	OnlineAssessment addQuestionToOnlineAssesmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception;
 	
 	OnlineAssessment updateQuestionOfOnlineAssessmentByCorporate(String onlineAssessmentId,List<Integer> questionariesId,String token) throws Exception;
 	

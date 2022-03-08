@@ -111,6 +111,7 @@ public class JobServiceImpl implements JobService {
 			jobBean.setStatus(false);
 		}
 		job.setCorporateId(corporate.getCorporateId());
+		job.setDeleteStatus(false);	
 		job = this.jobRepository.save(copyPropertiesFromBeanToJobForNotNull(job, jobBean));
 		return job;
 		

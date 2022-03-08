@@ -90,20 +90,20 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		return questionANdanswers;
 	}
 	@Override
-	public OnlineAssessment addQuestionToOnlineAssesmentByCorporate(String onlineAssessmentSlug,
-			List<Integer> questionariesId, String token) throws Exception {
+	public OnlineAssessment addQuestionToOnlineAssesmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception {
 		String email = Validation.validateToken(token);
 		
 		Corporate corporate = corporateRepository.findByEmail(email);
-		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentSlug);
+		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentBean.getOnlineAssessmentSlug());
 		
 		if(onlineAssessment==null) {
 			throw new Exception("onlineAssesment id incorrect");
 		}
 		
-		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(questionariesId);
+		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
 		onlineAssessment.getQuestionANdanswers().addAll(questionANdanswers);
-		
+		onlineAssessment.setTotalMarks(onlineAssessmentBean.getTotalMarks());
+		onlineAssessment.setTotalTime(onlineAssessmentBean.getTotalTime());
 		return this.onlineAssessmentRepository.save(onlineAssessment);
 		
 	}
@@ -128,6 +128,9 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		}
 		if(onlineAssessmentBean.getQnaMarks()>=0) {
 			onlineAssessment.setQnaMarks(onlineAssessmentBean.getQnaMarks());
+		}
+		if(onlineAssessmentBean.getTotalTime()!=0) {
+			onlineAssessment.setTotalTime(onlineAssessmentBean.getTotalTime());
 		}
 		if(onlineAssessmentBean.getScheduledAt()!=null) {
 			try{

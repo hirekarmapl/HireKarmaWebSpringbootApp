@@ -1,12 +1,17 @@
 package com.hirekarma.service;
 
 import java.util.List;
+import java.util.Set;
 
 import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
+import com.hirekarma.beans.OnlineAssesmentResponseBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
+import com.hirekarma.beans.QuestionAndAnswerStudentResponseBean;
+import com.hirekarma.beans.StudentOnlineAssessmentAnswerRequestBean;
 import com.hirekarma.model.OnlineAssessment;
+import com.hirekarma.model.StudentOnlineAssessment;
 
 @Service
 public interface OnlineAssessmentService {
@@ -27,7 +32,11 @@ public interface OnlineAssessmentService {
 	
 	void deleteQuestionofOnlineAssessment(OnlineAssessmentBean onlineAssesmentBean	,String slug) throws Exception;
 
-	public OnlineAssessment sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception ;
+	public List<StudentOnlineAssessment> sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception ;
 
-	public List<OnlineAssessment> getAllOnlineAssessmentForStudent(String token) throws ParseException;
+	public List<OnlineAssesmentResponseBean> getAllOnlineAssessmentForStudent(String token) throws ParseException;
+
+	public List<QuestionAndAnswerStudentResponseBean> getAllQNAForStudentOfOnlineAssessment(String token,String onlineAssessmentSlug) throws Exception;
+
+	public void submitAnswerForOnlineAssessmentByStudent(String onlineAssessmentSlug,List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans,String token) throws Exception;
 }

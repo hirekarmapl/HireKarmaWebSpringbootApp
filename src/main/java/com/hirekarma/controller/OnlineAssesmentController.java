@@ -18,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.OnlineAssesmentResponseBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.beans.StudentOnlineAssessmentAnswerRequestBean;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.QuestionANdanswer;
+import com.hirekarma.model.StudentOnlineAssessment;
 import com.hirekarma.service.OnlineAssessmentService;
 
 @RestController
@@ -38,7 +41,36 @@ public class OnlineAssesmentController {
 	public OnlineAssessment dummy() {
 		return new OnlineAssessment();
 	}
+	
+	@PreAuthorize("hasRole('student')")
+	@GetMapping("/student/assessment/questionaries/{slug}")
+	public ResponseEntity<Response> getAllQNAForStudentOfOnlineAssessment(@RequestHeader("Authorization") String token,@PathVariable("slug") String onlineAssessmentSlug) {
+		try {
+			return new ResponseEntity(
+					new Response("success", HttpStatus.OK, "",
+							this.onlineAssessmentService.getAllQNAForStudentOfOnlineAssessment(token,onlineAssessmentSlug), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 
+	@PreAuthorize("hasRole('student')")
+	@PostMapping("/student/assessment/submit/{slug}")
+	public ResponseEntity<Response> submitAnswerForOnlineAssessmentByStudent(@RequestHeader("Authorization") String token,@PathVariable("slug") String onlineAssessmentSlug,@RequestBody List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans) {
+		try {
+			this.onlineAssessmentService.submitAnswerForOnlineAssessmentByStudent(onlineAssessmentSlug, studentOnlineAssessmentAnswerRequestBeans, token);
+			return new ResponseEntity(
+					new Response("success", HttpStatus.OK, "successfully added",
+							"", null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	@PreAuthorize("hasRole('corporate')")
 	@GetMapping("/corporate/assessment/dummyBean")
 	public OnlineAssessmentBean dummyBean() {
@@ -83,10 +115,10 @@ public class OnlineAssesmentController {
 	public ResponseEntity<Response> sendOnlineAssessmentToStudents(
 			@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token) {
 		try {
-			OnlineAssessment onlineAssessment = this.onlineAssessmentService
+			List<StudentOnlineAssessment> studentOnlineAssessments= this.onlineAssessmentService
 					.sendOnlineAssessmentToStudents(onlineAssessmentBean, token);
 
-			return new ResponseEntity<Response>(new Response("success", 200, "", onlineAssessment, null),
+			return new ResponseEntity<Response>(new Response("success", 200, "", studentOnlineAssessments, null),
 					HttpStatus.OK);
 
 		} catch (Exception e) {
@@ -99,10 +131,10 @@ public class OnlineAssesmentController {
 	@GetMapping("/student/assessment")
 	public ResponseEntity<Response> getAllOnlineAssessmentForStudent(@RequestHeader("Authorization") String token) {
 		try {
-			List<OnlineAssessment> onlineAssessments = this.onlineAssessmentService
+			List<OnlineAssesmentResponseBean> studentOnlineAssessments = this.onlineAssessmentService
 					.getAllOnlineAssessmentForStudent(token);
 
-			return new ResponseEntity<Response>(new Response("success", 200, "", onlineAssessments, null),
+			return new ResponseEntity<Response>(new Response("success", 200, "", studentOnlineAssessments, null),
 					HttpStatus.OK);
 
 		} catch (Exception e) {

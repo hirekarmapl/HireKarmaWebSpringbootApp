@@ -76,6 +76,9 @@ public class QuestionANdanswer implements Serializable{
 	@JoinColumn(name="uID")
 	private List<CodingAnswer> codingAnswer;
 	
+	@OneToMany(mappedBy = "questionANdanswer")
+	@JsonIgnore
+	private List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers;
 	
   
 }

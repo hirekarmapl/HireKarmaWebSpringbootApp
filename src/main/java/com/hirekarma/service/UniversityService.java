@@ -29,4 +29,6 @@ public interface UniversityService {
 	List<?> studentFilter(String token, Long batchId, Long branchId, Double cgpa) throws ParseException;
 
 	Map<String,Object> getAllJobsSharedByUniversity(University university);
+	
+	void removeStudentFromUniversity(String token,Long studentId) throws Exception;
 }

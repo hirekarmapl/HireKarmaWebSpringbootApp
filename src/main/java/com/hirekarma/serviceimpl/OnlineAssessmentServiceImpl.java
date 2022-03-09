@@ -5,22 +5,31 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hirekarma.beans.OnlineAssesmentResponseBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
+import com.hirekarma.beans.QuestionAndAnswerStudentResponseBean;
+import com.hirekarma.beans.StudentOnlineAssessmentAnswerRequestBean;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.QuestionANdanswer;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.StudentOnlineAssessment;
+import com.hirekarma.model.StudentOnlineAssessmentAnswer;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.OnlineAssessmentRepository;
 import com.hirekarma.repository.QuestionAndAnswerRepository;
+import com.hirekarma.repository.StudentOnlineAssessmentAnswerRepository;
+import com.hirekarma.repository.StudentOnlineAssessmentRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.service.OnlineAssessmentService;
+import com.hirekarma.service.StudentOnlineAssessmentService;
 import com.hirekarma.utilty.Utility;
 import com.hirekarma.utilty.Validation;
 
@@ -38,8 +47,16 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	@Autowired
 	OnlineAssessmentRepository onlineAssessmentRepository;
 	
+	@Autowired
+	StudentOnlineAssessmentService studentOnlineAssessmentService;
+	
+	@Autowired
+	StudentOnlineAssessmentRepository studentOnlineAssessmentRepository;
+	
+	@Autowired
+	StudentOnlineAssessmentAnswerRepository studentOnlineAssessmentAnswerRepository;
 	@Override
-	public OnlineAssessment sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception {
+	public List<StudentOnlineAssessment> sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception {
 		String email = Validation.validateToken(token);
 		Corporate corporate = this.corporateRepository.findByEmail(email);
 		Optional<OnlineAssessment> optional = onlineAssessmentRepository.findById(onlineAssessmentBean.getOnlineAssessmentSlug());
@@ -48,18 +65,27 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		}
 		OnlineAssessment onlineAssessment = optional.get();
 		List<Student> students = studentRepository.findAllById(onlineAssessmentBean.getStudentIds());
-		onlineAssessment.getStudents().addAll(students);
 		
-		return this.onlineAssessmentRepository.save(onlineAssessment);
+//		create a studentOnlineAssessment
+		List<StudentOnlineAssessment> studentOnlineAssessments = studentOnlineAssessmentService.createByListOfStudent(students, onlineAssessment);
+		
+		return studentOnlineAssessments;
 	}
 	
-	public List<OnlineAssessment> getAllOnlineAssessmentForStudent(String token) throws ParseException{
+	@Override
+	public List<OnlineAssesmentResponseBean> getAllOnlineAssessmentForStudent(String token) throws ParseException{
 		String email = Validation.validateToken(token);
 		Student student = this.studentRepository.findByStudentEmail(email);
-		System.out.println(student.getStudentId());
-		System.out.println(student.getOnlineAssessments());
-		return student.getOnlineAssessments();
-		
+		List<OnlineAssessment> onlineAssessments = this.studentOnlineAssessmentRepository.findOnlineAssessmentByStudent(student);
+		List<OnlineAssesmentResponseBean> onlineAssesmentResponseBeans = new ArrayList<OnlineAssesmentResponseBean>();
+		for(OnlineAssessment o: onlineAssessments) {
+			OnlineAssesmentResponseBean onlineAssesmentResponseBean = new OnlineAssesmentResponseBean();
+			BeanUtils.copyProperties(o, onlineAssesmentResponseBean);
+			onlineAssesmentResponseBeans.add(onlineAssesmentResponseBean);
+
+			System.out.println(onlineAssesmentResponseBeans);
+		}
+		return onlineAssesmentResponseBeans;
 	}
 	
 	@Override
@@ -72,8 +98,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		
 		onlineAssessment.setCorporate(corporate);
 		return onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment, bean));
-		
-		
+			
 	}
 	
 	public List<QuestionANdanswer> getQuestionAndAnswerById(List<Integer> questionariesId) throws Exception{
@@ -102,8 +127,24 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		
 		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
 		onlineAssessment.getQuestionANdanswers().addAll(questionANdanswers);
-		onlineAssessment.setTotalMarks(onlineAssessmentBean.getTotalMarks());
-		onlineAssessment.setTotalTime(onlineAssessmentBean.getTotalTime());
+		
+//		counting total marks
+		int totalMarks = onlineAssessment.getTotalMarks();
+		for(QuestionANdanswer q: questionANdanswers) {
+			if(q.getType().equals("QNA")) {
+				totalMarks += onlineAssessment.getQnaMarks();
+			}
+			else if(q.getType().equals("MCQ")) {
+				totalMarks += onlineAssessment.getMcqMarks();
+			}
+			else if(q.getType().equals("Input")) {
+				totalMarks += onlineAssessment.getParagraphMarks();
+			}
+			else if(q.getType().equals("Coding")) {
+				totalMarks += onlineAssessment.getCodingMarks();
+			}
+		}
+		onlineAssessment.setTotalMarks(totalMarks);
 		return this.onlineAssessmentRepository.save(onlineAssessment);
 		
 	}
@@ -192,7 +233,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	@Override
 	public void deleteQuestionofOnlineAssessment(OnlineAssessmentBean onlineAssesmentBean, String slug)
 			throws Exception {
-	OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssesmentBean.getOnlineAssessmentSlug());
+		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssesmentBean.getOnlineAssessmentSlug());
 		
 		if(onlineAssessment==null) {
 			throw new Exception("onlineAssesment id incorrect");
@@ -202,8 +243,25 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		if(questionANdanswers.size()!=onlineAssesmentBean.getQuestions().size()) {
 			throw new Exception("Please check your list properly");
 		}
+		
+		int totalMarks = onlineAssessment.getTotalMarks();
+		for(QuestionANdanswer q: questionANdanswers) {
+			if(q.getType().equals("QNA")) {
+				totalMarks -= onlineAssessment.getQnaMarks();
+			}
+			else if(q.getType().equals("MCQ")) {
+				totalMarks -= onlineAssessment.getMcqMarks();
+			}
+			else if(q.getType().equals("Input")) {
+				totalMarks -= onlineAssessment.getParagraphMarks();
+			}
+			else if(q.getType().equals("Coding")) {
+				totalMarks -= onlineAssessment.getCodingMarks();
+			}
+		}
+		onlineAssessment.setTotalMarks(totalMarks);
 		onlineAssessment.getQuestionANdanswers().removeAll(questionANdanswers);
-		System.out.println(onlineAssessment.getQuestionANdanswers());
+		
 		this.onlineAssessmentRepository.save(onlineAssessment);
 		
 	}
@@ -220,6 +278,49 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 			onlineAssessmentBeans.add(b);
 		}
 		return onlineAssessmentBeans;
+	}
+
+	@Override
+	public List<QuestionAndAnswerStudentResponseBean> getAllQNAForStudentOfOnlineAssessment(String token,
+			String onlineAssessmentSlug) throws Exception {
+		String email = Validation.validateToken(token);
+		Student student = this.studentRepository.findByStudentEmail(email);
+		Optional<OnlineAssessment> optional = this.onlineAssessmentRepository.findById(onlineAssessmentSlug);
+		if(!optional.isPresent()) {
+			throw new Exception("invalid slug");
+		}
+		
+		OnlineAssessment onlineAssessment = optional.get();
+		StudentOnlineAssessment studentOnlineAssessment = this.studentOnlineAssessmentRepository.findByStudentAndOnlineAssessment(student, onlineAssessment);
+		studentOnlineAssessment.setStartedOn(LocalDateTime.now());
+		this.studentOnlineAssessmentRepository.save(studentOnlineAssessment);
+		
+		List<QuestionAndAnswerStudentResponseBean> questionAndAnswerStudentResponseBeans = new ArrayList<QuestionAndAnswerStudentResponseBean>();
+		for(QuestionANdanswer q:onlineAssessment.getQuestionANdanswers()) {
+			QuestionAndAnswerStudentResponseBean questionAndAnswerStudentResponseBean = new QuestionAndAnswerStudentResponseBean();
+			BeanUtils.copyProperties(q, questionAndAnswerStudentResponseBean);
+			questionAndAnswerStudentResponseBeans.add(questionAndAnswerStudentResponseBean);
+		}
+		return questionAndAnswerStudentResponseBeans;
+	}
+
+	@Override
+	public void submitAnswerForOnlineAssessmentByStudent(String onlineAssessmentSlug,
+			List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans,String token) throws Exception {
+		String email = Validation.validateToken(token);
+		Student student = this.studentRepository.findByStudentEmail(email);
+		List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers = new ArrayList<>();
+		for(StudentOnlineAssessmentAnswerRequestBean s:studentOnlineAssessmentAnswerRequestBeans) {
+			StudentOnlineAssessmentAnswer studentOnlineAssessmentAnswer = new StudentOnlineAssessmentAnswer();
+			QuestionANdanswer questionANdanswer = this.questionAndAnswerRepository.findByuID(s.getQuestionId());
+			studentOnlineAssessmentAnswer.setQuestionANdanswer(questionANdanswer);
+			studentOnlineAssessmentAnswer.setAnswer(s.getAnswer());
+			studentOnlineAssessmentAnswer.setJsonAnswer(s.getAnswer().toString());
+			studentOnlineAssessmentAnswer.setStudent(student);
+			System.out.println(s.getAnswer());
+			studentOnlineAssessmentAnswers.add(studentOnlineAssessmentAnswer);
+		}
+		this.studentOnlineAssessmentAnswerRepository.saveAll(studentOnlineAssessmentAnswers);
 	}
 
 }

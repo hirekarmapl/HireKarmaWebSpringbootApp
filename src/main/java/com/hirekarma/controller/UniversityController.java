@@ -337,5 +337,17 @@ public class UniversityController {
 		}
 	}
 
-
+	@PreAuthorize("hasRole('university')")
+	@PostMapping("/university/remove_student/{student_id}")
+	public ResponseEntity<?> removeStudentFromUniversity(@RequestHeader("Authorization")String token,@PathVariable("student_id")Long studentId) {
+		try {
+			this.universityService.removeStudentFromUniversity(token, studentId);
+			return new ResponseEntity<Response>(new Response("success", 20, " deleted successfully", null, null),
+					HttpStatus.CREATED);
+		}
+		catch(Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 }

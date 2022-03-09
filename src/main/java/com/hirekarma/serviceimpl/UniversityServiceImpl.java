@@ -134,6 +134,7 @@ public class UniversityServiceImpl implements UniversityService {
 	@Override
 	public Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception {
+
 //		getting admin and setting details
 		AdminShareJobToUniversity adminShareJobToUniversity = adminShareJobToUniversityRepository.getById(universityJobShareToStudentBean.getShareJobId());
 		if(adminShareJobToUniversity==null) {
@@ -143,6 +144,11 @@ public class UniversityServiceImpl implements UniversityService {
 		universityJobShareToStudentBean.setUniversityId(adminShareJobToUniversity.getUniversityId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 	
+//		checking if data already exist
+		List<UniversityJobShareToStudent> universityJobShareToStudents = this.universityJobShareRepository.findByJobIdAndUniversityId(universityJobShareToStudentBean.getJobId(), universityJobShareToStudentBean.getUniversityId());
+		if(universityJobShareToStudents!=null && universityJobShareToStudents.size()!=0) {
+			throw new Exception("Job Already Shared");
+		}
 //		output variable
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();
 		Long count = 0L;

@@ -100,7 +100,7 @@ public class UniversityController {
 		}
 		return responseEntity;
 	}
-
+	 
 	@PostMapping("/shareJobStudent")
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<?> shareJobStudent(
@@ -301,8 +301,10 @@ public class UniversityController {
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
+			String email = Validation.validateToken(token);
+			University university = this.universityRepository.findByEmail(email);
 			LOGGER.debug("Inside try block of UniversityController.studentFilter(-)");
-			listData = universityService.studentFilter(token,batchId,branchId,cgpa);
+			listData = studentRepository.findByBatchAndBranchAndUniversityIdAndCgpaGreaterThanEqual(batchId, branchId, university.getUniversityId(), cgpa);
 			LOGGER.info("Response Successfully Updated using UniversityController.studentFilter(-)");
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);

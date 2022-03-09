@@ -453,6 +453,8 @@ public class JobServiceImpl implements JobService {
 		if(jobBean.getForcampusDrive()!=null) {
 			job.setForcampusDrive(jobBean.getForcampusDrive());
 		}
+		job.setDeleteStatus(false);
+		job.setStatus(false);
 		
 		if(jobBean.getTentativeDatesforCampusDrive()!=null && !jobBean.getTentativeDatesforCampusDrive().equals("")) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

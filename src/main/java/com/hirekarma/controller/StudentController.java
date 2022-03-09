@@ -198,7 +198,7 @@ public class StudentController {
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.ACCEPTED);
 
-			response.setMessage("Job Shared Successfully...");
+			response.setMessage("your response has been added");
 			response.setStatus("Success");
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 			response.setData(universityJobShareToStudentBean);

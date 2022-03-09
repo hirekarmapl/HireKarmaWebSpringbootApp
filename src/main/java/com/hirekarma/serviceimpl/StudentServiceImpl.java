@@ -49,6 +49,7 @@ import com.hirekarma.email.service.EmailSenderService;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UniversityJobShareToStudentException;
+import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
@@ -61,6 +62,7 @@ import com.hirekarma.model.StudentBranch;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.EducationRepository;
 import com.hirekarma.repository.ExperienceRepository;
@@ -87,6 +89,8 @@ public class StudentServiceImpl implements StudentService {
 	@Autowired
 	private AWSS3Service awss3Service;
 	
+	@Autowired
+	private CampusDriveResponseRepository campusDriveResponseRepository;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -341,7 +345,7 @@ public class StudentServiceImpl implements StudentService {
 		return userProfileDB;
 	}
 	
-	public UserProfile insertForExcel(UserProfile student,Long universityId,String universityName) {
+	public UserProfile insertForExcel(UserProfile student,Long universityId,String universityName,List<String> existingStudents) {
 		LOGGER.debug("Inside StudentServiceImpl.insert(-)");
 
 		UserProfile studentReturn = null;
@@ -360,7 +364,8 @@ public class StudentServiceImpl implements StudentService {
 				student.setUserType("student");
 				student.setEmail(LowerCaseEmail);
 				student.setPhoneNo(student.getPhoneNo());
-				student.setPassword(universityName+"@123");
+				student.setPassword(((universityName==null)?"Admin":universityName)+"@123");
+				System.out.print("password:"+((universityName==null)?"Admin":universityName)+"@123");
 				student.setPassword(passwordEncoder.encode(student.getPassword()));
 
 				studentReturn = userRepository.save(student);
@@ -383,7 +388,7 @@ public class StudentServiceImpl implements StudentService {
 
 				LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
 			} else {
-				throw new StudentUserDefindException("This Email Is Already Present !!");
+				existingStudents.add(LowerCaseEmail);
 			}
 
 			return studentReturn;
@@ -518,7 +523,8 @@ public class StudentServiceImpl implements StudentService {
 	@Override
 	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception{
 		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
-		
+		Optional<StudentBranch> studentBranch = null;
+		Optional<StudentBatch> studentBatch = null;
 		String email = Validation.validateToken(token);
 		Student student = studentRepository.findByStudentEmail(email);
 		UserProfile user  = userRepository.findUserByEmail(email);
@@ -527,12 +533,20 @@ public class StudentServiceImpl implements StudentService {
 		if(student==null) {
 			throw new Exception("Invalid token");
 		}
-		List<Object[]> namesOfBatchBranchUniversity = studentRepository.getBranchNBatchNUniversityIdNUniveristyNameFromIds(userBean.getBatch(), userBean.getBranch(), userBean.getUniversityId());
-		if(namesOfBatchBranchUniversity.size()==0) {
-			throw new Exception("Check your inputs for batch,branch,name,universityID if not provided please provide them");
+
+		
+		if(userBean.getBatch()!=null) {
+			studentBatch = studentBatchRepository.findById(userBean.getBatch());
+			if(!studentBatch.isPresent()) {
+				throw new Exception("invalid batch id");
+			}
 		}
-		
-		
+		if(userBean.getBranch()!=null) {
+			studentBranch = studentBranchRepository.findById(userBean.getBranch());
+			if(!studentBranch.isPresent()) {
+				throw new Exception("invalid batch id");
+			}
+		}
 		UserProfile studentReturn = this.userRepository.save(updateUserAttributeByBean(user,userBean));
 	
 		student.setStudentName(studentReturn.getName());
@@ -558,14 +572,23 @@ public class StudentServiceImpl implements StudentService {
 		if(userBean.getCgpa()!=null) {
 			student.setCgpa(userBean.getCgpa());
 		}
+		
+		if(studentBatch.isPresent()) {
+			student.setBatch(studentBatch.get().getId());
+		}
+		
+		if(studentBranch.isPresent()) {
+			student.setBranch(studentBranch.get().getId());
+		}
+		
 		student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 		student = studentRepository.save(student);
+		
 		UserBeanResponse studentBeanReturn = new UserBeanResponse();
 		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
-		System.out.println(namesOfBatchBranchUniversity.toString());
-		studentBeanReturn.setStudentBatchName((String)namesOfBatchBranchUniversity.get(0)[1]);
-		studentBeanReturn.setStudentBranchName((String)namesOfBatchBranchUniversity.get(0)[3]);
-		studentBeanReturn.setUniversityName((String)namesOfBatchBranchUniversity.get(0)[5]);
+		studentBeanReturn.setStudentBatchName(studentBatch.isPresent()?studentBatch.get().getBatchName():"");
+		studentBeanReturn.setStudentBranchName(studentBranch.isPresent()?studentBranch.get().getBranchName():"");
+		studentBeanReturn.setUniversityName(student.getUniversityId()!=null?universityRepository.getById(student.getUniversityId()).getUniversityName():"");
 		studentBeanReturn.setBatch(student.getBatch());
 		studentBeanReturn.setBranch(student.getBranch());
 		studentBeanReturn.setCgpa(student.getCgpa());
@@ -768,7 +791,8 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public List<UserBean> importStudentDataExcel(MultipartFile file,String token) throws Exception {
+	public Map<String,Object> importStudentDataExcel(MultipartFile file,String token) throws Exception {
+		Map<String,Object> output = new HashMap<String,Object>();
 		String email = Validation.validateToken(token);
 		University university = universityRepository.findByEmail(email);
 		LOGGER.debug("StudentServiceImpl.importStudentDataExcel(-)");
@@ -810,6 +834,7 @@ public class StudentServiceImpl implements StudentService {
 			// integrate with database to save all students are there in excel and sent them
 			// email using MicroServices
 			allStudentLists = new ArrayList<UserBean>();
+			List<String> existingStudents = new ArrayList<>();
 			for (Map<String, String> student : studentLists) {
 				studentProfile = new UserProfile();
 				studentProfile.setName(student.get("Name"));
@@ -817,12 +842,13 @@ public class StudentServiceImpl implements StudentService {
 				studentProfile.setPhoneNo(student.get("Phone"));
 				generatedPassword = generateRandomPassword(passwordLength);
 				studentProfile.setPassword(generatedPassword);
-				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId(),university.getUniversityName());
+				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId(),university.getUniversityName(),existingStudents);
 				studentReturnBean = new UserBean();
 				BeanUtils.copyProperties(studentProfileReturn, studentReturnBean);
 				// this password is not encrypted this is the original random password and
 				// encrypted password is stored in database
 				studentReturnBean.setPassword(generatedPassword);
+				
 				allStudentLists.add(studentReturnBean);
 			}
 //			headers = new HttpHeaders();
@@ -833,7 +859,9 @@ public class StudentServiceImpl implements StudentService {
 //			restTemplate.exchange(welcomeListUrl, HttpMethod.POST, requestEntity, String.class);
 			LOGGER.info(
 					"Student data import Successfully and mail sent using StudentServiceImpl.importStudentDataExcel(-)");
-			return allStudentLists;
+			output.put("existingStudents", existingStudents);
+			output.put("importedStudents", allStudentLists);
+			return output;
 		} catch (Exception e) {
 			LOGGER.error("Error occured in StudentServiceImpl.importStudentDataExcel(-)");
 			throw new StudentUserDefindException(e.getMessage());
@@ -858,15 +886,19 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean,String token) {
+	public UniversityJobShareToStudentBean studentJobResponse(UniversityJobShareToStudentBean jobBean,String token) throws Exception {
 		UniversityJobShareToStudentBean jobShareBean = new UniversityJobShareToStudentBean();
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 		try {
-			
 			LOGGER.debug("Inside StudentServiceImpl.universityResponse(-)");
 			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getID());
 			universityJobShareToStudent = new UniversityJobShareToStudent();
 			universityJobShareToStudent = optional.get();
+			CampusDriveResponse campusDriveResponse = this.campusDriveResponseRepository.findByUniversityIdAndJobId(universityJobShareToStudent.getUniversityId(), universityJobShareToStudent.getJobId());
+			if(campusDriveResponse!=null) {
+				throw new Exception("no longer accepting responses");
+			}
+					
 			if (universityJobShareToStudent != null) {
 
 				universityJobShareToStudent.setStudentResponseStatus(jobBean.getStudentResponseStatus());

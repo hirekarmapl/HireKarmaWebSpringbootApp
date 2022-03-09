@@ -309,14 +309,19 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 			List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans,String token) throws Exception {
 		String email = Validation.validateToken(token);
 		Student student = this.studentRepository.findByStudentEmail(email);
+		Optional<OnlineAssessment> optional = this.onlineAssessmentRepository.findById(onlineAssessmentSlug);
+		if(!optional.isPresent()) {
+			throw new Exception("invalid onlineasseesment id");
+		}
 		List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers = new ArrayList<>();
 		for(StudentOnlineAssessmentAnswerRequestBean s:studentOnlineAssessmentAnswerRequestBeans) {
 			StudentOnlineAssessmentAnswer studentOnlineAssessmentAnswer = new StudentOnlineAssessmentAnswer();
 			QuestionANdanswer questionANdanswer = this.questionAndAnswerRepository.findByuID(s.getQuestionId());
 			studentOnlineAssessmentAnswer.setQuestionANdanswer(questionANdanswer);
 			studentOnlineAssessmentAnswer.setAnswer(s.getAnswer());
-			studentOnlineAssessmentAnswer.setJsonAnswer(s.getAnswer().toString());
+			studentOnlineAssessmentAnswer.setJsonAnswer(s.getAnswer().toJSONString());
 			studentOnlineAssessmentAnswer.setStudent(student);
+			studentOnlineAssessmentAnswer.setOnlineAssessment(optional.get());
 			System.out.println(s.getAnswer());
 			studentOnlineAssessmentAnswers.add(studentOnlineAssessmentAnswer);
 		}

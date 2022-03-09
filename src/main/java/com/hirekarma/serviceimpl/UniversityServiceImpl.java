@@ -134,87 +134,47 @@ public class UniversityServiceImpl implements UniversityService {
 	@Override
 	public Map<String, Object> shareJobStudent(UniversityJobShareToStudentBean universityJobShareToStudentBean)
 			throws Exception {
+//		getting admin and setting details
 		AdminShareJobToUniversity adminShareJobToUniversity = adminShareJobToUniversityRepository.getById(universityJobShareToStudentBean.getShareJobId());
 		if(adminShareJobToUniversity==null) {
 			throw new UserProfileException("invalid shareJobid");
 		}
 		universityJobShareToStudentBean.setJobId(adminShareJobToUniversity.getJobId());
 		universityJobShareToStudentBean.setUniversityId(adminShareJobToUniversity.getUniversityId());
-		System.out.println("JobId:"+universityJobShareToStudentBean.getJobId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 	
+//		output variable
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();
 		Long count = 0L;
-
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		List<Long> studentIdList = null;
-
-		if ((String.valueOf(universityJobShareToStudentBean.getBatchId()).equalsIgnoreCase("null")
-				|| universityJobShareToStudentBean.getBatchId() == null)
-				&& (String.valueOf(universityJobShareToStudentBean.getBranchId()).equalsIgnoreCase("null")
-						|| universityJobShareToStudentBean.getBranchId() == null)
-				&& (String.valueOf(universityJobShareToStudentBean.getCgpaId()).equalsIgnoreCase("null")
-						|| universityJobShareToStudentBean.getCgpaId() == null)) {
-
-			studentIdList = studentRepository.getStudentList();
-		} else {
-			studentIdList = studentRepository.getStudentList(universityJobShareToStudentBean.getBatchId(),
-					universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getCgpaId(),adminShareJobToUniversity.getUniversityId());
+		if(universityJobShareToStudentBean.getBatchId()==null 
+				|| universityJobShareToStudentBean.getBranchId()==null
+				|| universityJobShareToStudentBean.getUniversityId()==null
+				|| universityJobShareToStudentBean.getCgpaId()==null) {
+			throw new Exception("enter all the parameters - batch,branch,university,cgpa");
 		}
-
-		System.out.println(universityJobShareToStudentBean.getBatchId()
-				+ "***********************************\n\nTotal List \n\n\n" + studentIdList
-				+ "\n\n*************************************");
-		Long jobId = jobRepository.getJobById(universityJobShareToStudentBean.getJobId());
-
-		try {
-			LOGGER.debug("Inside UniversityServiceImpl.shareJobStudent(-)");
-
-			if (jobId != 0) {
-
-				if (studentIdList.size() != 0) {
-					
-					String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
-					University university = universityRepository.findByEmail(email);
-					if (university != null) {
-
-						if (universityJobShareToStudentBean != null) {
-
-							for (int i = 0; i < studentIdList.size(); i++) {
-								count++;
-								universityJobShareToStudent = new UniversityJobShareToStudent();
-								universityJobShareToStudent.setJobId(universityJobShareToStudentBean.getJobId());
-								universityJobShareToStudent.setUniversityId(university.getUniversityId());
-								universityJobShareToStudent.setJobStatus(true);
-								universityJobShareToStudent.setStudentId(studentIdList.get(i));
-								universityJobShareToStudent.setCreatedBy("Biswa");
-								universityJobShareToStudent.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
-
-								universityJobShareRepository.save(universityJobShareToStudent);
-								list.add(universityJobShareToStudent);
-							}
-
-							LOGGER.info("Data Updated Successfully In UniversityServiceImpl.shareJobStudent(-)");
-						}
-
-						response.put("shareJob", list);
-						response.put("totalSharedJob", count);
-					} else {
-						throw new UserProfileException("Invalid Token !!");
-					}
-				} else {
-					throw new UserProfileException("Can't Found Any Student With This Filter !!");
-				}
-			} else {
-				throw new UserProfileException("Can't Found Any Job !!");
-			}
-
-		} catch (Exception e) {
-			LOGGER.info("Data Updatation Failed In UniversityServiceImpl.shareJobStudent(-)" + e);
-			throw e;
+		List<Student> filteredStudents = this.studentRepository.findByBatchAndBranchAndUniversityIdAndCgpaGreaterThanEqual(universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getUniversityId(), universityJobShareToStudentBean.getCgpaId());
+		if(filteredStudents.size()==0) {
+			throw new Exception("no such student found");
 		}
+		String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
+		University university = universityRepository.findByEmail(email);
+		for (int i = 0; i < filteredStudents.size(); i++) {
+			count++;
+			universityJobShareToStudent = new UniversityJobShareToStudent();
+			universityJobShareToStudent.setJobId(universityJobShareToStudentBean.getJobId());
+			universityJobShareToStudent.setUniversityId(university.getUniversityId());
+			universityJobShareToStudent.setJobStatus(true);
+			universityJobShareToStudent.setStudentId(filteredStudents.get(i).getStudentId());
+			universityJobShareToStudent.setCreatedBy("Biswa");
+			universityJobShareToStudent.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
 
+			universityJobShareRepository.save(universityJobShareToStudent);
+			list.add(universityJobShareToStudent);
+		}
+		response.put("shareJob", list);
+		response.put("totalSharedJob", count);	
 		return response;
 	}
 
@@ -533,7 +493,9 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		if(student==null) {
 			throw new Exception("no such user found");
 		}
-		if(student.getUniversityId()!=university.getUniversityId()) {
+		System.out.println(student.getUniversityId().compareTo(university.getUniversityId()));
+		if( student.getUniversityId().compareTo(university.getUniversityId())!=0) {
+		
 			throw new Exception("unauthorized");
 		}
 		student.setUniversityId(null);

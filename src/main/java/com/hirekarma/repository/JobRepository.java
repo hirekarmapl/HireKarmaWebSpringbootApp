@@ -43,10 +43,10 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
 //	List<Job> getAllJobsForStudentSharedByUniversity();
 	
-	@Query("select j from Job j where j.deleteStatus = FALSE")
+	@Query("select j from Job j where (j.deleteStatus = FALSE or j.deleteStatus is null)")
 	List<Job> getAllJobsForAdmin();
 	
-	@Query("select j from Job j where j.deleteStatus = FALSE and j.status=FALSE")
+	@Query("select j from Job j where (j.deleteStatus = FALSE or j.deleteStatus is null) and (j.status=FALSE or j.status is null)")
 	List<Job> getAllJobsForAdminForActivation();
 
 }

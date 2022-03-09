@@ -2,7 +2,8 @@ package com.hirekarma.beans;
 
 import java.util.List;
 
-import com.google.gson.JsonObject;
+import org.json.simple.JSONObject;
+
 import com.hirekarma.model.CodingAnswer;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.InputAnswer;
@@ -21,6 +22,6 @@ import lombok.ToString;
 public class StudentOnlineAssessmentAnswerRequestBean {
 
 	String questionId;
-	JsonObject answer;
+	JSONObject answer;
 	
 }

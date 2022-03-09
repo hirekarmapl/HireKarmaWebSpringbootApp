@@ -6,11 +6,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-
+import org.json.simple.JSONObject;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.gson.JsonObject;
+
 @Entity
 public class StudentOnlineAssessmentAnswer {
 	@GeneratedValue(generator = "uuid")
@@ -30,7 +30,7 @@ public class StudentOnlineAssessmentAnswer {
 	
 	
 	@Transient
-	JsonObject answer;
+	JSONObject answer;
 	
 	String jsonAnswer;
 	
@@ -65,12 +65,13 @@ public class StudentOnlineAssessmentAnswer {
 	public void setOnlineAssessment(OnlineAssessment onlineAssessment) {
 		this.onlineAssessment = onlineAssessment;
 	}
-	public JsonObject getAnswer() {
+	public JSONObject getAnswer() {
 		return answer;
 	}
-	public void setAnswer(JsonObject answer) {
+	public void setAnswer(JSONObject answer) {
 		this.answer = answer;
 	}
+	
 	
 	
 }

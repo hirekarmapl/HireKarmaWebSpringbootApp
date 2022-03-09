@@ -60,7 +60,10 @@ public class OnlineAssesmentController {
 	@PostMapping("/student/assessment/submit/{slug}")
 	public ResponseEntity<Response> submitAnswerForOnlineAssessmentByStudent(@RequestHeader("Authorization") String token,@PathVariable("slug") String onlineAssessmentSlug,@RequestBody List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans) {
 		try {
+			System.out.println(studentOnlineAssessmentAnswerRequestBeans.get(0).getAnswer());
+			System.out.println(studentOnlineAssessmentAnswerRequestBeans.get(0).getQuestionId());
 			this.onlineAssessmentService.submitAnswerForOnlineAssessmentByStudent(onlineAssessmentSlug, studentOnlineAssessmentAnswerRequestBeans, token);
+			
 			return new ResponseEntity(
 					new Response("success", HttpStatus.OK, "successfully added",
 							"", null),

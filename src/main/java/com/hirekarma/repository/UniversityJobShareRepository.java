@@ -17,6 +17,8 @@ public interface UniversityJobShareRepository extends JpaRepository<UniversityJo
 
 	@Query("select u from UniversityJobShareToStudent u where u.universityId = :universityId")
 	List<UniversityJobShareToStudent> getSharedJobList(@Param("universityId")Long id);
+	
+	List<UniversityJobShareToStudent> findByJobIdAndUniversityId(Long jobId,Long universityId);
 
 //	select j.* from job j where j.job_id in(select distinct(u.job_id) 
 //			from university_job_share_to_student u where u.university_id=12);

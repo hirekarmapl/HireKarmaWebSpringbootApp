@@ -140,6 +140,7 @@ public class UniversityController {
 			e.printStackTrace();
 			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			response.put("Status", "Failed");
+			response.put("Message","Job Already shared!");
 			response.put("Response_Code", responseEntity.getStatusCodeValue());
 			response.put("Message", e.getMessage());
 		}

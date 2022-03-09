@@ -493,7 +493,9 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		if(student==null) {
 			throw new Exception("no such user found");
 		}
-		if(student.getUniversityId()!=university.getUniversityId()) {
+		System.out.println(student.getUniversityId().compareTo(university.getUniversityId()));
+		if( student.getUniversityId().compareTo(university.getUniversityId())!=0) {
+		
 			throw new Exception("unauthorized");
 		}
 		student.setUniversityId(null);

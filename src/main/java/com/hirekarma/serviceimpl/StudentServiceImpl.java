@@ -842,14 +842,18 @@ public class StudentServiceImpl implements StudentService {
 				studentProfile.setPhoneNo(student.get("Phone"));
 				generatedPassword = generateRandomPassword(passwordLength);
 				studentProfile.setPassword(generatedPassword);
-				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId(),university.getUniversityName(),existingStudents);
-				studentReturnBean = new UserBean();
-				BeanUtils.copyProperties(studentProfileReturn, studentReturnBean);
-				// this password is not encrypted this is the original random password and
-				// encrypted password is stored in database
-				studentReturnBean.setPassword(generatedPassword);
 				
-				allStudentLists.add(studentReturnBean);
+				studentProfileReturn = insertForExcel(studentProfile,university.getUniversityId(),university.getUniversityName(),existingStudents);
+				if(studentProfileReturn!=null) {
+					studentReturnBean = new UserBean();
+					BeanUtils.copyProperties(studentProfileReturn, studentReturnBean);
+					// this password is not encrypted this is the original random password and
+					// encrypted password is stored in database
+					studentReturnBean.setPassword(generatedPassword);
+					
+					allStudentLists.add(studentReturnBean);
+				}
+				
 			}
 //			headers = new HttpHeaders();
 //			headers.setContentType(MediaType.APPLICATION_JSON);

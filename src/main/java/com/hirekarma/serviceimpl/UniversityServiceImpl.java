@@ -525,4 +525,20 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		return result;
 	}
 
+	@Override
+	public void removeStudentFromUniversity(String token, Long studentId) throws Exception {
+		String email = Validation.validateToken(token);
+		University university = universityRepository.findByEmail(email);
+		Student student = studentRepository.findByStudentId(studentId);
+		if(student==null) {
+			throw new Exception("no such user found");
+		}
+		if(student.getUniversityId()!=university.getUniversityId()) {
+			throw new Exception("unauthorized");
+		}
+		student.setUniversityId(null);
+		this.studentRepository.save(student);
+		
+	}
+
 }

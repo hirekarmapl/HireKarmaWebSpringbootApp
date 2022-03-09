@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.ManyToAny;
@@ -42,20 +44,33 @@ public class OnlineAssessment implements Serializable {
 	
 	
 	LocalDateTime localDateTime;
-	
+
 	@ManyToMany
 	public List<QuestionANdanswer> questionANdanswers;
 	
-	@ManyToMany
-	public List<Student> students;
+//	for sending online assesment to student
+	@OneToMany(mappedBy = "onlineAssessment")
+	@JsonIgnore
+	Set<StudentOnlineAssessment> studentOnlineAssessments;
+	
+//	for storing the result
+	@JsonIgnore
+	@OneToMany(mappedBy = "onlineAssessment")
+	private List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers;
 	
 	
-	public List<Student> getStudents() {
-		return students;
+public List<StudentOnlineAssessmentAnswer> getStudentOnlineAssessmentAnswers() {
+		return studentOnlineAssessmentAnswers;
 	}
-	
-	public void setStudents(List<Student> students) {
-		this.students = students;
+	public void setStudentOnlineAssessmentAnswers(List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers) {
+		this.studentOnlineAssessmentAnswers = studentOnlineAssessmentAnswers;
+	}
+	//	for sending online assesment to student	
+	public Set<StudentOnlineAssessment> getStudentOnlineAssessments() {
+		return studentOnlineAssessments;
+	}
+	public void setStudentOnlineAssessments(Set<StudentOnlineAssessment> studentOnlineAssessments) {
+		this.studentOnlineAssessments = studentOnlineAssessments;
 	}
 	public List<QuestionANdanswer> getQuestionANdanswers() {
 		return questionANdanswers;

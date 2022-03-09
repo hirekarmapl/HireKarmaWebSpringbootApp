@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -63,7 +65,9 @@ public class Student implements Serializable{
 	@Column(name = "CGPA")
 	private Double cgpa;
 	
-
+	@OneToMany(mappedBy = "student")
+	@JsonIgnore
+	private List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
@@ -77,17 +81,17 @@ public class Student implements Serializable{
 	
 	private String imageUrl;
 	
-	@ManyToMany(mappedBy = "students")
+	@OneToMany(mappedBy = "student")
 	@JsonIgnore
-	private List<OnlineAssessment> onlineAssessments;
+	Set<StudentOnlineAssessment> studentOnlineAssessments;
+
 	
-	
-	public List<OnlineAssessment> getOnlineAssessments() {
-		return onlineAssessments;
+	public Set<StudentOnlineAssessment> getStudentOnlineAssessments() {
+		return studentOnlineAssessments;
 	}
 
-	public void setOnlineAssessments(List<OnlineAssessment> onlineAssessments) {
-		this.onlineAssessments = onlineAssessments;
+	public void setStudentOnlineAssessments(Set<StudentOnlineAssessment> studentOnlineAssessments) {
+		this.studentOnlineAssessments = studentOnlineAssessments;
 	}
 
 	public String getImageUrl() {
@@ -141,6 +145,14 @@ public class Student implements Serializable{
 
 	public String getStudentEmail() {
 		return studentEmail;
+	}
+
+	public List<StudentOnlineAssessmentAnswer> getStudentOnlineAssessmentAnswers() {
+		return studentOnlineAssessmentAnswers;
+	}
+
+	public void setStudentOnlineAssessmentAnswers(List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers) {
+		this.studentOnlineAssessmentAnswers = studentOnlineAssessmentAnswers;
 	}
 
 	public void setStudentEmail(String studentEmail) {

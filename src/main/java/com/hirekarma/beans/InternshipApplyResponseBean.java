@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Internship;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.Student;
 
 import lombok.Data;
 import lombok.ToString;
@@ -23,4 +24,5 @@ public class InternshipApplyResponseBean {
 	private Long internshipId;
 	private Internship internship;
 	private Corporate corporate;
+	private Student student;
 }

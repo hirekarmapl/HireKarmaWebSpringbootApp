@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.JobApplyResponseBean;
 import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.model.Corporate;
@@ -32,4 +33,6 @@ public interface CoporateUserService {
 	public Map<String,Object> getAllJobApplicationsByCorporate(Long corporateId);
 	
 	public Map<String,Object> getAllCampusDriveInvitesByCorporateId(Long corporateId);
+	
+	public List<JobApplyResponseBean> getAllJobsApplicationForCorporate(Long corporateId);
 }

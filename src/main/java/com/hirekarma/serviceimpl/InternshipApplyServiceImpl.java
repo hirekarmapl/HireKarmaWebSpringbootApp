@@ -123,5 +123,26 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 		System.out.println("completetd loop");
 		return internshipApplyResponseBeans;
 	}
+	
+	public List<InternshipApplyResponseBean> getAllInternshipApplicationForSpecificCorporate(Long corporateId){
+		List<InternshipApplyResponseBean> internshipApplyResponseBeans = new ArrayList<InternshipApplyResponseBean>();
+		List<InternshipApply> internshipApplies = internshipApplyRepository.findByCorporateId(corporateId);
+		System.out.println("inside loop");
+		for(InternshipApply i:internshipApplies) {
+			
+			InternshipApplyResponseBean internshipApplyResponseBean = new InternshipApplyResponseBean();
+			BeanUtils.copyProperties(i, internshipApplyResponseBean);
+			Internship internship = internshipRepository.getById(internshipApplyResponseBean.getInternshipId());
+			Corporate corporate = corporateRepository.getById(internshipApplyResponseBean.getInternshipId());
+			Student student = studentRepository.getById(internshipApplyResponseBean.getStudentId());
+//			internshipApplyResponseBean.setCorporate(corporate);
+			internshipApplyResponseBean.setInternship(internship);
+			internshipApplyResponseBean.setStudent(student);
+			internshipApplyResponseBeans.add(internshipApplyResponseBean);
+			
+		}
+		System.out.println("completetd loop");
+		return internshipApplyResponseBeans;
+	}
 
 }

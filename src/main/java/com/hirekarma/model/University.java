@@ -45,9 +45,7 @@ public class University implements Serializable{
 			@Column(name = "UNIVERSITY_PHONE_NUMBER")
 			private Long universityPhoneNumber;
 			
-			@Lob
-			@Column(name = "UNIVERSITY_IMAGE")
-			private byte[] universityImage;
+			private String universityImageUrl; 
 			
 			@CreationTimestamp
 			@Column(name = "CREATED_ON")
@@ -59,13 +57,23 @@ public class University implements Serializable{
 			@Column(name = "STATUS")
 			private Boolean status;
 
+			
+
+			public String getUniversityImageUrl() {
+				return universityImageUrl;
+			}
+
+			public void setUniversityImageUrl(String universityImageUrl) {
+				this.universityImageUrl = universityImageUrl;
+			}
+
 			@Override
 			public String toString() {
 				return "University [universityId=" + universityId + ", userId=" + userId + ", universityName="
 						+ universityName + ", universityEmail=" + universityEmail + ", universityAddress="
-						+ universityAddress + ", universityPhoneNumber=" + universityPhoneNumber + ", universityImage="
-						+ Arrays.toString(universityImage) + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn
-						+ ", status=" + status + "]";
+						+ universityAddress + ", universityPhoneNumber=" + universityPhoneNumber
+						+ ", universityImageUrl=" + universityImageUrl + ", createdOn=" + createdOn + ", updatedOn="
+						+ updatedOn + ", status=" + status + "]";
 			}
 
 			public University() {
@@ -121,13 +129,7 @@ public class University implements Serializable{
 				this.universityPhoneNumber = universityPhoneNumber;
 			}
 
-			public byte[] getUniversityImage() {
-				return universityImage;
-			}
-
-			public void setUniversityImage(byte[] universityImage) {
-				this.universityImage = universityImage;
-			}
+			
 
 			public Timestamp getCreatedOn() {
 				return createdOn;

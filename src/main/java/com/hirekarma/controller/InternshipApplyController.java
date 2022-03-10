@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hirekarma.beans.InternshipApplyBean;
 import com.hirekarma.beans.InternshipApplyResponseBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.service.InternshipApplyService;
 import com.hirekarma.utilty.Validation;
@@ -38,6 +40,9 @@ public class InternshipApplyController {
 	
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private CorporateRepository corporateRepository;
 	
 	@PostMapping("/applyInternshipUrl")
 	@PreAuthorize("hasRole('student')")
@@ -78,6 +83,24 @@ public class InternshipApplyController {
 			Student student =studentRepository.findByStudentEmail(email);
 			System.out.println(student.getStudentId());
 			List<InternshipApplyResponseBean> internshipApplyResponseBeans = this.internshipApplyService.getAllInternshipsForAStudent(student.getStudentId());
+			return new ResponseEntity<Response>(new Response("success", 200, "", internshipApplyResponseBeans, null), HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/corporate/internship/applied_student")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> getAllInternshipApplicationForSpecificCorporate(@RequestHeader("Authorization")String token)
+			throws Exception {
+		
+		try {
+			String email = Validation.validateToken(token);
+			Corporate corporate = this.corporateRepository.findByEmail(email);
+			
+			List<InternshipApplyResponseBean> internshipApplyResponseBeans = this.internshipApplyService.getAllInternshipApplicationForSpecificCorporate(corporate.getCorporateId());
 			return new ResponseEntity<Response>(new Response("success", 200, "", internshipApplyResponseBeans, null), HttpStatus.OK);
 
 		} catch (Exception e) {

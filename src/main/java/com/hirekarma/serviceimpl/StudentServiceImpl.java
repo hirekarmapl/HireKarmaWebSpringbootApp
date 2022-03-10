@@ -79,6 +79,7 @@ import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.SkillService;
 import com.hirekarma.service.StudentService;
 import com.hirekarma.utilty.ExcelUploadUtil;
+import com.hirekarma.utilty.Utility;
 import com.hirekarma.utilty.Validation;
 
 @Service("studentServiceImpl")
@@ -367,9 +368,10 @@ public class StudentServiceImpl implements StudentService {
 				student.setPassword(((universityName==null)?"Admin":universityName)+"@123");
 				System.out.print("password:"+((universityName==null)?"Admin":universityName)+"@123");
 				student.setPassword(passwordEncoder.encode(student.getPassword()));
-
+				String resetPasswordToken = Utility.passwordTokenGenerator();
+				student.setResetPasswordToken(resetPasswordToken);
 				studentReturn = userRepository.save(student);
-
+				
 				stud.setUniversityId(universityId);
 				stud.setUserId(studentReturn.getUserId());
 				stud.setStudentEmail(LowerCaseEmail);
@@ -385,6 +387,7 @@ public class StudentServiceImpl implements StudentService {
 				body.put("name", studentReturn.getName());
 				body.put("type", "student");
 				emailController.welcomeAndOnBoardEmail(body);
+				emailController.passwordGenerationForImportedStudent(resetPasswordToken, studentReturn.getEmail().toLowerCase(), studentReturn.getName()!=null ? studentReturn.getName() : "", universityName);
 
 				LOGGER.info("Data successfully saved using StudentServiceImpl.insert(-)");
 			} else {

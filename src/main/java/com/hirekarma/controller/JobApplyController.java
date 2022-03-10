@@ -48,7 +48,7 @@ public class JobApplyController {
 		catch (Exception e) {
 			LOGGER.error("Job applying failed");
 			e.printStackTrace();
-			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+			responseEntity = new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			response.setMessage(e.getMessage());
 			response.setStatus("Failed");
 			response.setResponseCode(responseEntity.getStatusCodeValue());

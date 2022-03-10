@@ -37,6 +37,8 @@ public class ChatRoom implements Serializable {
 	@Column(name = "CORPORATE_ID")
 	private Long corporateId;
 	
+	private Long jobApplyId;
+	
 	@OneToMany
 	@JoinColumn(updatable = false, insertable = false, name = "CHAT_ROOM_ID", referencedColumnName = "CHAT_ROOM_ID")
 	private List<Message> messages;

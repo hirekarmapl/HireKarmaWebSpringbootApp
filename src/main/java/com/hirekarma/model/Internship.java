@@ -60,9 +60,7 @@ public class Internship implements Serializable{
 	@Column(name = "DESCRIPTION")
 	private String description;
 	
-	@Lob
-	@Column(name = "DESCRIPTION_FILE")
-	private byte[] descriptionFile;
+	private String descriptionFileUrl;
 	
 	@Column(name = "STATUS")
 	private Boolean status;
@@ -77,13 +75,23 @@ public class Internship implements Serializable{
 	@Column(name = "UPDATED_ON")
 	private Timestamp updatedOn;
 
+
+
 	@Override
 	public String toString() {
 		return "Internship [internshipId=" + internshipId + ", corporateId=" + corporateId + ", internshipTitle="
 				+ internshipTitle + ", internshipType=" + internshipType + ", skills=" + skills + ", city=" + city
 				+ ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description=" + description
-				+ ", descriptionFile=" + Arrays.toString(descriptionFile) + ", status=" + status + ", deleteStatus="
-				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+				+ ", descriptionFileUrl=" + descriptionFileUrl + ", status=" + status + ", deleteStatus=" + deleteStatus
+				+ ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + "]";
+	}
+
+	public String getDescriptionFileUrl() {
+		return descriptionFileUrl;
+	}
+
+	public void setDescriptionFileUrl(String descriptionFileUrl) {
+		this.descriptionFileUrl = descriptionFileUrl;
 	}
 
 	public Long getInternshipId() {
@@ -166,13 +174,7 @@ public class Internship implements Serializable{
 		this.description = description;
 	}
 
-	public byte[] getDescriptionFile() {
-		return descriptionFile;
-	}
-
-	public void setDescriptionFile(byte[] descriptionFile) {
-		this.descriptionFile = descriptionFile;
-	}
+	
 
 	public Boolean getStatus() {
 		return status;

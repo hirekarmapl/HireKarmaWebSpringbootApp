@@ -107,6 +107,27 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		}
 	}
 
+	public UserProfile copyPropertiesForUniversityFromUserBeanToUserForNotNull(UserBean userBean,UserProfile userProfile) {
+
+		if(userBean.getName()!=null && !userBean.getName().equals("")) {
+			userProfile.setName(userBean.getName());
+		}
+		if(userBean.getPhoneNo()!=null && !userBean.getPhoneNo().equals("")) {
+			userProfile.setPhoneNo(userBean.getPhoneNo());
+		}
+		if(userBean.getUniversityEmailAddress()!=null && !userBean.getUniversityEmailAddress().equals("")) {
+			userProfile.setUniversityEmailAddress(userBean.getUniversityEmailAddress());
+		}
+		if(userBean.getFile()!=null) {
+			userProfile.setImageUrl(awss3Service.uploadFile(userBean.getFile()));
+		}
+		if(userBean.getAddress()!=null && !userBean.getAddress().equals("")) {
+			userProfile.setAddress(userBean.getAddress());
+		}
+		userProfile.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+		
+		return userProfile;
+	}
 // email address are used to check if only one email is used for both email and workemail and rest is for updating
 	@Override
 	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String jwtToken) {
@@ -153,25 +174,19 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 //						university = universityOptional.get();
 
 						if (universityUser != null) {
+							
+						
 
-							universityUser.setName(universityUserBean.getName());
-//							universityUser.setEmail(universityUserBean.getEmail());
-							universityUser.setPhoneNo(universityUserBean.getPhoneNo());
-							universityUser.setUniversityEmailAddress(universityUserBean.getUniversityEmailAddress());
-							universityUser.setImageUrl(awss3Service.uploadFile(universityUserBean.getFile()));
-							universityUser.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-							universityUser.setAddress(universityUserBean.getAddress());
-
-							universityUserReturn = userRepository.save(universityUser);
+							universityUserReturn = userRepository.save(copyPropertiesForUniversityFromUserBeanToUserForNotNull(universityUserBean, universityUser));
 
 							universityUserBeanReturn = new UserBean();
 
 							university.setUniversityName(universityUserReturn.getName());
 							university.setUniversityEmail(universityUserReturn.getEmail());
 							university.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-							university.setUniversityAddress(universityUserBean.getAddress());
-							university.setUniversityImage(universityUserBean.getImage());
-							university.setUniversityPhoneNumber(Long.valueOf(universityUserBean.getPhoneNo()));
+							university.setUniversityAddress(universityUserReturn.getAddress());
+							
+							university.setUniversityPhoneNumber(Long.valueOf(universityUserReturn.getPhoneNo()));
 
 							universityRepository.save(university);
 

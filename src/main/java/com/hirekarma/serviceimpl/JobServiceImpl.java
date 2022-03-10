@@ -428,6 +428,7 @@ public class JobServiceImpl implements JobService {
 		}
 		if(jobBean.getFile()!=null) {
 			job.setDescriptionFileUrl(awss3Service.uploadFile(jobBean.getFile()));
+			System.out.println(job.getDescriptionFileUrl());
 		}
 		if(jobBean.getBranchIds()!=null && jobBean.getBranchIds().size()>0) {
 			job.setBranchs(getAllBranchFromtheirIds(jobBean.getBranchIds()));
@@ -450,7 +451,10 @@ public class JobServiceImpl implements JobService {
 		if(jobBean.getServiceAgreement()!=null) {
 			job.setServiceAgreement(jobBean.getServiceAgreement());
 		}
-		if(jobBean.getForcampusDrive()!=null) {
+		if(jobBean.getForcampusDrive()==null && job.getForcampusDrive()==null) {
+			job.setForcampusDrive(false);
+		}
+		else {
 			job.setForcampusDrive(jobBean.getForcampusDrive());
 		}
 		job.setDeleteStatus(false);

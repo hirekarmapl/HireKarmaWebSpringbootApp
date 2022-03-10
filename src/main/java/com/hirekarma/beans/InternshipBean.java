@@ -21,7 +21,7 @@ public class InternshipBean {
 	private Double salary;
 	private String about;
 	private String description;
-	private byte[] descriptionFile;
+	private String descriptionFileUrl;
 	private Boolean status;
 	private Boolean deleteStatus;
 	private Timestamp createdOn;

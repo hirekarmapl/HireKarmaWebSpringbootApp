@@ -140,6 +140,7 @@ public class UniversityServiceImpl implements UniversityService {
 		if(adminShareJobToUniversity==null) {
 			throw new UserProfileException("invalid shareJobid");
 		}
+		
 		universityJobShareToStudentBean.setJobId(adminShareJobToUniversity.getJobId());
 		universityJobShareToStudentBean.setUniversityId(adminShareJobToUniversity.getUniversityId());
 		UniversityJobShareToStudent universityJobShareToStudent = null;
@@ -149,6 +150,7 @@ public class UniversityServiceImpl implements UniversityService {
 		if(universityJobShareToStudents!=null && universityJobShareToStudents.size()!=0) {
 			throw new Exception("Job Already Shared");
 		}
+		
 //		output variable
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();
 		Long count = 0L;

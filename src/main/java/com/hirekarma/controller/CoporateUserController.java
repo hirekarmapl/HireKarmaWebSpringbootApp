@@ -37,6 +37,7 @@ import com.google.gson.JsonObject;
 import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.GoogleCalenderRequest;
+import com.hirekarma.beans.InternshipApplyResponseBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.StudentDetails;
@@ -56,6 +57,7 @@ import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
+import com.hirekarma.service.InternshipApplyService;
 import com.hirekarma.utilty.CalendarApi;
 import com.hirekarma.utilty.JwtUtil;
 import com.hirekarma.utilty.Validation;
@@ -93,6 +95,9 @@ public class CoporateUserController {
 	
 	@Autowired
 	private CampusDriveResponseRepository campusDriveResponseRepository;
+	
+	@Autowired
+	private InternshipApplyService internshipApplyService;
 
 	
 	@PreAuthorize("hasRole('corporate')")
@@ -557,6 +562,25 @@ public class CoporateUserController {
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			e.printStackTrace();
 			return responseEntity;
+		}
+	}
+	
+	@GetMapping("/corporate/all_applications")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> getAllInternshipApplicationForSpecificCorporate(@RequestHeader("Authorization")String token)
+			throws Exception {
+		
+		try {
+			String email = Validation.validateToken(token);
+			Corporate corporate = this.corporateRepository.findByEmail(email);
+			Map<String,Object> result = new HashMap<>();
+			result.put("jobs",coporateUserService.getAllJobsApplicationForCorporate(corporate.getCorporateId()));
+			result.put("internships",this.internshipApplyService.getAllInternshipApplicationForSpecificCorporate(corporate.getCorporateId()));
+			return new ResponseEntity<Response>(new Response("success", 200, "", result, null), HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
 		}
 	}
 }

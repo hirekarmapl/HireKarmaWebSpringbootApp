@@ -1,6 +1,7 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -35,57 +36,62 @@ public class InternshipServiceImpl implements InternshipService {
 	@Autowired
 	private CorporateRepository corporateRepository;
 
+	@Autowired
+	private AWSS3Service awss3Service;
+
+	Internship copyPropertiesFromInternshipBeanToInternshipForNotNull(InternshipBean internshipBean,
+			Internship internship) {
+		if (internshipBean.getInternshipTitle() != null) {
+			internship.setInternshipTitle(internshipBean.getInternshipTitle());
+		}
+		if (internshipBean.getInternshipType() != null) {
+			internship.setInternshipTitle(internshipBean.getInternshipType());
+		}
+		if (internshipBean.getSkills() != null) {
+			internship.setSkills(internshipBean.getSkills());
+		}
+		if (internshipBean.getCity() != null) {
+			internship.setCity(internshipBean.getCity());
+		}
+		if (internshipBean.getOpenings() != null) {
+			internship.setOpenings(internshipBean.getOpenings());
+		}
+		if (internshipBean.getSalary() != null) {
+			internship.setSalary(internshipBean.getSalary());
+		}
+		if (!internshipBean.getAbout().equals("") && internshipBean.getAbout() != null) {
+			internship.setAbout(internshipBean.getAbout());
+		}
+		if (!internshipBean.getDescription().equals("") && internshipBean.getDescription() != null) {
+			internship.setDescription(internshipBean.getDescription());
+		}
+		if (internshipBean.getFile() != null && !internshipBean.getFile().isEmpty()) {
+			internship.setDescriptionFileUrl(this.awss3Service.uploadFile(internshipBean.getFile()));
+		}
+
+		return internship;
+	}
+
 	@Override
-	public InternshipBean insert(InternshipBean internshipBean, String token) {
+	public InternshipBean insert(InternshipBean internshipBean, String token) throws Exception {
 		LOGGER.debug("Inside InternshipServiceImpl.insert()");
 		Internship internship = null;
 		Internship internshipReturn = null;
 		InternshipBean bean = null;
-		byte[] image = null;
-		Corporate corporate = null;
-		try {
-			String[] chunks1 = token.split(" ");
-			String[] chunks = chunks1[1].split("\\.");
-			Base64.Decoder decoder = Base64.getUrlDecoder();
+		String email = Validation.validateToken(token);
+		Corporate corporate = corporateRepository.findByEmail(email);
+		internshipBean.setStatus(false);
+		internshipBean.setDeleteStatus(false);
+		internshipBean.setCorporateId(null);
+		internshipBean.setCorporateId(corporate.getCorporateId());
+		internshipBean.setCreatedOn(Timestamp.from(Instant.now()));
+		internship = new Internship();
+		internship = internshipRepository
+				.save(copyPropertiesFromInternshipBeanToInternshipForNotNull(internshipBean, internship));
+		InternshipBean responseBean = new InternshipBean();
+		BeanUtils.copyProperties(internship, responseBean);
+		return responseBean;
 
-			String payload = new String(decoder.decode(chunks[1]));
-			JSONParser jsonParser = new JSONParser();
-			Object obj = jsonParser.parse(payload);
-
-			JSONObject jsonObject = (JSONObject) obj;
-
-			String email = (String) jsonObject.get("sub");
-
-			corporate = corporateRepository.findByEmail(email);
-
-			LOGGER.debug("Inside try block of InternshipServiceImpl.insert()");
-
-			if (corporate != null) {
-
-				image = internshipBean.getFile().getBytes();
-				internshipBean.setDescriptionFile(image);
-				internshipBean.setStatus(false);
-				internshipBean.setDeleteStatus(false);
-				internshipBean.setCorporateId(null);
-				internshipBean.setCorporateId(corporate.getCorporateId());
-				internship = new Internship();
-
-				BeanUtils.copyProperties(internshipBean, internship);
-
-				internshipReturn = internshipRepository.save(internship);
-
-				bean = new InternshipBean();
-				BeanUtils.copyProperties(internshipReturn, bean);
-			} else {
-				throw new InternshipException("Corporate Data Not Found !!");
-			}
-
-			LOGGER.info("Data successfully saved using InternshipServiceImpl.insert(-)");
-			return bean;
-		} catch (Exception e) {
-			LOGGER.error("Data Insertion failed using InternshipServiceImpl.insert(-): " + e);
-			throw new InternshipException(e.getMessage());
-		}
 	}
 
 	@Override
@@ -265,83 +271,30 @@ public class InternshipServiceImpl implements InternshipService {
 	}
 
 	@Override
-	public InternshipBean updateInternshipById(InternshipBean internshipBean, String token) {
-		LOGGER.debug("Inside InternshipServiceImpl.updateInternshipById(-)");
-		Internship internship = null;
-		Internship internshipReturn = null;
-		Optional<Internship> optional = null;
-		InternshipBean bean = null;
-		byte[] image = null;
-		Corporate corporate = null;
-		try {
-			LOGGER.debug("Inside try block of InternshipServiceImpl.updateInternshipById(-)");
-
-			String[] chunks1 = token.split(" ");
-			String[] chunks = chunks1[1].split("\\.");
-			Base64.Decoder decoder = Base64.getUrlDecoder();
-
-			String payload = new String(decoder.decode(chunks[1]));
-			JSONParser jsonParser = new JSONParser();
-			Object obj = jsonParser.parse(payload);
-
-			JSONObject jsonObject = (JSONObject) obj;
-
-			String email = (String) jsonObject.get("sub");
-
-			corporate = corporateRepository.findByEmail(email);
-			if (corporate != null) {
-
-				image = internshipBean.getFile().getBytes();
-				internshipBean.setDescriptionFile(image);
-
-				optional = internshipRepository.getInternshipDetails(internshipBean.getInternshipId(),corporate.getCorporateId());
-
-				if (!optional.isEmpty()) {
-
-					internship = optional.get();
-
-					if (internship != null) {
-
-						internship.setInternshipTitle(internshipBean.getInternshipTitle());
-						internship.setInternshipType(internshipBean.getInternshipType());
-						internship.setSkills(internshipBean.getSkills());
-						internship.setCity(internshipBean.getCity());
-						internship.setOpenings(internshipBean.getOpenings());
-						internship.setSalary(internshipBean.getSalary());
-						internship.setAbout(internshipBean.getAbout());
-						internship.setDescription(internshipBean.getDescription());
-						internship.setDescriptionFile(internshipBean.getDescriptionFile());
-						internship.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-						internship.setDeleteStatus(false);
-
-						internshipReturn = internshipRepository.save(internship);
-
-						bean = new InternshipBean();
-						BeanUtils.copyProperties(internshipReturn, bean);
-
-						LOGGER.info("Data Successfully updated using InternshipServiceImpl.updateInternshipById(-)");
-					}
-				} else {
-					throw new InternshipException("No Internship Found In This Corporate !!");
-				}
-			} else {
-				throw new InternshipException("No corporate Found !!");
-			}
-			return bean;
-		} catch (Exception e) {
-			LOGGER.error("Error occured in InternshipServiceImpl.updateInternshipById(-): " + e);
-			throw new InternshipException(e.getMessage());
+	public InternshipBean updateInternshipById(InternshipBean internshipBean, String token) throws Exception{
+		String email  = Validation.validateToken(token);
+		Corporate corporate = this.corporateRepository.findByEmail(email);
+		Optional<Internship> optional = this.internshipRepository.findById(internshipBean.getInternshipId());
+		if(!optional.isPresent())
+		{
+			throw new Exception("invalid internship id");
 		}
+		Internship internship = optional.get();
+		internship.setUpdatedOn(Timestamp.from(Instant.now()));
+		internship  = this.internshipRepository.save(copyPropertiesFromInternshipBeanToInternshipForNotNull(internshipBean,internship));
+		InternshipBean responseBean = new InternshipBean();
+		BeanUtils.copyProperties(internship, responseBean);
+		return responseBean;
+		
 	}
 
 	@Override
-	public void activateInternship(String token, Long internshipId,boolean active) throws Exception {
+	public void activateInternship(String token, Long internshipId, boolean active) throws Exception {
 
-	
 		Optional<Internship> internshipOptional = internshipRepository.findById(internshipId);
-		if(internshipOptional.isEmpty()) {
+		if (internshipOptional.isEmpty()) {
 			throw new Exception("no internship found");
-			
+
 		}
 		Internship internship = internshipOptional.get();
 		internship.setStatus(active);

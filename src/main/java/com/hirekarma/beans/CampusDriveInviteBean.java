@@ -18,7 +18,7 @@ public class CampusDriveInviteBean {
 	private String universityEmail;
 	private String universityAddress;
 	private Long universityPhoneNumber;
-	private byte[] universityImage;
+	private String universityImageUrl;
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 	private Boolean status;
@@ -109,12 +109,7 @@ public class CampusDriveInviteBean {
 	public void setUniversityPhoneNumber(Long universityPhoneNumber) {
 		this.universityPhoneNumber = universityPhoneNumber;
 	}
-	public byte[] getUniversityImage() {
-		return universityImage;
-	}
-	public void setUniversityImage(byte[] universityImage) {
-		this.universityImage = universityImage;
-	}
+	
 	public Timestamp getCreatedOn() {
 		return createdOn;
 	}
@@ -133,7 +128,12 @@ public class CampusDriveInviteBean {
 	public void setStatus(Boolean status) {
 		this.status = status;
 	}
-	
+	public String getUniversityImageUrl() {
+		return universityImageUrl;
+	}
+	public void setUniversityImageUrl(String universityImageUrl) {
+		this.universityImageUrl = universityImageUrl;
+	}
 	@Override
 	public String toString() {
 		return "CampusDriveInviteBean [campusDriveId=" + campusDriveId + ", jobId=" + jobId + ", corporateId="
@@ -141,8 +141,10 @@ public class CampusDriveInviteBean {
 				+ ", corporateResponse=" + corporateResponse + ", universityAskedOn=" + universityAskedOn
 				+ ", corporateResponseOn=" + corporateResponseOn + ", userId=" + userId + ", universityName="
 				+ universityName + ", universityEmail=" + universityEmail + ", universityAddress=" + universityAddress
-				+ ", universityPhoneNumber=" + universityPhoneNumber + ", universityImage="
-				+ Arrays.toString(universityImage) + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn
-				+ ", status=" + status + "]";
+				+ ", universityPhoneNumber=" + universityPhoneNumber + ", universityImageUrl=" + universityImageUrl
+				+ ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", status=" + status + ", jobName="
+				+ jobName + "]";
 	}
+	
+
 }

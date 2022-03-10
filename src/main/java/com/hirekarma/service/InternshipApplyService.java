@@ -10,4 +10,5 @@ import com.hirekarma.beans.InternshipApplyResponseBean;
 public interface InternshipApplyService {
 	public InternshipApplyBean insert(InternshipApplyBean internshipApplyBean, String token) throws ParseException;
 	public List<InternshipApplyResponseBean> getAllInternshipsForAStudent(Long studentId);
+	public List<InternshipApplyResponseBean> getAllInternshipApplicationForSpecificCorporate(Long corporateId);
 }

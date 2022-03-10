@@ -39,6 +39,7 @@ public class JobApplyServiceImpl implements JobApplyService {
 
 	@Override
 	public JobApplyBean insert(JobApplyBean jobApplyBean, String token) {
+		
 		LOGGER.debug("Inside JobApplyServiceImpl.insert()");
 		JobApply jobApply = null, jobApplyReturn = null;
 		JobApplyBean applyBean = null;
@@ -51,7 +52,11 @@ public class JobApplyServiceImpl implements JobApplyService {
 			if (job == null) {
 				throw new Exception("no such job found");
 			}
-
+			
+			jobApply = this.jobApplyRepository.findByStudentIdAndJobId(student.getStudentId(), job.getJobId());
+			if(jobApply!=null) {
+				throw new Exception("Already applied");
+			}
 			jobApply = new JobApply();
 			BeanUtils.copyProperties(jobApplyBean, jobApply);
 			jobApply.setDeleteStatus(false);

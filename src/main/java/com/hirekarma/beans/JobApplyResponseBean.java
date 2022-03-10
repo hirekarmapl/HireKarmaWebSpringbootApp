@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.Student;
 
 import lombok.Data;
 import lombok.ToString;
@@ -28,4 +29,7 @@ public class JobApplyResponseBean {
 	private Timestamp updatedOn;
 	private Job job;
 	private Corporate corporate;
+	private Student student;
+
+	
 }

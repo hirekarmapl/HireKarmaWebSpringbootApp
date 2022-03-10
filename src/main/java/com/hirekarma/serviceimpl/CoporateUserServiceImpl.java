@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.CampusDriveInviteBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.JobApplyResponseBean;
 import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.beans.UserBeanResponse;
@@ -30,6 +31,7 @@ import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Organization;
+import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
@@ -363,20 +365,29 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		JobApply jobApply = null;
 		ChatRoom chatRoom = null;
 		try {
+			map = new HashMap<String,Object>();
 			jobApplyOpt = jobApplyRepository.findById(jobApplyId);
 			if(!jobApplyOpt.isEmpty()) {
 				jobApply = jobApplyOpt.get();
 				if(corporateId == jobApply.getCorporateId()) {
+					if(jobApply.getApplicationStatus()) {
+						map.put("status", "Failed");
+						map.put("responseCode", "400");
+						map.put("message", "Student Already shortlisted");
+						return map;
+					}
 					jobApply.setApplicationStatus(true);
 					jobApplyRepository.save(jobApply);
-					map = new HashMap<String,Object>();
+					
 					map.put("status", "Success");
 					map.put("responseCode", "200");
 					map.put("message", "Student got shortlisted");
 					chatRoom = new ChatRoom();
+					chatRoom.setJobApplyId(jobApply.getJobApplyId());
 					chatRoom.setCorporateId(corporateId);
 					chatRoom.setStudentId(jobApply.getStudentId());
-					chatRoomRepository.save(chatRoom);
+					chatRoom = chatRoomRepository.save(chatRoom);
+					map.put("chatRoom", chatRoom);
 				}
 				else {
 					map = new HashMap<String,Object>();
@@ -393,6 +404,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			}
 		}
 		catch (Exception e) {
+			e.printStackTrace();
 			LOGGER.error("Error in CoporateUserServiceImpl.shortListStudent(-)");
 			map = new HashMap<String,Object>();
 			map.put("status", "Failed");
@@ -402,18 +414,45 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		return map;
 	}
 
+	public List<JobApplyResponseBean> getAllJobsApplicationForCorporate(Long corporateId){
+		List<JobApply> jobApplies = null;
+		List<JobApplyResponseBean> jobApplyResponseBeans = new ArrayList<>();
+		
+			jobApplies = jobApplyRepository.getAllJobApplicationsByCorporate(corporateId);
+			for(JobApply jobApply:jobApplies) {
+				JobApplyResponseBean jobApplyResponseBean = new JobApplyResponseBean();
+				BeanUtils.copyProperties(jobApply, jobApplyResponseBean);
+				Student student = this.studentRepository.getById(jobApply.getStudentId());
+				Job job = this.jobRepository.getById(jobApply.getJobId());
+				jobApplyResponseBean.setStudent(student);
+				jobApplyResponseBean.setJob(job);
+				jobApplyResponseBeans.add(jobApplyResponseBean);
+			}
+			return jobApplyResponseBeans;
+	}
+
 	@Override
 	public Map<String, Object> getAllJobApplicationsByCorporate(Long corporateId) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.getAllJobApplicationsByStudent(-)");
 		List<JobApply> jobApplies = null;
 		Map<String,Object> map = null;
+		List<JobApplyResponseBean> jobApplyResponseBeans = new ArrayList<>();
 		try {
 			jobApplies = jobApplyRepository.getAllJobApplicationsByCorporate(corporateId);
+			for(JobApply jobApply:jobApplies) {
+				JobApplyResponseBean jobApplyResponseBean = new JobApplyResponseBean();
+				BeanUtils.copyProperties(jobApply, jobApplyResponseBean);
+				Student student = this.studentRepository.getById(jobApply.getStudentId());
+				Job job = this.jobRepository.getById(jobApply.getJobId());
+				jobApplyResponseBean.setStudent(student);
+				jobApplyResponseBean.setJob(job);
+				jobApplyResponseBeans.add(jobApplyResponseBean);
+			}
 			if(jobApplies != null && jobApplies.size()>0) {
 				map = new HashMap<String, Object>();
 				map.put("status", "Failed");
 				map.put("responseCode", 500);
-				map.put("data", jobApplies);
+				map.put("data", jobApplyResponseBeans);
 				return map;
 			}
 			else {
@@ -466,7 +505,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 						campusDriveInviteBean.setUniversityEmail(university.getUniversityEmail());
 						campusDriveInviteBean.setUniversityAddress(university.getUniversityAddress());
 						campusDriveInviteBean.setUniversityPhoneNumber(university.getUniversityPhoneNumber());
-						campusDriveInviteBean.setUniversityImage(university.getUniversityImage());
+						campusDriveInviteBean.setUniversityImageUrl(university.getUniversityImageUrl());
 						campusDriveInviteBean.setCreatedOn(university.getCreatedOn());
 						campusDriveInviteBean.setCreatedOn(university.getCreatedOn());
 						campusDriveInviteBean.setStatus(university.getStatus());

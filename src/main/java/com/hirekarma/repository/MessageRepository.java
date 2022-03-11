@@ -11,7 +11,7 @@ import com.hirekarma.model.Message;
 @Repository("messageRepository")
 public interface MessageRepository extends JpaRepository<Message, Long>{
 
-	@Query("select u from Message u where u.chatRoomId = ?1")
+	@Query("select u from Message u where u.chatRoomId = ?1 order by u.createdOn")
 	List<Message> getMessagesByChatRoomId(Long chatRoomId);
 	
 }

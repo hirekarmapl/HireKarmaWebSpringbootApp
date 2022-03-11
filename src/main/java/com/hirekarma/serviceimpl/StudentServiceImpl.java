@@ -922,6 +922,12 @@ public class StudentServiceImpl implements StudentService {
 			LOGGER.debug("Inside StudentServiceImpl.universityResponse(-)");
 			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getID());
 			universityJobShareToStudent = new UniversityJobShareToStudent();
+			universityJobShareToStudent = optional.get();
+			CampusDriveResponse campusDriveResponse = this.campusDriveResponseRepository.findByUniversityIdAndJobId(universityJobShareToStudent.getUniversityId(), universityJobShareToStudent.getJobId());
+			if(campusDriveResponse!=null) {
+				throw new Exception("no longer accepting responses");
+			}
+				
 			Student student = this.studentRepository.getById(universityJobShareToStudent.getStudentId());
 			if(student.getProfileUpdationStatus()==null || !student.getProfileUpdationStatus() ) {
 				throw new Exception("please update your profile first!");
@@ -933,12 +939,7 @@ public class StudentServiceImpl implements StudentService {
 			if(userProfile.getEducations()==null || userProfile.getEducations().isEmpty() ) {
 				throw new Exception("please complete your education detials");
 			}
-			universityJobShareToStudent = optional.get();
-			CampusDriveResponse campusDriveResponse = this.campusDriveResponseRepository.findByUniversityIdAndJobId(universityJobShareToStudent.getUniversityId(), universityJobShareToStudent.getJobId());
-			if(campusDriveResponse!=null) {
-				throw new Exception("no longer accepting responses");
-			}
-					
+				
 			if (universityJobShareToStudent != null) {
 
 				universityJobShareToStudent.setStudentResponseStatus(jobBean.getStudentResponseStatus());

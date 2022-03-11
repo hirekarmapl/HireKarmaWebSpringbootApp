@@ -1,6 +1,7 @@
 package com.hirekarma.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -44,5 +45,10 @@ public class ChatRoom implements Serializable {
 	@OneToMany
 	@JoinColumn(updatable = false, insertable = false, name = "CHAT_ROOM_ID", referencedColumnName = "CHAT_ROOM_ID")
 	private List<Message> messages;
+	
+	
+	LocalDateTime createdOn = LocalDateTime.now();
+	
+	LocalDateTime updatedOn = LocalDateTime.now();
 
 }

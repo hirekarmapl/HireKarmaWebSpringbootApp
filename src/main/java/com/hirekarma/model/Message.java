@@ -1,6 +1,7 @@
 package com.hirekarma.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,14 +36,14 @@ public class Message implements Serializable{
 	@Column(name = "TXT_MESSAGE")
 	private String txtMessage;
 	
-	@Column(name = "ATTACHMENT")
-	@Lob
-	private byte[] attachment;
+	private String attachmentUrl;
 	
 	@Column(name = "SENDER_TYPE")
 	private String senderType;
 	
 	@Column(name = "IS_SEEN")
 	private String isSeen;
+	
+	private LocalDateTime createdOn = LocalDateTime.now();
 
 }

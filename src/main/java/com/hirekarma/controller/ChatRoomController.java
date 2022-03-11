@@ -1,6 +1,7 @@
 package com.hirekarma.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,15 +16,23 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.ChatRoomBean;
+import com.hirekarma.beans.Response;
+import com.hirekarma.model.Blog;
+import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Student;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.ChatRoomService;
 import com.hirekarma.utilty.JwtUtil;
+import com.hirekarma.utilty.Validation;
 
 @RestController("chatRoomController")
 @RequestMapping("/hirekarma/")
@@ -39,7 +48,13 @@ public class ChatRoomController {
 	private JwtUtil jwtTokenUtil;
 	
 	@Autowired
+	private CorporateRepository corporateRepository;
+	
+	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private StudentRepository studentRepository;
 	
 	@PostMapping("/sendMessage")
 	@PreAuthorize("hasAnyRole('student','corporate')")
@@ -60,12 +75,14 @@ public class ChatRoomController {
 				userProfile = userRepository.findUserByEmail(email);
 				if(userProfile != null) {
 					if(userProfile.getUserType().equals("corporate")) {
-						chatRoomBean.setCorporateId(userProfile.getUserId());
-						chatRoomBean.setStudentId(null);
+						Corporate corporate = this.corporateRepository.findByEmail(email);
+						chatRoomBean.setStudentId(corporate.getCorporateId());
+						chatRoomBean.setCorporateId(null);
 						chatRoomBean.setSenderType("corporate");
 					}
 					else {
-						chatRoomBean.setStudentId(userProfile.getUserId());
+						Student student = this.studentRepository.findByStudentEmail(email);
+						chatRoomBean.setStudentId(student.getStudentId());
 						chatRoomBean.setCorporateId(null);
 						chatRoomBean.setSenderType("student");
 					}
@@ -119,4 +136,28 @@ public class ChatRoomController {
 			return responseEntity;
 		}
 	}
+	
+	@GetMapping("/getAllChatRoom")
+	@PreAuthorize("hasAnyRole('student','corporate')")
+	public ResponseEntity<Map<String, Object>> getAllChatRooms(@RequestHeader("Authorization")String token){
+		Map<String, Object> map = null;
+		try {
+			String email = Validation.validateToken(token);
+			UserProfile userProfile = this.userRepository.findUserByEmail(email);
+			List<ChatRoomBean> chatRoomBeans = this.chatRoomService.getAllChatRooms(userProfile);
+			map = new HashMap<String, Object>();
+			map.put("status", "Success");
+			map.put("responseCode", 200);
+			map.put("data", chatRoomBeans);
+			return  new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+			} catch (Exception e) {
+				map = new HashMap<String, Object>();
+				map.put("status", "Bad Request");
+				map.put("responseCode", 400);
+				map.put("message", "something went wrong!");
+				return new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+				
+			}
+	}
+	
 }

@@ -274,13 +274,24 @@ public class StudentServiceImpl implements StudentService {
 	public Education addEducationToAStudent(EducationBean educationBean,String token) throws Exception{
 		String email = Validation.validateToken(token);
 		UserProfile userProfile = userRepository.findUserByEmail(email);
-		Optional<StudentBatch> studentBatch = this.studentBatchRepository.findById(educationBean.getBatchId());
-		Optional<StudentBranch> studentBranch = this.studentBranchRepository.findById(educationBean.getBranchId());
-		if(!studentBatch.isPresent() || !studentBranch.isPresent()) {
-			throw new Exception("please check batch or branch id");
+		if(educationBean.getBatchId()!=null) {
+			Optional<StudentBatch> studentBatch = this.studentBatchRepository.findById(educationBean.getBatchId());
+			if(!studentBatch.isPresent()) {
+				throw new Exception("invalid student batch");
+				
+			}
+			educationBean.setStudentBatch(studentBatch.get());
 		}
-		educationBean.setStudentBatch(studentBatch.get());
-		educationBean.setStudentBranch(studentBranch.get());
+		if(educationBean.getBranchId()!=null) {
+			Optional<StudentBranch> studentBranch = this.studentBranchRepository.findById(educationBean.getBranchId());
+			if(studentBranch.isPresent()) {
+				educationBean.setStudentBranch(studentBranch.get());
+			}
+			else {
+				throw new Exception("invalid student Branch");
+			}
+		}
+		
 		Education education = new Education();
 		BeanUtils.copyProperties(educationBean, education);
 		education.setUserProfile(userProfile);

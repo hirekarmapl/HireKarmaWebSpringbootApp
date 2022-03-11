@@ -50,7 +50,7 @@ public class InternshipApply implements Serializable{
 	private Boolean deleteStatus;
 	
 	@Column(name = "APPLICATION_STATUS")
-	private Boolean applicatinStatus;
+	private Boolean applicatinStatus=false;
 	
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")

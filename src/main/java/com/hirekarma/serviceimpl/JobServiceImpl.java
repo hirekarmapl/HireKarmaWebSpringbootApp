@@ -101,6 +101,9 @@ public class JobServiceImpl implements JobService {
 		
 		//finding corporate
 		Corporate corporate = corporateRepository.findByEmail(email);
+		if(corporate.getProfileUpdationStatus()==null || !corporate.getProfileUpdationStatus()) {
+			throw new Exception("Please update your profile first");
+		}
 		if(corporate==null) {
 			throw new Exception("corporate not found");
 		}

@@ -47,6 +47,7 @@ public class InternshipController {
 		Response response = new Response();
 		try {
 			LOGGER.debug("Inside try block of InternshipController.saveInternshipDetails(-)");
+			System.out.println(internshipBean);
 			bean=internshipService.insert(internshipBean,token);
 			LOGGER.info("Data successfully saved using InternshipController.saveInternshipDetails(-)");
 			responseEntity = new ResponseEntity<>(response, HttpStatus.CREATED);

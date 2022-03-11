@@ -35,4 +35,6 @@ public interface CoporateUserService {
 	public Map<String,Object> getAllCampusDriveInvitesByCorporateId(Long corporateId);
 	
 	public List<JobApplyResponseBean> getAllJobsApplicationForCorporate(Long corporateId);
+
+	Map<String, Object> shortListStudentForInternship(Long corporateId, Long jobApplyId);
 }

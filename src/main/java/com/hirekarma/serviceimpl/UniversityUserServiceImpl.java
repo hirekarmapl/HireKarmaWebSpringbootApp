@@ -174,7 +174,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 //						university = universityOptional.get();
 
 						if (universityUser != null) {
-							
+								
 						
 
 							universityUserReturn = userRepository.save(copyPropertiesForUniversityFromUserBeanToUserForNotNull(universityUserBean, universityUser));
@@ -187,7 +187,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 							university.setUniversityAddress(universityUserReturn.getAddress());
 							
 							university.setUniversityPhoneNumber(Long.valueOf(universityUserReturn.getPhoneNo()));
-
+							university.setProfileUpdationStatus(true);
 							universityRepository.save(university);
 
 							BeanUtils.copyProperties(universityUserReturn, universityUserBeanReturn);

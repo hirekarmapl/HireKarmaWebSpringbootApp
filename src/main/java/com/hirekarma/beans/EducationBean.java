@@ -16,6 +16,7 @@ public class EducationBean {
 	int startDateMonth;
 	int startDateYear;
 	int endDateMonth;
+	int endDateYear;
 	StudentBatch studentBatch;
 	StudentBranch studentBranch;
 	Long batchId;

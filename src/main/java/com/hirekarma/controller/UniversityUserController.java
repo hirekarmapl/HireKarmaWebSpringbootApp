@@ -36,7 +36,9 @@ import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.UniversityUserDefindException;
 import com.hirekarma.model.QuestionANdanswer;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.service.StudentService;
 import com.hirekarma.service.UniversityUserService;
 import com.hirekarma.utilty.StudentDataExcelGenerator;
@@ -54,6 +56,9 @@ public class UniversityUserController {
 
 	@Autowired
 	private StudentService studentService;
+	
+	@Autowired
+	private UniversityRepository universityRepository;
 
 //	@PostMapping("/universitySaveUrl")
 //	public ResponseEntity<UniversityUserBean> createUser(@RequestBody UniversityUserBean universityUserBean){
@@ -193,11 +198,6 @@ public class UniversityUserController {
 		try {
 			LOGGER.debug("Inside try block of UniversityUserController.updateUniversityUserProfile(-)");
 
-			if (Validation.validateEmail(universityUserBean.getEmail())) {
-				if (Validation.phoneNumberValidation(Long.valueOf(universityUserBean.getPhoneNo()))) {
-
-					image = universityUserBean.getFile().getBytes();
-					universityUserBean.setImage(image);
 					userBean = universityUserService.updateUniversityUserProfile(universityUserBean,token);
 					if (userBean != null) {
 						LOGGER.info(
@@ -220,23 +220,7 @@ public class UniversityUserController {
 
 					response.setResponseCode(responseEntity.getStatusCodeValue());
 					response.setData(userBean);
-				} else {
-					throw new UniversityUserDefindException("Please Enter A Valid Phone Number !!");
-				}
-			} else {
-				throw new UniversityUserDefindException("Please Enter A Valid Email !!");
-			}
-		} catch (IOException e) {
-			LOGGER.error(
-					"Problem occured during image to byte[] conversion in UniversityUserController.updateUniversityUserProfile(-): "
-							+ e);
-			e.printStackTrace();
-			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-
-			response.setMessage(e.getMessage());
-			response.setStatus("Failed");
-			response.setResponseCode(responseEntity.getStatusCodeValue());
-
+				
 		} catch (Exception e) {
 			LOGGER.error("Some problem occured in UniversityUserController.updateUniversityUserProfile(-): " + e);
 			e.printStackTrace();
@@ -334,6 +318,11 @@ public class UniversityUserController {
 		Map<String,Object> result = new HashMap<String,Object>();
 		List<UserBean> studentBeans = null;
 		try {
+			String email = Validation.validateToken(token);
+			University university = universityRepository.findByEmail(email);
+			if(university.getProfileUpdationStatus()==null|| !university.getProfileUpdationStatus()) {
+				throw new Exception("Please update your profile first");
+			}
 			result = studentService.importStudentDataExcel(file,token);
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "successfully imported", result, null),
 					HttpStatus.OK);

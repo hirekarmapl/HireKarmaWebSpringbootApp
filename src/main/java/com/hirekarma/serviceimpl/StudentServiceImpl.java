@@ -539,12 +539,14 @@ public class StudentServiceImpl implements StudentService {
 
 		
 		if(userBean.getBatch()!=null) {
+			System.out.print("inside student batch");
 			studentBatch = studentBatchRepository.findById(userBean.getBatch());
 			if(!studentBatch.isPresent()) {
 				throw new Exception("invalid batch id");
 			}
 		}
 		if(userBean.getBranch()!=null) {
+			System.out.print("inside student branch");
 			studentBranch = studentBranchRepository.findById(userBean.getBranch());
 			if(!studentBranch.isPresent()) {
 				throw new Exception("invalid batch id");
@@ -575,22 +577,42 @@ public class StudentServiceImpl implements StudentService {
 		if(userBean.getCgpa()!=null) {
 			student.setCgpa(userBean.getCgpa());
 		}
-		
-		if(studentBatch.isPresent()) {
-			student.setBatch(studentBatch.get().getId());
+		if(userBean.getBranch()!=null) {
+				student.setBatch(studentBatch.get().getId());
+			
 		}
-		
-		if(studentBranch.isPresent()) {
+		if(userBean.getBranch()!=null) {
 			student.setBranch(studentBranch.get().getId());
 		}
+		
+		
+		
+//		checking for profile update status
+		Boolean updateProfileStatus = true;
+		
+		if(student.getBatch()==null) {
+			updateProfileStatus =  false;
+		}
+		if(student.getBranch()==null) {
+			updateProfileStatus = false;
+		}
+		if(student.getCgpa()==null) {
+			updateProfileStatus = false;
+		}
+		student.setProfileUpdationStatus(updateProfileStatus);
+//		end of checking for profile update stauts
+		
+		
+		
 		
 		student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 		student = studentRepository.save(student);
 		
 		UserBeanResponse studentBeanReturn = new UserBeanResponse();
 		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
-		studentBeanReturn.setStudentBatchName(studentBatch.isPresent()?studentBatch.get().getBatchName():"");
-		studentBeanReturn.setStudentBranchName(studentBranch.isPresent()?studentBranch.get().getBranchName():"");
+		
+		studentBeanReturn.setStudentBatchName(userBean.getBatch()!=null?studentBatch.get().getBatchName():"");
+		studentBeanReturn.setStudentBranchName(userBean.getBranch()!=null?studentBranch.get().getBranchName():"");
 		studentBeanReturn.setUniversityName(student.getUniversityId()!=null?universityRepository.getById(student.getUniversityId()).getUniversityName():"");
 		studentBeanReturn.setBatch(student.getBatch());
 		studentBeanReturn.setBranch(student.getBranch());
@@ -900,6 +922,17 @@ public class StudentServiceImpl implements StudentService {
 			LOGGER.debug("Inside StudentServiceImpl.universityResponse(-)");
 			Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(jobBean.getID());
 			universityJobShareToStudent = new UniversityJobShareToStudent();
+			Student student = this.studentRepository.getById(universityJobShareToStudent.getStudentId());
+			if(student.getProfileUpdationStatus()==null || !student.getProfileUpdationStatus() ) {
+				throw new Exception("please update your profile first!");
+			}
+			UserProfile userProfile = this.userRepository.getById(student.getUserId());
+			if(userProfile.getSkills()==null || userProfile.getSkills().isEmpty() ) {
+				throw new Exception("please enter some skills!");
+			}
+			if(userProfile.getEducations()==null || userProfile.getEducations().isEmpty() ) {
+				throw new Exception("please complete your education detials");
+			}
 			universityJobShareToStudent = optional.get();
 			CampusDriveResponse campusDriveResponse = this.campusDriveResponseRepository.findByUniversityIdAndJobId(universityJobShareToStudent.getUniversityId(), universityJobShareToStudent.getJobId());
 			if(campusDriveResponse!=null) {

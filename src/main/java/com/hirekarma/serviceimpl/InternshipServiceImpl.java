@@ -45,7 +45,7 @@ public class InternshipServiceImpl implements InternshipService {
 			internship.setInternshipTitle(internshipBean.getInternshipTitle());
 		}
 		if (internshipBean.getInternshipType() != null) {
-			internship.setInternshipTitle(internshipBean.getInternshipType());
+			internship.setInternshipType(internshipBean.getInternshipType());
 		}
 		if (internshipBean.getSkills() != null) {
 			internship.setSkills(internshipBean.getSkills());
@@ -75,19 +75,28 @@ public class InternshipServiceImpl implements InternshipService {
 	@Override
 	public InternshipBean insert(InternshipBean internshipBean, String token) throws Exception {
 		LOGGER.debug("Inside InternshipServiceImpl.insert()");
+		
 		Internship internship = null;
 		Internship internshipReturn = null;
 		InternshipBean bean = null;
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
+		if(corporate.getProfileUpdationStatus()==null || !corporate.getProfileUpdationStatus()) {
+			throw new Exception("Please update your profile first");
+		}
 		internshipBean.setStatus(false);
 		internshipBean.setDeleteStatus(false);
 		internshipBean.setCorporateId(null);
 		internshipBean.setCorporateId(corporate.getCorporateId());
 		internshipBean.setCreatedOn(Timestamp.from(Instant.now()));
 		internship = new Internship();
+		internship.setStatus(false);
+		internship.setDeleteStatus(false);
+		internship.setCorporateId(corporate.getCorporateId());
+		internship.setCreatedOn(Timestamp.from(Instant.now()));
 		internship = internshipRepository
 				.save(copyPropertiesFromInternshipBeanToInternshipForNotNull(internshipBean, internship));
+		
 		InternshipBean responseBean = new InternshipBean();
 		BeanUtils.copyProperties(internship, responseBean);
 		return responseBean;

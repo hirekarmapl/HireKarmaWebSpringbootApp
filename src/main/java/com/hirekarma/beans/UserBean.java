@@ -46,9 +46,20 @@ public class UserBean implements Serializable {
 	private Long branch;
 	private Double cgpa;
 	private Long batch;
+	private Boolean profileUpdationStatus =  false;
 	
 	private Long universityId;
+	
+	
 	private List<Skill> skills = new ArrayList<Skill>();
+	
+	
+	public Boolean getProfileUpdationStatus() {
+		return profileUpdationStatus;
+	}
+	public void setProfileUpdationStatus(Boolean profileUpdationStatus) {
+		this.profileUpdationStatus = profileUpdationStatus;
+	}
 	public Long getUserId() {
 		return userId;
 	}

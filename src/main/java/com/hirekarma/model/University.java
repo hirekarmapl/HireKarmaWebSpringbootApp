@@ -57,7 +57,17 @@ public class University implements Serializable{
 			@Column(name = "STATUS")
 			private Boolean status;
 
+			private Boolean profileUpdationStatus =  false;
+
 			
+
+			public Boolean getProfileUpdationStatus() {
+				return profileUpdationStatus;
+			}
+
+			public void setProfileUpdationStatus(Boolean profileUpdationStatus) {
+				this.profileUpdationStatus = profileUpdationStatus;
+			}
 
 			public String getUniversityImageUrl() {
 				return universityImageUrl;

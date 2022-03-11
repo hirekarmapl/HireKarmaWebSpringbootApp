@@ -23,10 +23,12 @@ import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Internship;
 import com.hirekarma.model.InternshipApply;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.InternshipApplyRepository;
 import com.hirekarma.repository.InternshipRepository;
 import com.hirekarma.repository.StudentRepository;
+import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.InternshipApplyService;
 
 @Service("internshipApplyServiceImpl")
@@ -36,6 +38,9 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 
 	@Autowired
 	private InternshipApplyRepository internshipApplyRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private StudentRepository studentRepository;
@@ -69,7 +74,7 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 
 		studentList = studentRepository.getDetailsByEmail1(email);
 		
-		
+		UserProfile userProfile = userRepository.findUserByEmail(email);
 		
 		try {
 			
@@ -81,7 +86,15 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 			
 			LOGGER.debug("Inside try block of InternshipApplyServiceImpl.insert()");
 			if (studentList != null && studentList.size() >= 1) {
-
+				if(studentList.get(0).getProfileUpdationStatus()==null || !studentList.get(0).getProfileUpdationStatus()  ) {
+					throw new Exception("Please update your profile first!");
+				}
+				if(userProfile.getSkills()==null || userProfile.getSkills().isEmpty() ) {
+					throw new Exception("please enter some skills!");
+				}
+				if(userProfile.getEducations()==null || userProfile.getEducations().isEmpty() ) {
+					throw new Exception("please complete your education detials");
+				}
 				internshipApply = new InternshipApply();
 				BeanUtils.copyProperties(internshipApplyBean, internshipApply);
 				internshipApply.setDeleteStatus(false);

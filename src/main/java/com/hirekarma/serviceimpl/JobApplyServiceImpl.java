@@ -17,9 +17,11 @@ import com.hirekarma.exception.JobApplyException;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.StudentRepository;
+import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.JobApplyService;
 import com.hirekarma.utilty.Validation;
 
@@ -36,6 +38,9 @@ public class JobApplyServiceImpl implements JobApplyService {
 
 	@Autowired
 	private JobRepository jobRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public JobApplyBean insert(JobApplyBean jobApplyBean, String token) {
@@ -46,8 +51,18 @@ public class JobApplyServiceImpl implements JobApplyService {
 		try {
 			LOGGER.debug("Inside try block of JobApplyServiceImpl.insert()");
 			String email = Validation.validateToken(token);
+			UserProfile userProfile = this.userRepository.findUserByEmail(email);
 			Student student = studentRepository.findByStudentEmail(email);
-
+			
+			if(student.getProfileUpdationStatus()==null || !student.getProfileUpdationStatus()) {
+				throw new Exception("please update your profile first!");
+			}
+			if(userProfile.getSkills()==null || userProfile.getSkills().isEmpty() ) {
+				throw new Exception("please enter some skills!");
+			}
+			if(userProfile.getEducations()==null || userProfile.getEducations().isEmpty() ) {
+				throw new Exception("please complete your education detials");
+			}
 			Job job = jobRepository.getById(jobApplyBean.getJobId());
 			if (job == null) {
 				throw new Exception("no such job found");

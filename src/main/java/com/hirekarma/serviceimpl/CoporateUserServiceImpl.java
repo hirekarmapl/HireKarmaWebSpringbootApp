@@ -28,6 +28,7 @@ import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.ChatRoom;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.InternshipApply;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Organization;
@@ -37,6 +38,7 @@ import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.ChatRoomRepository;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.InternshipApplyRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.OrganizationRepository;
@@ -85,6 +87,9 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 
 	@Autowired
 	private UniversityRepository universityRepository;
+	
+	@Autowired
+	private InternshipApplyRepository internshipApplyRepository;
 	@Override
 	public UserProfile insert(UserProfile userProfile) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.insert(-)");
@@ -144,7 +149,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 	}
 
 	public UserProfile updateUserProfilefromUserNotNullForCorporate(UserBean bean,UserProfile userProfile) throws Exception {
-		if(bean.getFile()!=null) {
+		if(bean.getFile()!=null && !bean.getFile().isEmpty()) {
 			userProfile.setImageUrl(awss3Service.uploadFile(bean.getFile()));
 		}
 		if(bean.getPhoneNo()!=null) {
@@ -167,6 +172,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		corporate.setCorporatePhoneNumber(userProfile.getPhoneNo());
 		corporate.setCorporateAddress(userProfile.getAddress());
 		corporate.setCorporateName(userProfile.getName());
+		corporate.setProfileUpdationStatus(true);
 		return corporate;
 	}
 	@Override
@@ -177,10 +183,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			throw new Exception("no such corporate exist");
 		}
 		userProfile = this.userRepository.save(updateUserProfilefromUserNotNullForCorporate(bean,userProfile));
+		
 		Corporate corporate = this.corporateRepository.findByEmail(email);
 		corporate  = this.corporateRepository.save(updateCorporateFromUserProfileNotNull(userProfile,corporate));
 		UserBean userBean = new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
+		userBean.setProfileUpdationStatus(corporate.getProfileUpdationStatus());
 		return userBean;
 	}
 
@@ -356,7 +364,64 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		}
 		return StudentDetailsList;
 	}
-
+	@Override
+	public Map<String, Object> shortListStudentForInternship(Long corporateId, Long internshipApplyId) {
+		LOGGER.debug("Inside CoporateUserServiceImpl.shortListStudent(-,-)");
+		Map<String, Object> map = null;
+	
+		Optional<InternshipApply> internshipApplyOptional = null;
+		InternshipApply internshipApply = null;
+		ChatRoom chatRoom = null;
+		try {
+			map = new HashMap<String,Object>();
+			internshipApplyOptional = internshipApplyRepository.findById(internshipApplyId);
+			if(!internshipApplyOptional.isEmpty()) {
+				internshipApply = internshipApplyOptional.get();
+				if(corporateId == internshipApply.getCorporateId()) {
+					if(internshipApply.getApplicatinStatus()) {
+						map.put("status", "Failed");
+						map.put("responseCode", "400");
+						map.put("message", "Student Already shortlisted");
+						return map;
+					}
+					internshipApply.setApplicatinStatus(true);
+					internshipApplyRepository.save(internshipApply);
+					
+					map.put("status", "Success");
+					map.put("responseCode", "200");
+					map.put("message", "Student got shortlisted");
+					chatRoom = new ChatRoom();
+					chatRoom.setJobApplyId(null);
+					chatRoom.setInternshipApplyId(internshipApply.getInternshipApplyId());
+					chatRoom.setCorporateId(corporateId);
+					chatRoom.setStudentId(internshipApply.getStudentId());
+					chatRoom = chatRoomRepository.save(chatRoom);
+					map.put("chatRoom", chatRoom);
+				}
+				else {
+					map = new HashMap<String,Object>();
+					map.put("status", "Unauthorized");
+					map.put("responseCode", "400");
+					map.put("message", "Corporate mismatch");
+				}
+			}
+			else {
+				map = new HashMap<String,Object>();
+				map.put("status", "Bad Request");
+				map.put("responseCode", "400");
+				map.put("message", "Internship Apply Id Not Found");
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("Error in CoporateUserServiceImpl.shortListStudent(-)");
+			map = new HashMap<String,Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", "400");
+			map.put("message", "Bad Request");
+		}
+		return map;
+	}
 	@Override
 	public Map<String, Object> shortListStudent(Long corporateId, Long jobApplyId) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.shortListStudent(-,-)");

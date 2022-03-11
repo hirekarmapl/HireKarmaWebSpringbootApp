@@ -45,6 +45,8 @@ public class Corporate {
 	private String imageUrl;
 
 	private Long userProfile;
+	
+	private Boolean profileUpdationStatus =  false;
 
 	public Long getUserProfile() {
 		return userProfile;
@@ -81,6 +83,15 @@ public class Corporate {
 
 	public List<OnlineAssessment> getOnlineAssessments() {
 		return onlineAssessments;
+	}
+
+	
+	public Boolean getProfileUpdationStatus() {
+		return profileUpdationStatus;
+	}
+
+	public void setProfileUpdationStatus(Boolean profileUpdationStatus) {
+		this.profileUpdationStatus = profileUpdationStatus;
 	}
 
 	public String getImageUrl() {

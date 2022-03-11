@@ -495,6 +495,32 @@ public class CoporateUserController {
 		return new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 
 	}
+	@PatchMapping("/internship/shortListStudent/{internshipApplyId}")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Map<String,Object>> shortListStudentForInternship(@PathVariable("internshipApplyId") Long internshipApplyId, HttpServletRequest request) {		
+		LOGGER.debug("Inside CoporateUserController.shortListStudent(-)");
+		String jwtToken = null;
+		String authorizationHeader = null;
+		String email=null;
+		Corporate corporate = null;
+		Map<String, Object> map = null;
+		try {
+			authorizationHeader = request.getHeader("Authorization");
+			jwtToken = authorizationHeader.substring(7);
+			email = jwtTokenUtil.extractUsername(jwtToken);
+			corporate = corporateRepository.findByEmail(email);
+			map = coporateUserService.shortListStudentForInternship(corporate.getCorporateId(), internshipApplyId);
+		}
+		catch (Exception e) {
+			LOGGER.error("Error in CoporateUserController.shortListStudent(-)");
+			map = new HashMap<String,Object>();
+			map.put("status", "Failed");
+			map.put("responseCode", "400");
+			map.put("message", "Bad Request");
+		}
+		return new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+
+	}
 	
 	@GetMapping("/getAllJobApplicationsByCorporate")
 	@PreAuthorize("hasRole('corporate')")

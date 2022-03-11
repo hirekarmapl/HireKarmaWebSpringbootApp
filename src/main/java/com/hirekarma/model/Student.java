@@ -81,6 +81,8 @@ public class Student implements Serializable{
 	
 	private String imageUrl;
 	
+	private Boolean profileUpdationStatus =  false;
+	
 	@OneToMany(mappedBy = "student")
 	@JsonIgnore
 	Set<StudentOnlineAssessment> studentOnlineAssessments;
@@ -100,6 +102,15 @@ public class Student implements Serializable{
 
 	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
+	}
+
+	
+	public Boolean getProfileUpdationStatus() {
+		return profileUpdationStatus;
+	}
+
+	public void setProfileUpdationStatus(Boolean profileUpdationStatus) {
+		this.profileUpdationStatus = profileUpdationStatus;
 	}
 
 	@Override

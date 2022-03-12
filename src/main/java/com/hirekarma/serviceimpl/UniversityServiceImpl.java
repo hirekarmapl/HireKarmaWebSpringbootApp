@@ -162,7 +162,7 @@ public class UniversityServiceImpl implements UniversityService {
 //		checking if univeristy and university in AdminShareJOb matches
 		String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
 		University university = universityRepository.findByEmail(email);
-		if(universityJobShareToStudent.getUniversityId()!=university.getUniversityId()) {
+		if(universityJobShareToStudentBean.getUniversityId()!=university.getUniversityId()) {
 			throw new Exception("no such university found");
 		}
 		

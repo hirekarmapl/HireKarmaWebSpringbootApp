@@ -13,6 +13,7 @@ import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
 import com.hirekarma.model.Skill;
+import com.hirekarma.model.Student;
 import com.hirekarma.model.UserProfile;
 
 public interface StudentService {
@@ -50,4 +51,5 @@ public interface StudentService {
 	public List<Experience> addAllExperienceToStudent(List<Experience> experience,String token) throws Exception;
 	Experience addExperienceToAStudent(Experience experience, String token) throws Exception;
 	public void deleteExperienceOfAStudent(int id,String token) throws Exception;
+	List<Student> getAllStudentsAccoridngToBranchBatchCgpaFilter(Long branchId, Long batchId, Double cgpa,Long universityId);
 }

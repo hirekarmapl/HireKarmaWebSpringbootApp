@@ -28,6 +28,7 @@ import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.StudentResponseToUniversity;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversityShareJobToStudentResponse;
+import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.CampusDriveResponseException;
 import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UserProfileException;
@@ -48,6 +49,7 @@ import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
+import com.hirekarma.service.StudentService;
 import com.hirekarma.service.UniversityService;
 import com.hirekarma.utilty.Validation;
 
@@ -58,11 +60,17 @@ public class UniversityServiceImpl implements UniversityService {
 
 	@Autowired
 	private ShareJobRepository shareJobRepository;
+	
+	@Autowired
+	private StudentService studentService;
 
 	@PersistenceContext
 	  private EntityManager em;
 
 
+	@Autowired
+	private EmailController emailController;
+	
 	@Autowired
 	private CorporateRepository corporateRepository;
 
@@ -151,34 +159,39 @@ public class UniversityServiceImpl implements UniversityService {
 			throw new Exception("Job Already Shared");
 		}
 		
+//		checking if univeristy and university in AdminShareJOb matches
+		String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
+		University university = universityRepository.findByEmail(email);
+		if(universityJobShareToStudent.getUniversityId()!=university.getUniversityId()) {
+			throw new Exception("no such university found");
+		}
+		
 //		output variable
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();
 		Long count = 0L;
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		if(universityJobShareToStudentBean.getBatchId()==null 
-				|| universityJobShareToStudentBean.getBranchId()==null
-				|| universityJobShareToStudentBean.getUniversityId()==null
-				|| universityJobShareToStudentBean.getCgpaId()==null) {
-			throw new Exception("enter all the parameters - batch,branch,university,cgpa");
-		}
-		List<Student> filteredStudents = this.studentRepository.findByBatchAndBranchAndUniversityIdAndCgpaGreaterThanEqual(universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getUniversityId(), universityJobShareToStudentBean.getCgpaId());
-		if(filteredStudents.size()==0) {
+		
+		List<Student> filteredStudents = studentService.getAllStudentsAccoridngToBranchBatchCgpaFilter(universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId());
+				if(filteredStudents.size()==0) {
 			throw new Exception("no such student found");
 		}
-		String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
-		University university = universityRepository.findByEmail(email);
+		
+		Job job = this.jobRepository.getById(universityJobShareToStudentBean.getJobId());
+		
 		for (int i = 0; i < filteredStudents.size(); i++) {
 			count++;
 			universityJobShareToStudent = new UniversityJobShareToStudent();
 			universityJobShareToStudent.setJobId(universityJobShareToStudentBean.getJobId());
+			
 			universityJobShareToStudent.setUniversityId(university.getUniversityId());
 			universityJobShareToStudent.setJobStatus(true);
 			universityJobShareToStudent.setStudentId(filteredStudents.get(i).getStudentId());
 			universityJobShareToStudent.setCreatedBy("Biswa");
 			universityJobShareToStudent.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
-
+			emailController.sendEmailNotificationAboutJobToStudent(filteredStudents.get(i).getStudentEmail(), job, filteredStudents.get(i));
 			universityJobShareRepository.save(universityJobShareToStudent);
+			
 			list.add(universityJobShareToStudent);
 		}
 		response.put("shareJob", list);

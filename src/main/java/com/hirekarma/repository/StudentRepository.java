@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.hirekarma.model.Student;
 
 @Repository("studentRepository")
-public interface StudentRepository extends JpaRepository<Student, Long>{
+public interface StudentRepository extends JpaRepository<Student, Long>,JpaSpecificationExecutor<Student>{
 
 	@Query("select s from Student s where s.userId = :userId")
 	Optional<Student> getStudentDetails(@Param("userId") Long userId);
@@ -26,6 +27,10 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
 	List<Long> getStudentList(@Param("batchId")Long batchId, @Param("branchId")Long branchId,@Param("cgpaId") Double cgpaId,@Param("universityId")Long universityId);
 
 	List<Student> findByBatchAndBranchAndUniversityIdAndCgpaGreaterThanEqual(Long batch,Long branch, Long universityId,Double cgpa);
+	
+	List<Student> findByBatch(Long Batch);
+	
+	
 	@Query("select studentId from Student")
 	List<Long> getStudentList();
 

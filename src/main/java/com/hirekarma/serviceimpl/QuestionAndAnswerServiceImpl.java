@@ -334,8 +334,10 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 
 
 	@Override
-	public ResponseEntity<Resource> downloadFile(String type) {
-		List<QuestionAndAnswerBean> tutorials = getAllDetail();
+	public ResponseEntity<Resource> downloadFile(String type,Corporate corporate) {
+		List<QuestionAndAnswerBean> tutorials = null;
+		
+		tutorials = getAllDetailByCorporate(corporate);
 //		if (type.contains("CSV")) {
 //			String filename = "QandA.csv";
 //			ByteArrayInputStream in = CsvDownload.tutorialsToCSV(tutorials);
@@ -352,7 +354,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		}else {
 			String filename = "QandA.xlsx";
 			String sheet="Questionaries";
-			String[] HEADERs = {"question", "type", "mcqanswer", "codingdescription","testcase","corporateid" };
+			String[] HEADERs = {"question", "type", "mcqanswer", "codingdescription","testcase" };
 			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
 			InputStreamResource files = new InputStreamResource(in);
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
@@ -361,8 +363,14 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	}
 
 
-	private List<QuestionAndAnswerBean> getAllDetail() {
-		List<QuestionANdanswer> tutorials =QARepo.findAll();
+	private List<QuestionAndAnswerBean> getAllDetailByCorporate(Corporate corporate) {
+		List<QuestionANdanswer> tutorials = null;
+		if(corporate==null) {
+			tutorials =QARepo.findQandAForCorporate(corporate);
+		}
+		else {
+			tutorials = QARepo.findAll();
+		}
 		List<QuestionAndAnswerBean> tutorial =new ArrayList();
 		for(QuestionANdanswer ans:tutorials) {
 			QuestionAndAnswerBean bean=new QuestionAndAnswerBean();
@@ -394,7 +402,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		if(type.equals("Coding")) {
 			String filename = "QandA.xlsx";
 			String sheet="Coding";
-			String[] HEADERs = {"question","codingdescription","testcase","corporateid" };
+			String[] HEADERs = {"question","codingdescription","testcase"};
 			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
 			InputStreamResource files = new InputStreamResource(in);
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
@@ -402,7 +410,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		}else if(type.equals("Input")) {
 			String filename = "QandA.xlsx";
 			String sheet="Input";
-			String[] HEADERs = {"question","corporateid" };
+			String[] HEADERs = {"question"};
 			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
 			InputStreamResource files = new InputStreamResource(in);
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
@@ -410,7 +418,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		}else if(type.equals("MCQ")) {
 			String filename = "QandA.xlsx";
 			String sheet="MCQ";
-			String[] HEADERs = {"question", "mcqanswer","corporateid" };
+			String[] HEADERs = {"question", "mcqanswer"};
 			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
 			InputStreamResource files = new InputStreamResource(in);
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
@@ -418,7 +426,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		}else if(type.equals("QNA")) {
 			String filename = "QandA.xlsx";
 			String sheet="QNA";
-			String[] HEADERs = {"question","corporateid" };
+			String[] HEADERs = {"question" };
 			ByteArrayInputStream in = DummyExcel.tutorialsToExcel(tutorials,HEADERs,sheet);
 			InputStreamResource files = new InputStreamResource(in);
 			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)

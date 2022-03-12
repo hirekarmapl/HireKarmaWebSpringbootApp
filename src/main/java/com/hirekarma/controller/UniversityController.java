@@ -41,6 +41,7 @@ import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
+import com.hirekarma.service.StudentService;
 import com.hirekarma.service.UniversityService;
 import com.hirekarma.utilty.Validation;
 
@@ -65,6 +66,9 @@ public class UniversityController {
 	
 	@Autowired
 	private UniversityRepository universityRepository;
+	
+	@Autowired
+	private StudentService studentService;
 	
 
 	@PostMapping("/universityResponse")
@@ -293,9 +297,9 @@ public class UniversityController {
 	@RequestMapping("/studentFilter")
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<Response> studentFilter(
-			@RequestParam("batchId") Long batchId,
-			@RequestParam("branchId") Long branchId,
-			@RequestParam("cgpa") Double cgpa,
+			@RequestParam("batchId") Optional<Long> batchId,
+			@RequestParam("branchId") Optional<Long> branchId,
+			@RequestParam("cgpa") Optional<Double> cgpa,
 			@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside UniversityController.studentFilter(-)");
 		List<?> listData = null;
@@ -305,7 +309,7 @@ public class UniversityController {
 			String email = Validation.validateToken(token);
 			University university = this.universityRepository.findByEmail(email);
 			LOGGER.debug("Inside try block of UniversityController.studentFilter(-)");
-			listData = studentRepository.findByBatchAndBranchAndUniversityIdAndCgpaGreaterThanEqual(batchId, branchId, university.getUniversityId(), cgpa);
+			listData = studentService.getAllStudentsAccoridngToBranchBatchCgpaFilter(branchId.orElse(null), batchId.orElse(null), cgpa.orElse(null),university.getUniversityId());
 			LOGGER.info("Response Successfully Updated using UniversityController.studentFilter(-)");
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);

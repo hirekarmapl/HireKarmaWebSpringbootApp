@@ -55,12 +55,12 @@ public class ExcelHelper {
 							String[] question = currentCell.getStringCellValue().split(",");
 							tutorial.setQuestion(question);
 							break;
-						case 1:
-							tutorial.setCorporate(corporate);
-							break;
+
 						default:
 							break;
 						}
+
+						tutorial.setCorporate(corporate);
 						tutorial.setType("QNA");
 					} else if (sheetName.equalsIgnoreCase("Input")) {
 
@@ -68,9 +68,6 @@ public class ExcelHelper {
 						case 0:
 							String[] question = currentCell.getStringCellValue().split(",");
 							tutorial.setQuestion(question);
-							break;
-						case 1:
-							tutorial.setCorporate(corporate);
 							break;
 						default:
 							break;
@@ -87,12 +84,11 @@ public class ExcelHelper {
 							String[] mcqAnswer = currentCell.getStringCellValue().split(",");
 							tutorial.setMcqAnswer(mcqAnswer);
 							break;
-						case 2:
-							tutorial.setCorporate(corporate);
-							break;
 						default:
 							break;
 						}
+
+						tutorial.setCorporate(corporate);
 						tutorial.setType("MCQ");
 					} else if (sheetName.equalsIgnoreCase("Coding")) {
 
@@ -108,12 +104,11 @@ public class ExcelHelper {
 							String[] testCases = currentCell.getStringCellValue().split(",");
 							tutorial.setTestCase(testCases);
 							break;
-						case 3:
-							tutorial.setCorporate(corporate);
-							break;
 						default:
 							break;
 						}
+
+						tutorial.setCorporate(corporate);
 						tutorial.setType("Coding");
 					} else {
 						switch (cellIdx) {
@@ -135,12 +130,11 @@ public class ExcelHelper {
 							String[] testCases = currentCell.getStringCellValue().split(",");
 							tutorial.setTestCase(testCases);
 							break;
-						case 5:
-							tutorial.setCorporate(corporate);
-							break;
 						default:
 							break;
 						}
+
+						tutorial.setCorporate(corporate);
 					}
 					cellIdx++;
 				}

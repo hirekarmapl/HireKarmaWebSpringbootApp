@@ -25,7 +25,7 @@ public interface QuestionAndANswerService {
 
 	ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file,Corporate corporate);
 
-	ResponseEntity<Resource> downloadFile(String type);
+	ResponseEntity<Resource> downloadFile(String type, Corporate corporate);
 
 	ResponseEntity<Resource> downloadDummyFile(String type);
 	

@@ -12,12 +12,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -31,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -1144,6 +1152,33 @@ public class StudentServiceImpl implements StudentService {
 			throw new Exception("unauthorized");
 		}
 		this.experienceRepository.delete(experience);
+	}
+	
+	@Override
+	public List<Student> getAllStudentsAccoridngToBranchBatchCgpaFilter(Long branchId,Long batchId,Double cgpa,Long universityId){
+
+		List<Student> students = studentRepository.findAll(new Specification<Student>() {
+
+			@Override
+			public Predicate toPredicate(Root<Student> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+				Predicate p = criteriaBuilder.conjunction();
+				if(Objects.nonNull(branchId)){
+					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("branch"),branchId));
+				}
+				if(Objects.nonNull(batchId)) {
+					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("batch"),batchId));
+				}
+				if(Objects.nonNull(cgpa)) {
+					p = criteriaBuilder.and(p,criteriaBuilder.greaterThanOrEqualTo(root.get("cgpa"),cgpa));
+				}
+				if(Objects.nonNull(universityId)) {
+					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("universityId"),universityId));
+				}
+				return p;
+			}
+		});
+		return students;
+	
 	}
 	
 //	@Override

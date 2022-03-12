@@ -151,8 +151,13 @@ public class QuestionAndAnswerController {
 	}
 
 	@GetMapping("/download/{type}")
-	public ResponseEntity<Resource> downloadloadFile(@PathVariable String type) {
-		return QAService.downloadFile(type);
+	public ResponseEntity<Resource> downloadloadFile(@PathVariable String type,@RequestHeader("Authorization")String token) throws ParseException {
+
+			String email = Validation.validateToken(token);
+			Corporate corporate = this.corporateRepository.findByEmail(email);
+			return QAService.downloadFile(type,corporate);
+		
+		
 	}
 
 	@GetMapping("/downloadDummy/{type}")

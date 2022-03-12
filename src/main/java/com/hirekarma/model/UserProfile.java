@@ -88,6 +88,19 @@ public class UserProfile implements Serializable {
 	
 
 	public String about;
+	
+	
+
+	@Override
+	public String toString() {
+		return "UserProfile [userId=" + userId + ", name=" + name + ", email=" + email + ", universityEmailAddress="
+				+ universityEmailAddress + ", phoneNo=" + phoneNo + ", imageUrl=" + imageUrl + ", userType=" + userType
+				+ ", password=" + password + ", address=" + address + ", createdOn=" + createdOn + ", updatedOn="
+				+ updatedOn + ", status=" + status + ", about=" + about + ", shareJobId=" + shareJobId + ", response="
+				+ response + ", authProvider=" + authProvider + ", skills=" + skills + ", projects=" + projects
+				+ ", educations=" + educations + ", experiences=" + experiences + ", resetPasswordToken="
+				+ resetPasswordToken + "]";
+	}
 
 	public String getImageUrl() {
 		return imageUrl;

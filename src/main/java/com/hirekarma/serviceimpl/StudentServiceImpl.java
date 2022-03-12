@@ -242,13 +242,16 @@ public class StudentServiceImpl implements StudentService {
 		UserProfile userProfile = userRepository.findUserByEmail(email);
 		List<Education> educations = new ArrayList<>();
 		for(EducationBean educationBean: educationBeans) {
-			Optional<StudentBatch> studentBatch = this.studentBatchRepository.findById(educationBean.getBatchId());
-			Optional<StudentBranch> studentBranch = this.studentBranchRepository.findById(educationBean.getBranchId());
-			if(!studentBatch.isPresent() || !studentBranch.isPresent()) {
-				throw new Exception("please check batch or branch id");
+			if(educationBean.getBatchId()!=null && educationBean.getBranchId()!=null) {
+				Optional<StudentBatch> studentBatch = this.studentBatchRepository.findById(educationBean.getBatchId());
+				Optional<StudentBranch> studentBranch = this.studentBranchRepository.findById(educationBean.getBranchId());
+				if(!studentBatch.isPresent() || !studentBranch.isPresent()) {
+					throw new Exception("please check batch or branch id");
+				}
+				educationBean.setStudentBatch(studentBatch.get());
+				educationBean.setStudentBranch(studentBranch.get());
 			}
-			educationBean.setStudentBatch(studentBatch.get());
-			educationBean.setStudentBranch(studentBranch.get());
+			
 			Education education = new Education();
 			BeanUtils.copyProperties(educationBean, education);
 			education.setUserProfile(userProfile);

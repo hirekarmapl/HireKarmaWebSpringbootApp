@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +39,7 @@ import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.UniversityUserService;
+import com.hirekarma.utilty.Validation;
 
 @Service("universityUserService")
 public class UniversityUserServiceImpl implements UniversityUserService {
@@ -118,8 +120,9 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		if(userBean.getUniversityEmailAddress()!=null && !userBean.getUniversityEmailAddress().equals("")) {
 			userProfile.setUniversityEmailAddress(userBean.getUniversityEmailAddress());
 		}
-		if(userBean.getFile()!=null) {
+		if(userBean.getFile()!=null ) {
 			userProfile.setImageUrl(awss3Service.uploadFile(userBean.getFile()));
+			System.out.println(userProfile.getImageUrl());
 		}
 		if(userBean.getAddress()!=null && !userBean.getAddress().equals("")) {
 			userProfile.setAddress(userBean.getAddress());
@@ -131,79 +134,48 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 // email address are used to check if only one email is used for both email and workemail and rest is for updating
 	@Override
 	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String jwtToken) {
-		LOGGER.debug("Inside UniversityUserServiceImpl.updateUniversityUserProfile(-)");
 		UserProfile universityUser = null;
-		UserProfile universityUserReturn = null;
+		UserProfile universityUserReturn =  new UserProfile();
 		Optional<UserProfile> optional = null;
 		UserBean universityUserBeanReturn = null;
 		University university = new University();
-
-		String LowerCaseEmail = universityUserBean.getEmail().toLowerCase();
-		String universityEmail = universityUserBean.getUniversityEmailAddress().toLowerCase();
-		Long count1 = userRepository.getDetailsByEmail(LowerCaseEmail, "university");
-
-		Long count2 = universityRepository.getDetailsByEmail(universityEmail);
-		
-
 		try {
-			LOGGER.debug("Inside try block of UniversityUserServiceImpl.updateUniversityUserProfile(-)");
+		
+		LOGGER.debug("Inside UniversityUserServiceImpl.updateUniversityUserProfile(-)");
+		
+		
+		String LowerCaseEmail = Validation.validateToken(jwtToken).toLowerCase();
+		university = universityRepository.findByEmail(LowerCaseEmail);
+		optional = userRepository.findById(university.getUserId());
+		universityUser = optional.get();
+		universityUserReturn = userRepository.save(copyPropertiesForUniversityFromUserBeanToUserForNotNull(universityUserBean, universityUser));
 
-			if (count1 == 1 && count2 == 0) {
+		universityUserBeanReturn = new UserBean();
 
-				String[] chunks1 = jwtToken.split(" ");
-				String[] chunks = chunks1[1].split("\\.");
-				Base64.Decoder decoder = Base64.getUrlDecoder();
-				String payload = new String(decoder.decode(chunks[1]));
-				
-				JSONParser jsonParser = new JSONParser();
-				Object obj = jsonParser.parse(payload);
-
-				JSONObject jsonObject = (JSONObject) obj;
-				String email = (String) jsonObject.get("sub");
-
-				System.out.println("         \njsonobject"+jsonObject.toJSONString()+"        email "+email);
-				university = universityRepository.findByEmail(email);
-
-				optional = userRepository.findById(university.getUserId());
-//				Optional<University> universityOptional = universityRepository
-//						.getUniversityDetails(universityUserBean.getUserId());
-
-				if (!optional.isEmpty()) {
-					if (university != null) {
-						universityUser = optional.get();
-//						university = universityOptional.get();
-
-						if (universityUser != null) {
-								
-						
-
-							universityUserReturn = userRepository.save(copyPropertiesForUniversityFromUserBeanToUserForNotNull(universityUserBean, universityUser));
-
-							universityUserBeanReturn = new UserBean();
-
-							university.setUniversityName(universityUserReturn.getName());
-							university.setUniversityEmail(universityUserReturn.getEmail());
-							university.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-							university.setUniversityAddress(universityUserReturn.getAddress());
-							
-							university.setUniversityPhoneNumber(Long.valueOf(universityUserReturn.getPhoneNo()));
-							university.setProfileUpdationStatus(true);
-							universityRepository.save(university);
-
-							BeanUtils.copyProperties(universityUserReturn, universityUserBeanReturn);
-							LOGGER.info(
-									"Data Successfully updated using UniversityUserServiceImpl.updateUniversityUserProfile(-)");
-						}
-					}
-				}
-			} else {
-				throw new Exception();
-			}
-			return universityUserBeanReturn;
-		} catch (Exception e) {
-			LOGGER.error("Error occured in UniversityUserServiceImpl.updateUniversityUserProfile(-): " + e);
-			throw new UniversityUserDefindException(e.getMessage());
+		university.setUniversityName(universityUserReturn.getName());
+		university.setUniversityEmail(universityUserReturn.getEmail());
+		university.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
+		university.setUniversityAddress(universityUserReturn.getAddress());
+		university.setUniversityImageUrl(universityUserReturn.getImageUrl());
+		
+		university.setUniversityPhoneNumber(Long.valueOf(universityUserReturn.getPhoneNo()));
+		university.setProfileUpdationStatus(true);
+		universityRepository.save(university);
+		LOGGER.info("university saved properly");
+		universityUserBeanReturn = new UserBean();
+		universityUserBeanReturn.setImageUrl(universityUserReturn.getImageUrl());
+		universityUserBeanReturn.setName(universityUserReturn.getName());
+		universityUserBeanReturn.setAddress(universityUserReturn.getAddress());
+		universityUserBeanReturn.setPhoneNo(universityUserReturn.getPhoneNo());
+		universityUserBeanReturn.setUniversityEmailAddress(university.getUniversityEmail());
+		universityUserBeanReturn.setProfileUpdationStatus(university.getProfileUpdationStatus());
+		System.out.println(universityUserReturn);
+		LOGGER.info("bean copied ssucesful");		
 		}
+		catch(Exception e){
+			LOGGER.debug("Data updation failed in UniversityUserServiceImpl.updateUniversityUserProfile(-)");
+		}
+		return universityUserBeanReturn;
 	}
 
 	@Override

@@ -554,6 +554,9 @@ public class JobServiceImpl implements JobService {
 		for(Job j: jobs) {
 			JobResponseBean jobResponseBean = new JobResponseBean();
 			BeanUtils.copyProperties(j, jobResponseBean);
+
+			Corporate corporate = this.corporateRepository.getById(jobResponseBean.getCorporateId());
+			jobResponseBean.setCorporate(corporate);
 			jobResponseBeans.add(jobResponseBean);
 		}
 		return jobResponseBeans;

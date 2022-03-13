@@ -170,6 +170,18 @@ public class JobController {
 		}
 	}
 	
+	@GetMapping("/job/activeJobs")
+	public ResponseEntity<Response> getAllActivatedJobsForAdmin(){
+		try {
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.jobRepository.getAllActivatedJobsForAdmin(), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	/*
 	 * This findJobsByCorporateId() method used find out
 	 * 

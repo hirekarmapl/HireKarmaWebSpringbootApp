@@ -67,7 +67,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/hirekarma/batch",
 				"/hirekarma/batch",
 				"/hirekarma/university/getDummyExcelForStudentImport",
-				"/achievement"
+				"/achievement",
+				"/hirekarma/job/activeJobs"
 			).permitAll()
 			.anyRequest()
 			.authenticated()

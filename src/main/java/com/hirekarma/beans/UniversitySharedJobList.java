@@ -1,5 +1,7 @@
 package com.hirekarma.beans;
 
+import com.hirekarma.model.Corporate;
+
 import lombok.Data;
 import lombok.ToString;
 
@@ -32,4 +34,6 @@ public class UniversitySharedJobList {
 	private Long sharedJobId;
 	
 	private Boolean studentResponse;
+	
+	private Corporate corporate;
 }

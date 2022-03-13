@@ -53,7 +53,15 @@ public class UserBean implements Serializable {
 	
 	private List<Skill> skills = new ArrayList<Skill>();
 	
+private String websiteUrl;
 	
+	public String getWebsiteUrl() {
+		return websiteUrl;
+	}
+
+	public void setWebsiteUrl(String websiteUrl) {
+		this.websiteUrl = websiteUrl;
+	}
 	public Boolean getProfileUpdationStatus() {
 		return profileUpdationStatus;
 	}

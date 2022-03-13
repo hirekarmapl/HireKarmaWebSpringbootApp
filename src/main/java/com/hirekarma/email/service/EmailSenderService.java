@@ -42,8 +42,7 @@ public class EmailSenderService {
 			MimeMessage mailMessage = mailSender.createMimeMessage();
 
 			MimeMessageHelper helper = new MimeMessageHelper(mailMessage, false);
-
-			helper.setFrom(new InternetAddress("noreply@hirekarma.org"));
+			helper.setFrom(new InternetAddress("noreply@hirekarma.org","Hirekarma"));
 			List<String> emails = new ArrayList<String>();
 			for(String emailFrom : email.getToListEmail()) {
 				emails.add(emailFrom);
@@ -72,7 +71,7 @@ public class EmailSenderService {
 
 			MimeMessageHelper helper = new MimeMessageHelper(mailMessage, false);
 
-			helper.setFrom(new InternetAddress("noreply@hirekarma.org"));
+			helper.setFrom(new InternetAddress("noreply@hirekarma.org","HireKarma"));
 			helper.setTo(toEmail);
 
 			helper.setSubject(subject);

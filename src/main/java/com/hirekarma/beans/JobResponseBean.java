@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Stream;
 import com.hirekarma.model.StudentBranch;
 
@@ -57,4 +58,6 @@ public class JobResponseBean {
 	private Boolean forcampusDrive;
 	
 	private Boolean status;
+	
+	private Corporate corporate;
 }

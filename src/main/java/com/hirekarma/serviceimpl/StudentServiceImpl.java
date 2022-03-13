@@ -1019,8 +1019,7 @@ public class StudentServiceImpl implements StudentService {
 				if (list.size() != 0) {
 					for (Object[] obj1 : list) {
 						universitySharedJob = new UniversitySharedJobList();
-						Corporate corporate = this.corporateRepository.getById((Long) obj1[0]);
-						universitySharedJob.setCorporate(corporate);
+						
 						universitySharedJob.setJobId((Long) obj1[0]);
 						universitySharedJob.setJobTitle((String) obj1[1]);
 						universitySharedJob.setCategory((String) obj1[2]);
@@ -1034,7 +1033,8 @@ public class StudentServiceImpl implements StudentService {
 						universitySharedJob.setDescription((String) obj1[10]);
 						universitySharedJob.setSharedJobId((Long) obj1[11]);
 						universitySharedJob.setStudentResponse((Boolean) obj1[12]);
-
+						Corporate corporate = this.corporateRepository.getById((Long) obj1[13]);
+						universitySharedJob.setCorporate(corporate);
 						universitySharedJobList.add(universitySharedJob);
 					}
 

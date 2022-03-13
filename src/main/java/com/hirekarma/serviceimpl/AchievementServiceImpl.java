@@ -23,6 +23,9 @@ public class AchievementServiceImpl implements AchievementService {
 	@Override
 	public Achievement getAchievement() {
 		List<Achievement> achievement = this.achievementRepository.findAll();
+		if(achievement.size()==0) {
+			return null;
+		}
 		return achievement.get(0);
 	}
 

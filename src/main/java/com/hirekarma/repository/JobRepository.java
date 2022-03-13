@@ -22,7 +22,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 	// Job Details shown to Student Sended By University
 
 	@Query("select j.jobId , j.jobTitle , j.category , j.jobType , j.wfhCheckbox , "
-			+ "j.skills , j.city , j.openings , j.salary , j.about , j.description , u.id , u.studentResponseStatus "
+			+ "j.skills , j.city , j.openings , j.salary , j.about , j.description , u.id , u.studentResponseStatus,j.corporateId "
 			+ "from Job j inner join UniversityJobShareToStudent u on j.jobId = u.jobId "
 			+ "where u.universityId = :universityId and u.studentId = :studentId")
 	List<Object[]> getStudentJobAllDetails(@Param("universityId") Long universityId,

@@ -48,6 +48,16 @@ public class Corporate {
 	
 	private Boolean profileUpdationStatus =  false;
 
+	private String websiteUrl;
+	
+	public String getWebsiteUrl() {
+		return websiteUrl;
+	}
+
+	public void setWebsiteUrl(String websiteUrl) {
+		this.websiteUrl = websiteUrl;
+	}
+
 	public Long getUserProfile() {
 		return userProfile;
 	}

@@ -183,9 +183,13 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			throw new Exception("no such corporate exist");
 		}
 		userProfile = this.userRepository.save(updateUserProfilefromUserNotNullForCorporate(bean,userProfile));
-		
 		Corporate corporate = this.corporateRepository.findByEmail(email);
+		if(bean.getWebsiteUrl()!=null && !bean.getWebsiteUrl().equals("")) {
+			;
+			corporate.setWebsiteUrl(bean.getWebsiteUrl());
+		}
 		corporate  = this.corporateRepository.save(updateCorporateFromUserProfileNotNull(userProfile,corporate));
+		
 		UserBean userBean = new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
 		userBean.setProfileUpdationStatus(corporate.getProfileUpdationStatus());

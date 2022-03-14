@@ -84,6 +84,11 @@ public class InternshipServiceImpl implements InternshipService {
 		if(corporate.getProfileUpdationStatus()==null || !corporate.getProfileUpdationStatus()) {
 			throw new Exception("Please update your profile first");
 		}
+		
+		if(corporate.getAbout()==null||corporate.getAbout().equals("")) {
+			throw new Exception("please update your profile - about");
+		}
+		internshipBean.setAbout(corporate.getAbout());
 		internshipBean.setStatus(false);
 		internshipBean.setDeleteStatus(false);
 		internshipBean.setCorporateId(null);

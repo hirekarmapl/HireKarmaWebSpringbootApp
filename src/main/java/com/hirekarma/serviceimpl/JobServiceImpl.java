@@ -26,13 +26,17 @@ import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.exception.JobException;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Stream;
+import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentBranch;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBranchRepository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.JobService;
 import com.hirekarma.utilty.Validation;
@@ -57,6 +61,11 @@ public class JobServiceImpl implements JobService {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private JobApplyRepository jobApplyRepository;
+	
+	@Autowired
+	private StudentRepository studentRepository;
 
 	@Autowired
 	private AWSS3Service awss3Service;
@@ -101,9 +110,14 @@ public class JobServiceImpl implements JobService {
 		
 		//finding corporate
 		Corporate corporate = corporateRepository.findByEmail(email);
+	
 		if(corporate.getProfileUpdationStatus()==null || !corporate.getProfileUpdationStatus()) {
 			throw new Exception("Please update your profile first");
 		}
+		if(corporate.getAbout()==null||corporate.getAbout().equals("")) {
+			throw new Exception("please update your profile - about");
+		}
+		jobBean.setAbout(corporate.getAbout());
 		if(corporate==null) {
 			throw new Exception("corporate not found");
 		}
@@ -133,7 +147,9 @@ public class JobServiceImpl implements JobService {
 			return getAllJobsForAdmin();
 		}
 		else if(userProfile.getUserType().equals("student")) {
-			return getAllJobsForStudent();
+			Student student = this.studentRepository.findByStudentEmail(userProfile.getEmail());
+			
+			return getAllJobsForStudent(student);
 		}
 		else if(userProfile.getUserType().equals("corporate")) {
 			System.out.print("insidde corporate");
@@ -395,6 +411,9 @@ public class JobServiceImpl implements JobService {
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
 		Job job = jobRepository.findByJobId(jobBean.getJobId());
+		if(job.getStatus()) {
+			throw new Exception("unauthorized - job has been activated by admin");
+		}
 		if(job==null || job.getCorporateId()!=corporate.getCorporateId()|| job.getDeleteStatus()) {
 			throw new Exception("unauthorized");
 		}
@@ -461,7 +480,6 @@ public class JobServiceImpl implements JobService {
 			job.setForcampusDrive(jobBean.getForcampusDrive());
 		}
 		job.setDeleteStatus(false);
-		job.setStatus(false);
 		
 		if(jobBean.getTentativeDatesforCampusDrive()!=null && !jobBean.getTentativeDatesforCampusDrive().equals("")) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -562,13 +580,20 @@ public class JobServiceImpl implements JobService {
 		return jobResponseBeans;
 	}
 	@Override
-	public List<JobResponseBean> getAllJobsForStudent() throws Exception {
+	public List<JobResponseBean> getAllJobsForStudent(Student student) throws Exception {
 		List<Job> jobs = this.jobRepository.getAllJobsForStudents();
 		List<JobResponseBean> jobResponseBeans = new ArrayList<>();
 		for(Job j: jobs) {
 			JobResponseBean jobResponseBean = new JobResponseBean();
 			BeanUtils.copyProperties(j, jobResponseBean);
 			Corporate corporate = this.corporateRepository.getById(j.getCorporateId());
+			JobApply jobApply = this.jobApplyRepository.findByStudentIdAndJobId(student.getStudentId(), j.getJobId());
+			if(jobApply!=null) {
+				jobResponseBean.setAlreadyApplied(true);
+			}
+			else {
+				jobResponseBean.setAlreadyApplied(false);
+			}
 			jobResponseBean.setCorporate(corporate);
 			jobResponseBeans.add(jobResponseBean);
 		}

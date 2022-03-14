@@ -1032,6 +1032,7 @@ public class StudentServiceImpl implements StudentService {
 						universitySharedJob.setAbout((String) obj1[9]);
 						universitySharedJob.setDescription((String) obj1[10]);
 						universitySharedJob.setSharedJobId((Long) obj1[11]);
+						universityJobShareRepository.setStudentSeenById(universitySharedJob.getSharedJobId());
 						universitySharedJob.setStudentResponse((Boolean) obj1[12]);
 						Corporate corporate = this.corporateRepository.getById((Long) obj1[13]);
 						universitySharedJob.setCorporate(corporate);

@@ -43,5 +43,10 @@ public class UniversityJobShareToStudentBean {
 	private Double cgpaId;
 	
 	private Long shareJobId;
+	
+	private Boolean seen = false;
+	
+
+
 
 }

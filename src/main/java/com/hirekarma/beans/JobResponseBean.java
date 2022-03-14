@@ -60,4 +60,6 @@ public class JobResponseBean {
 	private Boolean status;
 	
 	private Corporate corporate;
+	
+	private Boolean alreadyApplied;
 }

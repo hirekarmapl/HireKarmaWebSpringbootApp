@@ -65,6 +65,21 @@ public class UniversityJobShareToStudent {
 	
 	@ManyToOne
 	private StudentBranch studentBranch;
+	
+	private Boolean seen = false;
+	
+
+	
+
+	public Boolean getSeen() {
+		return seen;
+	}
+
+
+	public void setSeen(Boolean seen) {
+		this.seen = seen;
+	}
+
 
 	@Override
 	public String toString() {

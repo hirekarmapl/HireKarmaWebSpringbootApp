@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -37,6 +38,9 @@ public interface UniversityJobShareRepository extends JpaRepository<UniversityJo
 	List<Student> findStudentsByJobId(@Param("jobId")Long jobId);
 	
 	List<UniversityJobShareToStudent> findByUniversityId(Long universityId);
+	@Modifying
+	@Query("update UniversityJobShareToStudent u set u.seen = true where u.iD= :universityShareJobId")
+	void setStudentSeenById(@Param("universityShareJobId")Long universityShareJobId);
 	
 }
 	

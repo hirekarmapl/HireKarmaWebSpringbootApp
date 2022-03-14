@@ -50,6 +50,18 @@ public class Corporate {
 
 	private String websiteUrl;
 	
+	private String about;
+	
+	
+	
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
+
 	public String getWebsiteUrl() {
 		return websiteUrl;
 	}

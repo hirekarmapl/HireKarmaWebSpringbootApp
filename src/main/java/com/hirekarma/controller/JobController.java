@@ -25,8 +25,10 @@ import com.hirekarma.beans.Response;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Internship;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.Student;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.service.JobService;
 import com.hirekarma.utilty.Validation;
 
@@ -45,6 +47,9 @@ public class JobController {
 	
 	@Autowired
 	private JobRepository jobRepository;
+	
+	@Autowired
+	private StudentRepository studentRepository;
 	
 	/*
 	 * By using saveJobDetails() corporate can
@@ -146,10 +151,12 @@ public class JobController {
 	
 	@GetMapping("/student/jobs")
 	@PreAuthorize("hasRole('student')")
-	public ResponseEntity<Response> getAllJobsForStudents(){
+	public ResponseEntity<Response> getAllJobsForStudents(@RequestHeader("Authorization")String token){
 		try {
+			String email = Validation.validateToken(token);
 			
-			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.jobService.getAllJobsForStudent(), null),
+			Student student = this.studentRepository.findByStudentEmail(email);
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.jobService.getAllJobsForStudent(student), null),
 					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),

@@ -123,7 +123,7 @@ public class CoporateUserController {
 			}
 			CampusDriveResponse campusDriveResponse = optional.get();
 			
-			List<Student> students = studentRepository.getAllStudentsReadyForCampusDriveByCampusDriveId(campusDriveResponse.getUniversityId(), campusDriveResponse.getJobId());
+			List<Student> students = studentRepository.getAllStudentsReadyForCampusDriveByUniversiyAndJob(campusDriveResponse.getUniversityId(), campusDriveResponse.getJobId());
 			Job job = jobRepository.getById(campusDriveResponse.getJobId());
 			Map<Object,Object> map = new HashMap<Object, Object>();
 			map.put("students", students);

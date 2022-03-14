@@ -223,10 +223,35 @@ public class UniversityController {
 			AdminShareJobToUniversity adminShareJobToUniversity = optional.get();
 		
 			
-			List<Student> students = studentRepository.getAllStudentsReadyForCampusDriveByCampusDriveId(adminShareJobToUniversity.getUniversityId(), adminShareJobToUniversity.getJobId());
+			List<Student> students = studentRepository.getAllStudentsReadyForCampusDriveByUniversiyAndJob(adminShareJobToUniversity.getUniversityId(), adminShareJobToUniversity.getJobId());
 			Job job = jobRepository.getById(adminShareJobToUniversity.getJobId());
 			Map<Object,Object> map = new HashMap<Object, Object>();
 			map.put("students", students);
+			map.put("job", job);
+			return new ResponseEntity<Response>(new Response("success", 200, "", map, null), HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+//	get all students to whom university has shared the job 
+	@PreAuthorize("hasRole('university')")
+	@GetMapping("/university/student/shareJob/{shareJobId}")
+	public ResponseEntity<Response> getAllStudentWhomUniversityHasSharedJob(@PathVariable("shareJobId") Long shareJobId) {
+		try {
+			Optional<AdminShareJobToUniversity> optional = adminShareJobToUniversityRepository.findById(shareJobId);
+			if(!optional.isPresent()) {
+				throw new Exception("invalid share Job Id");
+			}
+			AdminShareJobToUniversity adminShareJobToUniversity = optional.get();
+		
+			
+			List<Object[]> universitySharedJobs = studentRepository.getAllStudentsWhomUniversitySharedJobByUniversityAndJob(adminShareJobToUniversity.getUniversityId(), adminShareJobToUniversity.getJobId());
+			
+			Job job = jobRepository.getById(adminShareJobToUniversity.getJobId());
+			Map<Object,Object> map = new HashMap<Object, Object>();
+			map.put("students", universitySharedJobs);
 			map.put("job", job);
 			return new ResponseEntity<Response>(new Response("success", 200, "", map, null), HttpStatus.CREATED);
 		} catch (Exception e) {

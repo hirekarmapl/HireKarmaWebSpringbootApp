@@ -25,6 +25,7 @@ import com.hirekarma.beans.Response;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Skill;
+import com.hirekarma.model.University;
 import com.hirekarma.service.AdminService;
 import org.json.simple.JSONObject;
 
@@ -116,8 +117,9 @@ public class AdminController {
 			details.put("Response_Code", resEntity.getStatusCodeValue());
 			details.put("Message", "Job Shared Successfully");
 			details.put("ToatlSharedJob", fieldDetails.get("totalSharedJob"));
-
 			details.put("Data", fieldDetails.get("shareJob"));
+			details.put("alreadyJobSharedToUniversity", fieldDetails.get("alreadyJobSharedToUniversity"));
+			
 
 		} catch (Exception e) {
 			LOGGER.error("Status Updation failed in AdminController.shareJob(-): " + e);

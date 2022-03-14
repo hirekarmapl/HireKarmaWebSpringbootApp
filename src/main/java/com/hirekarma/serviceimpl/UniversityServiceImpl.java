@@ -249,7 +249,7 @@ public class UniversityServiceImpl implements UniversityService {
 								driveResponse.setCorporateId(job.getCorporateId());
 								driveResponse.setUniversityId(university.getUniversityId());
 								driveResponse.setUniversityAskedOn(new Timestamp(new java.util.Date().getTime()));
-								driveResponse.setCorporateResponse(false);
+								driveResponse.setCorporateResponse(true);
 								driveResponse.setUniversityAsk(true);
 
 								campusDriveResponseRepository.save(driveResponse);

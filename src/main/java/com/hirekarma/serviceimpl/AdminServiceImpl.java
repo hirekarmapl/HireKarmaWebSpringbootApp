@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.services.s3.event.S3EventNotification.ResponseElementsEntity;
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.BadgeShareBean;
 import com.hirekarma.exception.AdminException;
@@ -151,6 +152,7 @@ public class AdminServiceImpl implements AdminService {
 		AdminShareJobToUniversity AdminShareJobToUniversity = null;
 		List<AdminShareJobToUniversity> list = new ArrayList<AdminShareJobToUniversity>();
 		Map<String, Object> response = new HashMap<String, Object>();
+		List<University> universityJobAlreadyShared = new ArrayList<>();
 		// checking all the ids are valid
 		if(this.universityRepository.findUniveristyByIds(adminShareJobToUniversityBean.getUniversityId()).size() !=adminShareJobToUniversityBean.getUniversityId().size())
 		{
@@ -166,27 +168,37 @@ public class AdminServiceImpl implements AdminService {
 		if(!job.getStatus() || !job.getForcampusDrive()) {
 			throw new Exception("job is either not active or its not avialable for campus drive");
 		}
+		
 		int count = 0;
 		if (adminShareJobToUniversityBean.getUniversityId().size() != 0) {
-
+			
 			for (int i = 0; i < adminShareJobToUniversityBean.getUniversityId().size(); i++) {
-				count++;
+			
 				System.out.println("\n\n************"
 						+ adminShareJobToUniversityBean.getUniversityId().get(i) + "***************");
-				AdminShareJobToUniversity = new AdminShareJobToUniversity();
-				AdminShareJobToUniversity.setJobId(adminShareJobToUniversityBean.getJobId());
-				AdminShareJobToUniversity
-						.setUniversityId(adminShareJobToUniversityBean.getUniversityId().get(i));
-				AdminShareJobToUniversity.setJobStatus("ACTIVE");
-				AdminShareJobToUniversity.setCreatedBy("Biswa");
-				AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
-				if(adminShareJobToUniversityBean.getJsonObject()!=null) {
-
-					AdminShareJobToUniversity.setLookUp(adminShareJobToUniversityBean.getJsonObject().toString());
+				AdminShareJobToUniversity adminShareJobToUniversityExist = adminShareJobToUniversityRepository.findByJobIdAndUniversityId(adminShareJobToUniversityBean.getJobId(), adminShareJobToUniversityBean.getUniversityId().get(i));
+				if(adminShareJobToUniversityExist!=null) {
+					universityJobAlreadyShared.add(universityRepository.getById(adminShareJobToUniversityBean.getUniversityId().get(i)));
+					
 				}
-				shareJobRepository.save(AdminShareJobToUniversity);
-				BeanUtils.copyProperties(AdminShareJobToUniversity, user);
-				list.add(AdminShareJobToUniversity);
+				else {
+					count++;
+					AdminShareJobToUniversity = new AdminShareJobToUniversity();
+					AdminShareJobToUniversity.setJobId(adminShareJobToUniversityBean.getJobId());
+					AdminShareJobToUniversity
+							.setUniversityId(adminShareJobToUniversityBean.getUniversityId().get(i));
+					AdminShareJobToUniversity.setJobStatus("ACTIVE");
+					AdminShareJobToUniversity.setCreatedBy("Biswa");
+					AdminShareJobToUniversity.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
+					if(adminShareJobToUniversityBean.getJsonObject()!=null) {
+
+						AdminShareJobToUniversity.setLookUp(adminShareJobToUniversityBean.getJsonObject().toString());
+					}
+					shareJobRepository.save(AdminShareJobToUniversity);
+					BeanUtils.copyProperties(AdminShareJobToUniversity, user);
+					list.add(AdminShareJobToUniversity);
+				}
+				
 			}
 			user.setResponse("SHARED");
 		} else {
@@ -194,6 +206,7 @@ public class AdminServiceImpl implements AdminService {
 		}
 		response.put("shareJob", list);
 		response.put("totalSharedJob", count);
+		response.put("alreadyJobSharedToUniversity", universityJobAlreadyShared);
 		response.put("done", true);
 		
 		return response;

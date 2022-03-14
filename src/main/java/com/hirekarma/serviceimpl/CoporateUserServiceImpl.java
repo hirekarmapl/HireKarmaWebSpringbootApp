@@ -191,6 +191,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		
 		UserBean userBean = new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
+		userBean.setWebsiteUrl(corporate.getWebsiteUrl());
 		userBean.setProfileUpdationStatus(corporate.getProfileUpdationStatus());
 		return userBean;
 	}

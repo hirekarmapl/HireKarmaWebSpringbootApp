@@ -47,6 +47,7 @@ public class UserBean implements Serializable {
 	private Double cgpa;
 	private Long batch;
 	private Boolean profileUpdationStatus =  false;
+	private String about;
 	
 	private Long universityId;
 	
@@ -57,6 +58,14 @@ private String websiteUrl;
 	
 	public String getWebsiteUrl() {
 		return websiteUrl;
+	}
+
+	public String getAbout() {
+		return about;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
 	}
 
 	public void setWebsiteUrl(String websiteUrl) {

@@ -2,6 +2,8 @@ package com.hirekarma.repository;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -38,6 +40,7 @@ public interface UniversityJobShareRepository extends JpaRepository<UniversityJo
 	List<Student> findStudentsByJobId(@Param("jobId")Long jobId);
 	
 	List<UniversityJobShareToStudent> findByUniversityId(Long universityId);
+	@Transactional
 	@Modifying
 	@Query("update UniversityJobShareToStudent u set u.seen = true where u.iD= :universityShareJobId")
 	void setStudentSeenById(@Param("universityShareJobId")Long universityShareJobId);

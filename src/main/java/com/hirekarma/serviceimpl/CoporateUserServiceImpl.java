@@ -164,6 +164,9 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		if(bean.getName()!=null && !bean.getName().equals("")) {
 			userProfile.setName(bean.getName());
 		}
+		if(bean.getAbout()!=null && !bean.getAbout().equals("")) {
+			userProfile.setAbout(bean.getAbout());
+		}
 		return userProfile;
 	}
 	
@@ -173,6 +176,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		corporate.setCorporateAddress(userProfile.getAddress());
 		corporate.setCorporateName(userProfile.getName());
 		corporate.setProfileUpdationStatus(true);
+		corporate.setAbout(userProfile.getAbout());
 		return corporate;
 	}
 	@Override
@@ -191,6 +195,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		
 		UserBean userBean = new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
+		
 		userBean.setWebsiteUrl(corporate.getWebsiteUrl());
 		userBean.setProfileUpdationStatus(corporate.getProfileUpdationStatus());
 		return userBean;

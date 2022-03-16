@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -270,8 +271,9 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	public List<OnlineAssessmentBean> getOnlineAssesmentsAddedByCorporatedWithoutQNA(String token) throws Exception {
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
+		
 		List<OnlineAssessmentBean> onlineAssessmentBeans  = new ArrayList<>();
-		for(OnlineAssessment o : corporate.getOnlineAssessments()) {
+		for(OnlineAssessment o : this.onlineAssessmentRepository.findAllByCorporate(corporate)) {
 			OnlineAssessmentBean b = new OnlineAssessmentBean();
 			BeanUtils.copyProperties(o, b);
 			b.setOnlineAssessmentSlug(o.getSlug());
@@ -326,6 +328,25 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 			studentOnlineAssessmentAnswers.add(studentOnlineAssessmentAnswer);
 		}
 		this.studentOnlineAssessmentAnswerRepository.saveAll(studentOnlineAssessmentAnswers);
+	}
+
+	@Override
+	public void deleteOnlineAssessmentBySlugAndCorporate(String slug, Corporate corporate) {
+
+		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(slug);
+		if(onlineAssessment==null) {
+			throw new NoSuchElementException("invalid bad request");
+		}
+		onlineAssessment.setDeleteStatus(true);
+		this.onlineAssessmentRepository.save(onlineAssessment);
+	}
+
+	@Override
+	public void deleteOnlineAssessmentBySlugAndToken(String slug, String token) throws ParseException {
+		String email = Validation.validateToken(token);
+		Corporate corporate = this.corporateRepository.findByEmail(email);
+		deleteOnlineAssessmentBySlugAndCorporate(slug,corporate);
+		
 	}
 
 }

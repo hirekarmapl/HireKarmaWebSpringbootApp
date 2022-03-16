@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.hibernate.internal.build.AllowSysOut;
@@ -90,6 +91,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 	
 	@Autowired
 	private InternshipApplyRepository internshipApplyRepository;
+
 	@Override
 	public UserProfile insert(UserProfile userProfile) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.insert(-)");
@@ -604,6 +606,28 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			map.put("message", "Bad Request!!!");
 			return map;
 		}
+	}
+
+	@Override
+	public Map<String, Object> getAllApplicantsForJobByJobId(Long jobId) {
+		Job job = jobRepository.findByJobId(jobId);
+		if(job==null) {
+			throw new NoSuchElementException("invalid job id");
+		}
+		Map<String,Object> result = new HashMap<String, Object>();
+		List<Map<String,Object>> jobApplyResponses = new ArrayList<>();
+		List<Object[]> responseData = jobApplyRepository.findJobApplyAndStudentByJobId(jobId);
+		for(Object[] o :  responseData) {
+			Map<String,Object> jobApplyResponse = new HashMap<String, Object>();
+//			BeanUtils.copyProperties((JobApply)o[0], jobApplyResponseBean);
+			jobApplyResponse.put("jobApply", (JobApply)o[0]);
+			jobApplyResponse.put("student", (Student)o[1]);
+			jobApplyResponses.add(jobApplyResponse);
+		}
+		result.put("jobApplies", jobApplyResponses);
+		result.put("job",job);
+		
+		return result;
 	}
 
 	

@@ -20,4 +20,7 @@ public interface JobApplyRepository extends JpaRepository<JobApply, Long>{
 	
 	JobApply findByStudentIdAndJobId(Long studentId,Long jobId);
 	
+	@Query("select ja,s from JobApply ja inner join Student s on s.studentId = ja.studentId where ja.jobId = :jobId")
+	List<Object[]> findJobApplyAndStudentByJobId(@Param("jobId")Long jobId);
+	
 }

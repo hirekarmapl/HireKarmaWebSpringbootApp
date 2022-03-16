@@ -42,6 +42,8 @@ public class OnlineAssessment implements Serializable {
 	int paragraphMarks;
 	int totalTime;
 	
+	@Column(nullable = false)
+	Boolean deleteStatus = false;
 	
 	LocalDateTime localDateTime;
 
@@ -78,8 +80,13 @@ public List<StudentOnlineAssessmentAnswer> getStudentOnlineAssessmentAnswers() {
 	public void setQuestionANdanswers(List<QuestionANdanswer> questionANdanswers) {
 		this.questionANdanswers = questionANdanswers;
 	}
-	
-	
+	 
+	public Boolean getDeleteStatus() {
+		return deleteStatus;
+	}
+	public void setDeleteStatus(Boolean deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
 	public Corporate getCorporate() {
 		return corporate;
 	}

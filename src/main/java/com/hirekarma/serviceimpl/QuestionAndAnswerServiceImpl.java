@@ -366,7 +366,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	private List<QuestionAndAnswerBean> getAllDetailByCorporate(Corporate corporate) {
 		List<QuestionANdanswer> tutorials = null;
 		if(corporate==null) {
-			tutorials =QARepo.findQandAForCorporate(corporate);
+			tutorials =QARepo.findQandAForCorporate(corporate,"deleted");
 		}
 		else {
 			tutorials = QARepo.findAll();
@@ -441,7 +441,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 	}
 	
 	public List<QuestionANdanswer> getQNAForCorporate(Corporate corporate){
-		return QARepo.findQandAForCorporate(corporate);
+		return QARepo.findQandAForCorporate(corporate,"deleted");
 	}
 
 

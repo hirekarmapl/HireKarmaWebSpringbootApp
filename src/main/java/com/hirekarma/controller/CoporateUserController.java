@@ -590,7 +590,21 @@ public class CoporateUserController {
 			return responseEntity;
 		}
 	}
-	
+	@GetMapping("/corporate/all_applications/{jobId}")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> getAllAplicationByJobApplyId(@RequestHeader("Authorization")String token,@PathVariable("jobId")Long jobId)
+	{	
+		try {
+			String email = Validation.validateToken(token);
+			Corporate corporate = this.corporateRepository.findByEmail(email);
+			Map<String,Object> result = this.coporateUserService.getAllApplicantsForJobByJobId(jobId);
+			return new ResponseEntity<Response>(new Response("success", 200, "", result, null), HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	@GetMapping("/corporate/all_applications")
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> getAllInternshipApplicationForSpecificCorporate(@RequestHeader("Authorization")String token)

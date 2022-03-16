@@ -2,7 +2,10 @@ package com.hirekarma.repository;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,5 +25,10 @@ public interface JobApplyRepository extends JpaRepository<JobApply, Long>{
 	
 	@Query("select ja,s from JobApply ja inner join Student s on s.studentId = ja.studentId where ja.jobId = :jobId")
 	List<Object[]> findJobApplyAndStudentByJobId(@Param("jobId")Long jobId);
+	
+	@Modifying
+	@Transactional
+	@Query("update JobApply ja set ja.applicationStatus = true where ja.studentId in (:studentIds) and ja.jobId=:jobId")
+	void updateApplicationStatusByJobIdAndStudentIds(@Param("jobId")Long jobId,@Param("studentIds")List<Long> studentIds);
 	
 }

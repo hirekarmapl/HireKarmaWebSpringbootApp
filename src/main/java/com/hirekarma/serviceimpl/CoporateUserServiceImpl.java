@@ -630,6 +630,45 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		return result;
 	}
 
+	@Override
+	public Map<String, Object> shortListStudentForJobByJobApplyIdsdAndJobId(List<Long> jobApplyIds,Long jobId) throws Exception {
+		Map<String,Object> result = new HashMap<>();
+		
+		Job job = jobRepository.getById(jobId);
+		if(job==null) {
+			throw new Exception("no such job found");
+		}
+//		get all the jobApply object
+		List<JobApply> jobApplies = new ArrayList<>();
+		List<ChatRoom> chatRooms = new ArrayList<>();
+		for(Long id: jobApplyIds) {
+			Optional<JobApply> optional = jobApplyRepository.findById(id);
+			ChatRoom chatRoom = new ChatRoom();
+			if(!optional.isPresent()) {
+				throw new Exception("please check your inputs for jobApply ids");
+			}
+			JobApply jobApply = optional.get();
+			if(job.getJobId()!=jobApply.getJobId()) {
+				throw new Exception("invalid jobApply id");
+			}
+			if(!jobApply.getApplicationStatus()) {
+			
+				jobApply.setApplicationStatus(true);
+				jobApplies.add(jobApply);
+				
+				chatRoom.setJobApplyId(jobApply.getJobApplyId());
+				chatRoom.setCorporateId(jobApply.getCorporateId());
+				chatRoom.setStudentId(jobApply.getStudentId());
+				chatRooms.add(chatRoom);
+			}
+			
+		}
+		chatRooms =  chatRoomRepository.saveAll(chatRooms);
+		jobApplies = jobApplyRepository.saveAll(jobApplies);
+		result.put("chatRooms", chatRooms);
+		return result;
+	}
+
 	
 
 //	@Override

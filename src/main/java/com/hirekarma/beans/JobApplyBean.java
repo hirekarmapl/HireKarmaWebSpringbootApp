@@ -1,6 +1,7 @@
 package com.hirekarma.beans;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import lombok.Data;
 import lombok.ToString;
@@ -19,5 +20,6 @@ public class JobApplyBean {
 	private Timestamp updatedOn;
 	private Long corporateId;
 	private Long jobId;
+	private List<Long> jobApplyIds;
 	
 }

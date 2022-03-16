@@ -95,6 +95,16 @@ public class InternshipApplyServiceImpl implements InternshipApplyService {
 				if(userProfile.getEducations()==null || userProfile.getEducations().isEmpty() ) {
 					throw new Exception("please complete your education detials");
 				}
+				try{
+					internshipApply = internshipApplyRepository.findByStudentIdAndInternshipId(studentList.get(0).getStudentId(),internship.getInternshipId());
+					if(internshipApply !=null) {
+						throw new Exception("Already Applied");
+					}
+				}
+				catch(Exception e) {
+					throw new Exception("Already Applied");
+				}
+				
 				internshipApply = new InternshipApply();
 				BeanUtils.copyProperties(internshipApplyBean, internshipApply);
 				internshipApply.setDeleteStatus(false);

@@ -34,5 +34,7 @@ public class AdminSharedJobList {
 	private String jobId;
 	
 	private String corporateId;
+	
+	private String descriptionFileUrl;
 
 }

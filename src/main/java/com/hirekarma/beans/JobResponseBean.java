@@ -62,4 +62,6 @@ public class JobResponseBean {
 	private Corporate corporate;
 	
 	private Boolean alreadyApplied;
+
+	private String descriptionFileUrl;
 }

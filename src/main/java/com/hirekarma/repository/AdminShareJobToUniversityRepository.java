@@ -13,7 +13,7 @@ import com.hirekarma.model.AdminShareJobToUniversity;
 public interface AdminShareJobToUniversityRepository extends JpaRepository<AdminShareJobToUniversity, Long> {
 
 	@Query("select a.universityResponseStatus , a.shareJobId , j.jobTitle , j.category , "
-			+ "j.jobType , j.wfhCheckbox , j.skills , j.city , j.openings , j.salary , j.about , j.description,  j.jobId, j.corporateId "
+			+ "j.jobType , j.wfhCheckbox , j.skills , j.city , j.openings , j.salary , j.about , j.description,  j.jobId, j.corporateId , j.descriptionFileUrl "
 			+ "from AdminShareJobToUniversity a inner join Job j on a.jobId = j.jobId "
 			+ "where a.universityId = :id and j.deleteStatus= false")
 	List<Object[]> getJobDetailsByUniversityId(@Param("id")Long id);

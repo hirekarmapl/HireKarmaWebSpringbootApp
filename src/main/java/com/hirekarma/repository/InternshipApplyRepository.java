@@ -17,4 +17,6 @@ public interface InternshipApplyRepository extends JpaRepository<InternshipApply
 	
 	@Query("select ua from InternshipApply ua inner join Internship u on ua.internshipId = u.internshipId where ua.corporateId = :corporateId and (u.deleteStatus is false or u.deleteStatus is null)")
 	List<InternshipApply> findByCorporateId(@Param("corporateId")Long corporateId);
+	
+	InternshipApply findByStudentIdAndInternshipId(Long studentId,Long internshipId);
 }

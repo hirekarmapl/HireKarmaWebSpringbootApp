@@ -321,6 +321,7 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 						adminSharedJobList.setDescription((String) obj1[11]);
 						adminSharedJobList.setJobId(String.valueOf(obj1[12]));
 						adminSharedJobList.setCorporateId(String.valueOf(obj1[13]));
+						adminSharedJobList.setDescriptionFileUrl(String.valueOf(obj1[14]));
 						SharedJobList.add(adminSharedJobList);
 					}
 

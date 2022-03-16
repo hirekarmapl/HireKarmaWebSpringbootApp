@@ -38,6 +38,7 @@ import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.GoogleCalenderRequest;
 import com.hirekarma.beans.InternshipApplyResponseBean;
+import com.hirekarma.beans.JobApplyBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.StudentDetails;
@@ -495,6 +496,24 @@ public class CoporateUserController {
 		return new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 
 	}
+	
+	@PatchMapping("/job/shortlist_student")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> shortListStudentForJobByJobApplyIdsdAndJobId(@RequestHeader("Authorization")String token,@RequestBody JobApplyBean jobApplyBean)
+		 {
+		
+		try {
+			String email = Validation.validateToken(token);
+			Corporate corporate = this.corporateRepository.findByEmail(email);
+			Map<String,Object> result = this.coporateUserService.shortListStudentForJobByJobApplyIdsdAndJobId(jobApplyBean.getJobApplyIds(), jobApplyBean.getJobId());
+			return new ResponseEntity<Response>(new Response("success", 200, "", result, null), HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	@PatchMapping("/internship/shortListStudent/{internshipApplyId}")
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Map<String,Object>> shortListStudentForInternship(@PathVariable("internshipApplyId") Long internshipApplyId, HttpServletRequest request) {		

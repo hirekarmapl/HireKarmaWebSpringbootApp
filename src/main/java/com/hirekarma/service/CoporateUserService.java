@@ -39,4 +39,6 @@ public interface CoporateUserService {
 	Map<String, Object> shortListStudentForInternship(Long corporateId, Long jobApplyId);
 	
 	public Map<String,Object> getAllApplicantsForJobByJobId(Long jobId);
+	
+	public Map<String, Object> shortListStudentForJobByJobApplyIdsdAndJobId(List<Long> jobApplyIds,Long jobId) throws Exception;
 }

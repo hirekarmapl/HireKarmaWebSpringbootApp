@@ -179,7 +179,7 @@ public class QuestionAndAnswerController {
 
 				corporate = corporateRepository.findByEmail(email);
 				System.out.println(corporate.getCorporateId());
-				return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", questionAndAnswerRepository.findQandAForCorporate(corporate), null),
+				return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", questionAndAnswerRepository.findQandAForCorporate(corporate,"deleted"), null),
 						HttpStatus.OK);
 			} else if (userProfile.getUserType().equals("admin")) {
 				

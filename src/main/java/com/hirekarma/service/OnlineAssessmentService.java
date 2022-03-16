@@ -10,11 +10,15 @@ import com.hirekarma.beans.OnlineAssesmentResponseBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.QuestionAndAnswerStudentResponseBean;
 import com.hirekarma.beans.StudentOnlineAssessmentAnswerRequestBean;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.StudentOnlineAssessment;
 
 @Service
 public interface OnlineAssessmentService {
+	public void deleteOnlineAssessmentBySlugAndCorporate(String slug,Corporate corporate);
+	
+	public void deleteOnlineAssessmentBySlugAndToken(String slug,String token) throws ParseException;
 
 	OnlineAssessment addOnlineAssessmentByCorporate(OnlineAssessmentBean bean,String token) throws Exception;
 	

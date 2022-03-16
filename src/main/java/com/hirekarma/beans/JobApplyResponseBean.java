@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Student;
 
 import lombok.Data;
@@ -30,6 +31,7 @@ public class JobApplyResponseBean {
 	private Job job;
 	private Corporate corporate;
 	private Student student;
+	private JobApply jobApply;
 
 	
 }

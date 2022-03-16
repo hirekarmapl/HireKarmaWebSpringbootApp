@@ -214,6 +214,20 @@ public class OnlineAssesmentController {
 		}
 	}
 
+
+	@DeleteMapping("/corporate/assessment/{slug}")
+	public ResponseEntity<Response> deleteAOnlineAssessmentBySlug(@RequestHeader("Authorization")String token,@PathVariable("slug")String slug){
+		try {
+			this.onlineAssessmentService.deleteOnlineAssessmentBySlugAndToken(slug, token);
+			return new ResponseEntity(new Response("success", HttpStatus.OK,"", null, null),
+					HttpStatus.OK);
+		}catch(Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST,"", null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
 	@PreAuthorize("hasRole('corporate')")
 	@DeleteMapping("/corporate/assessment/questionaries")
 	public ResponseEntity<Response> deleteQuestionofOnlineAssessmentByCorporate(

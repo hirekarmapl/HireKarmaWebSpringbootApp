@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.beans.StudentResponseBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.model.AdminShareJobToUniversity;
@@ -37,8 +39,11 @@ import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
+import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.StudentBatchRepository;
+import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.service.StudentService;
@@ -54,6 +59,12 @@ public class UniversityController {
 
 	@Autowired
 	private UniversityService universityService;
+	
+	@Autowired
+	private StudentBatchRepository studentBatchRepository;
+	
+	@Autowired
+	private StudentBranchRepository studentBranchRepository;
 	
 	@Autowired
 	private AdminShareJobToUniversityRepository adminShareJobToUniversityRepository;
@@ -248,10 +259,23 @@ public class UniversityController {
 		
 			
 			List<Object[]> universitySharedJobs = studentRepository.getAllStudentsWhomUniversitySharedJobByUniversityAndJob(adminShareJobToUniversity.getUniversityId(), adminShareJobToUniversity.getJobId());
+			List<Map<String,Object>> result =  new ArrayList<Map<String,Object>>();
+			for(Object[] o :universitySharedJobs) {
+				Map<String,Object> map = new HashMap<String,Object>();
+				Student s = (Student)o[0];
+				UniversityJobShareToStudent u = (UniversityJobShareToStudent) o[1];
+				StudentResponseBean studentResponseBean = new StudentResponseBean();
+				BeanUtils.copyProperties(s, studentResponseBean);
+				studentResponseBean.setStudentBatch(s.getBatch()!=null? studentBatchRepository.getById(s.getBatch()):null);
+				studentResponseBean.setStudentBranch(s.getBranch()!=null? studentBranchRepository.getById(s.getBranch()):null);
+				map.put("student", studentResponseBean);
+				map.put("universityJobShareToStudent", u);
+				result.add(map);
+			}
 			
 			Job job = jobRepository.getById(adminShareJobToUniversity.getJobId());
 			Map<Object,Object> map = new HashMap<Object, Object>();
-			map.put("students", universitySharedJobs);
+			map.put("students", result);
 			map.put("job", job);
 			return new ResponseEntity<Response>(new Response("success", 200, "", map, null), HttpStatus.CREATED);
 		} catch (Exception e) {

@@ -21,6 +21,7 @@ import com.hirekarma.beans.CampusDriveInviteBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
 import com.hirekarma.beans.JobApplyResponseBean;
 import com.hirekarma.beans.StudentDetails;
+import com.hirekarma.beans.StudentResponseBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.email.controller.EmailController;
@@ -34,6 +35,7 @@ import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
 import com.hirekarma.model.Organization;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
@@ -43,6 +45,8 @@ import com.hirekarma.repository.InternshipApplyRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.OrganizationRepository;
+import com.hirekarma.repository.StudentBatchRepository;
+import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
@@ -54,6 +58,11 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CoporateUserServiceImpl.class);
 
+	@Autowired
+	private StudentBatchRepository studentBatchRepository;
+	
+	@Autowired
+	private StudentBranchRepository studentBranchRepository;
 	@Autowired
 	private AWSS3Service awss3Service;
 	@Autowired
@@ -500,8 +509,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				BeanUtils.copyProperties(jobApply, jobApplyResponseBean);
 				Student student = this.studentRepository.getById(jobApply.getStudentId());
 				Job job = this.jobRepository.getById(jobApply.getJobId());
+				StudentResponseBean studentResponseBean = new StudentResponseBean();
+				BeanUtils.copyProperties(student, studentResponseBean);
+				studentResponseBean.setStudentBatch(student.getBatch()!=null? this.studentBatchRepository.getById(student.getBatch()):null); 
+				studentResponseBean.setStudentBranch(student.getBranch()!=null? this.studentBranchRepository.getById(student.getBranch()):null); 
 				jobApplyResponseBean.setStudent(student);
-				jobApplyResponseBean.setJob(job);
+				jobApplyResponseBean.setStudentResponseBean(studentResponseBean);				jobApplyResponseBean.setJob(job);
 				jobApplyResponseBeans.add(jobApplyResponseBean);
 			}
 			return jobApplyResponseBeans;
@@ -621,7 +634,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			Map<String,Object> jobApplyResponse = new HashMap<String, Object>();
 //			BeanUtils.copyProperties((JobApply)o[0], jobApplyResponseBean);
 			jobApplyResponse.put("jobApply", (JobApply)o[0]);
-			jobApplyResponse.put("student", (Student)o[1]);
+			Student s = (Student) o[1];
+			StudentResponseBean studentResponseBean = new StudentResponseBean();
+			BeanUtils.copyProperties(s, studentResponseBean);
+			studentResponseBean.setStudentBatch(s.getBatch()!=null? studentBatchRepository.getById(s.getBatch()):null);
+			studentResponseBean.setStudentBranch(s.getBranch()!=null? studentBranchRepository.getById(s.getBranch()):null);
+			jobApplyResponse.put("student", studentResponseBean);
 			jobApplyResponses.add(jobApplyResponse);
 		}
 		result.put("jobApplies", jobApplyResponses);

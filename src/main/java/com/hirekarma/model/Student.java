@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -81,6 +82,9 @@ public class Student implements Serializable{
 	
 	private String imageUrl;
 	
+	@ManyToOne
+	private Stream stream;
+	
 	private Boolean profileUpdationStatus =  false;
 	
 	@OneToMany(mappedBy = "student")
@@ -105,6 +109,15 @@ public class Student implements Serializable{
 	}
 
 	
+	
+	public Stream getStream() {
+		return stream;
+	}
+
+	public void setStream(Stream stream) {
+		this.stream = stream;
+	}
+
 	public Boolean getProfileUpdationStatus() {
 		return profileUpdationStatus;
 	}

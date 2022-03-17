@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.AdminSharedJobList;
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.StudentResponseBean;
 import com.hirekarma.beans.StudentResponseToUniversity;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversityShareJobToStudentResponse;
@@ -45,6 +46,8 @@ import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ShareJobRepository;
+import com.hirekarma.repository.StudentBatchRepository;
+import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
@@ -58,6 +61,11 @@ public class UniversityServiceImpl implements UniversityService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniversityServiceImpl.class);
 
+	@Autowired
+	private StudentBatchRepository studentBatchRepository;
+	
+	@Autowired
+	private StudentBranchRepository studentBranchRepository;
 	@Autowired
 	private ShareJobRepository shareJobRepository;
 	
@@ -359,7 +367,7 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		try {
 			if (university.size() == 1) {
 				studentList = studentRepository.getStudentListForUniversity(university.get(0).getUniversityId());
-
+				
 				if (studentList != null) {
 
 				} else {
@@ -371,8 +379,15 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		} catch (Exception e) {
 			throw e;
 		}
-
-		return studentList;
+		List<StudentResponseBean> studentResponseBeans = new ArrayList<>();
+		for(Student s: studentList) {
+			StudentResponseBean studentResponseBean = new StudentResponseBean();
+			BeanUtils.copyProperties(s, studentResponseBean);
+			studentResponseBean.setStudentBatch(s.getBatch()!=null? studentBatchRepository.getById(s.getBatch()):null);
+			studentResponseBean.setStudentBranch(s.getBranch()!=null? studentBranchRepository.getById(s.getBranch()):null);
+			studentResponseBeans.add(studentResponseBean);;
+		}
+		return studentResponseBeans;
 	}
 
 	@Override

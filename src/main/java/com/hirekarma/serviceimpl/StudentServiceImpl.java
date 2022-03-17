@@ -78,6 +78,7 @@ import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ProjectRepository;
 import com.hirekarma.repository.SkillRespository;
+import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.repository.StudentRepository;
@@ -98,6 +99,8 @@ public class StudentServiceImpl implements StudentService {
 	@Autowired
 	private AWSS3Service awss3Service;
 	
+	@Autowired
+	private StreamRepository streamRepository;
 	@Autowired
 	private CampusDriveResponseRepository campusDriveResponseRepository;
 	
@@ -540,7 +543,6 @@ public class StudentServiceImpl implements StudentService {
 		{
 			user.setImageUrl(awss3Service.uploadFile(userBean.getFile()));
 		}
-		
 		user.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 	
 		return user;
@@ -607,7 +609,9 @@ public class StudentServiceImpl implements StudentService {
 			student.setBranch(studentBranch.get().getId());
 		}
 		
-		
+		if(userBean.getStreamId()!=null) {
+			student.setStream(streamRepository.getById(userBean.getStreamId()));
+		}
 		
 //		checking for profile update status
 		Boolean updateProfileStatus = true;
@@ -640,7 +644,7 @@ public class StudentServiceImpl implements StudentService {
 		studentBeanReturn.setBranch(student.getBranch());
 		studentBeanReturn.setCgpa(student.getCgpa());
 		studentBeanReturn.setUniversityId(student.getUniversityId());
-		
+		studentBeanReturn.setStream(student.getStream());
 
 		LOGGER.info(
 				"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
@@ -965,7 +969,10 @@ public class StudentServiceImpl implements StudentService {
 			if (universityJobShareToStudent != null) {
 
 				universityJobShareToStudent.setStudentResponseStatus(jobBean.getStudentResponseStatus());
-				universityJobShareToStudent.setFeedBack(jobBean.getFeedBack());
+				if(!jobBean.getFeedBack().equals("")) {
+
+					universityJobShareToStudent.setFeedBack(jobBean.getFeedBack());
+				}
 				universityJobShareToStudent.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 				universityJobShareToStudent.setUpdatedBy("Biswa");
 

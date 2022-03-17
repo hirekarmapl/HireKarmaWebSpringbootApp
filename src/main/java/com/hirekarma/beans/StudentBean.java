@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hirekarma.model.Stream;
+
 public class StudentBean {
 	
 	private Long studentId;
@@ -14,7 +16,16 @@ public class StudentBean {
 	private String password;
 	private String userType;
 	private MultipartFile file;
+	private Stream stream;
 	
+	
+	
+	public Stream getStream() {
+		return stream;
+	}
+	public void setStream(Stream stream) {
+		this.stream = stream;
+	}
 	public Long getStudentId() {
 		return studentId;
 	}

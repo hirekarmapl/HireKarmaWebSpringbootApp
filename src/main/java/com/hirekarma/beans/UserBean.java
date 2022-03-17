@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.model.Skill;
+import com.hirekarma.model.Stream;
 import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.StudentBranch;
 import com.sun.istack.NotNull;
@@ -48,6 +49,8 @@ public class UserBean implements Serializable {
 	private Long batch;
 	private Boolean profileUpdationStatus =  false;
 	private String about;
+	private Stream stream;
+	private Integer streamId;
 	
 	private Long universityId;
 	
@@ -56,6 +59,22 @@ public class UserBean implements Serializable {
 	
 private String websiteUrl;
 	
+	public Integer getStreamId() {
+	return streamId;
+}
+
+public void setStreamId(Integer streamId) {
+	this.streamId = streamId;
+}
+
+	public Stream getStream() {
+	return stream;
+}
+
+public void setStream(Stream stream) {
+	this.stream = stream;
+}
+
 	public String getWebsiteUrl() {
 		return websiteUrl;
 	}

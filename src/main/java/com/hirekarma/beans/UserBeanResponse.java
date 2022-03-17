@@ -43,6 +43,7 @@ public class UserBeanResponse implements Serializable {
 	private Long universityId;
 	private String universityName;
 	
+	private Stream stream;
 	private Double cgpa;
 	private University university;
 	private List<Skill> skills = new ArrayList<Skill>();

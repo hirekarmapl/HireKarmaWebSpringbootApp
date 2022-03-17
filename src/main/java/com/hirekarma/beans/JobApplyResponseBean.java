@@ -32,6 +32,7 @@ public class JobApplyResponseBean {
 	private Corporate corporate;
 	private Student student;
 	private JobApply jobApply;
+	private StudentResponseBean studentResponseBean;
 
 	
 }

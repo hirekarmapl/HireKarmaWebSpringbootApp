@@ -24,6 +24,10 @@ public class Stream {
 	@JsonIgnore
 	List<Job> jobs = new ArrayList<Job>();
 	
+	@OneToMany(mappedBy = "stream")
+	@JsonIgnore
+	List<Student> students ;
+	
 	
 	public List<Job> getJobs() {
 		return jobs;

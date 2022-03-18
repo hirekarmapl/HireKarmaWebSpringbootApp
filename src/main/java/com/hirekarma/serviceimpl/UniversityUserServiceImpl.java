@@ -146,21 +146,34 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		
 		String LowerCaseEmail = Validation.validateToken(jwtToken).toLowerCase();
 		university = universityRepository.findByEmail(LowerCaseEmail);
+		System.out.println("unviersity"+university);
 		optional = userRepository.findById(university.getUserId());
 		universityUser = optional.get();
 		universityUserReturn = userRepository.save(copyPropertiesForUniversityFromUserBeanToUserForNotNull(universityUserBean, universityUser));
-
+		System.out.println("univeristy return"+ universityUserReturn);
+		
 		universityUserBeanReturn = new UserBean();
-
+		System.out.println("setting value in univesrtity");
 		university.setUniversityName(universityUserReturn.getName());
 		university.setUniversityEmail(universityUserReturn.getEmail());
 		university.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 		university.setUniversityAddress(universityUserReturn.getAddress());
 		university.setUniversityImageUrl(universityUserReturn.getImageUrl());
-		
-		university.setUniversityPhoneNumber(Long.valueOf(universityUserReturn.getPhoneNo()));
+//		System.out.println(Long.parseLong(universityUserReturn.getPhoneNo()));
+		System.out.println("getting inside phone");
+		if(universityUserReturn.getPhoneNo()!=null && !universityUserReturn.getPhoneNo().equals(""))
+		{
+			System.out.println("insdie"+universityUserReturn.getPhoneNo());
+			System.out.println();
+			university.setUniversityPhoneNumber(Long.parseLong(universityUserReturn.getPhoneNo()));
+			System.out.println("done");
+		}
+		System.out.println("phone no issue resolved");
+//		university.setUniversityPhoneNumber((universityUserReturn.getPhoneNo()!=null || !universityUserReturn.getPhoneNo().equals(""))?:null);
 		university.setProfileUpdationStatus(true);
-		universityRepository.save(university);
+		System.out.println("university before saving");
+		university = universityRepository.save(university);
+		System.out.println("university"+university);
 		LOGGER.info("university saved properly");
 		universityUserBeanReturn = new UserBean();
 		universityUserBeanReturn.setImageUrl(universityUserReturn.getImageUrl());
@@ -171,11 +184,14 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		universityUserBeanReturn.setProfileUpdationStatus(university.getProfileUpdationStatus());
 		System.out.println(universityUserReturn);
 		LOGGER.info("bean copied ssucesful");		
+
+		return universityUserBeanReturn;
 		}
 		catch(Exception e){
 			LOGGER.debug("Data updation failed in UniversityUserServiceImpl.updateUniversityUserProfile(-)");
 		}
-		return universityUserBeanReturn;
+		System.out.println("somewthing went wrong");
+		return null;
 	}
 
 	@Override

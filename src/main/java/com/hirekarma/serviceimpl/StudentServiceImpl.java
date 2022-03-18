@@ -647,10 +647,11 @@ public class StudentServiceImpl implements StudentService {
 //		checking for profile update status
 		student.setProfileUpdationStatus(getProfileUpdateStatusForStudentByStudentAndUserProfile(student,studentReturn));
 //		end of checking for profile update stauts
+		student = studentRepository.save(student);
 		
 		UserBeanResponse studentBeanReturn = new UserBeanResponse();
 		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
-		
+		studentBeanReturn.setProfileUpdateStatus(student.getProfileUpdationStatus());
 		studentBeanReturn.setStudentBatchName(userBean.getBatch()!=null?studentBatch.get().getBatchName():"");
 		studentBeanReturn.setStudentBranchName(userBean.getBranch()!=null?studentBranch.get().getBranchName():"");
 		studentBeanReturn.setUniversityName(student.getUniversityId()!=null?universityRepository.getById(student.getUniversityId()).getUniversityName():"");
@@ -659,7 +660,7 @@ public class StudentServiceImpl implements StudentService {
 		studentBeanReturn.setCgpa(student.getCgpa());
 		studentBeanReturn.setUniversityId(student.getUniversityId());
 		studentBeanReturn.setStream(student.getStream());
-
+		studentBeanReturn.setImageUrl(student.getImageUrl());
 		LOGGER.info(
 				"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
 	

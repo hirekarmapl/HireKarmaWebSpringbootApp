@@ -203,11 +203,9 @@ public class UniversityUserController {
 						LOGGER.info(
 								"Coporate details successfully updated in UniversityUserController.updateUniversityUserProfile(-)");
 						userBean.setPassword(null);
-
-						responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
-
-						response.setStatus("Success");
-						response.setMessage("Data Updated Successfully...");
+						return new ResponseEntity(new Response("success", HttpStatus.OK, "", userBean, null),
+								HttpStatus.OK);
+						
 					} else {
 						LOGGER.info(
 								"Coporate details not found in UniversityUserController.updateUniversityUserProfile(-)");
@@ -320,9 +318,7 @@ public class UniversityUserController {
 		try {
 			String email = Validation.validateToken(token);
 			University university = universityRepository.findByEmail(email);
-			if(university.getProfileUpdationStatus()==null|| !university.getProfileUpdationStatus()) {
-				throw new Exception("Please update your profile first");
-			}
+			
 			result = studentService.importStudentDataExcel(file,token);
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "successfully imported", result, null),
 					HttpStatus.OK);

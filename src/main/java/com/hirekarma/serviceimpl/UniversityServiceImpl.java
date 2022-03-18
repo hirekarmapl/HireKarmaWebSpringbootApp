@@ -36,6 +36,7 @@ import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.Stream;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.University;
@@ -46,6 +47,7 @@ import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ShareJobRepository;
+import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.repository.StudentRepository;
@@ -76,6 +78,8 @@ public class UniversityServiceImpl implements UniversityService {
 	  private EntityManager em;
 
 
+	@Autowired
+	private StreamRepository streamRepository;
 	@Autowired
 	private EmailController emailController;
 	
@@ -167,6 +171,18 @@ public class UniversityServiceImpl implements UniversityService {
 			throw new Exception("Job Already Shared");
 		}
 		
+		List<Stream> streams = new ArrayList<Stream>();
+		try {
+			streams = this.streamRepository.findAllById(universityJobShareToStudentBean.getStreamIds());
+		}
+		catch(Exception e) {
+			throw new Exception("check your streamids properly");
+		}
+		if(streams.size()!=universityJobShareToStudentBean.getStreamIds().size() ){
+			throw new Exception("check your streamids properly");
+		}
+		
+		
 //		checking if univeristy and university in AdminShareJOb matches
 		String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
 		University university = universityRepository.findByEmail(email);
@@ -174,14 +190,36 @@ public class UniversityServiceImpl implements UniversityService {
 			throw new Exception("no such university found");
 		}
 		
+		
 //		output variable
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();
 		Long count = 0L;
 		Map<String, Object> response = new HashMap<String, Object>();
 
+		List<Student> filteredStudents = new ArrayList<>() ;
+		if(universityJobShareToStudentBean.getStreamIds()!=null && universityJobShareToStudentBean.getStreamIds().size()!=0) {
+			 for(Stream s:streams) {
+
+//				 for mba
+				if(s.getId()==154) {
+					 filteredStudents.addAll(studentService.getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(s,null, universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId()));
+				}
+//				 for mca
+				else if(s.getId()==9) {
+					 filteredStudents.addAll(studentService.getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(s,null, universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId()));
+				}
+				else {
+					 filteredStudents.addAll(studentService.getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(s,universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId()));
+						
+				 }
+				
+			 }
+		}
+		else {
+			filteredStudents = studentService.getAllStudentsAccoridngToBranchBatchCgpaFilter(universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId());
+		}
 		
-		List<Student> filteredStudents = studentService.getAllStudentsAccoridngToBranchBatchCgpaFilter(universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId());
-				if(filteredStudents.size()==0) {
+		if(filteredStudents.size()==0) {
 			throw new Exception("no such student found");
 		}
 		

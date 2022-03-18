@@ -1,5 +1,6 @@
 package com.hirekarma.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.BadgeShareBean;
+import com.hirekarma.beans.JobBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Corporate;
@@ -38,7 +40,19 @@ public class AdminController {
 
 	@Autowired
 	private AdminService adminService;
-
+	@PreAuthorize("hasRole('admin')")
+	@PutMapping("/admin/job/job_status")
+	public ResponseEntity<Response> updateMultipleJobStatus(@RequestBody JobBean jobBean){
+		try {
+		
+			this.adminService.updateJobsStatus(jobBean.getJobIds(),jobBean.getStatus());
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "updated successfully", null, null),
+					HttpStatus.OK);
+		}catch(Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	@PutMapping("/updateJobStatus")
 	@PreAuthorize("hasRole('admin')")
 	public ResponseEntity<?> updateJobStatus(@RequestParam("id") Long id, @RequestParam("status") boolean status) {

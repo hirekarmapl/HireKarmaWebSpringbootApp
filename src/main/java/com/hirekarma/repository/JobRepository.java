@@ -3,7 +3,10 @@ package com.hirekarma.repository;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -51,5 +54,10 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 	
 	@Query("select j from Job j where (j.deleteStatus = FALSE or j.deleteStatus is null) and (j.status=TRUE ) and (j.forcampusDrive = false or j.forcampusDrive is null)")
 	List<Job> getAllActivatedJobsForAdmin();
+	
+	@Modifying
+	@Transactional
+	@Query("update Job j set j.status = :status where j.jobId in (:jobIds)")
+	void updateMutipleJobStatus(@Param("jobIds") List<Long> jobIds,@Param("status") Boolean status);
 
 }

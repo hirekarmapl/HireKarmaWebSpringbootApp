@@ -1,6 +1,7 @@
 package com.hirekarma.beans;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
@@ -45,6 +46,8 @@ public class UniversityJobShareToStudentBean {
 	private Long shareJobId;
 	
 	private Boolean seen = false;
+	
+	private List<Integer> streamIds = new ArrayList<>();
 	
 
 

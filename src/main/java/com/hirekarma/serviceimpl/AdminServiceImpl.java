@@ -99,7 +99,21 @@ public class AdminServiceImpl implements AdminService {
 			}
 		}
 	}
-
+	
+	@Override
+	public void updateJobsStatus(List<Long> jobIds,boolean status) throws Exception{
+		List<Job> jobs = null;
+		try {
+			jobs = jobRepository.findAllById(jobIds);
+			System.out.println(jobs);
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+			throw new Exception("invalid job ids");
+		}
+		this.jobRepository.updateMutipleJobStatus(jobIds,status);
+		
+	}
 	@Override
 	public Map<String, Object> updateActiveStatus(Long id, boolean status) {
 

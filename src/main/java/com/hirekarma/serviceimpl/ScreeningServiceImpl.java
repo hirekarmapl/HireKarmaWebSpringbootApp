@@ -1,5 +1,6 @@
 package com.hirekarma.serviceimpl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,7 +213,21 @@ public class ScreeningServiceImpl implements ScreeningService{
 		}
 		return map;
 	}
-	
+	@Override
+	public void sendScreeningQuestionToStudents(List<Long> jobApplyIds,String screeningSlug) throws Exception {
+		Long screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(screeningSlug);
+		if(screeningTableId==null) {
+			throw new Exception("invalid screeening slug");
+		}
+		List<ScreeningResponse> screeningResponses = new ArrayList();
+		for(Long jobApplyId:jobApplyIds) {
+			 ScreeningResponse screeningResponse = new ScreeningResponse();
+			screeningResponse.setJobApplyId(jobApplyId);
+			screeningResponse.setScreeningId(screeningTableId);
+			screeningResponses.add(screeningResponse);
+		}
+		screeningResponseRepository.saveAll(screeningResponses);
+	}
 	@Override
 	public Map<String, Object> sendScreeningQuestions(Long jobApplyId, String screeningSlug) {
 		LOGGER.debug("Starting of ScreeningServiceImpl.sendScreeningQuestions(-,-)");

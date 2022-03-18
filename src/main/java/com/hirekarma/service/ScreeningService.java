@@ -15,4 +15,5 @@ public interface ScreeningService {
 	public Map<String,Object> responseToScreeningQuestions(Long  response);
 	public Map<String,Object> getScreeningQuestionsByScreeningTableId(String slug);
 	public Map<String,Object> getAllScreeningQuestions();
+	void sendScreeningQuestionToStudents(List<Long> jobApplyIds, String screeningSlug) throws Exception;
 }

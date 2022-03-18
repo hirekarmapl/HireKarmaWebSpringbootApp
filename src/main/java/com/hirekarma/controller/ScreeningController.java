@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.Response;
 import com.hirekarma.beans.ScreeningBean;
+import com.hirekarma.beans.ScreeningRequestBean;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.ScreeningService;
@@ -194,6 +196,18 @@ public class ScreeningController {
 		}
 	}
 	
+	@PostMapping("/corporate/students/screening/send_to_students")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Response> sendScreeningQuestions(@RequestBody ScreeningRequestBean screeningRequestBean) {
+		try {
+			this.screeningService.sendScreeningQuestionToStudents(screeningRequestBean.getJobApplyIds(), screeningRequestBean.getSlug());
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "sended succesfully", null, null),
+					HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	@GetMapping("/getScreeningQuestion")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
 	public ResponseEntity<Map<String,Object>> getScreeningQuestionsByScreeningTableId(@RequestParam("slug") String slug) {

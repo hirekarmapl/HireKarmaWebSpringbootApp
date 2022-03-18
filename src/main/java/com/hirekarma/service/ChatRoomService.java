@@ -10,5 +10,6 @@ public interface ChatRoomService {
 	List<ChatRoomBean> getAllChatRooms(UserProfile userProfile);
 	public Map<String, Object> sendMessage(ChatRoomBean chatRoomBean);
 	public Map<String, Object> getMessagesByChatRoomId(Long chatRoomId);
+	public void sendmessageToMultipleStudent(ChatRoomBean chatRoomBean) throws Exception;
 
 }

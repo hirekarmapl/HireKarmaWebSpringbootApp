@@ -1,5 +1,9 @@
 package com.hirekarma.beans;
 
+import java.util.List;
+
+import com.hirekarma.model.Education;
+import com.hirekarma.model.Skill;
 import com.hirekarma.model.Stream;
 import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.StudentBranch;
@@ -26,4 +30,7 @@ public class StudentResponseBean {
 	private StudentBatch studentBatch;
 	private StudentBranch studentBranch;
 	private Stream stream;
+	
+	private List<Skill> skills;
+	private List<Education> educations;
 }

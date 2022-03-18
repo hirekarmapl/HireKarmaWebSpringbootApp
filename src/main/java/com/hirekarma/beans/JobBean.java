@@ -77,4 +77,6 @@ public class JobBean {
 	
 	private LocalDateTime tentativeDate;
 	
+	private List<Long> jobIds;
+	
 }

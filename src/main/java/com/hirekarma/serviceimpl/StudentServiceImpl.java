@@ -547,6 +547,35 @@ public class StudentServiceImpl implements StudentService {
 	
 		return user;
 	}
+	boolean getProfileUpdateStatusForStudentByStudentAndUserProfile(Student student,UserProfile studentUserProfile) {
+		boolean ans = true;
+//		for mba mca
+		if(student.getStream()!=null && (student.getStream().getId()==154 || student.getStream().getId()==9 )) {
+			if(student.getBatch()==null) {
+				return false;
+			}
+		}else {
+			if(student.getBatch()==null) {
+				return false;
+			}
+			if(student.getBranch()==null) {
+				return false;
+			}
+		}
+		if(student.getCgpa()==null) {
+			return false;
+		}
+		if(studentUserProfile.getEducations()==null || studentUserProfile.getEducations().size()==0) {
+			return false;
+		}
+		if(studentUserProfile.getSkills()==null || studentUserProfile.getSkills().size()==0) 
+		{
+			return false;
+		}
+		
+	return ans;	
+	}
+	
 	@Override
 	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception{
 		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
@@ -612,27 +641,12 @@ public class StudentServiceImpl implements StudentService {
 		if(userBean.getStreamId()!=null) {
 			student.setStream(streamRepository.getById(userBean.getStreamId()));
 		}
-		
-//		checking for profile update status
-		Boolean updateProfileStatus = true;
-		
-		if(student.getBatch()==null) {
-			updateProfileStatus =  false;
-		}
-		if(student.getBranch()==null) {
-			updateProfileStatus = false;
-		}
-		if(student.getCgpa()==null) {
-			updateProfileStatus = false;
-		}
-		student.setProfileUpdationStatus(updateProfileStatus);
-//		end of checking for profile update stauts
-		
-		
-		
-		
 		student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
 		student = studentRepository.save(student);
+		
+//		checking for profile update status
+		student.setProfileUpdationStatus(getProfileUpdateStatusForStudentByStudentAndUserProfile(student,studentReturn));
+//		end of checking for profile update stauts
 		
 		UserBeanResponse studentBeanReturn = new UserBeanResponse();
 		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
@@ -1173,6 +1187,35 @@ public class StudentServiceImpl implements StudentService {
 				Predicate p = criteriaBuilder.conjunction();
 				if(Objects.nonNull(branchId)){
 					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("branch"),branchId));
+				}
+				if(Objects.nonNull(batchId)) {
+					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("batch"),batchId));
+				}
+				if(Objects.nonNull(cgpa)) {
+					p = criteriaBuilder.and(p,criteriaBuilder.greaterThanOrEqualTo(root.get("cgpa"),cgpa));
+				}
+				if(Objects.nonNull(universityId)) {
+					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("universityId"),universityId));
+				}
+				return p;
+			}
+		});
+		return students;
+	
+	}
+	@Override
+	public List<Student> getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(com.hirekarma.model.Stream stream,Long branchId,Long batchId,Double cgpa,Long universityId){
+
+		List<Student> students = studentRepository.findAll(new Specification<Student>() {
+
+			@Override
+			public Predicate toPredicate(Root<Student> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+				Predicate p = criteriaBuilder.conjunction();
+				if(Objects.nonNull(branchId)){
+					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("branch"),branchId));
+				}
+				if(Objects.nonNull(stream)) {
+					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("stream"),stream));
 				}
 				if(Objects.nonNull(batchId)) {
 					p = criteriaBuilder.and(p,criteriaBuilder.equal(root.get("batch"),batchId));

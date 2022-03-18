@@ -28,4 +28,6 @@ public interface AdminService {
 	
 	//better version of above api
 	public Map<String,Object> shareJob2(AdminShareJobToUniversityBean adminShareJobToUniversityBean) throws Exception;
+
+	void updateJobsStatus(List<Long> jobIds, boolean status) throws Exception;
 }

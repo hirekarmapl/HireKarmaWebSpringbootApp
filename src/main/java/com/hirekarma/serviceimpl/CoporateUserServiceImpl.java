@@ -190,6 +190,21 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		corporate.setAbout(userProfile.getAbout());
 		return corporate;
 	}
+	
+	boolean getCorporateProfileUpdateStatus(Corporate corporate) {
+		if(corporate.getWebsiteUrl()==null||corporate.getWebsiteUrl().equals("")) {
+			return false;
+		}		if(corporate.getCorporateEmail()==null || corporate.getCorporateEmail().equals("")) {
+			return false;
+		}
+		if(corporate.getAbout()==null ||corporate.getAbout().equals("") ) {
+			return false;
+		}
+		if(corporate.getCorporateName()==null || corporate.getCorporateName().equals("")) {
+			return false;
+		}
+		return true;
+	}
 	@Override
 	public UserBean updateCoporateUserProfile(UserBean bean,String token)throws Exception {
 		String email = Validation.validateToken(token);
@@ -199,9 +214,11 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		}
 		userProfile = this.userRepository.save(updateUserProfilefromUserNotNullForCorporate(bean,userProfile));
 		Corporate corporate = this.corporateRepository.findByEmail(email);
+	
 		if(bean.getWebsiteUrl()!=null && !bean.getWebsiteUrl().equals("")) {
 			corporate.setWebsiteUrl(bean.getWebsiteUrl());
 		}
+		corporate.setProfileUpdationStatus(getCorporateProfileUpdateStatus(corporate));
 		corporate  = this.corporateRepository.save(updateCorporateFromUserProfileNotNull(userProfile,corporate));
 		
 		UserBean userBean = new UserBean();
@@ -629,17 +646,22 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		}
 		Map<String,Object> result = new HashMap<String, Object>();
 		List<Map<String,Object>> jobApplyResponses = new ArrayList<>();
-		List<Object[]> responseData = jobApplyRepository.findJobApplyAndStudentByJobId(jobId);
+		List<Object[]> responseData = jobApplyRepository.findJobApplyAndStudentAndUserProfileAndChatRoomByJobId(jobId);
 		for(Object[] o :  responseData) {
 			Map<String,Object> jobApplyResponse = new HashMap<String, Object>();
 //			BeanUtils.copyProperties((JobApply)o[0], jobApplyResponseBean);
 			jobApplyResponse.put("jobApply", (JobApply)o[0]);
 			Student s = (Student) o[1];
+			UserProfile up = (UserProfile) o[2];
+			Long chatRoomId = (Long) o[3];
 			StudentResponseBean studentResponseBean = new StudentResponseBean();
 			BeanUtils.copyProperties(s, studentResponseBean);
 			studentResponseBean.setStudentBatch(s.getBatch()!=null? studentBatchRepository.getById(s.getBatch()):null);
 			studentResponseBean.setStudentBranch(s.getBranch()!=null? studentBranchRepository.getById(s.getBranch()):null);
+			studentResponseBean.setSkills(up.getSkills());
+			studentResponseBean.setEducations(up.getEducations());
 			jobApplyResponse.put("student", studentResponseBean);
+			jobApplyResponse.put("chatRoomId", chatRoomId);
 			jobApplyResponses.add(jobApplyResponse);
 		}
 		result.put("jobApplies", jobApplyResponses);

@@ -56,6 +56,28 @@ public class ChatRoomController {
 	@Autowired
 	private StudentRepository studentRepository;
 	
+	@PostMapping("/corporate/message/send")
+	@PreAuthorize("hasAnyRole('student','corporate')")
+	public ResponseEntity<Response> sendMessageToStudents(@ModelAttribute ChatRoomBean chatRoomBean,@RequestHeader("Authorization")String token) {
+		try {
+			String email = Validation.validateToken(token);
+			if(chatRoomBean.getChatRoomIds()==null || chatRoomBean.getChatRoomIds().size()==0) {
+				throw new Exception("please enter chatroom ids");
+			}
+			Corporate corporate = this.corporateRepository.findByEmail(email);
+			chatRoomBean.setStudentId(null);
+			chatRoomBean.setCorporateId(corporate.getCorporateId());
+			chatRoomBean.setSenderType("corporate");
+			this.chatRoomService.sendmessageToMultipleStudent(chatRoomBean);
+			return new ResponseEntity<Response>(new Response("success", 200, "sended succesfully",null, null),
+					HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	@PostMapping("/sendMessage")
 	@PreAuthorize("hasAnyRole('student','corporate')")
 	public ResponseEntity<Map<String, Object>> sendMessage(@ModelAttribute ChatRoomBean chatRoomBean,HttpServletRequest request) {
@@ -76,8 +98,8 @@ public class ChatRoomController {
 				if(userProfile != null) {
 					if(userProfile.getUserType().equals("corporate")) {
 						Corporate corporate = this.corporateRepository.findByEmail(email);
-						chatRoomBean.setStudentId(corporate.getCorporateId());
-						chatRoomBean.setCorporateId(null);
+						chatRoomBean.setStudentId(null);
+						chatRoomBean.setCorporateId(corporate.getCorporateId());
 						chatRoomBean.setSenderType("corporate");
 					}
 					else {

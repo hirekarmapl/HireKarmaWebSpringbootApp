@@ -45,6 +45,44 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 	private StudentRepository studentRepository;
 	
 	@Override
+	public void sendmessageToMultipleStudent(ChatRoomBean chatRoomBean) throws Exception{
+		List<Message> messages = new ArrayList<Message>();
+		List<ChatRoom> chatRooms =null;
+		try{
+			chatRooms =this.chatRoomRepository.findAllById(chatRoomBean.getChatRoomIds());
+			if(chatRooms.size()!=chatRoomBean.getChatRoomIds().size()) {
+				throw new Exception();
+			}
+		}
+		catch(Exception e) {
+			throw new Exception("invalid chatRoom ids	");
+			
+		}
+		String attachmentUrl = null;
+		if(chatRoomBean.getAttachment()!=null && !chatRoomBean.getAttachment().isEmpty()) {
+			attachmentUrl = awss3Service.uploadFile(chatRoomBean.getAttachment());
+		}
+		for(ChatRoom c:chatRooms) {
+			Map<String, Object> map = null;
+			
+			Message message = new Message();
+			message.setChatRoomId(c.getChatRoomId());
+			if(chatRoomBean.getAttachment() != null) {
+				message.setAttachmentUrl(attachmentUrl);
+			}
+			message.setSenderType(chatRoomBean.getSenderType());
+			message.setTxtMessage(chatRoomBean.getTxtMsg());
+			message.setIsSeen(chatRoomBean.getIsSeen());
+			
+			messages.add(message);
+		}
+		messages = this.messageRepository.saveAll(messages);
+		this.chatRoomRepository.updateUpdatedOn(LocalDateTime.now(), chatRoomBean.getChatRoomIds());
+		System.out.println("message successfully sent");
+	
+	}
+	
+	@Override
 	public Map<String, Object> sendMessage(ChatRoomBean chatRoomBean) {
 		LOGGER.debug("Inside ChatRoomServiceImpl.sendMessage(-)");
 		Map<String, Object> map = null;

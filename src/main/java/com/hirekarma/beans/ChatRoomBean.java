@@ -1,6 +1,7 @@
 package com.hirekarma.beans;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,5 +28,6 @@ public class ChatRoomBean implements Serializable {
 	private Student student;
 //	image to be display on get all chatroom
 	private String recieverimageUrl;
+	private List<Long> chatRoomIds;
 	
 }

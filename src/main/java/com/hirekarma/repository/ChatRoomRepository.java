@@ -1,8 +1,12 @@
 package com.hirekarma.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -29,6 +33,11 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>{
 			+ "inner join Corporate c on c.corporateId = cr.corporateId "
 			+ "where cr.studentId =:studentId order by cr.updatedOn")
 	List<Object[]> getAllChatRoomsForStudent(@Param("studentId") Long studentId);
+	
+	@Modifying
+	@Transactional
+	@Query("update ChatRoom c set c.updatedOn = :localDateTime where c.chatRoomId in (:chatRoomId) ")
+	void updateUpdatedOn(@Param("localDateTime")LocalDateTime localDateTime,@Param("chatRoomId")List<Long> chatRoomId);
 	
 
 }

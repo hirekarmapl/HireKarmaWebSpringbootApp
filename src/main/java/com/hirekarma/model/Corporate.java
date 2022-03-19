@@ -25,7 +25,7 @@ import com.sun.istack.NotNull;
 public class Corporate {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@NotNull
 	@Column(name = "CORPORATE_ID")
 	private Long corporateId;

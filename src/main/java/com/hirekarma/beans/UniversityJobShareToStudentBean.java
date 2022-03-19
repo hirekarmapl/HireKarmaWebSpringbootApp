@@ -49,6 +49,7 @@ public class UniversityJobShareToStudentBean {
 	
 	private List<Integer> streamIds = new ArrayList<>();
 	
+	
 
 
 

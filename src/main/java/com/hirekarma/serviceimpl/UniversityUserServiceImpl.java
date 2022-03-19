@@ -192,6 +192,8 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		
 //		check for univesity profile update
 		
+		
+		university = universityRepository.save(university);
 		university.setProfileUpdationStatus(getProfileUpdateStatusForUniversity(university, universityUserReturn));
 		university = universityRepository.save(university);
 		LOGGER.info("university saved properly");

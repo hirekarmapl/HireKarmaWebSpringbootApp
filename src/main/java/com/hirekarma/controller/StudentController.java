@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -233,7 +234,14 @@ public class StudentController {
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 			response.setData(listData);
 
-		} catch (Exception e) {
+		} 
+		catch(NoSuchElementException ne) {
+			responseEntity = new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+			response.setMessage(ne.getMessage());
+			response.setStatus("error");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		catch (Exception e) {
 			LOGGER.error("Response Updation failed in studentController.jobDetails(-): " + e);
 			e.printStackTrace();
 			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -206,11 +206,11 @@ public class UniversityServiceImpl implements UniversityService {
 			for(Stream s:streams) {
 				 System.out.println("stream id"+s.getId());
 //				 for mba
-				if(s.getId()==154) {
+				if(s.getId()==281) {
 					 filteredStudents.addAll(studentService.getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(s,null, universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId()));
 				}
 //				 for mca
-				else if(s.getId()==9) {
+				else if(s.getId()==273) {
 					 filteredStudents.addAll(studentService.getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(s,null, universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId()));
 				}
 				else {

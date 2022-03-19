@@ -23,6 +23,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.ConstraintViolationException;
 
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
@@ -38,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -420,7 +422,14 @@ public class StudentServiceImpl implements StudentService {
 			}
 
 			return studentReturn;
-		} catch (Exception e) {
+		} 
+		catch(ConstraintViolationException ce) {
+			throw new StudentUserDefindException("a email id already in use");
+		}
+		catch(DataIntegrityViolationException de) {
+			throw new StudentUserDefindException("a email id already in use");
+		}
+		catch (Exception e) {
 			LOGGER.error("Data Insertion failed using StudentServiceImpl.insert(-): " + e);
 			throw new StudentUserDefindException(e.getMessage());
 		}
@@ -550,7 +559,7 @@ public class StudentServiceImpl implements StudentService {
 	boolean getProfileUpdateStatusForStudentByStudentAndUserProfile(Student student,UserProfile studentUserProfile) {
 		boolean ans = true;
 //		for mba mca
-		if(student.getStream()!=null && (student.getStream().getId()==154 || student.getStream().getId()==9 )) {
+		if(student.getStream()!=null && (student.getStream().getId()==273 || student.getStream().getId()==281 )) {
 			if(student.getBatch()==null) {
 				return false;
 			}
@@ -630,7 +639,7 @@ public class StudentServiceImpl implements StudentService {
 		if(userBean.getCgpa()!=null) {
 			student.setCgpa(userBean.getCgpa());
 		}
-		if(userBean.getBranch()!=null) {
+		if(userBean.getBatch()!=null) {
 				student.setBatch(studentBatch.get().getId());
 			
 		}
@@ -925,7 +934,7 @@ public class StudentServiceImpl implements StudentService {
 //			headers.setContentType(MediaType.APPLICATION_JSON);
 //			reqBodyData = new ObjectMapper().writeValueAsString(allStudentLists);
 //			requestEntity = new HttpEntity<String>(reqBodyData, headers);
-			emailController.welcomeEmailList(allStudentLists);
+//			emailController.welcomeEmailList(allStudentLists);
 //			restTemplate.exchange(welcomeListUrl, HttpMethod.POST, requestEntity, String.class);
 			LOGGER.info(
 					"Student data import Successfully and mail sent using StudentServiceImpl.importStudentDataExcel(-)");
@@ -1028,6 +1037,9 @@ public class StudentServiceImpl implements StudentService {
 
 		studentList = studentRepository.getDetailsByEmail1(email);
 //		student -> university id -> university
+		if(studentList.get(0).getUniversityId()==null) {
+			throw new NoSuchElementException("You are not associated with any university");
+		}
 		University university = universityRepository.getById(studentList.get(0).getUniversityId());
 	
 		try {

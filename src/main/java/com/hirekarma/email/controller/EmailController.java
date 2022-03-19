@@ -2326,7 +2326,7 @@ public class EmailController {
 				+ "          \r\n"
 				+ "  <div align=\"center\" style=\"line-height:inherit;box-sizing:border-box\">\r\n"
 				+ "    \r\n"
-				+ "      <a href=\"dev.hirekarma.org/account/validate?token="+token+"&email="+email+"\" style=\"line-height:inherit;box-sizing:border-box;display:inline-block;font-family:'Lato',sans-serif;text-decoration:none;text-align:center;color:#ffffff;background-color:#044E50;border-radius:3833px;width:auto;max-width:100%;word-break:break-word;word-wrap:break-word\" rel=\"noreferrer\" target=\"_blank\" >\r\n"
+				+ "      <a href=\"http://dev.hirekarma.org/account/validate?token="+token+"&email="+email+"\" style=\"line-height:inherit;box-sizing:border-box;display:inline-block;font-family:'Lato',sans-serif;text-decoration:none;text-align:center;color:#ffffff;background-color:#044E50;border-radius:3833px;width:auto;max-width:100%;word-break:break-word;word-wrap:break-word\" rel=\"noreferrer\" target=\"_blank\" >\r\n"
 				+ "        <span style=\"box-sizing:border-box;display:block;padding:13px 40px;line-height:120%\"><span style=\"box-sizing:border-box;font-size:18px;line-height:21.6px\"><strong style=\"line-height:inherit;box-sizing:border-box\"><span style=\"box-sizing:border-box;line-height:21.6px;font-size:18px\">Create Password</span></strong></span></span>\r\n"
 				+ "      </a>\r\n"
 				+ "    \r\n"

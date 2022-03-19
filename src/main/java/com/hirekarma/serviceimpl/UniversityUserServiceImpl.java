@@ -131,6 +131,22 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		
 		return userProfile;
 	}
+	
+	boolean getProfileUpdateStatusForUniversity(University university,UserProfile universityUserProfile) {
+		if(university.getUniversityAddress()==null || university.getUniversityAddress().equals("")) {
+			return false;
+		}
+		if(university.getUniversityEmail()==null || university.getUniversityEmail().equals("")) {
+			return false;
+		}
+		if(university.getUniversityPhoneNumber()==null || university.getUniversityPhoneNumber()==0) {
+			return false;
+		}
+		if(university.getUniversityName()==null || university.getUniversityName().equals("")) {
+			return false;
+		}
+		return true;
+	}
 // email address are used to check if only one email is used for both email and workemail and rest is for updating
 	@Override
 	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String jwtToken) {
@@ -169,19 +185,25 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 			System.out.println("done");
 		}
 		System.out.println("phone no issue resolved");
-//		university.setUniversityPhoneNumber((universityUserReturn.getPhoneNo()!=null || !universityUserReturn.getPhoneNo().equals(""))?:null);
-		university.setProfileUpdationStatus(true);
+
 		System.out.println("university before saving");
 		university = universityRepository.save(university);
 		System.out.println("university"+university);
+		
+//		check for univesity profile update
+		
+		university.setProfileUpdationStatus(getProfileUpdateStatusForUniversity(university, universityUserReturn));
+		university = universityRepository.save(university);
 		LOGGER.info("university saved properly");
 		universityUserBeanReturn = new UserBean();
 		universityUserBeanReturn.setImageUrl(universityUserReturn.getImageUrl());
 		universityUserBeanReturn.setName(universityUserReturn.getName());
 		universityUserBeanReturn.setAddress(universityUserReturn.getAddress());
 		universityUserBeanReturn.setPhoneNo(universityUserReturn.getPhoneNo());
-		universityUserBeanReturn.setUniversityEmailAddress(university.getUniversityEmail());
+		universityUserBeanReturn.setUniversityEmailAddress(universityUserReturn.getUniversityEmailAddress());
+		universityUserBeanReturn.setEmail(university.getUniversityEmail());
 		universityUserBeanReturn.setProfileUpdationStatus(university.getProfileUpdationStatus());
+		
 		System.out.println(universityUserReturn);
 		LOGGER.info("bean copied ssucesful");		
 

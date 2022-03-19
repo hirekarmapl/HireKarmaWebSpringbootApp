@@ -163,6 +163,7 @@ public class UniversityServiceImpl implements UniversityService {
 		
 		universityJobShareToStudentBean.setJobId(adminShareJobToUniversity.getJobId());
 		universityJobShareToStudentBean.setUniversityId(adminShareJobToUniversity.getUniversityId());
+		
 		UniversityJobShareToStudent universityJobShareToStudent = null;
 	
 //		checking if data already exist
@@ -174,6 +175,7 @@ public class UniversityServiceImpl implements UniversityService {
 		List<Stream> streams = new ArrayList<Stream>();
 		try {
 			streams = this.streamRepository.findAllById(universityJobShareToStudentBean.getStreamIds());
+			System.out.println(streams);
 		}
 		catch(Exception e) {
 			throw new Exception("check your streamids properly");
@@ -186,8 +188,10 @@ public class UniversityServiceImpl implements UniversityService {
 //		checking if univeristy and university in AdminShareJOb matches
 		String email =  Validation.validateToken(universityJobShareToStudentBean.getToken());
 		University university = universityRepository.findByEmail(email);
-		if(universityJobShareToStudentBean.getUniversityId()!=university.getUniversityId()) {
-			throw new Exception("no such university found");
+		System.out.println(adminShareJobToUniversity.getUniversityId()+" "+university.getUniversityId());
+		System.out.println();
+		if(!adminShareJobToUniversity.getUniversityId().equals(university.getUniversityId())) {
+			throw new Exception("job not shared to unviersity");
 		}
 		
 		
@@ -195,11 +199,12 @@ public class UniversityServiceImpl implements UniversityService {
 		List<UniversityJobShareToStudent> list = new ArrayList<UniversityJobShareToStudent>();
 		Long count = 0L;
 		Map<String, Object> response = new HashMap<String, Object>();
-
+		System.out.println("before filetered students");
 		List<Student> filteredStudents = new ArrayList<>() ;
 		if(universityJobShareToStudentBean.getStreamIds()!=null && universityJobShareToStudentBean.getStreamIds().size()!=0) {
-			 for(Stream s:streams) {
-
+			System.out.println("inside streams"); 
+			for(Stream s:streams) {
+				 System.out.println("stream id"+s.getId());
 //				 for mba
 				if(s.getId()==154) {
 					 filteredStudents.addAll(studentService.getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(s,null, universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId()));
@@ -210,9 +215,9 @@ public class UniversityServiceImpl implements UniversityService {
 				}
 				else {
 					 filteredStudents.addAll(studentService.getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(s,universityJobShareToStudentBean.getBranchId(), universityJobShareToStudentBean.getBatchId(), universityJobShareToStudentBean.getCgpaId(), universityJobShareToStudentBean.getUniversityId()));
-						
+					
 				 }
-				
+				 System.out.println(filteredStudents.size());
 			 }
 		}
 		else {

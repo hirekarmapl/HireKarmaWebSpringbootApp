@@ -145,7 +145,9 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				body.put("email", corporate.getCorporateEmail());
 				body.put("name", corporate.getCorporateName());
 				body.put("type", "corporate");
+				System.out.println(body);
 				emailController.welcomeAndOnBoardEmail(body);
+				
 
 			} else {
 				throw new StudentUserDefindException("This Email Is Already Present !!");
@@ -218,9 +220,10 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		if(bean.getWebsiteUrl()!=null && !bean.getWebsiteUrl().equals("")) {
 			corporate.setWebsiteUrl(bean.getWebsiteUrl());
 		}
-		corporate.setProfileUpdationStatus(getCorporateProfileUpdateStatus(corporate));
 		corporate  = this.corporateRepository.save(updateCorporateFromUserProfileNotNull(userProfile,corporate));
-		
+
+		corporate.setProfileUpdationStatus(getCorporateProfileUpdateStatus(corporate));
+		corporate =  this.corporateRepository.save(corporate);
 		UserBean userBean = new UserBean();
 		BeanUtils.copyProperties(userProfile, userBean);
 		

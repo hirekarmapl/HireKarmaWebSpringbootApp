@@ -3,7 +3,7 @@ package com.hirekarma.beans;
 public class JwtResponse {
 	
 	private String jwtToken;
-	private UserBean data;
+	private UserBeanResponse data;
 	
 	public String getJwtToken() {
 		return jwtToken;
@@ -11,13 +11,13 @@ public class JwtResponse {
 	public void setJwtToken(String jwtToken) {
 		this.jwtToken = jwtToken;
 	}
-	public UserBean getData() {
+	
+	public UserBeanResponse getData() {
 		return data;
 	}
-	public void setData(UserBean data) {
+	public void setData(UserBeanResponse data) {
 		this.data = data;
 	}
-	
 	@Override
 	public String toString() {
 		return "JwtResponse [jwtToken=" + jwtToken + ", data=" + data + "]";

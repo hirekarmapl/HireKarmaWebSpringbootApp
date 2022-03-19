@@ -198,6 +198,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		university = universityRepository.save(university);
 		LOGGER.info("university saved properly");
 		universityUserBeanReturn = new UserBean();
+		universityUserBeanReturn.setUserType(universityUserReturn.getUserType());
 		universityUserBeanReturn.setImageUrl(universityUserReturn.getImageUrl());
 		universityUserBeanReturn.setName(universityUserReturn.getName());
 		universityUserBeanReturn.setAddress(universityUserReturn.getAddress());

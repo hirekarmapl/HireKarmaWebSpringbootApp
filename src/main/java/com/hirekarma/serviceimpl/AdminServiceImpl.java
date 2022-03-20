@@ -23,11 +23,14 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.services.s3.event.S3EventNotification.ResponseElementsEntity;
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.BadgeShareBean;
+import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.AdminException;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
+import com.hirekarma.model.Stream;
+import com.hirekarma.model.StudentBranch;
 import com.hirekarma.model.University;
 import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.BadgesRepository;
@@ -35,6 +38,7 @@ import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.ShareJobRepository;
+import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.service.AdminService;
 
@@ -46,6 +50,10 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	private ShareJobRepository shareJobRepository;
 
+	@Autowired
+	private StreamRepository streamRepository;
+	@Autowired
+	private EmailController emailController;
 	@Autowired
 	private JobRepository jobRepository;
 
@@ -105,6 +113,12 @@ public class AdminServiceImpl implements AdminService {
 		List<Job> jobs = null;
 		try {
 			jobs = jobRepository.findAllById(jobIds);
+			for(Job j:jobs) {
+				if(j.getCorporateId()!=null) {
+					Corporate coporate = this.corporateRepository.getById(j.getCorporateId());
+					emailController.activateJob(j, coporate);
+				}
+			}
 			System.out.println(jobs);
 		}
 		catch(Exception e) {
@@ -112,6 +126,7 @@ public class AdminServiceImpl implements AdminService {
 			throw new Exception("invalid job ids");
 		}
 		this.jobRepository.updateMutipleJobStatus(jobIds,status);
+		
 		
 	}
 	@Override
@@ -126,7 +141,10 @@ public class AdminServiceImpl implements AdminService {
 			Optional<Job> optional = jobRepository.findById(id);
 
 			job = optional.get();
-
+			if(job.getCorporateId()!=null) {
+				Corporate corporate  = this.corporateRepository.getById(id);
+				emailController.activateJob(job,corporate);
+			}
 			if (job != null) {
 
 				job.setStatus(status);
@@ -168,6 +186,7 @@ public class AdminServiceImpl implements AdminService {
 		Map<String, Object> response = new HashMap<String, Object>();
 		List<University> universityJobAlreadyShared = new ArrayList<>();
 		// checking all the ids are valid
+		
 		if(this.universityRepository.findUniveristyByIds(adminShareJobToUniversityBean.getUniversityId()).size() !=adminShareJobToUniversityBean.getUniversityId().size())
 		{
 			throw new Exception("please check uour list");
@@ -179,6 +198,7 @@ public class AdminServiceImpl implements AdminService {
 			throw new Exception("no such job found");
 		}
 		Job job = optional.get();
+		Corporate corporate  = this.corporateRepository.getById(job.getCorporateId());
 		if(!job.getStatus() || !job.getForcampusDrive()) {
 			throw new Exception("job is either not active or its not avialable for campus drive");
 		}
@@ -210,6 +230,25 @@ public class AdminServiceImpl implements AdminService {
 					}
 					shareJobRepository.save(AdminShareJobToUniversity);
 					BeanUtils.copyProperties(AdminShareJobToUniversity, user);
+
+					List<Stream> streams = job.getStreams();
+					List<String> streamString = new ArrayList<>();
+					if(streams!=null && streams.size()!=0) {
+						for(Stream s:streams) {
+							streamString.add(s.getName());
+						}
+					}
+					List<StudentBranch> studentBranchs = job.getBranchs();
+					List<String> branchString = new ArrayList<>();
+					if(studentBranchs!=null && studentBranchs.size()!=0)
+					{
+						for(StudentBranch s : studentBranchs) {
+							branchString.add(s.getBranchName());
+						}
+					}
+					
+					
+					emailController.adminShareJobToStudent(job,null,corporate,streamString,branchString);
 					list.add(AdminShareJobToUniversity);
 				}
 				

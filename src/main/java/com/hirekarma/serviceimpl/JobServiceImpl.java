@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.JobBean;
 import com.hirekarma.beans.JobResponseBean;
+import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.JobException;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
@@ -66,6 +67,9 @@ public class JobServiceImpl implements JobService {
 	
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private EmailController emailController;
 
 	@Autowired
 	private AWSS3Service awss3Service;
@@ -130,6 +134,7 @@ public class JobServiceImpl implements JobService {
 		job.setCorporateId(corporate.getCorporateId());
 		job.setDeleteStatus(false);	
 		job = this.jobRepository.save(copyPropertiesFromBeanToJobForNotNull(job, jobBean));
+		emailController.createJob(job, corporate);
 		return job;
 		
 	}

@@ -35,6 +35,7 @@ import com.hirekarma.exception.UniversityException;
 import com.hirekarma.exception.UserProfileException;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.CampusDriveResponse;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Stream;
 import com.hirekarma.model.Student;
@@ -229,6 +230,7 @@ public class UniversityServiceImpl implements UniversityService {
 		}
 		
 		Job job = this.jobRepository.getById(universityJobShareToStudentBean.getJobId());
+		Corporate corporate = this.corporateRepository.getById(job.getCorporateId());
 		
 		for (int i = 0; i < filteredStudents.size(); i++) {
 			count++;
@@ -238,9 +240,9 @@ public class UniversityServiceImpl implements UniversityService {
 			universityJobShareToStudent.setUniversityId(university.getUniversityId());
 			universityJobShareToStudent.setJobStatus(true);
 			universityJobShareToStudent.setStudentId(filteredStudents.get(i).getStudentId());
-			universityJobShareToStudent.setCreatedBy("Biswa");
+			universityJobShareToStudent.setCreatedBy("Hirekarma");
 			universityJobShareToStudent.setCreatedOn(new Timestamp(new java.util.Date().getTime()));
-			emailController.sendEmailNotificationAboutJobToStudent(filteredStudents.get(i).getStudentEmail(), job, filteredStudents.get(i));
+			emailController.sendEmailNotificationAboutJobToStudent(filteredStudents.get(i).getStudentEmail(), job, filteredStudents.get(i),corporate);
 			universityJobShareRepository.save(universityJobShareToStudent);
 			
 			list.add(universityJobShareToStudent);

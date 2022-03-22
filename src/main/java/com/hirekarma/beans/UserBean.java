@@ -56,6 +56,16 @@ public class UserBean implements Serializable {
 	
 	
 	private List<Skill> skills = new ArrayList<Skill>();
+private double percentageOfProfileCompletion;
+	
+
+	public double getPercentageOfProfileCompletion() {
+		return percentageOfProfileCompletion;
+	}
+
+	public void setPercentageOfProfileCompletion(double percentageOfProfileCompletion) {
+		this.percentageOfProfileCompletion = percentageOfProfileCompletion;
+	}
 	
 private String websiteUrl;
 	

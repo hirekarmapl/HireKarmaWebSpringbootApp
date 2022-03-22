@@ -53,8 +53,6 @@ public interface StudentRepository extends JpaRepository<Student, Long>,JpaSpeci
 	
 	@Query("select s,u,up "
 			+ "from Student s inner join UniversityJobShareToStudent u on s.studentId = u.studentId "
-			+ "inner join StudentBatch sbt on s.batch = sbt.id "
-			+ "inner join StudentBranch sbr on s.branch = sbr.id "
 			+ "inner join UserProfile up on s.userId = up.userId "
 			+ "where u.universityId = :universityId  and u.jobId = :jobId ")
 	List<Object[]> getAllStudentsWhomUniversitySharedJobByUniversityAndJob(@Param("universityId") Long universityId,@Param("jobId")  Long jobId);

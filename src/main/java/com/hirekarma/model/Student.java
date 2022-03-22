@@ -91,6 +91,16 @@ public class Student implements Serializable{
 	@JsonIgnore
 	Set<StudentOnlineAssessment> studentOnlineAssessments;
 
+private double percentageOfProfileCompletion;
+	
+
+	public double getPercentageOfProfileCompletion() {
+		return percentageOfProfileCompletion;
+	}
+
+	public void setPercentageOfProfileCompletion(double percentageOfProfileCompletion) {
+		this.percentageOfProfileCompletion = percentageOfProfileCompletion;
+	}
 	
 	public Set<StudentOnlineAssessment> getStudentOnlineAssessments() {
 		return studentOnlineAssessments;

@@ -11,4 +11,5 @@ public interface UserService {
 	boolean updatePassword(String newPassword,String email,String token) throws Exception;
 	String updateAbout(String about,String token) throws Exception;
 	String getAbout(String token) throws Exception;
+	boolean verifyEmailAddress(String token, String email) throws Exception;
 }

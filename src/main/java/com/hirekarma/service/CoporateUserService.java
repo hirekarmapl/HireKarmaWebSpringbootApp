@@ -41,4 +41,8 @@ public interface CoporateUserService {
 	public Map<String,Object> getAllApplicantsForJobByJobId(Long jobId);
 	
 	public Map<String, Object> shortListStudentForJobByJobApplyIdsdAndJobId(List<Long> jobApplyIds,Long jobId) throws Exception;
+
+	Corporate updateCorporateFromUserProfileNotNull(UserProfile userProfile, Corporate corporate, UserBean bean);
+
+	double getCorporateProfileUpdateStatus(Corporate corporate, UserProfile userProfile);
 }

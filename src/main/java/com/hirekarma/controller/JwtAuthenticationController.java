@@ -114,6 +114,8 @@ public class JwtAuthenticationController {
 			userBean.setProfileUpdateStatus(corporate.getProfileUpdationStatus());
 			userBean.setWebsiteUrl(corporate.getWebsiteUrl());
 			userBean.setAbout(corporate.getAbout());
+			userBean.setPercentageOfProfileCompletion(corporate.getPercentageOfProfileCompletion());
+			
 		}
 		else if(userProfile.getUserType().equals("student")) {
 			Student student = this.studentRepository.findByStudentEmail(userBean.getEmail());
@@ -134,6 +136,7 @@ public class JwtAuthenticationController {
 			userBean.setImageUrl(student.getImageUrl());
 			userBean.setPassword(null);
 			userBean.setProfileUpdateStatus(student.getProfileUpdationStatus());
+			userBean.setPercentageOfProfileCompletion(student.getPercentageOfProfileCompletion());
 		}
 		else if(userProfile.getUserType().equals("university")) {
 			University university = this.universityRepository.findByEmail(userBean.getEmail());

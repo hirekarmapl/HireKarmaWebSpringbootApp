@@ -41,7 +41,7 @@ public interface StudentService {
 	
 	
 //	this is better verison of above function
-	public UserProfile insert2(String email,String password,String name);
+	public UserProfile insert2(String email,String password,String name) throws Exception;
 	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception;
 	public Map<String,Object> addSkillToAStudent(Skill skill, String token) throws Exception;
 	public Map<String,Object> deleteSkillOfAStudent(int id,String token) throws Exception;
@@ -55,4 +55,5 @@ public interface StudentService {
 	List<Student> getAllStudentsAccoridngToBranchBatchCgpaFilter(Long branchId, Long batchId, Double cgpa,Long universityId);
 	List<Student> getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(Stream stream, Long branchId, Long batchId,
 			Double cgpa, Long universityId);
+	double getProfileUpdateStatusForStudentByStudentAndUserProfile(Student student, UserProfile studentUserProfile);
 }

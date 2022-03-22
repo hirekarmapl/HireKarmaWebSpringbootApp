@@ -281,38 +281,6 @@ public class CoporateUserController {
 //		}
 //	}
 
-//	@PutMapping(value = "/updateCoporateUserProfile")
-//	public ResponseEntity<CoporateUserBean> updateCoporateUserProfile(@ModelAttribute CoporateUserBean coporateUserBean){
-//		LOGGER.debug("Inside CoporateUserController.updateCoporateUserProfile(-)");
-//		CoporateUserBean userBean=null;
-//		byte[] image=null;
-//		try {
-//			LOGGER.debug("Inside try block of CoporateUserController.updateCoporateUserProfile(-)");
-//			image=coporateUserBean.getFile().getBytes();
-//			coporateUserBean.setProfileImage(image);
-//			userBean=coporateUserService.updateCoporateUserProfile(coporateUserBean);
-//			if(userBean!=null) {
-//				LOGGER.info("Coporate details successfully updated in CoporateUserController.updateCoporateUserProfile(-)");
-//				userBean.setPassword(null);
-//				return new ResponseEntity<>(userBean,HttpStatus.OK);
-//			}
-//			else {
-//				LOGGER.info("Coporate details not found in CoporateUserController.updateCoporateUserProfile(-)");
-//				return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
-//			}
-//		}
-//		catch (IOException e) {
-//			LOGGER.error("Problem occured during image to byte[] conversion in CoporateUserController.updateCoporateUserProfile(-): "+e);
-//			e.printStackTrace();
-//			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//		catch (Exception e) {
-//			LOGGER.error("Some problem occured in CoporateUserController.updateCoporateUserProfile(-): "+e);
-//			e.printStackTrace();
-//			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//	}
-
 	@PutMapping(value = "/updateCoporateUserProfile")
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> updateCoporateUserProfile(@ModelAttribute UserBean bean,@RequestHeader("Authorization")String token) {

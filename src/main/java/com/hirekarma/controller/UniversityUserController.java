@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.exception.UniversityUserDefindException;
 import com.hirekarma.model.QuestionANdanswer;
 import com.hirekarma.model.University;
@@ -191,7 +192,7 @@ public class UniversityUserController {
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<Response> updateUniversityUserProfile(@ModelAttribute UserBean universityUserBean,@RequestHeader(value = "Authorization")String token) {
 		LOGGER.debug("Inside UniversityUserController.updateUniversityUserProfile(-)");
-		UserBean userBean = null;
+		UserBeanResponse userBean = null;
 		byte[] image = null;
 		Response response = new Response();
 		ResponseEntity<Response> responseEntity = null;

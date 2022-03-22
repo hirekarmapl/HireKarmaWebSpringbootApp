@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.model.Skill;
@@ -49,4 +51,7 @@ public class UserBeanResponse implements Serializable {
 	private University university;
 	private List<Skill> skills = new ArrayList<Skill>();
 	private String about;
+	private double percentageOfProfileCompletion;
+	@Column(nullable = false)
+	private Boolean emailVerfication=false;
 }

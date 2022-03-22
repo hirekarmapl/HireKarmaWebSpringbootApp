@@ -23,5 +23,7 @@ public interface UserRepository extends JpaRepository<UserProfile, Long> {
 
 	@Query("select count(*) from UserProfile where email = :email and userType = :userType ")
 	Long getDetailsByEmail(@Param("email")String lowerCaseEmail ,@Param("userType")String userType);
+	@Query("select u,c from UserProfile u,Corporate c where u.email =:email and c.corporateEmail =:email")
+	List<Object[]> findUserProfileAndCorporateByEmail(String email);
 
 }

@@ -21,6 +21,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -89,7 +90,8 @@ public class UserProfile implements Serializable {
 
 	public String about;
 	
-	
+	@Column(nullable = false)
+	private Boolean emailVerfication=false;
 
 	@Override
 	public String toString() {
@@ -100,6 +102,14 @@ public class UserProfile implements Serializable {
 				+ response + ", authProvider=" + authProvider + ", skills=" + skills + ", projects=" + projects
 				+ ", educations=" + educations + ", experiences=" + experiences + ", resetPasswordToken="
 				+ resetPasswordToken + "]";
+	}
+
+	public Boolean getEmailVerfication() {
+		return emailVerfication;
+	}
+
+	public void setEmailVerfication(Boolean emailVerfication) {
+		this.emailVerfication = emailVerfication;
 	}
 
 	public String getImageUrl() {

@@ -31,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.exception.UniversityUserDefindException;
@@ -39,6 +40,7 @@ import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.UniversityUserService;
+import com.hirekarma.utilty.Utility;
 import com.hirekarma.utilty.Validation;
 
 @Service("universityUserService")
@@ -78,6 +80,8 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 				universityUser.setStatus("Active");
 				universityUser.setEmail(LowerCaseEmail);
 				universityUser.setPassword(passwordEncoder.encode(universityUser.getPassword()));
+				String resetPasswordToken = Utility.passwordTokenGenerator();
+				universityUser.setResetPasswordToken(resetPasswordToken);
 
 				sityUser = userRepository.save(universityUser);
 
@@ -96,7 +100,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 				body.put("name", universityUser.getName());
 				body.put("type", "university");
 				emailController.welcomeAndOnBoardEmail(body);
-
+				emailController.emaiVerification(resetPasswordToken, LowerCaseEmail, university.getUniversityName());
 				LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
 			} else {
 				throw new StudentUserDefindException("This Email Is Already Present !!");
@@ -131,29 +135,60 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		
 		return userProfile;
 	}
-	
-	boolean getProfileUpdateStatusForUniversity(University university,UserProfile universityUserProfile) {
+	@Override
+	public
+	double getProfileUpdateStatusForUniversity(University university,UserProfile universityUserProfile) {
+		int total = 0;
+		int completed = 0;
+		
 		if(university.getUniversityAddress()==null || university.getUniversityAddress().equals("")) {
-			return false;
+			total++;
 		}
+		else{
+			total++;
+			completed++;
+		}
+		
 		if(university.getUniversityEmail()==null || university.getUniversityEmail().equals("")) {
-			return false;
+			total++;
+		}
+		else{
+			total++;
+			completed++;
 		}
 		if(university.getUniversityPhoneNumber()==null || university.getUniversityPhoneNumber()==0) {
-			return false;
+			total++;
+		}
+		else{
+			total++;
+			completed++;
 		}
 		if(university.getUniversityName()==null || university.getUniversityName().equals("")) {
-			return false;
+			total++;
 		}
-		return true;
+		else{
+			total++;
+			completed++;
+		}
+		if(universityUserProfile.getEmailVerfication()==null || !universityUserProfile.getEmailVerfication()) {
+			total++;
+		}
+		else{
+			total++;
+			completed++;
+		}
+		double percentage = ((double)completed/(double)total);
+		LOGGER.info("total :{} Completed:{} Percentage:{}",total,completed,percentage);
+		
+		return percentage;
 	}
 // email address are used to check if only one email is used for both email and workemail and rest is for updating
 	@Override
-	public UserBean updateUniversityUserProfile(UserBean universityUserBean, String jwtToken) {
+	public UserBeanResponse updateUniversityUserProfile(UserBean universityUserBean, String jwtToken) {
 		UserProfile universityUser = null;
 		UserProfile universityUserReturn =  new UserProfile();
 		Optional<UserProfile> optional = null;
-		UserBean universityUserBeanReturn = null;
+		UserBeanResponse universityUserBeanReturn = null;
 		University university = new University();
 		try {
 		
@@ -168,7 +203,7 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		universityUserReturn = userRepository.save(copyPropertiesForUniversityFromUserBeanToUserForNotNull(universityUserBean, universityUser));
 		System.out.println("univeristy return"+ universityUserReturn);
 		
-		universityUserBeanReturn = new UserBean();
+		universityUserBeanReturn = new UserBeanResponse();
 		System.out.println("setting value in univesrtity");
 		university.setUniversityName(universityUserReturn.getName());
 		university.setUniversityEmail(universityUserReturn.getEmail());
@@ -191,13 +226,11 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		System.out.println("university"+university);
 		
 //		check for univesity profile update
-		
-		
-		university = universityRepository.save(university);
-		university.setProfileUpdationStatus(getProfileUpdateStatusForUniversity(university, universityUserReturn));
+		university.setPercentageOfProfileCompletion( getProfileUpdateStatusForUniversity(university, universityUserReturn));
+		university.setProfileUpdationStatus(university.getPercentageOfProfileCompletion()!=1.0?false:true);
 		university = universityRepository.save(university);
 		LOGGER.info("university saved properly");
-		universityUserBeanReturn = new UserBean();
+		universityUserBeanReturn = new UserBeanResponse();
 		universityUserBeanReturn.setUserType(universityUserReturn.getUserType());
 		universityUserBeanReturn.setImageUrl(universityUserReturn.getImageUrl());
 		universityUserBeanReturn.setName(universityUserReturn.getName());
@@ -205,8 +238,9 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		universityUserBeanReturn.setPhoneNo(universityUserReturn.getPhoneNo());
 		universityUserBeanReturn.setUniversityEmailAddress(universityUserReturn.getUniversityEmailAddress());
 		universityUserBeanReturn.setEmail(university.getUniversityEmail());
-		universityUserBeanReturn.setProfileUpdationStatus(university.getProfileUpdationStatus());
-		
+		universityUserBeanReturn.setProfileUpdateStatus(university.getProfileUpdationStatus());
+		universityUserBeanReturn.setEmailVerfication(universityUserReturn.getEmailVerfication());
+		universityUserBeanReturn.setPercentageOfProfileCompletion(university.getPercentageOfProfileCompletion());
 		System.out.println(universityUserReturn);
 		LOGGER.info("bean copied ssucesful");		
 

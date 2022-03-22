@@ -24,6 +24,21 @@ import com.sun.istack.NotNull;
 @Table(name = "TBL_CORPORATE")
 public class Corporate {
 
+	private String about;
+
+	@OneToMany(mappedBy = "corporate")
+	@JsonIgnore
+	private List<Blog> blogs;
+
+	@Column(name = "CORPORATE_ADDRESS")
+	private String corporateAddress;
+
+	@Column(name = "BADGE")
+	private Long corporateBadge;
+
+	@Column(name = "CORPORATE_EMAIL", unique = true)
+	private String corporateEmail;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@NotNull
@@ -32,191 +47,189 @@ public class Corporate {
 
 	@Column(name = "CORPORATE_NAME")
 	private String corporateName;
-
-	@Column(name = "CORPORATE_EMAIL", unique = true)
-	private String corporateEmail;
-
+	
 	@Column(name = "CORPORATE_PHONE_NUMBER")
 	private String corporatePhoneNumber;
-
-	@Column(name = "CORPORATE_ADDRESS")
-	private String corporateAddress;
-
-	private String imageUrl;
-
-	private Long userProfile;
-	
-	private Boolean profileUpdationStatus =  false;
-
-	private String websiteUrl;
-	
-	private String about;
-	
-	
-	
-	public String getAbout() {
-		return about;
-	}
-
-	public void setAbout(String about) {
-		this.about = about;
-	}
-
-	public String getWebsiteUrl() {
-		return websiteUrl;
-	}
-
-	public void setWebsiteUrl(String websiteUrl) {
-		this.websiteUrl = websiteUrl;
-	}
-
-	public Long getUserProfile() {
-		return userProfile;
-	}
-
-	public void setUserProfile(Long userProfile) {
-		this.userProfile = userProfile;
-	}
 
 	@CreationTimestamp
 	@Column(name = "CREATED_ON")
 	private Timestamp createdOn;
-
-	@Column(name = "UPDATED_ON")
-	private Timestamp updatedOn;
-
-	@Column(name = "STATUS")
-	private Boolean status;
-
-	@Column(name = "BADGE")
-	private Long corporateBadge;
-
-	@OneToMany(mappedBy = "corporate")
-	@JsonIgnore
-	private List<Blog> blogs;
-
+	
+	private String imageUrl;
+	
+	
+	
 	@OneToMany(mappedBy = "corporate")
 	@JsonIgnore
 	private List<OnlineAssessment> onlineAssessments;
-	
+
+	private double percentageOfProfileCompletion;
+
+	private Boolean profileUpdationStatus =  false;
+
 	@OneToMany(mappedBy = "corporate")
 	@JsonIgnore
 	private List<QuestionANdanswer> questionANdanswers;
 
-	public List<OnlineAssessment> getOnlineAssessments() {
-		return onlineAssessments;
-	}
+	@Column(name = "STATUS")
+	private Boolean status;
 
+	@Column(name = "UPDATED_ON")
+	private Timestamp updatedOn;
+
+	private Long userProfile;
 	
-	public Boolean getProfileUpdationStatus() {
-		return profileUpdationStatus;
-	}
 
-	public void setProfileUpdationStatus(Boolean profileUpdationStatus) {
-		this.profileUpdationStatus = profileUpdationStatus;
-	}
+	private String websiteUrl;
+	
+//	@Column(nullable = false)
+//	private Boolean emailVerfication;
 
-	public String getImageUrl() {
-		return imageUrl;
+	public String getAbout() {
+		return about;
 	}
-
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
-	}
-
-	public List<QuestionANdanswer> getQuestionANdanswers() {
-		return questionANdanswers;
-	}
-
-	public void setQuestionANdanswers(List<QuestionANdanswer> questionANdanswers) {
-		this.questionANdanswers = questionANdanswers;
-	}
-
-	public void setOnlineAssessments(List<OnlineAssessment> onlineAssessments) {
-		this.onlineAssessments = onlineAssessments;
-	}
-
 	public List<Blog> getBlogs() {
 		return blogs;
-	}
-
-	public void setBlogs(List<Blog> blogs) {
-		this.blogs = blogs;
-	}
-
-	public Long getCorporateId() {
-		return corporateId;
-	}
-
-	public void setCorporateId(Long corporateId) {
-		this.corporateId = corporateId;
-	}
-
-	public String getCorporateName() {
-		return corporateName;
-	}
-
-	public void setCorporateName(String corporateName) {
-		this.corporateName = corporateName;
-	}
-
-	public String getCorporateEmail() {
-		return corporateEmail;
-	}
-
-	public void setCorporateEmail(String corporateEmail) {
-		this.corporateEmail = corporateEmail;
-	}
-
-	
-
-	public String getCorporatePhoneNumber() {
-		return corporatePhoneNumber;
-	}
-
-	public void setCorporatePhoneNumber(String corporatePhoneNumber) {
-		this.corporatePhoneNumber = corporatePhoneNumber;
 	}
 
 	public String getCorporateAddress() {
 		return corporateAddress;
 	}
 
-	public void setCorporateAddress(String corporateAddress) {
-		this.corporateAddress = corporateAddress;
+	public Long getCorporateBadge() {
+		return corporateBadge;
 	}
 
+	public String getCorporateEmail() {
+		return corporateEmail;
+	}
+
+	public Long getCorporateId() {
+		return corporateId;
+	}
+
+	public String getCorporateName() {
+		return corporateName;
+	}
 	
+	public String getCorporatePhoneNumber() {
+		return corporatePhoneNumber;
+	}
+
 	public Timestamp getCreatedOn() {
 		return createdOn;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
-		this.createdOn = createdOn;
+	
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
-	public Timestamp getUpdatedOn() {
-		return updatedOn;
+	public List<OnlineAssessment> getOnlineAssessments() {
+		return onlineAssessments;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
-		this.updatedOn = updatedOn;
+	public double getPercentageOfProfileCompletion() {
+		return percentageOfProfileCompletion;
+	}
+
+	public Boolean getProfileUpdationStatus() {
+		return profileUpdationStatus;
+	}
+
+	public List<QuestionANdanswer> getQuestionANdanswers() {
+		return questionANdanswers;
 	}
 
 	public Boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(Boolean status) {
-		this.status = status;
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
 	}
 
-	public Long getCorporateBadge() {
-		return corporateBadge;
+	public Long getUserProfile() {
+		return userProfile;
+	}
+
+	public String getWebsiteUrl() {
+		return websiteUrl;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
+
+	public void setBlogs(List<Blog> blogs) {
+		this.blogs = blogs;
+	}
+
+	public void setCorporateAddress(String corporateAddress) {
+		this.corporateAddress = corporateAddress;
 	}
 
 	public void setCorporateBadge(Long corporateBadge) {
 		this.corporateBadge = corporateBadge;
+	}
+
+	public void setCorporateEmail(String corporateEmail) {
+		this.corporateEmail = corporateEmail;
+	}
+
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
+	}
+
+	
+
+	public void setCorporateName(String corporateName) {
+		this.corporateName = corporateName;
+	}
+
+	public void setCorporatePhoneNumber(String corporatePhoneNumber) {
+		this.corporatePhoneNumber = corporatePhoneNumber;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	
+	public void setOnlineAssessments(List<OnlineAssessment> onlineAssessments) {
+		this.onlineAssessments = onlineAssessments;
+	}
+
+	public void setPercentageOfProfileCompletion(double percentageOfProfileCompletion) {
+		this.percentageOfProfileCompletion = percentageOfProfileCompletion;
+	}
+
+	public void setProfileUpdationStatus(Boolean profileUpdationStatus) {
+		this.profileUpdationStatus = profileUpdationStatus;
+	}
+
+	public void setQuestionANdanswers(List<QuestionANdanswer> questionANdanswers) {
+		this.questionANdanswers = questionANdanswers;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public void setUserProfile(Long userProfile) {
+		this.userProfile = userProfile;
+	}
+
+	public void setWebsiteUrl(String websiteUrl) {
+		this.websiteUrl = websiteUrl;
 	}
 
 	

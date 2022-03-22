@@ -51,6 +51,7 @@ import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.CoporateUserService;
+import com.hirekarma.utilty.Utility;
 import com.hirekarma.utilty.Validation;
 
 @Service("coporateUserService")
@@ -117,22 +118,24 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			if (count == 0) {
 				
 				//save Into Common Table
-				
+				LOGGER.info("saving user profile");
 				userProfile.setUserType("corporate");
 				userProfile.setStatus("Active");
 				userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
-			
+				String resetPasswordToken = Utility.passwordTokenGenerator();
+				userProfile.setResetPasswordToken(resetPasswordToken);
 
 				user = userRepository.save(userProfile);
+				LOGGER.info("saved user profile succesfully");
 
 				//save Into Corporate Table
-				
+				LOGGER.info("saving coporate profile");
 				corporate.setCorporateEmail(LowerCaseEmail);
 				corporate.setCorporateName(user.getName());
 				corporate.setStatus(true);
 				corporate.setUserProfile(user.getUserId());
-				corporateRepository.save(corporate);
-				
+				corporate =corporateRepository.save(corporate);
+				LOGGER.debug("saved corporate profile");
 				//save Into Organization Table
 
 				organization = new Organization();
@@ -147,6 +150,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				body.put("type", "corporate");
 				System.out.println(body);
 				emailController.welcomeAndOnBoardEmail(body);
+				emailController.emaiVerification(resetPasswordToken, LowerCaseEmail, corporate.getCorporateName());
 				
 
 			} else {
@@ -182,53 +186,110 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		}
 		return userProfile;
 	}
-	
-	public Corporate updateCorporateFromUserProfileNotNull(UserProfile userProfile,Corporate corporate){
+	@Override
+	public Corporate updateCorporateFromUserProfileNotNull(UserProfile userProfile,Corporate corporate,UserBean bean){
 		corporate.setImageUrl(userProfile.getImageUrl());
 		corporate.setCorporatePhoneNumber(userProfile.getPhoneNo());
 		corporate.setCorporateAddress(userProfile.getAddress());
 		corporate.setCorporateName(userProfile.getName());
 		corporate.setProfileUpdationStatus(true);
 		corporate.setAbout(userProfile.getAbout());
+		if(bean.getWebsiteUrl()!=null && !bean.getWebsiteUrl().equals("")) {
+			corporate.setWebsiteUrl(bean.getWebsiteUrl());
+		}
+		corporate.setPercentageOfProfileCompletion(getCorporateProfileUpdateStatus(corporate,userProfile));
+		LOGGER.info("corprate profilePercentageCompletion: {}",corporate.getPercentageOfProfileCompletion());
+		corporate.setProfileUpdationStatus(corporate.getPercentageOfProfileCompletion()==1.00?true:false);
 		return corporate;
 	}
-	
-	boolean getCorporateProfileUpdateStatus(Corporate corporate) {
+	@Override
+	public double getCorporateProfileUpdateStatus(Corporate corporate,UserProfile userProfile) {
+		LOGGER.info("insdie getCorporateProfileUpdateStatus");
+		int total= 0;
+		int completed = 0;
+//		website
 		if(corporate.getWebsiteUrl()==null||corporate.getWebsiteUrl().equals("")) {
-			return false;
-		}		if(corporate.getCorporateEmail()==null || corporate.getCorporateEmail().equals("")) {
-			return false;
+			total++;
 		}
+		else {
+			total++;
+			completed++;
+		}
+		
+//		email		if(userProfile.getEmailVerfication()==null || !userProfile.getEmailVerfication()) {
+			total++;
+		}
+		else {
+			completed++;
+			total++;
+		}
+		
+//		about
 		if(corporate.getAbout()==null ||corporate.getAbout().equals("") ) {
-			return false;
+			total++;
 		}
+		else {
+			completed++;
+			total++;
+		}
+		
+//		name
 		if(corporate.getCorporateName()==null || corporate.getCorporateName().equals("")) {
-			return false;
+			total++;
 		}
-		return true;
+		else {
+			completed++;
+			total++;
+		}
+		
+//		phone
+		if(corporate.getCorporatePhoneNumber()==null || corporate.getCorporatePhoneNumber().equals("") ) {
+			total++;
+		}
+		else {
+			completed++;
+			total++;
+		}
+		
+//		address
+		if(corporate.getCorporateAddress()==null|| corporate.getCorporateAddress().equals("")) {
+			total++;
+		}
+		else {
+			completed++;
+			total++;
+		}
+		double percentage = ((double)completed/(double)total);
+		LOGGER.info("total : {} completed : {}, percentage :{}",total,completed,percentage);
+		LOGGER.info("exiting getCorporateProfileUpdateStatus()");
+		
+		return percentage;
 	}
 	@Override
 	public UserBean updateCoporateUserProfile(UserBean bean,String token)throws Exception {
 		String email = Validation.validateToken(token);
-		UserProfile userProfile= userRepository.findUserByEmail(email);
+		List<Object[]> userProfileAndCorporate = this.userRepository.findUserProfileAndCorporateByEmail(email);
+		
+		UserProfile userProfile = (UserProfile)userProfileAndCorporate.get(0)[0];
+		Corporate corporate =  (Corporate) userProfileAndCorporate.get(0)[1];
+		
 		if(!userProfile.getUserType().equals("corporate")) {
 			throw new Exception("no such corporate exist");
 		}
-		userProfile = this.userRepository.save(updateUserProfilefromUserNotNullForCorporate(bean,userProfile));
-		Corporate corporate = this.corporateRepository.findByEmail(email);
+		userProfile = updateUserProfilefromUserNotNullForCorporate(bean,userProfile);
+//		userProfile = this.userRepository.save(updateUserProfilefromUserNotNullForCorporate(bean,userProfile));
+//		corporate = this.corporateRepository.findByEmail(email);
 	
-		if(bean.getWebsiteUrl()!=null && !bean.getWebsiteUrl().equals("")) {
-			corporate.setWebsiteUrl(bean.getWebsiteUrl());
-		}
-		corporate  = this.corporateRepository.save(updateCorporateFromUserProfileNotNull(userProfile,corporate));
-
-		corporate.setProfileUpdationStatus(getCorporateProfileUpdateStatus(corporate));
+		corporate  = updateCorporateFromUserProfileNotNull(userProfile,corporate,bean);
+		userProfile = this.userRepository.save(userProfile);
 		corporate =  this.corporateRepository.save(corporate);
-		UserBean userBean = new UserBean();
-		BeanUtils.copyProperties(userProfile, userBean);
 		
+		
+		UserBean userBean = new UserBean();
+		BeanUtils.copyProperties(userProfile, userBean);		
 		userBean.setWebsiteUrl(corporate.getWebsiteUrl());
 		userBean.setProfileUpdationStatus(corporate.getProfileUpdationStatus());
+		userBean.setPercentageOfProfileCompletion(corporate.getPercentageOfProfileCompletion());
 		return userBean;
 	}
 

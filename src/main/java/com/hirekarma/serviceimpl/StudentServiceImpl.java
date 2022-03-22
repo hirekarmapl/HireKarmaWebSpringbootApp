@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -346,31 +347,42 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 
-	public UserProfile insert2(String email,String password,String name) {
+	public UserProfile insert2(String email,String password,String name) throws Exception {
+		try {
+			email = email.toLowerCase();
+			
+			UserProfile userProfile =  new UserProfile();
+			userProfile.setName(name);
+			userProfile.setEmail(email);
+			userProfile.setPassword(passwordEncoder.encode(password));
+			userProfile.setStatus("Active");
+			userProfile.setUserType("student");
+			String resetPasswordToken = Utility.passwordTokenGenerator();
+			userProfile.setResetPasswordToken(resetPasswordToken);
+			UserProfile userProfileDB = this.userRepository.save(userProfile);
+			
+			Student student = new Student();
+			student.setUserId(userProfileDB.getUserId());
+			student.setStudentEmail(email);
+			
+			this.studentRepository.save(student);
+			
+			Map<String, String> body = null;
+			body = new HashMap<String, String>();
+			body.put("email", userProfileDB.getEmail());
+			body.put("name", userProfileDB.getName());
+			body.put("type", "student");
+			emailController.welcomeAndOnBoardEmail(body);
+			emailController.emaiVerification(resetPasswordToken, email, name);
+			return userProfileDB;
+		}
+		catch(ConstraintViolationException ce) {
+			throw new StudentUserDefindException("email id already exist");
+		}
+		catch(DataIntegrityViolationException de) {
+			throw new StudentUserDefindException("a email id already in use");
+		}
 		
-		email = email.toLowerCase();
-		
-		UserProfile userProfile =  new UserProfile();
-		userProfile.setName(name);
-		userProfile.setEmail(email);
-		userProfile.setPassword(passwordEncoder.encode(password));
-		userProfile.setStatus("Active");
-		userProfile.setUserType("student");
-		UserProfile userProfileDB = this.userRepository.save(userProfile);
-		
-		Student student = new Student();
-		student.setUserId(userProfileDB.getUserId());
-		student.setStudentEmail(email);
-		this.studentRepository.save(student);
-		
-		Map<String, String> body = null;
-		body = new HashMap<String, String>();
-		body.put("email", userProfileDB.getEmail());
-		body.put("name", userProfileDB.getName());
-		body.put("type", "student");
-		emailController.welcomeAndOnBoardEmail(body);
-		
-		return userProfileDB;
 	}
 	
 	public UserProfile insertForExcel(UserProfile student,Long universityId,String universityName,List<String> existingStudents) {
@@ -556,66 +568,88 @@ public class StudentServiceImpl implements StudentService {
 	
 		return user;
 	}
-	boolean getProfileUpdateStatusForStudentByStudentAndUserProfile(Student student,UserProfile studentUserProfile) {
-		boolean ans = true;
+	@Override
+	public double getProfileUpdateStatusForStudentByStudentAndUserProfile(Student student,UserProfile studentUserProfile) {
+		LOGGER.info("inside getProfileUpdateStatusForStudentByStudentAndUserProfile()");
+		int total = 0;
+		int completed = 0;
 //		for mba mca
 		if(student.getStream()!=null && (student.getStream().getId()==273 || student.getStream().getId()==281 )) {
 			if(student.getBatch()==null) {
-				return false;
+				total++;
+			}
+			else {
+				completed++;
+				total++;
 			}
 		}else {
 			if(student.getBatch()==null) {
-				return false;
+				total++;
+			}
+			else {
+				completed++;
+				total++;
 			}
 			if(student.getBranch()==null) {
-				return false;
+				total++;
+			}
+			else {
+				completed++;
+				total++;
 			}
 		}
 		if(student.getCgpa()==null) {
-			return false;
+			total++;
+		}
+		else {
+			completed++;
+			total++;
 		}
 		if(studentUserProfile.getEducations()==null || studentUserProfile.getEducations().size()==0) {
-			return false;
+			total++;
+		}
+		else {
+			completed++;
+			total++;
 		}
 		if(studentUserProfile.getSkills()==null || studentUserProfile.getSkills().size()==0) 
 		{
-			return false;
+			total++;
 		}
+		else {
+			completed++;
+			total++;
+		}
+		if(student.getStudentName()==null || student.getStudentName().equals("")) {
+			total++;
+		}
+		else {
+			completed++;
+			total++;
+		}
+		if(studentUserProfile.getEmailVerfication()==true) {
+			total++;
+		}
+		else {
+			completed++;
+			total++;
+		}
+		if(student.getStudentPhoneNumber()==null||student.getStudentPhoneNumber().equals("")) {
+			total++;
+		}
+		else {
+			completed++;
+			total++;
+		}
+		double percentage = ((double)completed/(double)total);
+		LOGGER.info("total : {} completed : {}, percentage :{}",total,completed,percentage);
+		LOGGER.info("exiting getProfileUpdateStatusForStudentByStudentAndUserProfile()");
 		
-	return ans;	
+		return percentage;
 	}
 	
-	@Override
-	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception{
-		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
-		Optional<StudentBranch> studentBranch = null;
-		Optional<StudentBatch> studentBatch = null;
-		String email = Validation.validateToken(token);
-		Student student = studentRepository.findByStudentEmail(email);
-		UserProfile user  = userRepository.findUserByEmail(email);
-		
-		//checking for token
-		if(student==null) {
-			throw new Exception("Invalid token");
-		}
+	Student updateStudentByUserProfile(Student student,UserProfile studentReturn,UserBean userBean,Optional<StudentBatch> studentBatch,Optional<StudentBranch> studentBranch) {
 
-		
-		if(userBean.getBatch()!=null) {
-			System.out.print("inside student batch");
-			studentBatch = studentBatchRepository.findById(userBean.getBatch());
-			if(!studentBatch.isPresent()) {
-				throw new Exception("invalid batch id");
-			}
-		}
-		if(userBean.getBranch()!=null) {
-			System.out.print("inside student branch");
-			studentBranch = studentBranchRepository.findById(userBean.getBranch());
-			if(!studentBranch.isPresent()) {
-				throw new Exception("invalid batch id");
-			}
-		}
-		UserProfile studentReturn = this.userRepository.save(updateUserAttributeByBean(user,userBean));
-	
 		student.setStudentName(studentReturn.getName());
 		student.setStudentEmail(studentReturn.getEmail());
 		if(studentReturn.getImageUrl()!=null) {
@@ -651,12 +685,47 @@ public class StudentServiceImpl implements StudentService {
 			student.setStream(streamRepository.getById(userBean.getStreamId()));
 		}
 		student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-		student = studentRepository.save(student);
+		return student;
 		
-//		checking for profile update status
-		student.setProfileUpdationStatus(getProfileUpdateStatusForStudentByStudentAndUserProfile(student,studentReturn));
-//		end of checking for profile update stauts
+	}
+	
+	@Override
+	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception{
+		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
+		Optional<StudentBranch> studentBranch = null;
+		Optional<StudentBatch> studentBatch = null;
+		String email = Validation.validateToken(token);
+		Student student = studentRepository.findByStudentEmail(email);
+		UserProfile user  = userRepository.findUserByEmail(email);
+		
+		//checking for token
+		if(student==null) {
+			throw new Exception("Invalid token");
+		}
+
+		
+		if(userBean.getBatch()!=null) {
+			System.out.print("inside student batch");
+			studentBatch = studentBatchRepository.findById(userBean.getBatch());
+			if(!studentBatch.isPresent()) {
+				throw new Exception("invalid batch id");
+			}
+		}
+		if(userBean.getBranch()!=null) {
+			System.out.print("inside student branch");
+			studentBranch = studentBranchRepository.findById(userBean.getBranch());
+			if(!studentBranch.isPresent()) {
+				throw new Exception("invalid batch id");
+			}
+		}
+		UserProfile studentReturn = this.userRepository.save(updateUserAttributeByBean(user,userBean));
+		student = updateStudentByUserProfile(student,studentReturn,userBean,studentBatch,studentBranch);
+//		check for profile update
+		student.setPercentageOfProfileCompletion(getProfileUpdateStatusForStudentByStudentAndUserProfile(student,studentReturn));
+		LOGGER.info(" {}",student.getPercentageOfProfileCompletion());
+		student.setProfileUpdationStatus(student.getPercentageOfProfileCompletion()!=1.0?false:true);
 		student = studentRepository.save(student);
+
 		
 		UserBeanResponse studentBeanReturn = new UserBeanResponse();
 		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
@@ -670,6 +739,7 @@ public class StudentServiceImpl implements StudentService {
 		studentBeanReturn.setUniversityId(student.getUniversityId());
 		studentBeanReturn.setStream(student.getStream());
 		studentBeanReturn.setImageUrl(student.getImageUrl());
+		studentBeanReturn.setPercentageOfProfileCompletion(student.getPercentageOfProfileCompletion());
 		LOGGER.info(
 				"Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
 	

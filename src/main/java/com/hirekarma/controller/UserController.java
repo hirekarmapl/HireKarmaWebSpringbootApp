@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.security.sasl.AuthenticationException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.hirekarma.beans.Response;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.service.UserService;
 import com.hirekarma.serviceimpl.AWSS3Service;
 import com.hirekarma.utilty.Utility;
@@ -39,6 +42,8 @@ public class UserController {
 	
 	@Autowired
 	AWSS3Service awss3Service;
+	
+	
 
 	@PostMapping("/resetPassword")
 	public ResponseEntity<Response> resetPassword(@RequestBody Map<String, String> map) {
@@ -59,6 +64,19 @@ public class UserController {
 		return "done";
 	}
 	
+	@RequestMapping(value="/verify", method = RequestMethod.GET)
+	public ResponseEntity<Response> verifyEmail(@RequestParam("token") String token,@RequestParam("email") String email) {
+		System.out.println("insdie verify email");
+		try{
+			boolean ans = userService.verifyEmailAddress(token, email);
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", null, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+
+	}
 	
 	@RequestMapping(value="/validate", method = RequestMethod.GET)
 	public ResponseEntity<Response> validateToken(@RequestParam("token") String token,@RequestParam("email") String email) {

@@ -59,7 +59,17 @@ public class University implements Serializable{
 
 			private Boolean profileUpdationStatus =  false;
 
+			private double percentageOfProfileCompletion;
 			
+			
+
+			public double getPercentageOfProfileCompletion() {
+				return percentageOfProfileCompletion;
+			}
+
+			public void setPercentageOfProfileCompletion(double percentageOfProfileCompletion) {
+				this.percentageOfProfileCompletion = percentageOfProfileCompletion;
+			}
 
 			public Boolean getProfileUpdationStatus() {
 				return profileUpdationStatus;

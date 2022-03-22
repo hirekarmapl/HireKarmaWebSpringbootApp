@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.JobBean;
+import com.hirekarma.beans.JobModelResponseBean;
 import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.model.Corporate;
@@ -61,7 +62,7 @@ public class JobController {
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> saveJobDetails(@ModelAttribute JobBean jobBean,@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside JobController.saveJobDetails(-)");
-		Job bean=null;
+		JobModelResponseBean bean=null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {

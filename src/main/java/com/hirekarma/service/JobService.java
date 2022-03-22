@@ -5,6 +5,7 @@ import java.util.List;
 import org.json.simple.parser.ParseException;
 
 import com.hirekarma.beans.JobBean;
+import com.hirekarma.beans.JobModelResponseBean;
 import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
@@ -17,7 +18,7 @@ public interface JobService {
 	public JobBean updateJobById(JobBean jobBean, String token) throws ParseException;
 	
 	//updated verison of saveJob
-	public Job saveJob(JobBean jobBean,String token) throws Exception;
+	public JobModelResponseBean saveJob(JobBean jobBean,String token) throws Exception;
 	public List<JobResponseBean> getAllJobsForAdmin() throws Exception;
 	public List<JobResponseBean> getAllJobsForStudent(Student student) throws Exception;
 	public List<JobResponseBean> getAllJobsAccordingToToken(String token) throws Exception;

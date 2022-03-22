@@ -59,7 +59,10 @@ public class Validation {
 			return false;
 		}
 
-		String passwordRegex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,20}$";
+		String passwordRegex  = "^(?=.*[0-9])"
+                + "(?=.*[a-z])(?=.*[A-Z])"
+                + "(?=.*[@#$%^&+=])"
+                + "(?=\\S+$).{8,20}$";
 
 		Pattern pattern = Pattern.compile(passwordRegex);
 		if (pattern.matcher(password).matches()) {

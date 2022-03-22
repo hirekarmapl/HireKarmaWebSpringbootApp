@@ -49,12 +49,14 @@ import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.OnlineAssessmentRepository;
 import com.hirekarma.repository.StudentRepository;
+import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
@@ -99,6 +101,9 @@ public class CoporateUserController {
 	
 	@Autowired
 	private InternshipApplyService internshipApplyService;
+	
+	@Autowired
+	private UniversityRepository universityRepository;
 
 	
 	@PreAuthorize("hasRole('corporate')")
@@ -124,11 +129,13 @@ public class CoporateUserController {
 			}
 			CampusDriveResponse campusDriveResponse = optional.get();
 			
-			List<Student> students = studentRepository.getAllStudentsReadyForCampusDriveByUniversiyAndJob(campusDriveResponse.getUniversityId(), campusDriveResponse.getJobId());
+			List<Object[]> students = studentRepository.getAllStudentsReadyForCampusDriveByUniversiyAndJobForCorporate(campusDriveResponse.getUniversityId(), campusDriveResponse.getJobId());
 			Job job = jobRepository.getById(campusDriveResponse.getJobId());
+			University university = universityRepository.getById(campusDriveResponse.getUniversityId());
 			Map<Object,Object> map = new HashMap<Object, Object>();
 			map.put("students", students);
 			map.put("job", job);
+			map.put("university", university);
 			return new ResponseEntity<Response>(new Response("success", 200, "", map, null), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),

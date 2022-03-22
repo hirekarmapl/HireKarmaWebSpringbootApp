@@ -409,6 +409,7 @@ public class StudentServiceImpl implements StudentService {
 				student.setPassword(passwordEncoder.encode(student.getPassword()));
 				String resetPasswordToken = Utility.passwordTokenGenerator();
 				student.setResetPasswordToken(resetPasswordToken);
+				
 				studentReturn = userRepository.save(student);
 				
 				stud.setUniversityId(universityId);

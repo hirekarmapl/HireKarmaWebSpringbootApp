@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.JobBean;
+import com.hirekarma.beans.JobModelResponseBean;
 import com.hirekarma.beans.JobResponseBean;
 import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.exception.JobException;
@@ -106,7 +107,7 @@ public class JobServiceImpl implements JobService {
 //	}
 	
 	//save job
-	public Job saveJob(JobBean jobBean,String token) throws Exception {
+	public JobModelResponseBean saveJob(JobBean jobBean,String token) throws Exception {
 		Job job = new Job();
 		JobResponseBean jobResponseBean = new JobResponseBean();
 		LOGGER.debug("Inside insertJob()");
@@ -135,8 +136,10 @@ public class JobServiceImpl implements JobService {
 		job.setDeleteStatus(false);	
 		job = this.jobRepository.save(copyPropertiesFromBeanToJobForNotNull(job, jobBean));
 		emailController.createJob(job, corporate);
-		return job;
-		
+		JobModelResponseBean jobModelResponseBean = new JobModelResponseBean();
+		BeanUtils.copyProperties(job, jobModelResponseBean);
+		jobModelResponseBean.setCorporate(corporate);
+		return jobModelResponseBean;
 	}
 	
 //	get all job according to token

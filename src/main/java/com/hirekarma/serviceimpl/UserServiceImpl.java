@@ -129,6 +129,10 @@ public class UserServiceImpl implements UserService {
 			throw new AuthenticationException("unauthorized");
 			
 		}
+		boolean isOldPasswordMatchesNew = bCryptPasswordEncoder.matches(newPassword, userProfile.getPassword());
+		if(isOldPasswordMatchesNew) {
+			throw new AuthenticationException("Old password cannot be same as new Password");
+		}
 		System.out.println(" match");
 		userProfile.setPassword(passwordEncoder.encode(newPassword));
 		this.userRepository.save(userProfile);

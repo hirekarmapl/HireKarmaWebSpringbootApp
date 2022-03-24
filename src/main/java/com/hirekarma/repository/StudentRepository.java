@@ -71,7 +71,7 @@ public interface StudentRepository extends JpaRepository<Student, Long>,JpaSpeci
 			+ "left join StudentBatch sbt on s.batch = sbt.id "
 			+ "left join StudentBranch sbr on s.branch = sbr.id "
 			+ "where u.universityId = :universityId  and u.jobId = :jobId and u.studentResponseStatus = 1")
-	List<Student> getAllStudentsReL̥adyForCampusDriveByUniversiyAndJob(@Param("universityId") Long universityId,@Param("jobId")  Long jobId);
+	List<Student> getAllStudentsReadyForCampusDriveByUniversiyAndJob(@Param("universityId") Long universityId,@Param("jobId")  Long jobId);
 	
 	
 	@Query("select s from Student s where s.universityId = :universityId and s.batch = :batchId and s.branch = :branchId and s.cgpa >= :cgpa")

@@ -58,6 +58,13 @@ public class JobApply implements Serializable {
 
 	@Column(name = "JOB_APPLICATION_STATUS")
 	public Boolean applicationStatus;
+	
+	@Column(nullable = false)
+	public Boolean isHire;
+
+	public String meetLink;
+	
+	
 
 	@Override
 	public String toString() {
@@ -69,6 +76,23 @@ public class JobApply implements Serializable {
 
 	public Long getJobApplyId() {
 		return jobApplyId;
+	}
+
+	
+	public Boolean getIsHire() {
+		return isHire;
+	}
+
+	public void setIsHire(Boolean isHire) {
+		this.isHire = isHire;
+	}
+
+	public String getMeetLink() {
+		return meetLink;
+	}
+
+	public void setMeetLink(String meetLink) {
+		this.meetLink = meetLink;
 	}
 
 	public void setJobApplyId(Long jobApplyId) {

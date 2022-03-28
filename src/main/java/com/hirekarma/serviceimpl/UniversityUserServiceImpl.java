@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.validation.ConstraintViolationException;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -75,33 +78,40 @@ public class UniversityUserServiceImpl implements UniversityUserService {
 		try {
 			LOGGER.debug("Inside try block of UniversityUserServiceImpl.insert(-)");
 			if (count == 0) {
-
-				universityUser.setUserType("university");
-				universityUser.setStatus("Active");
-				universityUser.setEmail(LowerCaseEmail);
-				universityUser.setPassword(passwordEncoder.encode(universityUser.getPassword()));
-				String resetPasswordToken = Utility.passwordTokenGenerator();
-				universityUser.setResetPasswordToken(resetPasswordToken);
-
-				sityUser = userRepository.save(universityUser);
-
-				university.setUserId(universityUser.getUserId());
-				university.setUniversityEmail(LowerCaseEmail);
-				university.setUniversityName(universityUser.getName());
-				university.setStatus(true);
-
-				universityRepository.save(university);
-
-				headers = new HttpHeaders();
-				headers.setContentType(MediaType.APPLICATION_JSON);
-
-				body = new HashMap<String, String>();
-				body.put("email", universityUser.getEmail());
-				body.put("name", universityUser.getName());
-				body.put("type", "university");
-				emailController.welcomeAndOnBoardEmail(body);
-				emailController.emaiVerification(resetPasswordToken, LowerCaseEmail, university.getUniversityName());
-				LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
+				try {
+					universityUser.setUserType("university");
+					universityUser.setStatus("Active");
+					universityUser.setEmail(LowerCaseEmail);
+					universityUser.setPassword(passwordEncoder.encode(universityUser.getPassword()));
+					String resetPasswordToken = Utility.passwordTokenGenerator();
+					universityUser.setResetPasswordToken(resetPasswordToken);
+	
+					sityUser = userRepository.save(universityUser);
+	
+					university.setUserId(universityUser.getUserId());
+					university.setUniversityEmail(LowerCaseEmail);
+					university.setUniversityName(universityUser.getName());
+					university.setStatus(true);
+	
+					universityRepository.save(university);
+	
+					headers = new HttpHeaders();
+					headers.setContentType(MediaType.APPLICATION_JSON);
+	
+					body = new HashMap<String, String>();
+					body.put("email", universityUser.getEmail());
+					body.put("name", universityUser.getName());
+					body.put("type", "university");
+					emailController.welcomeAndOnBoardEmail(body);
+					emailController.emaiVerification(resetPasswordToken, LowerCaseEmail, university.getUniversityName());
+					LOGGER.info("Data successfully saved using UniversityUserServiceImpl.insert(-)");
+				}
+				catch(ConstraintViolationException ce) {
+					throw new StudentUserDefindException("email id already exist");
+				}
+				catch(DataIntegrityViolationException de) {
+					throw new StudentUserDefindException("a email id already in use");
+				}
 			} else {
 				throw new StudentUserDefindException("This Email Is Already Present !!");
 			}

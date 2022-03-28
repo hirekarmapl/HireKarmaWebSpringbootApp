@@ -7,15 +7,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hirekarma.beans.HiringBean;
 import com.hirekarma.beans.JobApplyBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.service.JobApplyService;
+import com.hirekarma.utilty.Utility;
+import com.hirekarma.utilty.Validation;
 
 @RestController("jobApplyController")
 @CrossOrigin
@@ -54,5 +59,36 @@ public class JobApplyController {
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
 		return responseEntity;
+	}
+	@GetMapping("/hiring-meet")
+	public ResponseEntity<Response> createHriringMeet(@RequestBody HiringBean hiringBean,@RequestHeader("Authorization")String token){
+		
+		
+		try {
+			String email = Validation.validateToken(token);
+			
+			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK,"",this.jobApplyService.hiringMeet(hiringBean,email),null),HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<Response>(new Response("error",HttpStatus.BAD_REQUEST,e.getMessage(),null,null),HttpStatus.BAD_REQUEST);
+			
+		}
+		
+	}
+	
+	@GetMapping("/corporate/jobApply/student/{jobApplyId}")
+	public ResponseEntity<Response> hireStudent(@PathVariable("jobApplyId")Long jobApplyId,@RequestHeader("Authorization")String token){
+		
+		
+		try {
+			String email = Validation.validateToken(token);
+			this.jobApplyService.hireStudent(jobApplyId, email);
+			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK,"",null,null),HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<Response>(new Response("error",HttpStatus.BAD_REQUEST,e.getMessage(),null,null),HttpStatus.BAD_REQUEST);
+			
+		}
+		
 	}
 }

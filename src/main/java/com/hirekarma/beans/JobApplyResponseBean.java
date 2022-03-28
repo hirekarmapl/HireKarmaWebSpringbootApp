@@ -33,6 +33,8 @@ public class JobApplyResponseBean {
 	private Student student;
 	private JobApply jobApply;
 	private StudentResponseBean studentResponseBean;
+	public Boolean isHire;
+	public String meetLink;
 
 	
 }

@@ -24,6 +24,14 @@
 	</properties>
 
 	<dependencies>
+	<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-webflux</artifactId>
+</dependency>
+	<dependency>
+    <groupId>io.projectreactor.netty</groupId>
+    <artifactId>reactor-netty-http</artifactId>
+</dependency>
 		<dependency>
 			<groupId>io.awspring.cloud</groupId>
 			<artifactId>spring-cloud-aws-context</artifactId>

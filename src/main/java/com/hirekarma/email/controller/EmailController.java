@@ -4079,6 +4079,21 @@ public class EmailController {
 			Logger.error("Mail sending failed using EmailController.emaiVerification(-)");
 		}
 	}
+//	hiredNotification to student
+	@Async
+	public void hiredNotificationToStudent(Student student,Job job,Corporate coporate) {
+		Logger.info("Inside hiredNotificationToStudent() Controller...");
+		try{
+			mailSender.sendEmailWithoutAttachment(student.getStudentEmail()
+					,"congrats you have been hired for "+job.getJobTitle(),
+					"Hired! - Hirekarma!");
+			Logger.info("Mail sent using EmailController.hiredNotificationToStudent(-)");
+		}
+		catch (Exception e) {
+			Logger.error("Mail sending failed using EmailController.hiredNotificationToStudent(-)");
+		}
+	}
+	
 	/*
 	 * This welcomeEmailList() sends an email's to list of people
 	 * 
@@ -4171,6 +4186,7 @@ public class EmailController {
 		}
 		return "Email Sended Successfully";
 	}
+	
 	
 	/*
 	 *  This hiringMeetEmail() is used to send email's with a

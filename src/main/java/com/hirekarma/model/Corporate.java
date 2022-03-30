@@ -231,6 +231,16 @@ public class Corporate {
 	public void setWebsiteUrl(String websiteUrl) {
 		this.websiteUrl = websiteUrl;
 	}
+	@Override
+	public String toString() {
+		return "Corporate [about=" + about + ", blogs=" + blogs + ", corporateAddress=" + corporateAddress
+				+ ", corporateBadge=" + corporateBadge + ", corporateEmail=" + corporateEmail + ", corporateId="
+				+ corporateId + ", corporateName=" + corporateName + ", corporatePhoneNumber=" + corporatePhoneNumber
+				+ ", createdOn=" + createdOn + ", imageUrl=" + imageUrl + ", onlineAssessments=" + onlineAssessments
+				+ ", percentageOfProfileCompletion=" + percentageOfProfileCompletion + ", profileUpdationStatus="
+				+ profileUpdationStatus + ", questionANdanswers=" + questionANdanswers + ", status=" + status
+				+ ", updatedOn=" + updatedOn + ", userProfile=" + userProfile + ", websiteUrl=" + websiteUrl + "]";
+	}
 
 	
 

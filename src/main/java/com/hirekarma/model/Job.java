@@ -323,6 +323,18 @@ public class Job implements Serializable{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	@Override
+	public String toString() {
+		return "Job [jobId=" + jobId + ", corporateId=" + corporateId + ", jobTitle=" + jobTitle + ", category="
+				+ category + ", jobType=" + jobType + ", wfhCheckbox=" + wfhCheckbox + ", skills=" + skills + ", city="
+				+ city + ", openings=" + openings + ", salary=" + salary + ", about=" + about + ", description="
+				+ description + ", descriptionFileUrl=" + descriptionFileUrl + ", status=" + status + ", deleteStatus="
+				+ deleteStatus + ", createdOn=" + createdOn + ", updatedOn=" + updatedOn + ", eligibilityCriteria="
+				+ eligibilityCriteria + ", rolesAndResponsibility=" + rolesAndResponsibility + ", salaryAtProbation="
+				+ salaryAtProbation + ", serviceAgreement=" + serviceAgreement + ", forcampusDrive=" + forcampusDrive
+				+ ", tentativeDate=" + tentativeDate + ", streams=" + streams + ", branchs=" + branchs + "]";
+	}
 	
 	
 

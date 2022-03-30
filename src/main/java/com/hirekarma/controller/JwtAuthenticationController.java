@@ -146,6 +146,7 @@ public class JwtAuthenticationController {
 			userBean.setEmail(university.getUniversityEmail());
 			userBean.setName(university.getUniversityName());
 			userBean.setAddress(university.getUniversityAddress());
+			userBean.setPercentageOfProfileCompletion(university.getPercentageOfProfileCompletion());
 		}
 		responseEntity = new ResponseEntity<Response>(response,HttpStatus.OK);
 		jwtResponse=new JwtResponse();

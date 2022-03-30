@@ -116,7 +116,7 @@ public class AdminServiceImpl implements AdminService {
 			for(Job j:jobs) {
 				if(j.getCorporateId()!=null) {
 					Corporate coporate = this.corporateRepository.getById(j.getCorporateId());
-					emailController.activateJob(j, coporate);
+					emailController.activateJob(j.getJobTitle(),coporate.getCorporateEmail());
 				}
 			}
 			System.out.println(jobs);
@@ -142,8 +142,8 @@ public class AdminServiceImpl implements AdminService {
 
 			job = optional.get();
 			if(job.getCorporateId()!=null) {
-				Corporate corporate  = this.corporateRepository.getById(id);
-				emailController.activateJob(job,corporate);
+				Corporate corporate  = this.corporateRepository.getById(job.getCorporateId());
+				emailController.activateJob(job.getJobTitle(),corporate.getCorporateEmail());
 			}
 			if (job != null) {
 
@@ -199,7 +199,7 @@ public class AdminServiceImpl implements AdminService {
 		}
 		Job job = optional.get();
 		Corporate corporate  = this.corporateRepository.getById(job.getCorporateId());
-		if(!job.getStatus() || !job.getForcampusDrive()) {
+		if(job.getStatus()==null || !job.getStatus() || !job.getForcampusDrive()) {
 			throw new Exception("job is either not active or its not avialable for campus drive");
 		}
 		
@@ -246,9 +246,9 @@ public class AdminServiceImpl implements AdminService {
 							branchString.add(s.getBranchName());
 						}
 					}
-					
-					
-					emailController.adminShareJobToStudent(job,null,corporate,streamString,branchString);
+					University university = universityRepository.getById(adminShareJobToUniversityBean.getUniversityId().get(i));
+					LOGGER.info("inside admin service imp : {} {} {} {} {}",job,university,corporate,streamString.toString(),branchString.toString());
+					emailController.adminShareJobToStudent(job,university,corporate,streamString,branchString);
 					list.add(AdminShareJobToUniversity);
 				}
 				

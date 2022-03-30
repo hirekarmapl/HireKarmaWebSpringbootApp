@@ -1,5 +1,6 @@
 package com.hirekarma.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,13 +58,14 @@ public interface StudentRepository extends JpaRepository<Student, Long>,JpaSpeci
 			+ "where u.universityId = :universityId  and u.jobId = :jobId ")
 	List<Object[]> getAllStudentsWhomUniversitySharedJobByUniversityAndJob(@Param("universityId") Long universityId,@Param("jobId")  Long jobId);
 	
-	@Query("select s,u,sbt,sbr,up "
+	@Query("select s,u,sbt,sbr,up,m "
 			+ "from Student s inner join UniversityJobShareToStudent u on s.studentId = u.studentId "
 			+ "inner join UserProfile up on up.userId = s.userId "
+			+ "left join Meet m on m.universityJobShareToStudent = u and m.endTime > (:now) "
 			+ "left join StudentBatch sbt on s.batch = sbt.id "
 			+ "left join StudentBranch sbr on s.branch = sbr.id "
 			+ "where u.universityId = :universityId  and u.jobId = :jobId and u.studentResponseStatus = 1")
-	List<Object[]> getAllStudentsReadyForCampusDriveByUniversiyAndJobForCorporate(@Param("universityId") Long universityId,@Param("jobId")  Long jobId);
+	List<Object[]> getAllStudentsReadyForCampusDriveByUniversiyAndJobForCorporate(@Param("universityId") Long universityId,@Param("jobId")  Long jobId,@Param("now") LocalDateTime now);
 	
 	
 	@Query("select s "

@@ -60,14 +60,29 @@ public class JobApplyController {
 		}
 		return responseEntity;
 	}
-	@GetMapping("/hiring-meet")
-	public ResponseEntity<Response> createHriringMeet(@RequestBody HiringBean hiringBean,@RequestHeader("Authorization")String token){
+	@PostMapping("/job/hiring-meet")
+	public ResponseEntity<Response> createHriringMeetForPublicJob(@RequestBody HiringBean hiringBean,@RequestHeader("Authorization")String token){
 		
 		
 		try {
 			String email = Validation.validateToken(token);
 			
-			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK,"",this.jobApplyService.hiringMeet(hiringBean,email),null),HttpStatus.OK);
+			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK,"",this.jobApplyService.hiringMeetForPublicJob(hiringBean,email),null),HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<Response>(new Response("error",HttpStatus.BAD_REQUEST,e.getMessage(),null,null),HttpStatus.BAD_REQUEST);
+			
+		}
+		
+	}
+	@PostMapping("/campus-job/hiring-meet")
+	public ResponseEntity<Response> createHriringMeetForCampusJob(@RequestBody HiringBean hiringBean,@RequestHeader("Authorization")String token){
+		
+		
+		try {
+			String email = Validation.validateToken(token);
+			
+			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK,"",this.jobApplyService.hiringMeetForCampusJob(hiringBean,email),null),HttpStatus.OK);
 		}
 		catch(Exception e) {
 			return new ResponseEntity<Response>(new Response("error",HttpStatus.BAD_REQUEST,e.getMessage(),null,null),HttpStatus.BAD_REQUEST);

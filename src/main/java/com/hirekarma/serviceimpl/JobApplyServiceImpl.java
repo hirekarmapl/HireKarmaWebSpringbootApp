@@ -1,5 +1,7 @@
 package com.hirekarma.serviceimpl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -24,12 +26,16 @@ import com.hirekarma.exception.JobApplyException;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
+import com.hirekarma.model.Meet;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.MeetRepository;
 import com.hirekarma.repository.StudentRepository;
+import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.JobApplyService;
 import com.hirekarma.utilty.Validation;
@@ -56,6 +62,12 @@ public class JobApplyServiceImpl implements JobApplyService {
 	
 	@Autowired
 	private CorporateRepository corporateRepository;
+	
+	@Autowired
+	private MeetRepository meetRepository;
+	
+	@Autowired
+	private UniversityJobShareRepository universityJobShareRepository;
 
 	@Override
 	public JobApplyBean insert(JobApplyBean jobApplyBean, String token) {
@@ -109,14 +121,89 @@ public class JobApplyServiceImpl implements JobApplyService {
 		}
 	}
 	@Override
-	public JSONObject hiringMeet(HiringBean hiringBean,String corporateEmail) throws Exception{
-		Optional<JobApply> optional = this.jobApplyRepository.findById(hiringBean.getJobApplyId());
+	public JSONObject hiringMeetForCampusJob(HiringBean hiringBean,String corporateEmail) throws Exception{
+		Optional<UniversityJobShareToStudent> optional = universityJobShareRepository.findById(hiringBean.getTableId());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 		
+		LocalDateTime startTimeLocal = LocalDateTime.parse(hiringBean.getStartTime(), formatter);
+		LocalDateTime endTimeLocal = LocalDateTime.parse(hiringBean.getEndTime(), formatter);
+		
+		if(startTimeLocal.isAfter(endTimeLocal)||(startTimeLocal.isEqual(endTimeLocal))) {
+			throw new Exception("please enter valid endTime");
+		}
+		if(!optional.isPresent()) {
+			throw new NoSuchElementException("invalid table id");
+		}
+		LOGGER.info("inside hiring meet");
+		UniversityJobShareToStudent universityJobShareToStudent = optional.get();
+		
+//		LOGGER.info("succesffully got meet");
+		Student student = this.studentRepository.findByStudentId(universityJobShareToStudent.getStudentId());
+		Job job = this.jobRepository.getById(universityJobShareToStudent.getJobId());
+		Corporate corporate = this.corporateRepository.getById(job.getCorporateId());
+		
+		if(!corporate.getCorporateEmail().equals(corporateEmail)) {
+			throw new AuthenticationException("unauthorized");
+		}
+		JSONObject json;
+		LOGGER.info("got all the details");
+		WebClient webClient = WebClient.create();
+		String responseJson = webClient.get()
+				.uri("https://hirekarma-rd.herokuapp.com/create_event?title="+hiringBean.getTitle()+"&startTime="+hiringBean.getStartTime()+"&endTime="+hiringBean.getEndTime()+"&attendee="+corporate.getCorporateEmail()+"&attendee2="+student.getStudentEmail())
+//				 .uri(uriBuilder -> uriBuilder.path("/create_event")
+//					        .queryParam("title",hiringBean.getTitle() )
+//					        .queryParam("startTime",hiringBean.getStartTime())
+//					        .queryParam("endTime", hiringBean.getEndTime())
+//					        .queryParam("attendee", corporate.getCorporateEmail())
+//					        .queryParam("attendee2", student.getStudentEmail())
+//					        .build())
+	               .retrieve()
+	               .bodyToMono(String.class)
+	               .block();
+		LOGGER.info("{}",responseJson);
+		JSONParser parser = new JSONParser(); 
+		
+		
+		json = (JSONObject) parser.parse(responseJson);
+		JSONObject data = (JSONObject) json.get("data");
+//		String hangoutLink = "https://meet.google.com/xbx-jfd-djd";
+		String hangoutLink = (String) data.get("hangoutLink");
+		LOGGER.info("{}",hangoutLink);
+	
+
+		Meet meet = universityJobShareToStudent.getMeet();
+		if(meet==null) {
+			meet = new Meet();
+		
+		}
+		meet.setStartTime(startTimeLocal);
+		meet.setEndTime(endTimeLocal);
+		meet.setTitle(hiringBean.getTitle());
+		meet.setMeetLink(hangoutLink);
+		meet.setUniversityJobShareToStudent(universityJobShareToStudent);
+		meetRepository.save(meet);
+//		return new JSONObject();
+		return json;
+
+	}
+	
+	@Override
+	public JSONObject hiringMeetForPublicJob(HiringBean hiringBean,String corporateEmail) throws Exception{
+		Optional<JobApply> optional = this.jobApplyRepository.findById(hiringBean.getJobApplyId());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		
+		LocalDateTime startTimeLocal = LocalDateTime.parse(hiringBean.getStartTime(), formatter);
+		LocalDateTime endTimeLocal = LocalDateTime.parse(hiringBean.getEndTime(), formatter);
+		
+		if(startTimeLocal.isAfter(endTimeLocal)||(startTimeLocal.isEqual(endTimeLocal))) {
+			throw new Exception("please enter valid endTime");
+		}
 		if(!optional.isPresent()) {
 			throw new NoSuchElementException("invalid job apply id");
 		}
 		LOGGER.info("inside hiring meet");
 		JobApply jobApply = optional.get();
+		LOGGER.info("succesffully got meet");
 		Student student = this.studentRepository.findByStudentId(jobApply.getStudentId());
 		Corporate corporate = this.corporateRepository.getById(jobApply.getCorporateId());
 		if(!corporate.getCorporateEmail().equals(corporateEmail)) {
@@ -144,8 +231,20 @@ public class JobApplyServiceImpl implements JobApplyService {
 		JSONObject data = (JSONObject) json.get("data");
 		String hangoutLink = (String) data.get("hangoutLink");
 		LOGGER.info("{}",hangoutLink);
-		jobApply.setMeetLink(hangoutLink);
-		this.jobApplyRepository.save(jobApply);
+	
+
+		Meet meet = jobApply.getMeet();
+		if(meet==null) {
+			meet = new Meet();
+		
+		}
+		meet.setStartTime(startTimeLocal);
+		meet.setEndTime(endTimeLocal);
+		meet.setTitle(hiringBean.getTitle());
+		meet.setMeetLink(hangoutLink);
+		meet.setJobApply(jobApply);
+		meetRepository.save(meet);
+//		return new JSONObject();
 		return json;
 
 	}

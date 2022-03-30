@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -67,9 +68,20 @@ public class UniversityJobShareToStudent {
 	private StudentBranch studentBranch;
 	
 	private Boolean seen = false;
-	
+	@OneToOne(mappedBy = "universityJobShareToStudent")
+	private Meet meet;
 
 	
+
+	public Meet getMeet() {
+		return meet;
+	}
+
+
+	public void setMeet(Meet meet) {
+		this.meet = meet;
+	}
+
 
 	public Boolean getSeen() {
 		return seen;

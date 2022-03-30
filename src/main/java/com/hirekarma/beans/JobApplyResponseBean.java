@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
+import com.hirekarma.model.Meet;
 import com.hirekarma.model.Student;
 
 import lombok.Data;
@@ -34,7 +35,6 @@ public class JobApplyResponseBean {
 	private JobApply jobApply;
 	private StudentResponseBean studentResponseBean;
 	public Boolean isHire;
-	public String meetLink;
-
+	public Meet meet;
 	
 }

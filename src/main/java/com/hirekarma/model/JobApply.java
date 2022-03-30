@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -61,9 +62,8 @@ public class JobApply implements Serializable {
 	
 	@Column(nullable = false)
 	public Boolean isHire;
-
-	public String meetLink;
-	
+@OneToOne(mappedBy = "jobApply")
+	public Meet meet;
 	
 
 	@Override
@@ -73,6 +73,23 @@ public class JobApply implements Serializable {
 				+ earliestJoiningDate + ", deleteStatus=" + deleteStatus + ", createdOn=" + createdOn + ", updatedOn="
 				+ updatedOn + ", applicationStatus=" + applicationStatus + "]";
 	}
+
+	
+	
+
+	public Meet getMeet() {
+		return meet;
+	}
+
+
+
+
+	public void setMeet(Meet meet) {
+		this.meet = meet;
+	}
+
+
+
 
 	public Long getJobApplyId() {
 		return jobApplyId;
@@ -87,13 +104,7 @@ public class JobApply implements Serializable {
 		this.isHire = isHire;
 	}
 
-	public String getMeetLink() {
-		return meetLink;
-	}
 
-	public void setMeetLink(String meetLink) {
-		this.meetLink = meetLink;
-	}
 
 	public void setJobApplyId(Long jobApplyId) {
 		this.jobApplyId = jobApplyId;

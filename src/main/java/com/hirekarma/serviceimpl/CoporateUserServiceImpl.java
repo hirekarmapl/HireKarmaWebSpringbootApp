@@ -1,6 +1,7 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -595,7 +596,11 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				studentResponseBean.setStudentBatch(student.getBatch()!=null? this.studentBatchRepository.getById(student.getBatch()):null); 
 				studentResponseBean.setStudentBranch(student.getBranch()!=null? this.studentBranchRepository.getById(student.getBranch()):null); 
 				jobApplyResponseBean.setStudent(student);
-				jobApplyResponseBean.setStudentResponseBean(studentResponseBean);				jobApplyResponseBean.setJob(job);
+				jobApplyResponseBean.setStudentResponseBean(studentResponseBean);
+				jobApplyResponseBean.setJob(job);
+				if(jobApply.getMeet().getEndTime().isBefore(LocalDateTime.now())){
+					jobApplyResponseBean.setMeet(null);
+				}
 				jobApplyResponseBeans.add(jobApplyResponseBean);
 			}
 			return jobApplyResponseBeans;
@@ -714,6 +719,10 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		for(Object[] o :  responseData) {
 			Map<String,Object> jobApplyResponse = new HashMap<String, Object>();
 //			BeanUtils.copyProperties((JobApply)o[0], jobApplyResponseBean);
+			JobApply jobApply = (JobApply)o[0];
+			if(jobApply.getMeet().getEndTime().isBefore(LocalDateTime.now())){
+				jobApply.setMeet(null);
+			}
 			jobApplyResponse.put("jobApply", (JobApply)o[0]);
 			Student s = (Student) o[1];
 			UserProfile up = (UserProfile) o[2];
@@ -724,6 +733,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			studentResponseBean.setStudentBranch(s.getBranch()!=null? studentBranchRepository.getById(s.getBranch()):null);
 			studentResponseBean.setSkills(up.getSkills());
 			studentResponseBean.setEducations(up.getEducations());
+			
 			jobApplyResponse.put("student", studentResponseBean);
 			jobApplyResponse.put("chatRoomId", chatRoomId);
 			jobApplyResponses.add(jobApplyResponse);

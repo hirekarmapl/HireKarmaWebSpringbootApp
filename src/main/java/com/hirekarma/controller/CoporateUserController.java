@@ -2,6 +2,7 @@ package com.hirekarma.controller;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,7 +130,7 @@ public class CoporateUserController {
 			}
 			CampusDriveResponse campusDriveResponse = optional.get();
 			
-			List<Object[]> students = studentRepository.getAllStudentsReadyForCampusDriveByUniversiyAndJobForCorporate(campusDriveResponse.getUniversityId(), campusDriveResponse.getJobId());
+			List<Object[]> students = studentRepository.getAllStudentsReadyForCampusDriveByUniversiyAndJobForCorporate(campusDriveResponse.getUniversityId(), campusDriveResponse.getJobId(),LocalDateTime.now());
 			Job job = jobRepository.getById(campusDriveResponse.getJobId());
 			University university = universityRepository.getById(campusDriveResponse.getUniversityId());
 			Map<Object,Object> map = new HashMap<Object, Object>();

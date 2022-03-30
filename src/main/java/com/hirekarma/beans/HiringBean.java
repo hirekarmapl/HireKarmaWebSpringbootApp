@@ -10,6 +10,7 @@ import lombok.ToString;
 public class HiringBean {
 
 	Long jobApplyId;
+	Long tableId;
 	String startTime;
 	String endTime;
 	String title;

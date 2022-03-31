@@ -12,4 +12,5 @@ public class ScreeningRequestBean {
 
 	private String slug;
 	private List<Long> jobApplyIds;
+	private List<String> slugs;
 }

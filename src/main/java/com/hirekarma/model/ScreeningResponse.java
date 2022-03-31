@@ -1,6 +1,7 @@
 package com.hirekarma.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,6 +32,9 @@ public class ScreeningResponse implements Serializable{
 	
 	@Column(name = "USER_RESPONSE")
 	private String userResponse;
+	
+	@Column(nullable = false)
+	private LocalDateTime createdOn = LocalDateTime.now();
 
 	public Long getScreeningResponseId() {
 		return ScreeningResponseId;
@@ -62,6 +66,15 @@ public class ScreeningResponse implements Serializable{
 
 	public void setUserResponse(String userResponse) {
 		this.userResponse = userResponse;
+	}
+	
+
+	public LocalDateTime getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(LocalDateTime createdOn) {
+		this.createdOn = createdOn;
 	}
 
 	@Override

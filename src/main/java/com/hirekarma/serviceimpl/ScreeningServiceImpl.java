@@ -47,7 +47,7 @@ public class ScreeningServiceImpl implements ScreeningService{
 			screeningEntity.setCorporateId(screeningBean.getCorporateId());
 			screeningEntity.setQuestions(screeningBean.getQuestions());
 			screeningEntity.setQuestionType(screeningBean.getQuestionType());
-			slug = screeningBean.getQuestions().substring(0, 6)+generateRandomString();
+			slug = (screeningBean.getQuestions().substring(0, 6).trim())+generateRandomString();
 			screeningEntity.setSlug(slug);
 			screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
 			options = screeningBean.getOptions();
@@ -227,6 +227,24 @@ public class ScreeningServiceImpl implements ScreeningService{
 			screeningResponses.add(screeningResponse);
 		}
 		screeningResponseRepository.saveAll(screeningResponses);
+	}
+	@Override
+	public void sendScreeningQuestionsToMultipleStudent(List<Long> jobApplyIds,List<String> screeningSlugs) throws Exception{
+		List<ScreeningResponse> screeningResponses = new ArrayList<>();
+		for(String screeningSlug : screeningSlugs) {
+			for(Long jobApplyId :jobApplyIds) {
+				Long screeningTableId = screeningEntityRepository.findScreeningEntityIdBySlug(screeningSlug);
+				if(screeningTableId==null) {
+					throw new Exception("wrong slug id");
+				}
+				ScreeningResponse screeningResponse = new ScreeningResponse();
+				screeningResponse.setJobApplyId(jobApplyId);
+				screeningResponse.setScreeningId(screeningTableId); 
+				screeningResponses.add(screeningResponse);
+			}
+			
+		}
+		this.screeningResponseRepository.saveAll(screeningResponses);
 	}
 	@Override
 	public Map<String, Object> sendScreeningQuestions(Long jobApplyId, String screeningSlug) {

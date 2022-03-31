@@ -195,7 +195,18 @@ public class ScreeningController {
 			return responseEntity;
 		}
 	}
-	
+	@PostMapping("/corporate/students/screenings/send_to_students")
+	@PreAuthorize("hasAnyRole('admin','corporate')")
+	public ResponseEntity<Response> sendScreeningQuestionsToMultipleStudents(@RequestBody ScreeningRequestBean screeningRequestBean) {
+		try {
+			this.screeningService.sendScreeningQuestionsToMultipleStudent(screeningRequestBean.getJobApplyIds(), screeningRequestBean.getSlugs());
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "sended succesfully", null, null),
+					HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	@PostMapping("/corporate/students/screening/send_to_students")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
 	public ResponseEntity<Response> sendScreeningQuestions(@RequestBody ScreeningRequestBean screeningRequestBean) {

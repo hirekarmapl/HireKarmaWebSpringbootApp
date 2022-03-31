@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hirekarma.beans.ChatRoomBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.beans.ScreeningResponseBean;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Student;
@@ -136,7 +138,31 @@ public class ChatRoomController {
 			return responseEntity;
 		}
 	}
+	@GetMapping("/getMessagesAndScreeningByChatRoom")
+	@PreAuthorize("hasAnyRole('student','corporate')")
+	public ResponseEntity<Response> getMessagesAndScreeningByChatRoom(@RequestParam("chatRoomId") Long chatRoomId) {
+		try {
+			
+			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK , "", this.chatRoomService.getMessagesAndScreeningQuestionByChatRoomId(chatRoomId), null),HttpStatus.OK);
+			}
+		catch(Exception e) {
+			return new ResponseEntity<Response>(new Response("error",HttpStatus.BAD_REQUEST , e.getMessage(), null, null),HttpStatus.BAD_REQUEST);
+			
+		}
+	}
 	
+	@PostMapping("/student/send-screening-responses")
+	@PreAuthorize("hasAnyRole('student','corporate')")
+	public ResponseEntity<Response> studentResponseOnScreeningQuestions(@RequestBody List<ScreeningResponseBean> screeningResponseBeans) {
+		try {
+			 this.chatRoomService.studentResponseOnScreeningQuestions(screeningResponseBeans);
+			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK , "",null, null),HttpStatus.OK);
+			}
+		catch(Exception e) {
+			return new ResponseEntity<Response>(new Response("error",HttpStatus.BAD_REQUEST , e.getMessage(), null, null),HttpStatus.BAD_REQUEST);
+			
+		}
+	}
 	@GetMapping("/getMessagesByChatRoom")
 	@PreAuthorize("hasAnyRole('student','corporate')")
 	public ResponseEntity<Map<String, Object>> getMessagesByChatRoom(@RequestParam("chatRoomId") Long chatRoomId) {

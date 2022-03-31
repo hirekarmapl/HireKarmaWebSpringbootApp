@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.ChatRoomBean;
+import com.hirekarma.beans.ScreeningResponseBean;
 import com.hirekarma.model.ChatRoom;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Message;
+import com.hirekarma.model.ScreeningResponse;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.ChatRoomRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.MessageRepository;
+import com.hirekarma.repository.ScreeningResponseRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.service.ChatRoomService;
 
@@ -43,6 +47,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 	
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private ScreeningResponseRepository screeningResponseRepository;
 	
 	@Override
 	public void sendmessageToMultipleStudent(ChatRoomBean chatRoomBean) throws Exception{
@@ -118,8 +125,32 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 			map.put("message", "Message sending failed!!!");
 		}
 		return map;
+	} 
+	@Override
+	public void studentResponseOnScreeningQuestions(List<ScreeningResponseBean> screeningResponseBeans) throws Exception
+	{
+		List<ScreeningResponse> screeningResponses = new ArrayList<ScreeningResponse>();
+		for(ScreeningResponseBean screeningResponseBean:screeningResponseBeans) {
+			Optional<ScreeningResponse> optional = this.screeningResponseRepository.findById(screeningResponseBean.getScreeningResponseId());
+			if(!optional.isPresent()) {
+				throw new Exception("no such bean found");
+			}
+			ScreeningResponse screeningResponse = optional.get();
+			screeningResponse.setUserResponse(screeningResponseBean.getUserResponse());
+			screeningResponses.add(screeningResponse);
+		}
+		this.screeningResponseRepository.saveAll(screeningResponses);
 	}
-
+	@Override
+	public Map<String,Object> getMessagesAndScreeningQuestionByChatRoomId(Long chatRoomId){
+		Map<String,Object> map = new HashMap<String, Object>();
+		List<Message> messages = null;
+		List<Object[]> screeningResponseAndScreeningQuestion =  screeningResponseRepository.getAllScreeningResponsesAndScreeningTableByChatRoomId(chatRoomId);
+		messages = messageRepository.getMessagesByChatRoomId(chatRoomId);
+		map.put("screeningResponse", screeningResponseAndScreeningQuestion);
+		map.put("messages", messages);
+		return map;
+	}
 	@Override
 	public Map<String, Object> getMessagesByChatRoomId(Long chatRoomId) {
 		LOGGER.debug("Inside ChatRoomServiceImpl.getMessagesByChatRoomId(-)");

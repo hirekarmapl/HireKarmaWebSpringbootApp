@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Entity
 public class StudentOnlineAssessmentAnswer {
@@ -18,11 +19,14 @@ public class StudentOnlineAssessmentAnswer {
 	@Column(columnDefinition = "CHAR(32)")
 	@Id
 	String slug;
+	
 	@ManyToOne
 	QuestionANdanswer questionANdanswer;
 	
 	@ManyToOne
+	@JsonIgnore
 	Student student;
+	
 	@JsonIgnore
 	@ManyToOne
 	OnlineAssessment onlineAssessment;
@@ -70,6 +74,12 @@ public class StudentOnlineAssessmentAnswer {
 	}
 	public void setAnswer(JSONObject answer) {
 		this.answer = answer;
+	}
+	@Override
+	public String toString() {
+		return "StudentOnlineAssessmentAnswer [slug=" + slug + ", questionANdanswer=" + questionANdanswer + ", student="
+				+ student + ", onlineAssessment=" + onlineAssessment + ", answer=" + answer + ", jsonAnswer="
+				+ jsonAnswer + "]";
 	}
 	
 	

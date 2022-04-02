@@ -34,6 +34,8 @@ public class StudentOnlineAssessment {
 	LocalDateTime startedOn;
 	
 	Boolean studentResponse = false;
+	
+	Integer totalMarksObtained;
 
 	
 	
@@ -48,8 +50,18 @@ public class StudentOnlineAssessment {
 	
 	
 //	------------------------ getters and setters----------------------
+	
+	
 	public String getSlug() {
 		return slug;
+	}
+
+	public Integer getTotalMarksObtained() {
+		return totalMarksObtained;
+	}
+
+	public void setTotalMarksObtained(Integer totalMarksObtained) {
+		this.totalMarksObtained = totalMarksObtained;
 	}
 
 	public void setSlug(String slug) {

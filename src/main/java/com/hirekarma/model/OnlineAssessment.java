@@ -147,13 +147,7 @@ public List<StudentOnlineAssessmentAnswer> getStudentOnlineAssessmentAnswers() {
 	public void setLocalDateTime(LocalDateTime localDateTime) {
 		this.localDateTime = localDateTime;
 	}
-	@Override
-	public String toString() {
-		return "OnlineAssessment [slug=" + slug + ", corporate=" + corporate + ", title=" + title + ", totalMarks="
-				+ totalMarks + ", codingMarks=" + codingMarks + ", qnaMarks=" + qnaMarks + ", mcqMarks=" + mcqMarks
-				+ ", paragraphMarks=" + paragraphMarks + ", totalTime=" + totalTime + ", localDateTime=" + localDateTime
-				+ ", questionANdanswers="  + "]";
-	}
+
 
 	
 	

@@ -3,12 +3,16 @@ package com.hirekarma.serviceimpl;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,7 @@ import com.hirekarma.beans.OnlineAssesmentResponseBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.QuestionAndAnswerStudentResponseBean;
 import com.hirekarma.beans.StudentOnlineAssessmentAnswerRequestBean;
+import com.hirekarma.controller.UniversityUserController;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.QuestionANdanswer;
@@ -36,6 +41,8 @@ import com.hirekarma.utilty.Validation;
 
 @Service("OnlineAssessmentService")
 public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(OnlineAssessmentServiceImpl.class);
 	@Autowired
 	QuestionAndAnswerRepository questionAndAnswerRepository;
 
@@ -127,7 +134,13 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		}
 		
 		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
-		onlineAssessment.getQuestionANdanswers().addAll(questionANdanswers);
+		List<QuestionANdanswer> questionANdanswersToBeAdded = new ArrayList<QuestionANdanswer>();
+		logger.info("question and answer -> {} ",questionANdanswers);
+		for(QuestionANdanswer q:questionANdanswers) {
+			if(!onlineAssessment.getQuestionANdanswers().contains(q)) {
+				onlineAssessment.getQuestionANdanswers().add(q);
+			}
+		}
 		
 //		counting total marks
 		int totalMarks = onlineAssessment.getTotalMarks();
@@ -146,6 +159,8 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 			}
 		}
 		onlineAssessment.setTotalMarks(totalMarks);
+		logger.info("saving totla marks {}",totalMarks);
+		logger.info("succesffully completed the function");
 		return this.onlineAssessmentRepository.save(onlineAssessment);
 		
 	}
@@ -283,7 +298,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	}
 
 	@Override
-	public List<QuestionAndAnswerStudentResponseBean> getAllQNAForStudentOfOnlineAssessment(String token,
+	public Map<String,Object> getAllQNAForStudentOfOnlineAssessment(String token,
 			String onlineAssessmentSlug) throws Exception {
 		String email = Validation.validateToken(token);
 		Student student = this.studentRepository.findByStudentEmail(email);
@@ -303,7 +318,12 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 			BeanUtils.copyProperties(q, questionAndAnswerStudentResponseBean);
 			questionAndAnswerStudentResponseBeans.add(questionAndAnswerStudentResponseBean);
 		}
-		return questionAndAnswerStudentResponseBeans;
+		Map<String,Object> response = new HashMap<String, Object>();
+		response.put("QNA",questionAndAnswerStudentResponseBeans);
+		onlineAssessment.setCorporate(null);
+		onlineAssessment.setQuestionANdanswers(null);
+		response.put("onlineAssessment", onlineAssessment);
+		return response;
 	}
 
 	@Override
@@ -315,18 +335,42 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		if(!optional.isPresent()) {
 			throw new Exception("invalid onlineasseesment id");
 		}
+		OnlineAssessment onlineAssessment = optional.get();
+		int totalMarks = 0;
+		
 		List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers = new ArrayList<>();
 		for(StudentOnlineAssessmentAnswerRequestBean s:studentOnlineAssessmentAnswerRequestBeans) {
 			StudentOnlineAssessmentAnswer studentOnlineAssessmentAnswer = new StudentOnlineAssessmentAnswer();
 			QuestionANdanswer questionANdanswer = this.questionAndAnswerRepository.findByuID(s.getQuestionId());
+			if(questionANdanswer.getType().equals("MCQ")) {
+				if(s.getAnswer()!=null) {
+					String mcqAnswer = (String) s.getAnswer().get("answer");
+					if(mcqAnswer.equals(questionANdanswer.getCorrectOption())) {
+						totalMarks = totalMarks+ onlineAssessment.getMcqMarks();
+					}
+				}
+			}
+			else if(questionANdanswer.getType().equals("Coding")) {
+				if(questionANdanswer.getType().equals("MCQ")) {
+					if(s.getAnswer()!=null) {
+						Integer mcqAnswer = (Integer) s.getAnswer().get("testCasesPased");
+						totalMarks = totalMarks+ onlineAssessment.getCodingMarks()*mcqAnswer;
+					
+					}
+				}
+			}
 			studentOnlineAssessmentAnswer.setQuestionANdanswer(questionANdanswer);
 			studentOnlineAssessmentAnswer.setAnswer(s.getAnswer());
+			
 			studentOnlineAssessmentAnswer.setJsonAnswer(s.getAnswer().toJSONString());
 			studentOnlineAssessmentAnswer.setStudent(student);
 			studentOnlineAssessmentAnswer.setOnlineAssessment(optional.get());
 			System.out.println(s.getAnswer());
 			studentOnlineAssessmentAnswers.add(studentOnlineAssessmentAnswer);
 		}
+		StudentOnlineAssessment studentOnlineAssessment = this.studentOnlineAssessmentRepository.findByStudentAndOnlineAssessment(student, onlineAssessment);
+		studentOnlineAssessment.setTotalMarksObtained(totalMarks);
+		this.studentOnlineAssessmentRepository.save(studentOnlineAssessment); 
 		this.studentOnlineAssessmentAnswerRepository.saveAll(studentOnlineAssessmentAnswers);
 	}
 

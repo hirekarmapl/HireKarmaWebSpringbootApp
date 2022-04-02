@@ -41,8 +41,10 @@ import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.SkillRespository;
+import com.hirekarma.repository.StudentOnlineAssessmentAnswerRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UserRepository;
+import com.hirekarma.service.StudentOnlineAssessmentService;
 import com.hirekarma.service.StudentService;
 import com.hirekarma.utilty.JwtUtil;
 import com.hirekarma.utilty.Validation;
@@ -68,6 +70,10 @@ public class StudentController {
 	
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private StudentOnlineAssessmentService studentOnlineAssessmentService;
+
 
 	
 	@PostMapping("/saveStudentUrl")
@@ -475,6 +481,8 @@ public class StudentController {
 		}
 	}
 
+	
+	
 //	@PostMapping("/checkStudentLoginCredentials")
 //	public ResponseEntity<StudentBean> checkLoginCredentials(@RequestBody LoginBean loginBean) {
 //		LOGGER.debug("Inside StudentController.checkLoginCredentials(-)");

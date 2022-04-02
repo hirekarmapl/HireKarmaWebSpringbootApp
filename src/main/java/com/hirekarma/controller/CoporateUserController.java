@@ -43,6 +43,7 @@ import com.hirekarma.beans.JobApplyBean;
 import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.StudentDetails;
+import com.hirekarma.beans.StudentOnlineAssessmentAnswerBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
 import com.hirekarma.model.Blog;
@@ -50,18 +51,21 @@ import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.StudentOnlineAssessmentAnswer;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.OnlineAssessmentRepository;
+import com.hirekarma.repository.StudentOnlineAssessmentAnswerRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.BlogService;
 import com.hirekarma.service.CoporateUserService;
 import com.hirekarma.service.InternshipApplyService;
+import com.hirekarma.service.StudentOnlineAssessmentService;
 import com.hirekarma.utilty.CalendarApi;
 import com.hirekarma.utilty.JwtUtil;
 import com.hirekarma.utilty.Validation;
@@ -105,6 +109,12 @@ public class CoporateUserController {
 	
 	@Autowired
 	private UniversityRepository universityRepository;
+	
+	@Autowired
+	private StudentOnlineAssessmentService studentOnlineAssessmentService;
+	
+	@Autowired
+	private StudentOnlineAssessmentAnswerRepository studentOnlineAssessmentAnswerRepository;
 
 	
 	@PreAuthorize("hasRole('corporate')")
@@ -616,6 +626,19 @@ public class CoporateUserController {
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PostMapping("/corporate/getStudentResponse")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> getResponseOfOnlineAssessmentOfStudent(@RequestHeader(value = "Authorization") String token,@RequestBody StudentOnlineAssessmentAnswerBean studentOnlineAssessmentAnswerBean){
+		try {
+//			StudentOnlineAssessmentAnswer studentOnlineAssessmentAnswer =  this.studentOnlineAssessmentAnswerRepository.getById("2c9fa6e47fdffdd5017fe079dac30002");
+//			System.out.println((studentOnlineAssessmentAnswer.getAnswer()!=null?studentOnlineAssessmentAnswer.getAnswer().toJSONString():"Online assesement NA"));
+			return new ResponseEntity<Response>(new Response("success", 200, "",this.studentOnlineAssessmentService.getAllAnswerByAStudent(studentOnlineAssessmentAnswerBean) , null), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+				HttpStatus.BAD_REQUEST);
 		}
 	}
 }

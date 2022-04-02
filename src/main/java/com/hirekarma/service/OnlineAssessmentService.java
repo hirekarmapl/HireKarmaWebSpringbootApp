@@ -1,6 +1,7 @@
 package com.hirekarma.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.simple.parser.ParseException;
@@ -40,7 +41,7 @@ public interface OnlineAssessmentService {
 
 	public List<OnlineAssesmentResponseBean> getAllOnlineAssessmentForStudent(String token) throws ParseException;
 
-	public List<QuestionAndAnswerStudentResponseBean> getAllQNAForStudentOfOnlineAssessment(String token,String onlineAssessmentSlug) throws Exception;
+	public Map<String,Object> getAllQNAForStudentOfOnlineAssessment(String token,String onlineAssessmentSlug) throws Exception;
 
 	public void submitAnswerForOnlineAssessmentByStudent(String onlineAssessmentSlug,List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans,String token) throws Exception;
 }

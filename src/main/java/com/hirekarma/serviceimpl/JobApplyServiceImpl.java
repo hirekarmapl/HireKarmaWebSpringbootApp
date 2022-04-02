@@ -149,7 +149,7 @@ public class JobApplyServiceImpl implements JobApplyService {
 		LOGGER.info("got all the details");
 		WebClient webClient = WebClient.create();
 		String responseJson = webClient.get()
-				.uri("https://hirekarma-rd.herokuapp.com/create_event?title="+hiringBean.getTitle()+"&startTime="+hiringBean.getStartTime()+"&endTime="+hiringBean.getEndTime()+"&attendee="+corporate.getCorporateEmail()+"&attendee2="+student.getStudentEmail())
+				.uri("https://hirekarma-rd.herokuapp.com/create_event?title="+(hiringBean.getTitle().trim())+"&startTime="+(hiringBean.getStartTime().trim())+"&endTime="+(hiringBean.getEndTime().trim())+"&attendee="+(corporate.getCorporateEmail().trim())+"&attendee2="+(student.getStudentEmail().trim()))
 //				 .uri(uriBuilder -> uriBuilder.path("/create_event")
 //					        .queryParam("title",hiringBean.getTitle() )
 //					        .queryParam("startTime",hiringBean.getStartTime())
@@ -212,7 +212,7 @@ public class JobApplyServiceImpl implements JobApplyService {
 		LOGGER.info("got all the details");
 		WebClient webClient = WebClient.create();
 		String responseJson = webClient.get()
-				.uri("https://hirekarma-rd.herokuapp.com/create_event?title="+hiringBean.getTitle()+"&startTime="+hiringBean.getStartTime()+"&endTime="+hiringBean.getEndTime()+"&attendee="+corporate.getCorporateEmail()+"&attendee2="+student.getStudentEmail())
+				.uri("https://hirekarma-rd.herokuapp.com/create_event?title="+(hiringBean.getTitle().trim())+"&startTime="+(hiringBean.getStartTime().trim())+"&endTime="+(hiringBean.getEndTime().trim())+"&attendee="+(corporate.getCorporateEmail().trim())+"&attendee2="+(student.getStudentEmail().trim()))
 //				 .uri(uriBuilder -> uriBuilder.path("/create_event")
 //					        .queryParam("title",hiringBean.getTitle() )
 //					        .queryParam("startTime",hiringBean.getStartTime())

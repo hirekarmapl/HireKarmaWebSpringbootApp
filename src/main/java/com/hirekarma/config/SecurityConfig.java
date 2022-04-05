@@ -16,8 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.hirekarma.security.oauth2.CustomOauth2UserService;
-import com.hirekarma.security.oauth2.Oauth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -33,12 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Autowired
 	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-	
-	@Autowired
-	private CustomOauth2UserService customOauth2UserService;
-	
-	@Autowired
-	private Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
+
 	
 
 	@Override
@@ -59,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/hirekarma/account/reset",
 				"/hirekarma/account/verify",
 				"/hirekarma/universitySaveUrl","/hirekarma/saveCorporateUrl",
-				"/hirekarma/oauth2/**","/hirekarma/masterData","/hirekarma/corporateList",
+				"/hirekarma/masterData","/hirekarma/corporateList",
 				"/hirekarma/displayJobList",
 				"/hirekarma/branch",
 				"/hirekarma/branchs",
@@ -69,30 +62,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/hirekarma/batch",
 				"/hirekarma/university/getDummyExcelForStudentImport",
 				"/achievement",
-				"/hirekarma/job/activeJobs"
+				"/hirekarma/job/activeJobs",
+				"/hirekarma/account/request-a-demo",
+				"/oauth2_login",
+				"/loginSuccess",
+				"/loginFailure"
 			).permitAll()
 			.anyRequest()
 			.authenticated()
-			.and()
-			.oauth2Login()
-			.loginPage("/googleLogin")
-			.userInfoEndpoint()
-			.userService(customOauth2UserService)
-			.and()
-			.successHandler(oauth2LoginSuccessHandler)
-			.and()
+	        .and()
 			.exceptionHandling()
 			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 			.and()
 			.sessionManagement()
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+			.oauth2Login()
+	        .defaultSuccessUrl("/loginSuccess")
+	        .failureUrl("/loginFailure")
+	        .loginPage("/oauth2_login");
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		http.cors();
 	}
 	
-//	http.authorizeRequests()
-//	.anyRequest().authenticated()
-//	.and().oauth2Login();
+	
 	
 	@Bean
 	@Override

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonParser;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
-import com.hirekarma.security.oauth2.CustomOauth2User;
 @Controller
 public class LoginController {
 
@@ -28,15 +27,5 @@ public class LoginController {
 	public String index() {
 		return "index";
 	}
-	@GetMapping("/login/oauth2/code/google")
-	public String Home() {
-	return "home";
-	}
-
-	@GetMapping("/googleLogin")
-	public OAuth2AuthenticationToken loginGoogle( OAuth2AuthenticationToken principal) {
-
-		return principal;
-	}
-
+	
 }

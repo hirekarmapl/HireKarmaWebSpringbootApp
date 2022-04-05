@@ -10,11 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,6 +48,7 @@ import com.hirekarma.beans.StudentDetails;
 import com.hirekarma.beans.StudentOnlineAssessmentAnswerBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.exception.CoporateUserDefindException;
+import com.hirekarma.exception.StudentUserDefindException;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Corporate;
@@ -236,7 +239,26 @@ public class CoporateUserController {
 				throw new CoporateUserDefindException("Please Enter A Valid Email Address !!");
 			}
 
-		} catch (Exception e) {
+		} catch(ConstraintViolationException ce) {
+			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): " + ce);
+			ce.printStackTrace();
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage("Corporate already exist");
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}
+		catch(DataIntegrityViolationException de) {
+			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): " + de);
+			de.printStackTrace();
+
+			responseEntity = new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+			response.setMessage("Corporate already exist");
+			response.setStatus("Failed");
+			response.setResponseCode(responseEntity.getStatusCodeValue());
+		}catch (Exception e) {
 			LOGGER.error("Data saving failed in CoporateUserController.createUser(-): " + e);
 			e.printStackTrace();
 

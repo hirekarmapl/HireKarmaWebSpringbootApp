@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,8 +27,10 @@ import com.hirekarma.beans.JobBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Demo;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.University;
+import com.hirekarma.repository.DemoRepository;
 import com.hirekarma.service.AdminService;
 import org.json.simple.JSONObject;
 
@@ -38,6 +41,9 @@ public class AdminController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
 
+	@Autowired
+	private DemoRepository demoRepository;
+	
 	@Autowired
 	private AdminService adminService;
 	@PreAuthorize("hasRole('admin')")
@@ -243,5 +249,17 @@ public class AdminController {
 			response.setResponseCode(responseEntity.getStatusCodeValue());
 		}
 		return responseEntity;
+	}
+	
+	@GetMapping("/admin/get-all-demos")
+	public ResponseEntity<Response> getAllDemoes(@RequestBody Demo demo) {
+		try {
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.demoRepository.findAll(), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+
 	}
 }

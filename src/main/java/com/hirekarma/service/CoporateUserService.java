@@ -45,4 +45,6 @@ public interface CoporateUserService {
 	Corporate updateCorporateFromUserProfileNotNull(UserProfile userProfile, Corporate corporate, UserBean bean);
 
 	double getCorporateProfileUpdateStatus(Corporate corporate, UserProfile userProfile);
+	
+	void updateMentorStatus(Corporate corporate,boolean status) throws Exception;
 }

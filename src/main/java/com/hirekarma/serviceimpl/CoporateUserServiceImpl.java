@@ -783,6 +783,12 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		return result;
 	}
 
+	@Override
+	public void updateMentorStatus(Corporate corporate, boolean status) throws Exception {
+		corporate.set_mentor(status);
+		corporateRepository.save(corporate);		
+	}
+
 	
 
 //	@Override

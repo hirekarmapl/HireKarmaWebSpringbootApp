@@ -82,11 +82,22 @@ public class Corporate {
 
 	private String websiteUrl;
 	
+	@Column(nullable = false)
+	Boolean is_mentor;
+	
 //	@Column(nullable = false)
 //	private Boolean emailVerfication;
 
+	
+	
 	public String getAbout() {
 		return about;
+	}
+	public Boolean is_mentor() {
+		return is_mentor;
+	}
+	public void set_mentor(Boolean is_mentor) {
+		this.is_mentor = is_mentor;
 	}
 	public List<Blog> getBlogs() {
 		return blogs;

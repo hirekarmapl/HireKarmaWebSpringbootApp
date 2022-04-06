@@ -19,4 +19,9 @@ public interface StudentOnlineAssessmentRepository extends JpaRepository<Student
 	
 	@Query("select soa.onlineAssessment from StudentOnlineAssessment soa where soa.student = :student")
 	List<OnlineAssessment> findOnlineAssessmentByStudent(Student student);
+	
+	List<StudentOnlineAssessment> findByOnlineAssessment(OnlineAssessment onlineAssessment);
+	
+	@Query("select soa.student from StudentOnlineAssessment soa where soa.onlineAssessment = :onlineAssessment")
+	List<Student> findStudentByOnlineAssessment(OnlineAssessment onlineAssessment);
 }

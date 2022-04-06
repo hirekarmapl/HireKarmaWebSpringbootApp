@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.persistence.Column;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,6 +55,7 @@ import com.hirekarma.model.Blog;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentOnlineAssessmentAnswer;
 import com.hirekarma.model.University;
@@ -62,6 +65,7 @@ import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
 import com.hirekarma.repository.OnlineAssessmentRepository;
 import com.hirekarma.repository.StudentOnlineAssessmentAnswerRepository;
+import com.hirekarma.repository.StudentOnlineAssessmentRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityRepository;
 import com.hirekarma.repository.UserRepository;
@@ -72,6 +76,7 @@ import com.hirekarma.service.StudentOnlineAssessmentService;
 import com.hirekarma.utilty.CalendarApi;
 import com.hirekarma.utilty.JwtUtil;
 import com.hirekarma.utilty.Validation;
+import com.sun.istack.Nullable;
 
 @RestController("coporateUserController")
 @CrossOrigin
@@ -118,6 +123,25 @@ public class CoporateUserController {
 	
 	@Autowired
 	private StudentOnlineAssessmentAnswerRepository studentOnlineAssessmentAnswerRepository;
+	
+	@Autowired
+	private StudentOnlineAssessmentRepository studentOnlineAssessmentRepository;
+	
+	@PutMapping("/corporate/mentor")
+	@PreAuthorize("hasRole('corporate')")
+	public ResponseEntity<Response> updateMentorStatus( @RequestParam("status") boolean status,@RequestHeader("Authorization")String token) {
+
+		LOGGER.debug("Inside CorporateUserController.updateMentorStatus(-)");
+		try {
+			String email = Validation.validateToken(token);
+			Corporate corporate  = this.corporateRepository.findByEmail(email);
+			this.coporateUserService.updateMentorStatus(corporate, status);
+			return new ResponseEntity<Response>(new Response("success", 200, "", null, null), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	
 	@PreAuthorize("hasRole('corporate')")
@@ -197,6 +221,20 @@ public class CoporateUserController {
 		}
 	}
 
+	@PreAuthorize("hasRole('corporate')")
+	@GetMapping("/corporate/assessment/student/assessment-shared")
+	public ResponseEntity<Response> getAllStudentOnlineAssessmentByOnlineAssesment(@RequestHeader(value = "Authorization") String token,@RequestParam("onlineAssessment")String onlineAssessmentSlug) {
+		try {
+			OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(onlineAssessmentSlug);
+			Map<String, Object> response = new HashMap<String, Object>();
+			response.put("onlineAssessment",onlineAssessment);
+			response.put("student",this.studentOnlineAssessmentRepository.findStudentByOnlineAssessment(onlineAssessment));
+			return new ResponseEntity<Response>(new Response("success", 200, "",response, null), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 	@PostMapping("/saveCorporateUrl")
 	public ResponseEntity<Response> createUser(@RequestBody UserBean bean) {

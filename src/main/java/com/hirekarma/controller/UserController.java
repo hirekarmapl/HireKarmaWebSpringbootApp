@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -183,6 +184,18 @@ public class UserController {
 
 	}
 
+	@PreAuthorize("hasRole('admin')")
+	@GetMapping("/demo")
+	public ResponseEntity<Response> getAllDemoes() {
+		try {
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.demoRepository.findAll(), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
 
+	}
 	
 }

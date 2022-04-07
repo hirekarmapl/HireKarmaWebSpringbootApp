@@ -25,5 +25,12 @@ public interface UserRepository extends JpaRepository<UserProfile, Long> {
 	Long getDetailsByEmail(@Param("email")String lowerCaseEmail ,@Param("userType")String userType);
 	@Query("select u,c from UserProfile u,Corporate c where u.email =:email and c.corporateEmail =:email")
 	List<Object[]> findUserProfileAndCorporateByEmail(String email);
+	
+	@Query("select up,c,u,s from UserProfile up "
+			+ "left join Corporate c on c.userProfile = up.userId "
+			+ "left join University u on u.userId =  up.userId "
+			+ "left join Student s on s.userId = up.userId "
+			+ "where up.email=:email")
+	List<Object[]> findUserAndAssociatedEntity(@Param("email")String email);
 
 }

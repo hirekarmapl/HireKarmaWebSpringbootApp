@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sun.istack.NotNull;
 
 @Entity
@@ -88,8 +89,23 @@ public class Corporate {
 //	@Column(nullable = false)
 //	private Boolean emailVerfication;
 
+	@OneToMany(mappedBy = "corporate")
+	@JsonIgnore
+	List<Webinar> webinars;
 	
 	
+	public Boolean getIs_mentor() {
+		return is_mentor;
+	}
+	public void setIs_mentor(Boolean is_mentor) {
+		this.is_mentor = is_mentor;
+	}
+	public List<Webinar> getWebinars() {
+		return webinars;
+	}
+	public void setWebinars(List<Webinar> webinars) {
+		this.webinars = webinars;
+	}
 	public String getAbout() {
 		return about;
 	}

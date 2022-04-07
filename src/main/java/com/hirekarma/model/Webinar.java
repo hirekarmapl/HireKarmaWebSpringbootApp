@@ -6,8 +6,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class Webinar {
 
@@ -30,6 +33,20 @@ public class Webinar {
 	
 	@Column(nullable = false)
 	Boolean isDisable;
+	
+	@ManyToOne
+	@JsonIgnore
+	Corporate corporate;
+
+	
+	
+	public Corporate getCorporate() {
+		return corporate;
+	}
+
+	public void setCorporate(Corporate corporate) {
+		this.corporate = corporate;
+	}
 
 	public String getId() {
 		return id;

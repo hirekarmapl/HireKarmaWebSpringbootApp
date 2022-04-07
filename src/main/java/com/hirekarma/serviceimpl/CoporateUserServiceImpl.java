@@ -134,6 +134,7 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				corporate.setCorporateEmail(LowerCaseEmail);
 				corporate.setCorporateName(user.getName());
 				corporate.setStatus(true);
+				corporate.set_mentor(false);
 				corporate.setUserProfile(user.getUserId());
 				corporate =corporateRepository.save(corporate);
 				LOGGER.debug("saved corporate profile");

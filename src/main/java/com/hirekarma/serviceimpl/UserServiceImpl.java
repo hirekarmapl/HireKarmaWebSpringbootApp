@@ -135,6 +135,7 @@ public class UserServiceImpl implements UserService {
 		}
 		System.out.println(" match");
 		userProfile.setPassword(passwordEncoder.encode(newPassword));
+		
 		this.userRepository.save(userProfile);
 		return true;
 	}
@@ -148,6 +149,7 @@ public class UserServiceImpl implements UserService {
 			throw new NoSuchElementException("no such user found");
 		}
 		userProfile.setPassword(passwordEncoder.encode(newPassword));
+		userProfile.setEmailVerfication(true);
 		this.userRepository.save(userProfile);
 		System.out.println(userProfile.getPassword());
 		return true;

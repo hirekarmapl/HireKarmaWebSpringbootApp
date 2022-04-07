@@ -628,7 +628,7 @@ public class StudentServiceImpl implements StudentService {
 			completed++;
 			total++;
 		}
-		if(studentUserProfile.getEmailVerfication()==true) {
+		if(!studentUserProfile.getEmailVerfication()) {
 			total++;
 		}
 		else {

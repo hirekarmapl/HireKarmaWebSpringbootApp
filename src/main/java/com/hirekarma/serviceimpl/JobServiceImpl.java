@@ -419,7 +419,7 @@ public class JobServiceImpl implements JobService {
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
 		Job job = jobRepository.findByJobId(jobBean.getJobId());
-		if(job.getStatus()) {
+		if(job.getStatus()==null||!job.getStatus()) {
 			throw new Exception("unauthorized - job has been activated by admin");
 		}
 		if(job==null || job.getCorporateId()!=corporate.getCorporateId()|| job.getDeleteStatus()) {

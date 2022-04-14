@@ -7,6 +7,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.EducationBean;
+import com.hirekarma.beans.StudentMentorBooking;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.beans.UserBeanResponse;
@@ -56,4 +57,6 @@ public interface StudentService {
 	List<Student> getAllStudentsAccoridngToStreamBranchBatchCgpaFilter(Stream stream, Long branchId, Long batchId,
 			Double cgpa, Long universityId);
 	double getProfileUpdateStatusForStudentByStudentAndUserProfile(Student student, UserProfile studentUserProfile);
+	Map<String,Object> bookAMentorSlot(StudentMentorBooking studentMentorBooking,Student student) throws Exception;
+
 }

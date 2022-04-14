@@ -1,6 +1,7 @@
 package com.hirekarma.controller;
 
 import java.io.IOException;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,20 +27,30 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.EducationBean;
+import com.hirekarma.beans.NoticeBean;
 import com.hirekarma.beans.Response;
+import com.hirekarma.beans.StudentMentorBooking;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UserBean;
 import com.hirekarma.beans.UserBeanResponse;
 import com.hirekarma.exception.StudentUserDefindException;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
+import com.hirekarma.model.Mentor;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.MentorRepository;
+import com.hirekarma.repository.NoticeRepository;
 import com.hirekarma.repository.SkillRespository;
 import com.hirekarma.repository.StudentOnlineAssessmentAnswerRepository;
 import com.hirekarma.repository.StudentRepository;
@@ -55,6 +66,9 @@ import com.hirekarma.utilty.Validation;
 public class StudentController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StudentController.class);
+	
+	@Autowired
+	private NoticeRepository noticeRepository;
 
 	@Autowired
 	private StudentService studentService;
@@ -75,6 +89,20 @@ public class StudentController {
 	private StudentOnlineAssessmentService studentOnlineAssessmentService;
 
 
+	@Autowired
+	private MentorRepository mentorRepository;
+	
+	@PreAuthorize("hasRole('student')")
+	@GetMapping("student/notices")
+	public ResponseEntity<Response> getAllNotice(@RequestHeader("Authorization") String token) {
+		try {
+			String email = Validation.validateToken(token);
+			return new ResponseEntity<Response>(new Response("success", 200, "", this.noticeRepository.getAllNoticeForStudent(email), null), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error",400, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 	@PostMapping("/saveStudentUrl")
 	public ResponseEntity<Response> createUser2(@RequestBody Map<String, String> studentBean) {
@@ -102,6 +130,44 @@ public class StudentController {
 			}
 	}
 
+	@GetMapping("/student/mentors")
+	public ResponseEntity<Response> getAllMentors(@RequestHeader("Authorization") String token) {
+		try {	
+			Student student = this.studentRepository.findByStudentEmail(Validation.validateToken(token));
+			if(!student.isPremimum()) {
+				throw new Exception("unauthorized");
+			}
+			List<Mentor> mentors = this.mentorRepository.findByAvailableTrue();
+			return new ResponseEntity(
+					new Response("success", 200, "",mentors, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity(new Response("error", 500, e.getMessage(), null, null), HttpStatus.BAD_REQUEST);
+		}
+	}
+	@PostMapping("/student/mentor/book-session")
+	public ResponseEntity<Response> studentBookASlot(@RequestBody StudentMentorBooking studentMentorBooking,@RequestHeader("Authorization") String token){
+		try {
+
+			Student student = this.studentRepository.findByStudentEmail(Validation.validateToken(token));
+			if(!student.isPremimum()) {
+				throw new Exception("unauthorized");
+			}
+			
+			return new ResponseEntity(
+					new Response("success", 200, "",studentService.bookAMentorSlot(studentMentorBooking, student), null),
+					HttpStatus.OK);
+		} catch (DateTimeParseException dtpe) {
+			return new ResponseEntity(new Response("error", 422, "invalid input", null, null),
+					HttpStatus.UNPROCESSABLE_ENTITY);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity(new Response("error", 500, e.getMessage(), null, null), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	
 	@PutMapping(value = "/updateStudentProfile")
 	@PreAuthorize("hasRole('student')")
 	public ResponseEntity<Response> updateStudentProfile(@ModelAttribute UserBean studentBean,

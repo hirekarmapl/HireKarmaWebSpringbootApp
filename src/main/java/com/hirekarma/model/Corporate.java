@@ -86,9 +86,21 @@ public class Corporate {
 	@Column(nullable = false)
 	Boolean is_mentor;
 	
+	@OneToOne(mappedBy = "corporate")
+	@JsonIgnore
+	Mentor mentor;
+	
+	
+	
 //	@Column(nullable = false)
 //	private Boolean emailVerfication;
 
+	public Mentor getMentor() {
+		return mentor;
+	}
+	public void setMentor(Mentor mentor) {
+		this.mentor = mentor;
+	}
 	@OneToMany(mappedBy = "corporate")
 	@JsonIgnore
 	List<Webinar> webinars;

@@ -20,5 +20,6 @@ public interface CorporateRepository extends JpaRepository<Corporate, Long> {
 	
 	@Query("select j from Job j where j.forcampusDrive=TRUE and deleteStatus=FALSE and j.corporateId= :corporateId")
 	List<Job> findInActiveCampusDriveJobsForCorporate(@Param("corporateId")Long corporateId);
+	
 
 }

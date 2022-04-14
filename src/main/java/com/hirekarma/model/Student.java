@@ -90,6 +90,20 @@ public class Student implements Serializable{
 	@OneToMany(mappedBy = "student")
 	@JsonIgnore
 	Set<StudentOnlineAssessment> studentOnlineAssessments;
+	
+	private boolean premimum;
+	
+	@OneToMany(mappedBy = "student")
+	@JsonIgnore
+	private List<StudentMentorSession> studentMentorSessions;
+
+public boolean isPremimum() {
+		return premimum;
+	}
+
+	public void setPremimum(boolean premimum) {
+		this.premimum = premimum;
+	}
 
 private double percentageOfProfileCompletion;
 	

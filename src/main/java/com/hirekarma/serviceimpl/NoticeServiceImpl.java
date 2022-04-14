@@ -3,6 +3,7 @@ package com.hirekarma.serviceimpl;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -20,14 +21,24 @@ import com.hirekarma.utilty.Utility;
 public class NoticeServiceImpl implements NoticeService {
 	@Autowired
 	NoticeRepository noticeRepository;
+	
+	@Autowired
+	AWSS3Service awss3Service;
 
 	public Notice addNoticeByAdmin(NoticeBean noticeBean,MultipartFile file) throws IOException {
 		Notice notice = new Notice();
 		BeanUtils.copyProperties(noticeBean, notice);
-		byte[] fileArr = Utility.readFile(file);
-		notice.setFeatureImage(fileArr);
-		notice.setDeadLine(Timestamp.valueOf(noticeBean.getDeadline()));
-		notice.setSlug(Utility.createSlug("n1t"));
+		
+		if(file!=null && !file.isEmpty()) {
+			notice.setImageUrl(awss3Service.uploadFile(file));
+		}
+		if(noticeBean.getDeadLineString()!=null && !noticeBean.getDeadLineString().equals("")) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			
+			LocalDateTime deadLine = LocalDateTime.parse(noticeBean.getDeadLineString(), formatter);
+			notice.setDeadLine(deadLine);
+		}
+		
 		return this.noticeRepository.save(notice);
 	}
 	
@@ -51,12 +62,16 @@ public class NoticeServiceImpl implements NoticeService {
 	public Notice updateNoticeByAdminBySlug(String slug,NoticeBean noticeBean,MultipartFile file) throws IOException {
 		Notice notice = noticeRepository.findBySlug(slug);
 		BeanUtils.copyProperties(noticeBean, notice);
-		byte[] fileArr = Utility.readFile(file);
-		notice.setFeatureImage(fileArr);
-		notice.setDeadLine(Timestamp.valueOf(noticeBean.getDeadline()));
+		notice.setUpdatedOn(LocalDateTime.now());
+		if(noticeBean.getDeadLineString()!=null && !noticeBean.getDeadLineString().equals("")) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			
+			LocalDateTime deadLine = LocalDateTime.parse(noticeBean.getDeadLineString(), formatter);
+			notice.setDeadLine(deadLine);
+		}
+		if(file!=null && !file.isEmpty()) {
+			notice.setImageUrl(awss3Service.uploadFile(file));
+		}
 		return this.noticeRepository.save(notice);
-
-		
-		
 	}
 }

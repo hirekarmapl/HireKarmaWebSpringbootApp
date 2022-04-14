@@ -72,6 +72,7 @@ public class UserProfile implements Serializable {
 	private String userType;
 
 	@Column(name = "PASSWORD")
+	@JsonIgnore
 	private String password;
 
 	@Column(name = "UNIVERSITY_ADDRESS")

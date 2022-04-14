@@ -6,6 +6,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -51,6 +54,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.EducationBean;
 import com.hirekarma.beans.JobApplyResponseBean;
 import com.hirekarma.beans.JobResponseBean;
+import com.hirekarma.beans.StudentMentorBooking;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversitySharedJobList;
 import com.hirekarma.beans.UserBean;
@@ -66,10 +70,13 @@ import com.hirekarma.model.Education;
 import com.hirekarma.model.Experience;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
+import com.hirekarma.model.MeetUpReason;
+import com.hirekarma.model.Mentor;
 import com.hirekarma.model.Skill;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.StudentBranch;
+import com.hirekarma.model.StudentMentorSession;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
@@ -79,11 +86,13 @@ import com.hirekarma.repository.EducationRepository;
 import com.hirekarma.repository.ExperienceRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.MentorRepository;
 import com.hirekarma.repository.ProjectRepository;
 import com.hirekarma.repository.SkillRespository;
 import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
+import com.hirekarma.repository.StudentMentorSessionRepository;
 import com.hirekarma.repository.StudentRepository;
 import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.repository.UniversityRepository;
@@ -99,6 +108,10 @@ public class StudentServiceImpl implements StudentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StudentServiceImpl.class);
 
+	@Autowired
+	StudentMentorSessionRepository studentMentorSessionRepository;
+	@Autowired
+	private MentorRepository mentorRepository;
 	@Autowired
 	private AWSS3Service awss3Service;
 	
@@ -1316,67 +1329,30 @@ public class StudentServiceImpl implements StudentService {
 		return students;
 	
 	}
-	
-//	@Override
-//	public StudentBean checkLoginCredentials(String email, String password) {
-//		LOGGER.debug("Inside StudentServiceImpl.checkLoginCredentials(-,-)");
-//		StudentBean studentBean=null;
-//		Student student=null;
-//		HirekarmaPasswordVerifier verifier= null;
-//		String encryptedPassword=null;
-//		try {
-//			LOGGER.debug("Inside try block of StudentServiceImpl.checkLoginCredentials(-,-)");
-//			verifier= new HirekarmaPasswordVerifier();
-//			encryptedPassword=verifier.getEncriptedString(password);
-//			student=studentRepository.checkLoginCredentials(email, encryptedPassword);
-//			if(student!=null) {
-//				LOGGER.info("student credential match using StudentServiceImpl.checkLoginCredentials(-,-)");
-//				studentBean=new StudentBean();
-//				BeanUtils.copyProperties(student, studentBean);
-//				return studentBean;
-//			}
-//			else {
-//				LOGGER.info("student credential does not match using StudentServiceImpl.checkLoginCredentials(-,-)");
-//				return null;
-//			}
-//		}
-//		catch (Exception e) {
-//			LOGGER.info("Error occured in StudentServiceImpl.checkLoginCredentials(-,-): "+e);
-//			throw new StudentUserDefindException(e.getMessage());
-//		}
-//	}
 
-//	@Override
-//	public UserBean updateStudentProfile(UserBean studentBean) {
-//		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile(-)");
-//		Student student=null;
-//		Student studentReturn=null;
-//		Optional<Student> optional=null;
-//		StudentBean studentBean=null;
-//		try {
-//			LOGGER.debug("Inside try block of StudentServiceImpl.updateStudentProfile(-)");
-//			optional=studentRepository.findById(bean.getStudentId());
-//			student=optional.get();
-//			if(!optional.isEmpty()) {
-//				if(student!=null) {
-//					student.setName(bean.getName());
-//					student.setEmail(bean.getEmail());
-//					student.setPhoneNO(bean.getPhoneNO());
-//					student.setProfileImage(bean.getProfileImage());
-//					student.setAddress(bean.getAddress());
-//					student.setUpdatedOn(new Timestamp(new java.util.Date().getTime()));
-//					studentReturn=studentRepository.save(student);
-//					studentBean=new StudentBean();
-//					BeanUtils.copyProperties(studentReturn, studentBean);
-//					LOGGER.info("Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
-//				}
-//			}
-//			return studentBean;
-//		}
-//		catch (Exception e) {
-//			LOGGER.error("Error occured in StudentServiceImpl.updateStudentProfile(-): "+e);
-//			throw new StudentUserDefindException(e.getMessage());
-//		}
-//	}
+	
+
+	@Override
+	public Map<String, Object> bookAMentorSlot(StudentMentorBooking studentMentorBooking,Student student) throws Exception {
+		Map<String,Object> response = new HashMap<String, Object>();
+		System.out.println(studentMentorBooking.getMentorId());
+		Optional<Mentor> optionalMentor = this.mentorRepository.findById(studentMentorBooking.getMentorId());
+		if(!optionalMentor.isPresent()) {
+			throw new Exception("invalid mentor Id");
+		}
+		Mentor mentor = optionalMentor.get();
+		StudentMentorSession studentMentorSession = new StudentMentorSession();
+		studentMentorSession.setStudent(student);
+		studentMentorSession.setMentor(mentor);	
+		studentMentorSession.setStartTime(LocalTime.parse(studentMentorBooking.getStartTime()));
+		studentMentorSession.setEndTime(LocalTime.parse(studentMentorBooking.getEndTime()));
+		studentMentorSession.setCreatedAt(LocalDateTime.now());
+		studentMentorSession.setReason(MeetUpReason.valueOf(studentMentorBooking.getReason()));
+		
+		this.studentMentorSessionRepository.save(studentMentorSession);
+		return response;
+	}
+
+	
 
 }

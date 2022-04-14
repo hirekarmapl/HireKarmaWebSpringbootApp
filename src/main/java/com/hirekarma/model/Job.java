@@ -41,7 +41,7 @@ public class Job implements Serializable{
 	@Column(name = "CATEGORY")
 	private String category;
 	
-	@Column(name = "JOBT_YPE")
+	@Column(name = "JOB_TYPE")
 	private String jobType;
 	
 	@Column(name = "WFH_CHECK_BOX")

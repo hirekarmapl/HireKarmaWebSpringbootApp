@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.BlogBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.NoticeBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.StudentResponseBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
@@ -37,6 +38,7 @@ import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.Notice;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
@@ -82,7 +84,20 @@ public class UniversityController {
 	@Autowired
 	private StudentService studentService;
 	
+	
 
+	@PreAuthorize("hasRole('university')")
+	@RequestMapping(value = "/university/notice", method = RequestMethod.POST, consumes = "multipart/form-data")
+	public ResponseEntity<Response> universityShareNotice(@RequestPart("data") NoticeBean noticeBean, @RequestPart(value="file",required=false) MultipartFile file,@RequestHeader("Authorization") String token) {
+		try {
+			University university = 	this.universityRepository.findByEmail(Validation.validateToken(token));
+			return new ResponseEntity<Response>(new Response("success", 200, "", this.universityService.universityShareNotice(noticeBean, file, university), null), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error",400, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	@PostMapping("/universityResponse")
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<?> universityResponse(@RequestBody AdminShareJobToUniversityBean jobBean) {

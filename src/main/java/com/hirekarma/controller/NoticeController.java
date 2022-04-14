@@ -41,14 +41,14 @@ public class NoticeController {
 	@GetMapping("/notice/dummy")
 	public Notice getDummy() {
 		Notice notice = new Notice();
-		notice.setDeadLine(Timestamp.valueOf("2016-03-12 20:45:00"));
+		
 		return notice;
 		
 	}
 	
 	@PreAuthorize("hasRole('admin')")
 	@RequestMapping(value = "/notice", method = RequestMethod.POST, consumes = "multipart/form-data")
-	public Notice addNotice(@RequestPart("data") NoticeBean noticeBean, @RequestPart("file") MultipartFile file) {
+	public Notice addNotice(@RequestPart("data") NoticeBean noticeBean, @RequestPart(value="file",required = false) MultipartFile file) {
 		try {
 			return this.noticeService.addNoticeByAdmin(noticeBean, file);
 		} catch (IOException e) {

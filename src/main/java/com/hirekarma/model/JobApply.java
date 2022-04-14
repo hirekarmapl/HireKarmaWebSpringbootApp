@@ -61,8 +61,9 @@ public class JobApply implements Serializable {
 	public Boolean applicationStatus;
 	
 	@Column(nullable = false)
-	public Boolean isHire;
-@OneToOne(mappedBy = "jobApply")
+	public Boolean isHire = false;
+	
+	@OneToOne(mappedBy = "jobApply")
 	public Meet meet;
 	
 

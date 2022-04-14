@@ -1,6 +1,8 @@
 package com.hirekarma.serviceimpl;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -21,10 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.AdminSharedJobList;
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.NoticeBean;
 import com.hirekarma.beans.StudentResponseBean;
 import com.hirekarma.beans.StudentResponseToUniversity;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
@@ -37,6 +41,7 @@ import com.hirekarma.model.AdminShareJobToUniversity;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
+import com.hirekarma.model.Notice;
 import com.hirekarma.model.Stream;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentBatch;
@@ -47,6 +52,7 @@ import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.NoticeRepository;
 import com.hirekarma.repository.ShareJobRepository;
 import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBatchRepository;
@@ -64,6 +70,12 @@ public class UniversityServiceImpl implements UniversityService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniversityServiceImpl.class);
 
+	@Autowired
+	AWSS3Service awss3Service;
+	
+	@Autowired
+	private NoticeRepository noticeRepository;
+	
 	@Autowired
 	private StudentBatchRepository studentBatchRepository;
 	
@@ -584,5 +596,26 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 		this.studentRepository.save(student);
 		
 	}
-
+	@Override
+	public Map<String, Object> universityShareNotice(NoticeBean noticeBean,MultipartFile file,University university) throws Exception{
+		Notice notice = new Notice();
+		BeanUtils.copyProperties(noticeBean, notice);
+		
+		if(file!=null && !file.isEmpty()) {
+			notice.setImageUrl(awss3Service.uploadFile(file));
+		}
+		if(noticeBean.getDeadLineString()!=null && !noticeBean.getDeadLineString().equals("")) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			
+			LocalDateTime deadLine = LocalDateTime.parse(noticeBean.getDeadLineString(), formatter);
+			notice.setDeadLine(deadLine);
+		}
+		Map<String,Object> response = new HashMap<>();
+		notice.setCreatedOn(LocalDateTime.now());
+		notice.setUniversityId(university.getUniversityId());
+		notice = this.noticeRepository.save(notice);
+		List<Student> students = this.studentRepository.getStudentListForUniversity(university.getUniversityId());
+		emailController.sendEmailToStudentAboutNotice(students);
+		return response;
+	}
 }

@@ -34,17 +34,24 @@ import com.hirekarma.model.Corporate;
 import com.hirekarma.model.InternshipApply;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.JobApply;
+import com.hirekarma.model.Mentor;
+import com.hirekarma.model.MentorWeekDayCalendar;
+import com.hirekarma.model.MentorWeeklyCalendar;
 import com.hirekarma.model.Organization;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentBatch;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.model.Week;
 import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.ChatRoomRepository;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.InternshipApplyRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.MentorRepository;
+import com.hirekarma.repository.MentorWeekDayCalendarRepository;
+import com.hirekarma.repository.MentorWeeklyCalendarRepository;
 import com.hirekarma.repository.OrganizationRepository;
 import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
@@ -102,7 +109,17 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 	
 	@Autowired
 	private InternshipApplyRepository internshipApplyRepository;
+	
+	
+	@Autowired
+	MentorRepository mentorRepository;
 
+	@Autowired
+	MentorWeeklyCalendarRepository mentorWeeklyCalendarRepository;
+
+	@Autowired
+	MentorWeekDayCalendarRepository mentorWeekDayCalendarRepository;
+	
 	@Override
 	public UserProfile insert(UserProfile userProfile) {
 		LOGGER.debug("Inside CoporateUserServiceImpl.insert(-)");
@@ -134,12 +151,32 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				corporate.setCorporateEmail(LowerCaseEmail);
 				corporate.setCorporateName(user.getName());
 				corporate.setStatus(true);
-				corporate.set_mentor(false);
+				corporate.set_mentor(true);
 				corporate.setUserProfile(user.getUserId());
 				corporate =corporateRepository.save(corporate);
 				LOGGER.debug("saved corporate profile");
+				
+				
+				Mentor mentor = new Mentor();
+				mentor.setCorporate(corporate);
+				mentor  = this.mentorRepository.save(mentor);
+				
+				MentorWeeklyCalendar mentorWeeklyCalendar = new MentorWeeklyCalendar();
+				mentorWeeklyCalendar.setMentor(mentor);
+				mentorWeeklyCalendar = this.mentorWeeklyCalendarRepository.save(mentorWeeklyCalendar);
+				
+				List<MentorWeekDayCalendar> mentorWeekDayCalendars = new ArrayList<>();
+				for(Week week:Week.values()) {
+					MentorWeekDayCalendar mentorWeekDayCalendar = new MentorWeekDayCalendar();
+					mentorWeekDayCalendar.setMentorWeeklyCalendar(mentorWeeklyCalendar);
+					mentorWeekDayCalendar.setWeek(week);
+					mentorWeekDayCalendars.add(mentorWeekDayCalendar);
+				}
 				//save Into Organization Table
-
+				mentorWeekDayCalendars = this.mentorWeekDayCalendarRepository.saveAll(mentorWeekDayCalendars);
+				
+				mentor.setMentorWeeklyCalendar(mentorWeeklyCalendar);
+				mentor  = this.mentorRepository.save(mentor);
 				organization = new Organization();
 				organization.setCorporateId(corporate.getCorporateId());
 				organization.setStatus(true);

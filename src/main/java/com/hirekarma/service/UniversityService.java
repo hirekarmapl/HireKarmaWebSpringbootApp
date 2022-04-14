@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.simple.parser.ParseException;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.beans.AdminShareJobToUniversityBean;
 import com.hirekarma.beans.CampusDriveResponseBean;
+import com.hirekarma.beans.NoticeBean;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.model.AdminShareJobToUniversity;
+import com.hirekarma.model.Notice;
 import com.hirekarma.model.University;
 
 public interface UniversityService {
@@ -31,4 +34,7 @@ public interface UniversityService {
 	Map<String,Object> getAllJobsSharedByUniversity(University university);
 	
 	void removeStudentFromUniversity(String token,Long studentId) throws Exception;
+
+	Map<String, Object> universityShareNotice(NoticeBean notice, MultipartFile file, University university)
+			throws Exception;
 }

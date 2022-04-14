@@ -4253,6 +4253,21 @@ public class EmailController {
 		}
 	}
 	
+	@Async
+	public void sendEmailToStudentAboutNotice(List<Student> students) {
+		try {
+			Logger.info("Mail sent using EmailController.sendEmailToStudentAboutNotice(-)");
+			for(Student s:students) {
+				mailSender.sendEmailWithoutAttachment(s.getStudentEmail(),"You have a notice from university","Notice Recieved");
+			}
+			
+			Logger.info("Mail sent using EmailController.sendEmailToStudentAboutNotice(-)");
+		}
+		catch(Exception e) {
+			Logger.error("Mail sending failed using EmailController.sendEmailToStudentAboutNotice(-)");
+			
+		}
+	}
 	
 	
 	@Async
@@ -4392,6 +4407,7 @@ public class EmailController {
 		return "Email Sended Successfully";
 	}
 	
+
 	
 	/*
 	 *  This hiringMeetEmail() is used to send email's with a

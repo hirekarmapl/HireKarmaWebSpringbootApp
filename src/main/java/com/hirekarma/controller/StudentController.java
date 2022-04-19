@@ -151,12 +151,32 @@ public class StudentController {
 		try {
 
 			Student student = this.studentRepository.findByStudentEmail(Validation.validateToken(token));
-			if(!student.isPremimum()) {
+			if(student==null || !student.isPremimum()) {
 				throw new Exception("unauthorized");
 			}
 			
 			return new ResponseEntity(
 					new Response("success", 200, "",studentService.bookAMentorSlot(studentMentorBooking, student), null),
+					HttpStatus.OK);
+		} catch (DateTimeParseException dtpe) {
+			return new ResponseEntity(new Response("error", 422, "invalid input", null, null),
+					HttpStatus.UNPROCESSABLE_ENTITY);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity(new Response("error", 500, e.getMessage(), null, null), HttpStatus.BAD_REQUEST);
+		}
+	}
+	@PostMapping("/student/mentor/available-session")
+	public ResponseEntity<Response> getMentorAvailableSessions(@RequestBody StudentMentorBooking studentMentorBooking,@RequestHeader("Authorization") String token){
+		try {
+
+			Student student = this.studentRepository.findByStudentEmail(Validation.validateToken(token));
+			if(student==null || !student.isPremimum()) {
+				throw new Exception("unauthorized");
+			}
+			
+			return new ResponseEntity(
+					new Response("success", 200, "",studentService.getMentorAvailableSession(studentMentorBooking, student), null),
 					HttpStatus.OK);
 		} catch (DateTimeParseException dtpe) {
 			return new ResponseEntity(new Response("error", 422, "invalid input", null, null),

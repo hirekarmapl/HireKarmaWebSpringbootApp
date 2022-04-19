@@ -414,15 +414,16 @@ public class JobServiceImpl implements JobService {
 		}
 	}
 	
-@Override
+	@Override
 	public Job updateJobById2(JobBean jobBean, String token) throws Exception{
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
 		Job job = jobRepository.findByJobId(jobBean.getJobId());
-		if(job.getStatus()==null||!job.getStatus()) {
+		if(job.getStatus()!=null && job.getStatus()) {
 			throw new Exception("unauthorized - job has been activated by admin");
 		}
-		if(job==null || job.getCorporateId()!=corporate.getCorporateId()|| job.getDeleteStatus()) {
+		System.out.println(corporate.getCorporateId() +" "+job.getCorporateId());
+		if(job==null || job.getCorporateId().compareTo(corporate.getCorporateId())!=0|| job.getDeleteStatus()) {
 			throw new Exception("unauthorized");
 		}
 		job = copyPropertiesFromBeanToJobForNotNull(job,jobBean);

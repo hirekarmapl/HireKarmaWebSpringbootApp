@@ -2,6 +2,7 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,9 +10,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 @Entity
@@ -35,8 +39,15 @@ public class ScreeningEntity implements Serializable{
 	@Column(name = "CORPORATE_ID")
 	private Long corporateId;
 	
+
+	private Long universityId;
+	
 	@Column(name = "SLUG")
 	private String slug;
+	
+	@ManyToMany(mappedBy = "screeningEntities")
+	@JsonIgnore
+	private Set<ScreeningEntityParent> screeningEntityParents;
 	
 	@OneToMany
 	@JoinColumn(updatable = false, insertable = false, name = "SCREENING_TABLE_ID", referencedColumnName = "SCREENING_TABLE_ID")
@@ -88,6 +99,25 @@ public class ScreeningEntity implements Serializable{
 
 	public void setScreeninQuestionOptions(List<ScreeninQuestionOptions> screeninQuestionOptions) {
 		this.screeninQuestionOptions = screeninQuestionOptions;
+	}
+	
+
+
+
+	public Long getUnivesityId() {
+		return universityId;
+	}
+
+	public void setUnivesityId(Long univesityId) {
+		this.universityId = univesityId;
+	}
+
+	public Set<ScreeningEntityParent> getScreeningEntityParents() {
+		return screeningEntityParents;
+	}
+
+	public void setScreeningEntityParents(Set<ScreeningEntityParent> screeningEntityParents) {
+		this.screeningEntityParents = screeningEntityParents;
 	}
 
 	@Override

@@ -26,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hirekarma.beans.Response;
 import com.hirekarma.beans.ScreeningBean;
 import com.hirekarma.beans.ScreeningRequestBean;
+import com.hirekarma.model.Corporate;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.ScreeningService;
 import com.hirekarma.utilty.JwtUtil;
@@ -47,6 +49,9 @@ public class ScreeningController {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private CorporateRepository corporateRepository;
+	
 	@PostMapping("/createScreeningQuestion")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
 	public ResponseEntity<Map<String,Object>> createScreeningQuestion(@RequestBody ScreeningBean screeningBean, HttpServletRequest request) {
@@ -62,8 +67,11 @@ public class ScreeningController {
 			jwtToken = authorizationHeader.substring(7);
 			email = jwtTokenUtil.extractUsername(jwtToken);
 			userProfile = userRepository.findUserByEmail(email);
+			
 			if(userProfile!=null) {
-				screeningBean.setCorporateId(userProfile.getUserId());
+				Corporate corporate = this.corporateRepository.findByEmail(email);
+				
+				screeningBean.setCorporateId(corporate.getCorporateId());
 			}
 			else {
 				screeningBean.setCorporateId(null);

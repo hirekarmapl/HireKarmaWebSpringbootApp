@@ -58,5 +58,5 @@ public interface StudentService {
 			Double cgpa, Long universityId);
 	double getProfileUpdateStatusForStudentByStudentAndUserProfile(Student student, UserProfile studentUserProfile);
 	Map<String,Object> bookAMentorSlot(StudentMentorBooking studentMentorBooking,Student student) throws Exception;
-
+	Map<String,Object> getMentorAvailableSession(StudentMentorBooking studentMentorBooking,Student student) throws Exception;
 }

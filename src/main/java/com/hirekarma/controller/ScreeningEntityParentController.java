@@ -1,6 +1,7 @@
 package com.hirekarma.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -23,8 +24,12 @@ import com.hirekarma.beans.Response;
 import com.hirekarma.beans.ScreeningEntityParentBean;
 import com.hirekarma.model.Blog;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Student;
+import com.hirekarma.model.University;
+import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.ScreeningEntityRepository;
+import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.ScreeningEntityParentService;
 import com.hirekarma.serviceimpl.OnlineAssessmentServiceImpl;
 import com.hirekarma.utilty.Validation;
@@ -45,14 +50,32 @@ public class ScreeningEntityParentController {
 	@Autowired
 	ScreeningEntityRepository screeningEntityRepository;
 	
-	@PreAuthorize("hasRole('corporate')")
-	@RequestMapping(value = "/corporate/screening",method = RequestMethod.POST)
-	public ResponseEntity<Response> addScreeningByCorporate(@RequestBody ScreeningEntityParentBean screeningEntityParentBean,@RequestHeader("Authorization") String token) {
+	@Autowired
+	UserRepository userRepository;
+	
+	@PreAuthorize("hasAnyRole('university','corporate','admin')")
+	@RequestMapping(value = "/screening",method = RequestMethod.POST)
+	public ResponseEntity<Response> createScreening(@RequestBody ScreeningEntityParentBean screeningEntityParentBean,@RequestHeader("Authorization") String token) {
 		logger.info("inside addScreeningByCorporate");
 		try {
+			Map<String, Object> response = new HashMap<>() ;
 			String email = Validation.validateToken(token);
-			Corporate corporate = this.corporateRepository.findByEmail(email);
-			Map<String, Object> response = this.screeningEntityParentService.createByCorporate(screeningEntityParentBean.getTitle(), corporate);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				response = this.screeningEntityParentService.createByUniversity(email, university);
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				response = this.screeningEntityParentService.create(screeningEntityParentBean.getTitle());
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				response = this.screeningEntityParentService.createByCorporate(screeningEntityParentBean.getTitle(), corporate);
+			}
+			
+			 
 			return new ResponseEntity<Response>(new Response("success", 200, "", response, null),
 					HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -60,36 +83,156 @@ public class ScreeningEntityParentController {
 					HttpStatus.BAD_REQUEST);
 		}
 	}
-	@PreAuthorize("hasRole('corporate')")
-	@RequestMapping(value = "/corporate/screening/questions", method = RequestMethod.POST)
+	@PreAuthorize("hasAnyRole('university','corporate','admin')")
+	@RequestMapping(value = "/screening/questions", method = RequestMethod.POST)
 	public ResponseEntity<Response> addQuestionToScreeningEntityParent(@RequestBody ScreeningEntityParentBean screeningEntityParentBean,@RequestHeader("Authorization") String token) {
 		try {
 			String email = Validation.validateToken(token);
-			Corporate corporate = this.corporateRepository.findByEmail(email);
-			Map<String, Object> response = this.screeningEntityParentService.addQuestionsByCorporate(screeningEntityParentBean,corporate );
+
+			Map<String, Object> response = new HashMap<>();
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				response = this.screeningEntityParentService.addQuestionsByUniversity(screeningEntityParentBean, university);
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				response =  this.screeningEntityParentService.addQuestions(screeningEntityParentBean);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				response = this.screeningEntityParentService.addQuestionsByCorporate(screeningEntityParentBean,corporate );
+			}
 			return new ResponseEntity<Response>(new Response("success", 200, "", response, null),
-					HttpStatus.CREATED);
+					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}
 	}
 	
-	@PreAuthorize("hasRole('corporate')")
-	@RequestMapping(value = "/corporate/screening_questions", method = RequestMethod.GET)
+	@PreAuthorize("hasAnyRole('university','corporate','admin')")
+	@RequestMapping(value = "/screening_questions", method = RequestMethod.GET)
 	public ResponseEntity<Response> getAllScreeningQuestions(@RequestHeader("Authorization") String token) {
 		try {
 			String email = Validation.validateToken(token);
-			Corporate corporate = this.corporateRepository.findByEmail(email);
-//			Map<String, Object> response = this.screeningEntityParentService.addQuestionsByCorporate(screeningEntityParentBean,corporate );
 			Map<String, Object> response = new HashMap();
-			logger.info("corporate id {}",corporate.getCorporateId());
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				response.put("screening_questions", this.screeningEntityRepository.findByUniveristyId(university.getUniversityId()));
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				response.put("screening_questions", this.screeningEntityRepository.findByAdmin());
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				response.put("screening_questions", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+			}
 			response.put("screening_questions", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+			
 			return new ResponseEntity<Response>(new Response("success", 200, "", response, null),
-					HttpStatus.CREATED);
+					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@PreAuthorize("hasAnyRole('university','corporate','admin')")
+	@RequestMapping(value = "/screening/screening_questions", method = RequestMethod.DELETE)
+	public ResponseEntity<Response> deleteScreeningQuestions(@RequestHeader("Authorization") String token,@RequestBody ScreeningEntityParentBean screeningEntityParentBean) {
+		try {
+			
+			String email = Validation.validateToken(token);
+			Map<String, Object> response = new HashMap();
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				 this.screeningEntityParentService.deleteQuestionsByUniversity(screeningEntityParentBean, university);
+				 
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				 this.screeningEntityParentService.deleteQuestions(screeningEntityParentBean);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				this.screeningEntityParentService.deleteQuestionsByCorporate(screeningEntityParentBean, corporate);
+			}
+			
+			return new ResponseEntity<Response>(new Response("success", 200, "", response, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("hasAnyRole('university','corporate','admin')")
+	@RequestMapping(value = "/screenings",method = RequestMethod.GET)
+	public ResponseEntity<Response> getAllScreening(@RequestHeader("Authorization") String token) {
+		logger.info("inside addScreeningByCorporate");
+		try {
+			Map<String, Object> response = new HashMap<>() ;
+			String email = Validation.validateToken(token);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				response = this.screeningEntityParentService.findAllByUniversity(university);
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				response = this.screeningEntityParentService.findAll();
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				response = this.screeningEntityParentService.findAllByCorporate(corporate);
+			}
+			
+			 
+			return new ResponseEntity<Response>(new Response("success", 200, "", response, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("hasAnyRole('university','corporate','admin')")
+	@RequestMapping(value = "/screening", method = RequestMethod.DELETE)
+	public ResponseEntity<Response> deleteScreening(@RequestHeader("Authorization") String token,@RequestBody ScreeningEntityParentBean screeningEntityParentBean) {
+		try {
+			
+			String email = Validation.validateToken(token);
+			Map<String, Object> response = new HashMap();
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				 this.screeningEntityParentService.deleteByUniversity(screeningEntityParentBean, university);
+				 
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				 this.screeningEntityParentService.delete(screeningEntityParentBean);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				this.screeningEntityParentService.deleteByCorporate(screeningEntityParentBean, corporate);
+			}
+			
+			return new ResponseEntity<Response>(new Response("successfully deleted", 200, "", response, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 }

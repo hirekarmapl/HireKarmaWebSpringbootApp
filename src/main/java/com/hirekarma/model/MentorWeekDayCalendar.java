@@ -40,7 +40,7 @@ public class MentorWeekDayCalendar {
 	
 	LocalTime endtime;
 	
-	boolean availabe;
+	boolean availabe=false;
 	
 	LocalDateTime createdAt;
 	

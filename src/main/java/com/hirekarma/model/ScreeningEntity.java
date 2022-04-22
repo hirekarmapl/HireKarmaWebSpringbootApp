@@ -42,6 +42,7 @@ public class ScreeningEntity implements Serializable{
 
 	private Long universityId;
 	
+	
 	@Column(name = "SLUG")
 	private String slug;
 	
@@ -52,6 +53,25 @@ public class ScreeningEntity implements Serializable{
 	@OneToMany
 	@JoinColumn(updatable = false, insertable = false, name = "SCREENING_TABLE_ID", referencedColumnName = "SCREENING_TABLE_ID")
 	private List<ScreeninQuestionOptions> screeninQuestionOptions;
+	
+	private boolean deleted;
+	
+
+	public Long getUniversityId() {
+		return universityId;
+	}
+
+	public void setUniversityId(Long universityId) {
+		this.universityId = universityId;
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
 
 	public Long getScreeningTableId() {
 		return screeningTableId;

@@ -44,7 +44,11 @@ import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.DemoRepository;
 import com.hirekarma.service.UserService;
 import com.hirekarma.serviceimpl.AWSS3Service;
+import com.hirekarma.utilty.JwtUtil;
 import com.hirekarma.utilty.Utility;
+import com.sun.istack.NotNull;
+
+import io.jsonwebtoken.ExpiredJwtException;
 
 @RestController
 @CrossOrigin
@@ -59,6 +63,9 @@ public class UserController {
 
 	@Autowired
 	DemoRepository demoRepository;
+	
+	@Autowired
+	JwtUtil jwtTokenUtil;
 
 	@Autowired
 	private OAuth2AuthorizedClientService authorizedClientService;
@@ -81,8 +88,25 @@ public class UserController {
 		}
 
 	}
-
-	
+	@PostMapping("/token/valid")
+	public ResponseEntity<Response> jwtTokenValidation(@RequestParam("jwtToken") @NotNull String authorizationHeader){
+		
+		String username=null;
+		String jwtToken=null;
+		String isRefreshToken=null;
+		String requestURL=null;
+		username = jwtTokenUtil.extractUsername(jwtToken);
+		jwtToken = authorizationHeader.substring(7);
+		try {
+			username = jwtTokenUtil.extractUsername(jwtToken);
+			System.out.println("username---------"+username);
+			return new ResponseEntity(new Response("success", 200, "token is still valid", null, null), HttpStatus.OK);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity(new Response("error", 400, "some argument is wrong", null, null), HttpStatus.BAD_REQUEST);
+		} catch (ExpiredJwtException e) {
+			return new ResponseEntity(new Response("error", 400, "token expired", null, null), HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	@RequestMapping(value = "/verify", method = RequestMethod.GET)
 	public ResponseEntity<Response> verifyEmail(@RequestParam("token") String token,

@@ -1381,7 +1381,7 @@ public class StudentServiceImpl implements StudentService {
 				.getMentorWeekDayCalendars();
 		List<StudentMentorSession> studentMentorSessions = this.studentMentorSessionRepository
 				.findBetweenScheduleStartDateAndScheduledEndDate(LocalDate.now(), LocalDate.now().plusDays(7),mentor);
-
+		LOGGER.info("size of mentor {} ",studentMentorSessions.size());		
 		LocalDate date = LocalDate.now();
 		LocalTime startTime = LocalTime.now();
 		LocalDate endDate = LocalDate.now().plusDays(7);
@@ -1393,21 +1393,24 @@ public class StudentServiceImpl implements StudentService {
 			if (studentMentorSessions.get(i).getScheduledDate().equals(date)) {
 				WeekAvailabilityResponse weekAvailabilityResponse = new WeekAvailabilityResponse();
 				Map<String, Boolean> hours = new HashMap<>();
-
+			
 				for (int hr = 0; hr <= 23; hr++) {
+					LOGGER.info("{} date {} hr {} i",date,hr,i);
 					if(studentMentorSessions.get(i) == null ) {
 						hours.put(String.valueOf(hr)+":00", true);
 					}
 				else if (studentMentorSessions.get(i).getScheduledDate().equals(date)
 							&& studentMentorSessions.get(i).getStartTime().getHour() == hr) {
 						hours.put(String.valueOf(hr) + ":00", false);
-						i++;
+						
 						
 					} else {
 						hours.put(String.valueOf(hr)+":00", true);
 					}
 
 				}
+				i++;
+				LOGGER.info("inside if {} date {} hr",date,hours);
 				weekAvailabilityResponse.setDate(date);
 				weekAvailabilityResponse.setHours(hours);
 				weekAvailabilityResponses.add(weekAvailabilityResponse);
@@ -1431,13 +1434,22 @@ public class StudentServiceImpl implements StudentService {
 					weekAvailabilityResponse.setDate(date);
 					weekAvailabilityResponse.setHours(hours);
 					weekAvailabilityResponses.add(weekAvailabilityResponse);
-					date = date.plusDays(1);			
+					LOGGER.info("inside else {} date {} hr",date,hours);
+					date = date.plusDays(1);	
+					
 				}
 				
 				
-				i++;
 			}
 		}
+		LOGGER.info("remainig {} date {} hr",date);
+		
+		if(date.isBefore(endDate)) {
+			weekAvailabilityResponses.addAll(getRemainingDays(date,endDate));
+			
+		}
+		
+		
 		result.put("weekAvailability", weekAvailabilityResponses);
 		result.put("mentor", mentor);
 		return result;

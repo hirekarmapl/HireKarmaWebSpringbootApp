@@ -83,8 +83,8 @@ public class Corporate {
 
 	private String websiteUrl;
 	
-	@Column(nullable = false)
-	Boolean is_mentor;
+	
+	boolean is_mentor;
 	
 	@OneToOne(mappedBy = "corporate")
 	@JsonIgnore

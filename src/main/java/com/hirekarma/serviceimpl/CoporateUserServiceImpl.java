@@ -159,22 +159,24 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 				
 				Mentor mentor = new Mentor();
 				mentor.setCorporate(corporate);
+				mentor.setAvailable(false);
 				mentor  = this.mentorRepository.save(mentor);
-				
+				LOGGER.info("{} mentor saved suiccesfuly",mentor);
 				MentorWeeklyCalendar mentorWeeklyCalendar = new MentorWeeklyCalendar();
 				mentorWeeklyCalendar.setMentor(mentor);
 				mentorWeeklyCalendar = this.mentorWeeklyCalendarRepository.save(mentorWeeklyCalendar);
-				
+				LOGGER.info("mentorWeeklyCalendar saved successfully");
 				List<MentorWeekDayCalendar> mentorWeekDayCalendars = new ArrayList<>();
 				for(Week week:Week.values()) {
 					MentorWeekDayCalendar mentorWeekDayCalendar = new MentorWeekDayCalendar();
 					mentorWeekDayCalendar.setMentorWeeklyCalendar(mentorWeeklyCalendar);
+					mentorWeekDayCalendar.setAvailabe(true);
 					mentorWeekDayCalendar.setWeek(week);
 					mentorWeekDayCalendars.add(mentorWeekDayCalendar);
 				}
 				//save Into Organization Table
 				mentorWeekDayCalendars = this.mentorWeekDayCalendarRepository.saveAll(mentorWeekDayCalendars);
-				
+				LOGGER.info("mentorWeekDayCalendars saved successfully");
 				mentor.setMentorWeeklyCalendar(mentorWeeklyCalendar);
 				mentor  = this.mentorRepository.save(mentor);
 				organization = new Organization();

@@ -10,7 +10,8 @@ public class ScreeningEntityParentBean {
 String title;
 List<Long> screeningEntityIds;
 String screeningEntityParentSlug;
-
+List<Long> studentIds;
+List<String> screeningEntityParentSlugs;
 	
 	
 }

@@ -11,10 +11,15 @@ import com.hirekarma.model.Corporate;
 import com.hirekarma.model.University;
 @Service
 public interface ScreeningEntityParentService {
+	Map<String,Object> findAllByCorporate(Corporate corporate);
+	Map<String,Object> findAllByUniversity(University university);
+	Map<String,Object> findAll();
 	Map<String,Object> addQuestions(ScreeningEntityParentBean screeningEntityParentBean) throws Exception;
 	Map<String,Object> deleteQuestions(ScreeningEntityParentBean screeningEntityParentBean)throws Exception;
 	Map<String,Object> create(String title);
-	Map<String,Object> delete(String slug);
+	Map<String,Object> delete(ScreeningEntityParentBean screeningEntityParentBean) throws Exception;
+	Map<String,Object> deleteByCorporate(ScreeningEntityParentBean screeningEntityParentBean,Corporate corporate) throws Exception;
+	Map<String,Object> deleteByUniversity(ScreeningEntityParentBean screeningEntityParentBean,University university) throws Exception;
 	Map<String, Object> addQuestionsByCorporate(ScreeningEntityParentBean screeningEntityParentBean,
 			Corporate corporate) throws Exception;
 	Map<String, Object> createByCorporate(String title, Corporate corporate);
@@ -24,5 +29,8 @@ public interface ScreeningEntityParentService {
 			University university) throws Exception;
 	Map<String, Object> deleteQuestionsByUniversity(ScreeningEntityParentBean screeningEntityParentBean,
 			University university) throws Exception;
+	Map<String, Object> createByUniversity(String title, University university);
+	
+	Map<String,Object> sendToStudents(ScreeningEntityParentBean screeningEntityParentBean) throws Exception;
 	
 }

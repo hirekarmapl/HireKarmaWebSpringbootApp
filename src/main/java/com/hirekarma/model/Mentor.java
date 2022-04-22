@@ -35,8 +35,8 @@ public class Mentor {
 	@OneToMany(mappedBy = "mentor")
 	@JsonIgnore
 	List<StudentMentorSession> studentMentorSessions;
-
-
-	boolean available;
+	
+	
+	boolean available=false;
 
 }

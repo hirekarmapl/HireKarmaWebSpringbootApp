@@ -177,7 +177,7 @@ public class WebinarController {
 			else if(userProfile.getUserType().equals("admin")) {
 				response = this.webinarService.findAllForAdmin();
 			}
-			else {
+			else if(userProfile.getUserType().equals("corporate")){
 				response = this.webinarService.findAllForCorporate(corporate);
 			}
 			

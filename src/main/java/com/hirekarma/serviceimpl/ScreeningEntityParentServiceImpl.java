@@ -154,7 +154,7 @@ public class ScreeningEntityParentServiceImpl implements ScreeningEntityParentSe
 		ScreeningEntityParent screeningEntityParent = screeningEntityParentOptional.get();
 		logger.info("corporate Id {} screeningEntityParent.corporateId {}", university.getUniversityId(),
 				screeningEntityParent.getUniversityId());
-		if (screeningEntityParent.getCoporateId().compareTo(university.getUniversityId()) != 0) {
+		if (screeningEntityParent.getUniversityId().compareTo(university.getUniversityId()) != 0) {
 			throw new Exception("unauthorized");
 		}
 		
@@ -181,7 +181,10 @@ public class ScreeningEntityParentServiceImpl implements ScreeningEntityParentSe
 			throw new Exception("invalid slug");
 		}
 		ScreeningEntityParent screeningEntityParent = screeningEntityParentOptional.get();
-		
+		if(screeningEntityParent.getCoporateId()==null && screeningEntityParent.getUniversityId()==null)
+		{
+			throw new Exception("unauthorized");
+		}
 		List<ScreeningEntity> screeningEntities = screeningEntityRepository
 				.findAllById(screeningEntityParentBean.getScreeningEntityIds());
 		if (screeningEntities.size() != screeningEntityParentBean.getScreeningEntityIds().size()) {
@@ -206,7 +209,8 @@ public class ScreeningEntityParentServiceImpl implements ScreeningEntityParentSe
 		response.put("screeningEntityParent", this.screeningEntityParentRepository.save(screeningEntityParent));
 		return response;
 	}
-
+	
+@Override
 	public Map<String, Object> createByUniversity(String title, University university) {
 		Map<String, Object> response = new HashMap<>();
 		ScreeningEntityParent screeningEntityParent = new ScreeningEntityParent();
@@ -231,10 +235,95 @@ public class ScreeningEntityParentServiceImpl implements ScreeningEntityParentSe
 		return response;
 	}
 
+
 	@Override
-	public Map<String, Object> delete(String slug) {
-		// TODO Auto-generated method stub
+	public Map<String, Object> sendToStudents(ScreeningEntityParentBean screeningEntityParentBean) throws Exception {
+		
 		return null;
+	}
+
+	@Override
+	public Map<String, Object> findAllByCorporate(Corporate corporate) {
+		Map<String,Object> response = new HashMap<String, Object>();
+		response.put("screeningEntityParent", this.screeningEntityParentRepository.findByCoporateIdAndDeletedFalse(corporate.getCorporateId()));		
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> findAllByUniversity(University university) {
+		Map<String,Object> response = new HashMap<String, Object>();
+		response.put("screeningEntityParent", this.screeningEntityParentRepository.findByUniversityIdAndDeletedFalse(university.getUniversityId()));				
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> findAll() {
+		Map<String,Object> response = new HashMap<String, Object>();
+		response.put("screeningEntityParent", this.screeningEntityParentRepository.findByAdmin());			
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> delete(ScreeningEntityParentBean screeningEntityParentBean) throws Exception{
+		Map<String, Object> response = new HashMap<>();
+
+		Optional<ScreeningEntityParent> screeningEntityParentOptional = this.screeningEntityParentRepository
+				.findById(screeningEntityParentBean.getScreeningEntityParentSlug());
+		if (!screeningEntityParentOptional.isPresent()) {
+			throw new Exception("invalid slug");
+		}
+		ScreeningEntityParent screeningEntityParent = screeningEntityParentOptional.get();
+		if(screeningEntityParent.getCoporateId()==null && screeningEntityParent.getUniversityId()==null)
+		{
+			throw new Exception("unauthorized");
+		}
+		screeningEntityParent.setDeleted(true);
+		this.screeningEntityParentRepository.save(screeningEntityParent);
+		return response;
+	}
+
+	@Override
+	public Map<String, Object> deleteByCorporate(ScreeningEntityParentBean screeningEntityParentBean,
+			Corporate corporate) throws Exception {
+		Map<String, Object> response = new HashMap<>();
+
+		Optional<ScreeningEntityParent> screeningEntityParentOptional = this.screeningEntityParentRepository
+				.findById(screeningEntityParentBean.getScreeningEntityParentSlug());
+		if (!screeningEntityParentOptional.isPresent()) {
+			throw new Exception("invalid slug");
+		}
+
+		ScreeningEntityParent screeningEntityParent = screeningEntityParentOptional.get();
+		
+		if (screeningEntityParent.getUniversityId().compareTo(corporate.getCorporateId()) != 0) {
+			throw new Exception("unauthorized");
+		}
+		
+		screeningEntityParent.setDeleted(true);
+		this.screeningEntityParentRepository.save(screeningEntityParent);
+		return response;
+	}
+	
+
+	@Override
+	public Map<String, Object> deleteByUniversity(ScreeningEntityParentBean screeningEntityParentBean,
+			University university) throws Exception {
+		Map<String, Object> response = new HashMap<>();
+
+		Optional<ScreeningEntityParent> screeningEntityParentOptional = this.screeningEntityParentRepository
+				.findById(screeningEntityParentBean.getScreeningEntityParentSlug());
+		if (!screeningEntityParentOptional.isPresent()) {
+			throw new Exception("invalid slug");
+		}
+
+		ScreeningEntityParent screeningEntityParent = screeningEntityParentOptional.get();
+		
+		if (screeningEntityParent.getUniversityId().compareTo(university.getUniversityId()) != 0) {
+			throw new Exception("unauthorized");
+		}
+		screeningEntityParent.setDeleted(true);
+		this.screeningEntityParentRepository.save(screeningEntityParent);
+		return response;
 	}
 
 }

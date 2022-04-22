@@ -137,9 +137,9 @@ public class StudentController {
 			if(!student.isPremimum()) {
 				throw new Exception("unauthorized");
 			}
-			List<Mentor> mentors = this.mentorRepository.findByAvailableTrue();
+			
 			return new ResponseEntity(
-					new Response("success", 200, "",mentors, null),
+					new Response("success", 200, "",this.mentorRepository.findAll(), null),
 					HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -10,5 +10,5 @@ import com.hirekarma.model.Mentor;
 @Repository
 public interface MentorRepository extends JpaRepository<Mentor, String>{
 
-	List<Mentor> findByAvailableTrue();
+
 }

@@ -14,6 +14,7 @@ import com.hirekarma.beans.StudentOnlineAssessmentAnswerRequestBean;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.StudentOnlineAssessment;
+import com.hirekarma.model.University;
 
 @Service
 public interface OnlineAssessmentService {
@@ -21,17 +22,29 @@ public interface OnlineAssessmentService {
 	
 	public void deleteOnlineAssessmentBySlugAndToken(String slug,String token) throws ParseException;
 
+//	create online assessment by corporate
 	OnlineAssessment addOnlineAssessmentByCorporate(OnlineAssessmentBean bean,String token) throws Exception;
 	
+//	create online assessment by university	
+	OnlineAssessment addOnlineAssessmentByUniversity(OnlineAssessmentBean bean,University university) throws Exception;
+	
+//	add questions to particular online Assessement by corporate
 	OnlineAssessment addQuestionToOnlineAssesmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception;
+	
+//	add questions to particular online Assessement by university
+	OnlineAssessment addQuestionToOnlineAssesmentByUniversity(OnlineAssessmentBean onlineAssessmentBean,University university) throws Exception;
+	
+//	update online assessment by corporate
+	OnlineAssessment updateOnlineAssessmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception;
+	
+//	update online assessment by university
+	OnlineAssessment updateOnlineAssessmentByUniversity(OnlineAssessmentBean onlineAssessmentBean,University university,String slug) throws Exception;
 	
 	OnlineAssessment updateQuestionOfOnlineAssessmentByCorporate(String onlineAssessmentId,List<Integer> questionariesId,String token) throws Exception;
 	
 	List<OnlineAssessment> getOnlineAssesmentsAddedByCorporated(String token) throws Exception;
 	
 	List<OnlineAssessmentBean> getOnlineAssesmentsAddedByCorporatedWithoutQNA(String token) throws Exception;
-	
-	OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception;
 	
 	OnlineAssessment getOnlineAssessmentBySlug(String token,String slug) throws Exception;
 	

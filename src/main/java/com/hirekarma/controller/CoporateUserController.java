@@ -666,6 +666,7 @@ public class CoporateUserController {
 			return new ResponseEntity<Response>(new Response("success", 200, "", result, null), HttpStatus.OK);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}

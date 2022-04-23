@@ -34,6 +34,10 @@ public class OnlineAssessment implements Serializable {
 	
 	@ManyToOne
 	Corporate corporate;
+	
+	@ManyToOne
+	University university;
+	
 	String title;
 	int totalMarks;
 	int codingMarks;
@@ -146,6 +150,12 @@ public List<StudentOnlineAssessmentAnswer> getStudentOnlineAssessmentAnswers() {
 	}
 	public void setLocalDateTime(LocalDateTime localDateTime) {
 		this.localDateTime = localDateTime;
+	}
+	public University getUniversity() {
+		return university;
+	}
+	public void setUniversity(University university) {
+		this.university = university;
 	}
 
 

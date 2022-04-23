@@ -56,6 +56,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.EducationBean;
 import com.hirekarma.beans.JobApplyResponseBean;
 import com.hirekarma.beans.JobResponseBean;
+import com.hirekarma.beans.MentorAvailabilityHours;
 import com.hirekarma.beans.StudentMentorBooking;
 import com.hirekarma.beans.UniversityJobShareToStudentBean;
 import com.hirekarma.beans.UniversitySharedJobList;
@@ -1354,14 +1355,18 @@ public class StudentServiceImpl implements StudentService {
 	{
 		List<WeekAvailabilityResponse> weekAvailabilityResponses = new ArrayList<>();
 		Map<String, Boolean> hours = new HashMap<>();
+		List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 		for (int hr = 0; hr <= 23; hr++) {
 			hours.put(String.valueOf(hr) + ":00", true);
+			mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+
 		}
 		
 		while(startDate.isBefore(endDate)) {
 			WeekAvailabilityResponse weekAvailabilityResponse = new WeekAvailabilityResponse();
 			weekAvailabilityResponse.setDate(startDate);
 			weekAvailabilityResponse.setHours(hours);
+			weekAvailabilityResponse.setMentorAvailabilityHours(mentorAvailabilityHours);
 			weekAvailabilityResponses.add(weekAvailabilityResponse);
 			startDate = startDate.plusDays(1);			
 		}
@@ -1393,19 +1398,25 @@ public class StudentServiceImpl implements StudentService {
 			if (studentMentorSessions.get(i).getScheduledDate().equals(date)) {
 				WeekAvailabilityResponse weekAvailabilityResponse = new WeekAvailabilityResponse();
 				Map<String, Boolean> hours = new HashMap<>();
-			
+				List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 				for (int hr = 0; hr <= 23; hr++) {
+			
 					LOGGER.info("{} date {} hr {} i",date,hr,i);
 					if(studentMentorSessions.get(i) == null ) {
 						hours.put(String.valueOf(hr)+":00", true);
+						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+						
 					}
 				else if (studentMentorSessions.get(i).getScheduledDate().equals(date)
 							&& studentMentorSessions.get(i).getStartTime().getHour() == hr) {
 						hours.put(String.valueOf(hr) + ":00", false);
+						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),false));
 						
 						
 					} else {
 						hours.put(String.valueOf(hr)+":00", true);
+						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+						
 					}
 
 				}
@@ -1413,6 +1424,7 @@ public class StudentServiceImpl implements StudentService {
 				LOGGER.info("inside if {} date {} hr",date,hours);
 				weekAvailabilityResponse.setDate(date);
 				weekAvailabilityResponse.setHours(hours);
+				weekAvailabilityResponse.setMentorAvailabilityHours(mentorAvailabilityHours);
 				weekAvailabilityResponses.add(weekAvailabilityResponse);
 
 				date = date.plusDays(1);
@@ -1425,14 +1437,18 @@ public class StudentServiceImpl implements StudentService {
 				
 				
 				Map<String, Boolean> hours = new HashMap<>();
+				List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 				for (int hr = 0; hr <= 23; hr++) {
 					hours.put(String.valueOf(hr) + ":00", true);
+					mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+					
 				}
 				
 				while(date.isBefore(studentMentorSessions.get(i).getScheduledDate())) {
 					WeekAvailabilityResponse weekAvailabilityResponse = new WeekAvailabilityResponse();
 					weekAvailabilityResponse.setDate(date);
 					weekAvailabilityResponse.setHours(hours);
+					weekAvailabilityResponse.setMentorAvailabilityHours(mentorAvailabilityHours);
 					weekAvailabilityResponses.add(weekAvailabilityResponse);
 					LOGGER.info("inside else {} date {} hr",date,hours);
 					date = date.plusDays(1);	

@@ -759,8 +759,10 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 		for(Object[] o :  responseData) {
 			Map<String,Object> jobApplyResponse = new HashMap<String, Object>();
 //			BeanUtils.copyProperties((JobApply)o[0], jobApplyResponseBean);
+			
 			JobApply jobApply = (JobApply)o[0];
-			if(jobApply.getMeet().getEndTime().isBefore(LocalDateTime.now())){
+			
+			if(jobApply.getMeet()==null || jobApply.getMeet().getEndTime().isBefore(LocalDateTime.now())){
 				jobApply.setMeet(null);
 			}
 			jobApplyResponse.put("jobApply", (JobApply)o[0]);

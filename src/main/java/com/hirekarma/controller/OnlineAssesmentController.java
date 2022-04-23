@@ -152,7 +152,7 @@ public class OnlineAssesmentController {
 			@RequestHeader("Authorization") String token, @PathVariable("slug") String slug) {
 		try {
 			OnlineAssessment onlineAssessment = this.onlineAssessmentService
-					.updateOnlineAssessment(onlineAssessmentBean, token, slug);
+					.updateOnlineAssessmentByCorporate(onlineAssessmentBean, token, slug);
 			return new ResponseEntity<Response>(
 					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
 
@@ -193,26 +193,26 @@ public class OnlineAssesmentController {
 		}
 	}
 
-	@PreAuthorize("hasRole('corporate')")
-	@PutMapping("/corporate/assessment/questionaries")
-	public ResponseEntity<Response> updateQuestionOfOnlineAssessmentByCorporate(
-			@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token) {
-		try {
-			OnlineAssessment onlineAssessment = this.onlineAssessmentService
-					.updateQuestionOfOnlineAssessmentByCorporate(onlineAssessmentBean.getOnlineAssessmentSlug(),
-							onlineAssessmentBean.getQuestions(), token);
-			System.out.println(onlineAssessment.toString());
-			for (QuestionANdanswer q : onlineAssessment.getQuestionANdanswers()) {
-				System.out.println(q.getType());
-			}
-			return new ResponseEntity<Response>(
-					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
-
-		} catch (Exception e) {
-			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
-					HttpStatus.BAD_REQUEST);
-		}
-	}
+//	@PreAuthorize("hasRole('corporate')")
+//	@PutMapping("/corporate/assessment/questionaries")
+//	public ResponseEntity<Response> updateQuestionOfOnlineAssessmentByCorporate(
+//			@RequestBody OnlineAssessmentBean onlineAssessmentBean, @RequestHeader("Authorization") String token) {
+//		try {
+//			OnlineAssessment onlineAssessment = this.onlineAssessmentService
+//					.updateQuestionOfOnlineAssessmentByCorporate(onlineAssessmentBean.getOnlineAssessmentSlug(),
+//							onlineAssessmentBean.getQuestions(), token);
+//			System.out.println(onlineAssessment.toString());
+//			for (QuestionANdanswer q : onlineAssessment.getQuestionANdanswers()) {
+//				System.out.println(q.getType());
+//			}
+//			return new ResponseEntity<Response>(
+//					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
+//
+//		} catch (Exception e) {
+//			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+//					HttpStatus.BAD_REQUEST);
+//		}
+//	}
 
 
 	@DeleteMapping("/corporate/assessment/{slug}")

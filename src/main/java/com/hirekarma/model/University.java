@@ -3,6 +3,7 @@ package com.hirekarma.model;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -56,12 +58,22 @@ public class University implements Serializable{
 
 			@Column(name = "STATUS")
 			private Boolean status;
+			
 
 			private Boolean profileUpdationStatus =  false;
 
 			private double percentageOfProfileCompletion;
+			@OneToMany
+			List<OnlineAssessment> onlineAssessments;
+
 			
-			
+			public List<OnlineAssessment> getOnlineAssessments() {
+				return onlineAssessments;
+			}
+
+			public void setOnlineAssessments(List<OnlineAssessment> onlineAssessments) {
+				this.onlineAssessments = onlineAssessments;
+			}
 
 			public double getPercentageOfProfileCompletion() {
 				return percentageOfProfileCompletion;

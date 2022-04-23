@@ -28,6 +28,7 @@ import com.hirekarma.model.QuestionANdanswer;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentOnlineAssessment;
 import com.hirekarma.model.StudentOnlineAssessmentAnswer;
+import com.hirekarma.model.University;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.OnlineAssessmentRepository;
 import com.hirekarma.repository.QuestionAndAnswerRepository;
@@ -132,7 +133,9 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		if(onlineAssessment==null) {
 			throw new Exception("onlineAssesment id incorrect");
 		}
-		
+		if(onlineAssessment.getCorporate().getCorporateId().compareTo(corporate.getCorporateId())!=0){
+			throw new Exception("unauthorized");
+		}
 		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
 		List<QuestionANdanswer> questionANdanswersToBeAdded = new ArrayList<QuestionANdanswer>();
 		logger.info("question and answer -> {} ",questionANdanswers);
@@ -203,7 +206,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		return onlineAssessment;
 	}
 	
-	public OnlineAssessment updateOnlineAssessment(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception{
+	public OnlineAssessment updateOnlineAssessmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception{
 		Optional<OnlineAssessment> onlineAssessment = this.onlineAssessmentRepository.findById(slug);
 		if(!onlineAssessment.isPresent()) {
 			throw new Exception("please enter proper assesemnet id");
@@ -391,6 +394,72 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		Corporate corporate = this.corporateRepository.findByEmail(email);
 		deleteOnlineAssessmentBySlugAndCorporate(slug,corporate);
 		
+	}
+
+	@Override
+	public OnlineAssessment addOnlineAssessmentByUniversity(OnlineAssessmentBean bean, University university)
+			throws Exception {
+		OnlineAssessment onlineAssessment = new OnlineAssessment();
+		onlineAssessment.setUniversity(university);
+		return onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment, bean));
+	}
+
+	@Override
+	public OnlineAssessment addQuestionToOnlineAssesmentByUniversity(OnlineAssessmentBean onlineAssessmentBean,
+			University university) throws Exception {
+		
+		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentBean.getOnlineAssessmentSlug());
+		if(onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
+			throw new Exception("invalid university Id");
+		}
+		if(onlineAssessment==null) {
+			throw new Exception("onlineAssesment id incorrect");
+		}
+		
+		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
+		List<QuestionANdanswer> questionANdanswersToBeAdded = new ArrayList<QuestionANdanswer>();
+		logger.info("question and answer -> {} ",questionANdanswers);
+		for(QuestionANdanswer q:questionANdanswers) {
+			if(!onlineAssessment.getQuestionANdanswers().contains(q)) {
+				onlineAssessment.getQuestionANdanswers().add(q);
+			}
+		}
+		
+//		counting total marks
+		int totalMarks = onlineAssessment.getTotalMarks();
+		for(QuestionANdanswer q: questionANdanswers) {
+			if(q.getType().equals("QNA")) {
+				totalMarks += onlineAssessment.getQnaMarks();
+			}
+			else if(q.getType().equals("MCQ")) {
+				totalMarks += onlineAssessment.getMcqMarks();
+			}
+			else if(q.getType().equals("Input")) {
+				totalMarks += onlineAssessment.getParagraphMarks();
+			}
+			else if(q.getType().equals("Coding")) {
+				totalMarks += onlineAssessment.getCodingMarks();
+			}
+		}
+		onlineAssessment.setTotalMarks(totalMarks);
+		logger.info("saving totla marks {}",totalMarks);
+		logger.info("succesffully completed the function");
+		return this.onlineAssessmentRepository.save(onlineAssessment);
+	}
+
+	@Override
+	public OnlineAssessment updateOnlineAssessmentByUniversity(OnlineAssessmentBean onlineAssessmentBean,
+			University university,String slug) throws Exception {
+		Optional<OnlineAssessment> onlineAssessmentOptional = this.onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessmentOptional.isPresent()) {
+			throw new Exception("please enter proper assesemnet id");
+		}
+		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
+		if(onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
+			throw new Exception("invalid university Id");
+		}
+		
+		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment,onlineAssessmentBean));
 	}
 
 }

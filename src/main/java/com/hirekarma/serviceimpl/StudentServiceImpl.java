@@ -721,7 +721,7 @@ public class StudentServiceImpl implements StudentService {
 			System.out.print("inside student branch");
 			studentBranch = studentBranchRepository.findById(userBean.getBranch());
 			if (!studentBranch.isPresent()) {
-				throw new Exception("invalid batch id");
+				throw new Exception("invalid branch id");
 			}
 		}
 		UserProfile studentReturn = this.userRepository.save(updateUserAttributeByBean(user, userBean));
@@ -1325,6 +1325,44 @@ public class StudentServiceImpl implements StudentService {
 		return students;
 
 	}
+	
+	@Override
+	public List<Student> FilterStudents(com.hirekarma.model.Stream stream,
+			Long branchId, Long batchId, Double cgpa, Long universityId,String studentName,Long studentPhoneNumber) {
+
+		List<Student> students = studentRepository.findAll(new Specification<Student>() {
+
+			@Override
+			public Predicate toPredicate(Root<Student> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+				Predicate p = criteriaBuilder.conjunction();
+				if (Objects.nonNull(branchId)) {
+					p = criteriaBuilder.and(p, criteriaBuilder.equal(root.get("branch"), branchId));
+				}
+				if (Objects.nonNull(stream)) {
+					p = criteriaBuilder.and(p, criteriaBuilder.equal(root.get("stream"), stream));
+				}
+				if (Objects.nonNull(batchId)) {
+					p = criteriaBuilder.and(p, criteriaBuilder.equal(root.get("batch"), batchId));
+				}
+				if (Objects.nonNull(cgpa)) {
+					p = criteriaBuilder.and(p, criteriaBuilder.greaterThanOrEqualTo(root.get("cgpa"), cgpa));
+				}
+				if (Objects.nonNull(universityId)) {
+					p = criteriaBuilder.and(p, criteriaBuilder.equal(root.get("universityId"), universityId));
+				}
+				if (Objects.nonNull(studentName)) {
+					p = criteriaBuilder.and(p, criteriaBuilder.like(root.get("studentName"), "%"+studentName+"%"));
+				}
+				if (Objects.nonNull(studentPhoneNumber)) {
+					p = criteriaBuilder.and(p, criteriaBuilder.equal(root.get("studentPhoneNumber"), studentPhoneNumber));
+				}
+				
+				return p;
+			}
+		});
+		return students;
+
+	}
 
 	@Override
 	public Map<String, Object> bookAMentorSlot(StudentMentorBooking studentMentorBooking, Student student)
@@ -1394,7 +1432,7 @@ public class StudentServiceImpl implements StudentService {
 		int i = 0;
 		
 		while (i < studentMentorSessions.size()) {
-			
+			LOGGER.info("inside function {} i {} size {} scheduledDate {} date",i,studentMentorSessions.size(),studentMentorSessions.get(i).getScheduledDate(),date);	
 			if (studentMentorSessions.get(i).getScheduledDate().equals(date)) {
 				WeekAvailabilityResponse weekAvailabilityResponse = new WeekAvailabilityResponse();
 				Map<String, Boolean> hours = new HashMap<>();
@@ -1426,7 +1464,7 @@ public class StudentServiceImpl implements StudentService {
 				weekAvailabilityResponse.setHours(hours);
 				weekAvailabilityResponse.setMentorAvailabilityHours(mentorAvailabilityHours);
 				weekAvailabilityResponses.add(weekAvailabilityResponse);
-
+				
 				date = date.plusDays(1);
 				if(i>studentMentorSessions.size()){
 			
@@ -1435,7 +1473,7 @@ public class StudentServiceImpl implements StudentService {
 
 			} else {
 				
-				
+				LOGGER.info("inside else");
 				Map<String, Boolean> hours = new HashMap<>();
 				List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 				for (int hr = 0; hr <= 23; hr++) {

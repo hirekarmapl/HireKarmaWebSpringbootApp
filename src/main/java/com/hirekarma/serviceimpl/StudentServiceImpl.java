@@ -1424,7 +1424,8 @@ public class StudentServiceImpl implements StudentService {
 				.getMentorWeekDayCalendars();
 		List<StudentMentorSession> studentMentorSessions = this.studentMentorSessionRepository
 				.findBetweenScheduleStartDateAndScheduledEndDate(LocalDate.now(), LocalDate.now().plusDays(7),mentor);
-		LOGGER.info("size of mentor {} ",studentMentorSessions.size());		
+		LOGGER.info("size of mentor {} ",studentMentorSessions.size());	
+//		LOGGER.info("studentMentorSesion {} ",studentMentorSessions);	
 		LocalDate date = LocalDate.now();
 		LocalTime startTime = LocalTime.now();
 		LocalDate endDate = LocalDate.now().plusDays(7);
@@ -1437,9 +1438,9 @@ public class StudentServiceImpl implements StudentService {
 				WeekAvailabilityResponse weekAvailabilityResponse = new WeekAvailabilityResponse();
 				Map<String, Boolean> hours = new HashMap<>();
 				List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
-				for (int hr = 0; hr <= 23; hr++) {
+				for (int hr = 0; hr <= 23&&i<studentMentorSessions.size(); hr++) {
 			
-					LOGGER.info("{} date {} hr {} i",date,hr,i);
+//					LOGGER.info("{} date {} hr {} i",date,hr,i);
 					if(studentMentorSessions.get(i) == null ) {
 						hours.put(String.valueOf(hr)+":00", true);
 						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
@@ -1449,7 +1450,8 @@ public class StudentServiceImpl implements StudentService {
 							&& studentMentorSessions.get(i).getStartTime().getHour() == hr) {
 						hours.put(String.valueOf(hr) + ":00", false);
 						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),false));
-						
+
+						i++;
 						
 					} else {
 						hours.put(String.valueOf(hr)+":00", true);
@@ -1458,19 +1460,18 @@ public class StudentServiceImpl implements StudentService {
 					}
 
 				}
-				i++;
 				LOGGER.info("inside if {} date {} hr",date,hours);
 				weekAvailabilityResponse.setDate(date);
 				weekAvailabilityResponse.setHours(hours);
 				weekAvailabilityResponse.setMentorAvailabilityHours(mentorAvailabilityHours);
 				weekAvailabilityResponses.add(weekAvailabilityResponse);
-				
+			
 				date = date.plusDays(1);
 				if(i>studentMentorSessions.size()){
 			
 					weekAvailabilityResponses.addAll(getRemainingDays(date.plusDays(1),endDate));
 				}
-
+				LOGGER.info("exiting  if {} date {} i ",date,i);
 			} else {
 				
 				LOGGER.info("inside else");
@@ -1492,9 +1493,11 @@ public class StudentServiceImpl implements StudentService {
 					date = date.plusDays(1);	
 					
 				}
+				LOGGER.info("exiting else {} {}",date,i);
 				
 				
 			}
+			
 		}
 		LOGGER.info("remainig {} date {} hr",date);
 		

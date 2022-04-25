@@ -39,12 +39,14 @@ import com.hirekarma.model.Blog;
 import com.hirekarma.model.CampusDriveResponse;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Notice;
+import com.hirekarma.model.Stream;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.AdminShareJobToUniversityRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.StreamRepository;
 import com.hirekarma.repository.StudentBatchRepository;
 import com.hirekarma.repository.StudentBranchRepository;
 import com.hirekarma.repository.StudentRepository;
@@ -60,6 +62,8 @@ public class UniversityController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniversityController.class);
 
+	@Autowired
+	private StreamRepository streamRepository;
 	@Autowired
 	private UniversityService universityService;
 	
@@ -365,19 +369,27 @@ public class UniversityController {
 	@RequestMapping("/studentFilter")
 	@PreAuthorize("hasRole('university')")
 	public ResponseEntity<Response> studentFilter(
+			@RequestParam("streamId") Optional<Integer> streamId,
 			@RequestParam("batchId") Optional<Long> batchId,
 			@RequestParam("branchId") Optional<Long> branchId,
 			@RequestParam("cgpa") Optional<Double> cgpa,
+			@RequestParam("studentName")Optional<String> studentName,
+			@RequestParam("studentPhoneNumber")Optional<Long> studentPhoneNumber,			
 			@RequestHeader(value = "Authorization") String token) {
 		LOGGER.debug("Inside UniversityController.studentFilter(-)");
 		List<?> listData = null;
 		ResponseEntity<Response> responseEntity = null;
 		Response response = new Response();
 		try {
+//			Stream stream = this.streamRE
 			String email = Validation.validateToken(token);
 			University university = this.universityRepository.findByEmail(email);
+			Optional<Stream> stream = Optional.empty();
+			if(streamId.isPresent()) {
+				stream = this.streamRepository.findById(streamId.get());				
+			}
 			LOGGER.debug("Inside try block of UniversityController.studentFilter(-)");
-			listData = studentService.getAllStudentsAccoridngToBranchBatchCgpaFilter(branchId.orElse(null), batchId.orElse(null), cgpa.orElse(null),university.getUniversityId());
+			listData = studentService.FilterStudents(stream.orElse(null), branchId.orElse(null), batchId.orElse(null), cgpa.orElse(null),university.getUniversityId(),studentName.orElse(null),studentPhoneNumber.orElse(null));
 			LOGGER.info("Response Successfully Updated using UniversityController.studentFilter(-)");
 
 			responseEntity = new ResponseEntity<>(response, HttpStatus.OK);

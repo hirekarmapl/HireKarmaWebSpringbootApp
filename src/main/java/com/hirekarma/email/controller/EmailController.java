@@ -1,14 +1,15 @@
 package com.hirekarma.email.controller;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import javax.mail.MessagingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -3070,7 +3071,7 @@ public class EmailController {
 	}
 
 	
-	public String getBodyForJobNotification(String email,Job job,Student student,Corporate corporate) {
+	public String getBodyForJobNotification(String email, com.hirekarma.model.Job job,Student student,Corporate corporate) {
 		return "<!DOCTYPE html>\r\n"
 				+ "<html lang=\"en\">\r\n"
 				+ "    <head>\r\n"
@@ -3562,7 +3563,7 @@ public class EmailController {
 				+ "                <table id=\"dateInfo\">\r\n"
 				+ "                    <tr>\r\n"
 				+ "                        <td class=\"dateInfoTd\">Date</td>\r\n"
-				+ "                        <td class=\"dateInfoTd\">"+(job.getTentativeDate()==null?"N/A":job.getTentativeDate())+"</td>\r\n"
+				+ "                        <td class=\"dateInfoTd\">"+(job.getTentativeDate()==null?"N/A":( job).getTentativeDate())+"</td>\r\n"
 				+ "                    </tr>\r\n"
 				+ "                </table>\r\n"
 				+ "            </span>\r\n"

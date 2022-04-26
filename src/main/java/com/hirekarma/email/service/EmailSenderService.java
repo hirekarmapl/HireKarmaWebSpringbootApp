@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.EmailBean;
 import com.hirekarma.beans.UserBean;
+import com.hirekarma.model.Job;
 
 @Service("emailSenderService")
 public class EmailSenderService {
@@ -61,6 +62,23 @@ public class EmailSenderService {
 
 	}
 
+
+	 @org.jobrunr.jobs.annotations.Job(name = "The sample job with variable %0")
+	    public void execute(String input) {
+		 Logger.info("The sample job has begun. The variable you passed is {}", input);
+	        try {
+//	            Thread.sleep(3000);
+	            sendEmailWithoutAttachment("sawant.rohit510@gmail.com","You're in!! Let's get started","You're in!! Let's get started");
+				
+	        }
+//	        catch (InterruptedException e) {
+//	        	Logger.error("Error while executing sample job", e);
+//	        } 
+	        finally {
+	        	Logger.info("Sample job has finished...");
+	        }
+	    }
+	 
 	@Async
 	public void sendEmailWithoutAttachment(String toEmail, String body, String subject) {
 

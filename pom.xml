@@ -33,6 +33,11 @@
     <artifactId>reactor-netty-http</artifactId>
 </dependency>
 		<dependency>
+				<groupId>org.jobrunr</groupId>
+				<artifactId>jobrunr-spring-boot-starter</artifactId>
+			 <version>3.1.2</version>
+			</dependency>
+		<dependency>
 			<groupId>io.awspring.cloud</groupId>
 			<artifactId>spring-cloud-aws-context</artifactId>
 			<version>2.3.1</version>

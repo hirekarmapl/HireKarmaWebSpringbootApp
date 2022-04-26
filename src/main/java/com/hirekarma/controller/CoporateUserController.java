@@ -194,7 +194,7 @@ public class CoporateUserController {
 					HttpStatus.BAD_REQUEST);
 		}
 	}
-
+	
 	@DeleteMapping("/corporate/blog/{slug}")
 	@PreAuthorize("hasRole('corporate')")
 	public ResponseEntity<Response> deleteBlogBySlug(@RequestHeader(value = "Authorization") String token,

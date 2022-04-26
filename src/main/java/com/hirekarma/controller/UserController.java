@@ -39,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.hirekarma.beans.Response;
+import com.hirekarma.email.service.EmailSenderService;
 import com.hirekarma.model.Demo;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.DemoRepository;
@@ -49,6 +50,7 @@ import com.hirekarma.utilty.Utility;
 import com.sun.istack.NotNull;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import org.jobrunr.scheduling.JobScheduler;
 
 @RestController
 @CrossOrigin
@@ -66,6 +68,13 @@ public class UserController {
 	
 	@Autowired
 	JwtUtil jwtTokenUtil;
+
+    @Autowired
+    private JobScheduler jobScheduler;
+    
+    @Autowired
+    private EmailSenderService emailSenderService;
+
 
 	@Autowired
 	private OAuth2AuthorizedClientService authorizedClientService;
@@ -221,5 +230,14 @@ public class UserController {
 		}
 
 	}
+	 @GetMapping("/run-job")
+	    public String runJob(
+	            @RequestParam(value = "name", defaultValue = "Hello World") String name) {
+
+	        jobScheduler.enqueue(() -> emailSenderService.execute(name));
+	        return "Job is enqueued.";
+
+	    }
+
 	
 }

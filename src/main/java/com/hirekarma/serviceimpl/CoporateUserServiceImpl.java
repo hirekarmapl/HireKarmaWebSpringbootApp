@@ -576,7 +576,8 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 			jobApplyOpt = jobApplyRepository.findById(jobApplyId);
 			if(!jobApplyOpt.isEmpty()) {
 				jobApply = jobApplyOpt.get();
-				if(corporateId == jobApply.getCorporateId()) {
+				if(jobApply.getCorporateId().compareTo(corporateId)==0)
+				{
 					if(jobApply.getApplicationStatus()) {
 						map.put("status", "Failed");
 						map.put("responseCode", "400");

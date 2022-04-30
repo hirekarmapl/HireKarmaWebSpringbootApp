@@ -59,10 +59,10 @@ public class InternshipServiceImpl implements InternshipService {
 		if (internshipBean.getSalary() != null) {
 			internship.setSalary(internshipBean.getSalary());
 		}
-		if (!internshipBean.getAbout().equals("") && internshipBean.getAbout() != null) {
+		if (internshipBean.getAbout() != null && !internshipBean.getAbout().equals("")) {
 			internship.setAbout(internshipBean.getAbout());
 		}
-		if (!internshipBean.getDescription().equals("") && internshipBean.getDescription() != null) {
+		if (internshipBean.getDescription() != null  && !internshipBean.getDescription().equals("") ) {
 			internship.setDescription(internshipBean.getDescription());
 		}
 		if (internshipBean.getFile() != null && !internshipBean.getFile().isEmpty()) {

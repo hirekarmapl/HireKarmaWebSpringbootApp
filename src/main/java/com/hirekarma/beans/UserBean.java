@@ -54,10 +54,19 @@ public class UserBean implements Serializable {
 	
 	private Long universityId;
 	
+	private Long studentId;
 	
 	private List<Skill> skills = new ArrayList<Skill>();
 private double percentageOfProfileCompletion;
 	
+
+	public Long getStudentId() {
+	return studentId;
+}
+
+public void setStudentId(Long studentId) {
+	this.studentId = studentId;
+}
 
 	public double getPercentageOfProfileCompletion() {
 		return percentageOfProfileCompletion;

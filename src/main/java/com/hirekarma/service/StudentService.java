@@ -61,4 +61,5 @@ public interface StudentService {
 	Map<String,Object> getMentorAvailableSession(StudentMentorBooking studentMentorBooking,Student student) throws Exception;
 	List<Student> FilterStudents(Stream stream, Long branchId, Long batchId, Double cgpa, Long universityId,
 			String studentName, Long studentPhoneNumber);
+	UserBeanResponse updateStudentProfileByUniversity(UserBean userBean, String token) throws Exception;
 }

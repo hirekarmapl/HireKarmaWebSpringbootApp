@@ -1043,6 +1043,9 @@ public class StudentServiceImpl implements StudentService {
 				return excelUploadUtil.cellIteratorSupplier(colCount).get()
 						.collect(toMap(headerCells::get, cellList::get));
 			}).collect(Collectors.toList());
+			if(studentLists.size()==0) {
+				throw new Exception("File is empty");
+			}
 			// integrate with database to save all students are there in excel and sent them
 			// email using MicroServices
 			allStudentLists = new ArrayList<UserBean>();
@@ -1081,7 +1084,7 @@ public class StudentServiceImpl implements StudentService {
 			return output;
 		} catch (Exception e) {
 			LOGGER.error("Error occured in StudentServiceImpl.importStudentDataExcel(-)");
-			throw new StudentUserDefindException(e.getMessage());
+			throw e;
 		}
 	}
 

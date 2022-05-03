@@ -323,7 +323,12 @@ public class UniversityUserController {
 			result = studentService.importStudentDataExcel(file,token);
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "successfully imported", result, null),
 					HttpStatus.OK);
-		} catch (Exception e) {
+		} 
+		catch(NullPointerException ne) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, "invalid format", null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+		catch (Exception e) {
 			LOGGER.error("UniversityUserController.importStudentDataExcel(-) excel creation failed: " + e.getMessage());
 			e.printStackTrace();
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),

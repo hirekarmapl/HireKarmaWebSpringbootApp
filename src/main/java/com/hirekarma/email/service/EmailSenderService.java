@@ -90,10 +90,10 @@ public class EmailSenderService {
 
 			MimeMessageHelper helper = new MimeMessageHelper(mailMessage, false);
 
-			helper.setFrom("contact@hirekarma.org");
-			helper.setTo("sawant.rohit510@gmail.com");
+			helper.setFrom(new InternetAddress("contact@hirekarma.org","Hirekarma"));
+			helper.setTo(toEmail);
 
-			helper.setSubject("hello");
+			helper.setSubject(subject);
 
 			mailMessage.setText(body, "UTF-8", "html");
 

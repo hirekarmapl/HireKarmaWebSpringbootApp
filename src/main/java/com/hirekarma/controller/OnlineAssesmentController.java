@@ -48,7 +48,7 @@ public class OnlineAssesmentController {
 		try {
 			return new ResponseEntity(
 					new Response("success", HttpStatus.OK, "",
-							this.onlineAssessmentService.getAllQNAForStudentOfOnlineAssessment(token,onlineAssessmentSlug), null),
+							this.onlineAssessmentService.getAllQNAForStudentForOnlineAssessment(token,onlineAssessmentSlug), null),
 					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
@@ -113,6 +113,7 @@ public class OnlineAssesmentController {
 		}
 	}
 
+	
 	@PreAuthorize("hasRole('corporate')")
 	@PostMapping("/corporate/assessment/student")
 	public ResponseEntity<Response> sendOnlineAssessmentToStudents(
@@ -244,4 +245,84 @@ public class OnlineAssesmentController {
 		}
 	}
 
+//	create assessment by admin
+	@PreAuthorize("hasRole('admin')")
+	@PostMapping("/admin/assessment")
+	public ResponseEntity<Response> addOnlineAssessmentByAdmin(
+			@RequestBody OnlineAssessmentBean onlineAssessmentBean) {
+		try {
+			OnlineAssessment onlineAssessment = this.onlineAssessmentService
+					.addOnlineAssessmentByAdmin(onlineAssessmentBean);
+
+			return new ResponseEntity<Response>(
+					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+//	get all assessment created by admin
+	@PreAuthorize("hasRole('admin')")
+	@GetMapping("/admin/assessment")
+	public ResponseEntity<Response> getOnlineAssessmentByAdmin() {
+		try {
+			List<OnlineAssessment> onlineAssessments = this.onlineAssessmentService.getOnlineAssessmentCreatedByAdmin();
+			return new ResponseEntity<Response>(
+					new Response("success", 200, "", onlineAssessments, null), HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+//	add questions to assessment created by admin
+	@PreAuthorize("hasRole('admin')")
+	@PostMapping("/admin/assessment/questionaries")
+	public ResponseEntity<Response> addQuestionToOnlineAssesmentByAdmin(
+			@RequestBody OnlineAssessmentBean onlineAssessmentBean) {
+		try {
+			OnlineAssessment onlineAssessment = this.onlineAssessmentService.addQuestionToOnlineAssesmentByAdmin(onlineAssessmentBean);
+			System.out.println(onlineAssessment.toString());
+			return new ResponseEntity<Response>(
+					new Response("success", 201, "added succesfully", onlineAssessment, null), HttpStatus.CREATED);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	
+	@GetMapping("/public/assessment")
+	public ResponseEntity<Response> getAllOnlineAssessmentForPublic(@RequestHeader("Authorization") String token) {
+		try {
+			List<OnlineAssesmentResponseBean> studentOnlineAssessments = this.onlineAssessmentService.getAllOnlineAssessmentForPublic();
+					
+
+			return new ResponseEntity<Response>(new Response("success", 200, "", studentOnlineAssessments, null),
+					HttpStatus.OK);
+
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("hasRole('student')")
+	@GetMapping("/public/assessment/questionaries/{slug}")
+	public ResponseEntity<Response> getAllQNAForPublicForAssessement(@RequestHeader("Authorization") String token,@PathVariable("slug") String onlineAssessmentSlug) {
+		try {
+			return new ResponseEntity(
+					new Response("success", HttpStatus.OK, "",
+							this.onlineAssessmentService.getAllQNAForPublicForAssessement(onlineAssessmentSlug), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 }

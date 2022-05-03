@@ -1457,7 +1457,7 @@ public class StudentServiceImpl implements StudentService {
 		List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 		for (int hr = 0; hr <= 23; hr++) {
 			hours.put(String.valueOf(hr) + ":00", true);
-			mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+			mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 
 		}
 		
@@ -1504,19 +1504,25 @@ public class StudentServiceImpl implements StudentService {
 //					LOGGER.info("{} date {} hr {} i",date,hr,i);
 					if(studentMentorSessions.get(i) == null ) {
 						hours.put(String.valueOf(hr)+":00", true);
-						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+						
+						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 						
 					}
 				else if (studentMentorSessions.get(i).getScheduledDate().equals(date)
 							&& studentMentorSessions.get(i).getStartTime().getHour() == hr) {
 						hours.put(String.valueOf(hr) + ":00", false);
-						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),false));
+						mentorAvailabilityHours.add(
+								new MentorAvailabilityHours(
+										(String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),
+										false,
+										studentMentorSessions.get(i).getStudent().getStudentId().compareTo(student.getStudentId())==0?true:false)
+								);
 
 						i++;
 						
 					} else {
 						hours.put(String.valueOf(hr)+":00", true);
-						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 						
 					}
 
@@ -1540,7 +1546,7 @@ public class StudentServiceImpl implements StudentService {
 				List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 				for (int hr = 0; hr <= 23; hr++) {
 					hours.put(String.valueOf(hr) + ":00", true);
-					mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+					mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 					
 				}
 				

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.model.Corporate;
@@ -64,4 +66,8 @@ public class JobResponseBean {
 	private Boolean alreadyApplied;
 
 	private String descriptionFileUrl;
+	
+	private Timestamp createdOn;
+	
+	private Timestamp updatedOn;
 }

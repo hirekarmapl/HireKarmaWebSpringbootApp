@@ -45,6 +45,7 @@ public class OnlineAssessment implements Serializable {
 	int mcqMarks;
 	int paragraphMarks;
 	int totalTime;
+	boolean publicly_available;
 	
 	@Column(nullable = false)
 	Boolean deleteStatus = false;
@@ -156,6 +157,12 @@ public List<StudentOnlineAssessmentAnswer> getStudentOnlineAssessmentAnswers() {
 	}
 	public void setUniversity(University university) {
 		this.university = university;
+	}
+	public boolean isPublicly_available() {
+		return publicly_available;
+	}
+	public void setPublicly_available(boolean publicly_available) {
+		this.publicly_available = publicly_available;
 	}
 
 

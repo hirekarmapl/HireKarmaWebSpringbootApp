@@ -695,7 +695,67 @@ public class StudentServiceImpl implements StudentService {
 		return student;
 
 	}
+	@Override
+	public UserBeanResponse updateStudentProfileByUniversity(UserBean userBean, String token) throws Exception {
+		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
+		Optional<StudentBranch> studentBranch = null;
+		Optional<StudentBatch> studentBatch = null;
+		String email = Validation.validateToken(token);
+		Optional<Student> optionalStudent = studentRepository.findById(userBean.getStudentId());
+		if(!optionalStudent.isPresent()) {
+			throw new Exception("invalid student Id");
+		}
+		Student student = optionalStudent.get();
+		UserProfile user = userRepository.findUserByEmail(student.getStudentEmail());
 
+		// checking for token
+		if (student == null) {
+			throw new Exception("Invalid token");
+		}
+
+		if (userBean.getBatch() != null) {
+			System.out.print("inside student batch");
+			studentBatch = studentBatchRepository.findById(userBean.getBatch());
+			if (!studentBatch.isPresent()) {
+				throw new Exception("invalid batch id");
+			}
+		}
+		if (userBean.getBranch() != null) {
+			System.out.print("inside student branch");
+			studentBranch = studentBranchRepository.findById(userBean.getBranch());
+			if (!studentBranch.isPresent()) {
+				throw new Exception("invalid branch id");
+			}
+		}
+		UserProfile studentReturn = this.userRepository.save(updateUserAttributeByBean(user, userBean));
+		student = updateStudentByUserProfile(student, studentReturn, userBean, studentBatch, studentBranch);
+		LOGGER.info("student skills size : {}",studentReturn.getSkills().size());
+//		check for profile update
+		student.setPercentageOfProfileCompletion(
+				getProfileUpdateStatusForStudentByStudentAndUserProfile(student, studentReturn));
+		LOGGER.info(" {}", student.getPercentageOfProfileCompletion());
+		student.setProfileUpdationStatus(student.getPercentageOfProfileCompletion() != 1.0 ? false : true);
+		student = studentRepository.save(student);
+
+		UserBeanResponse studentBeanReturn = new UserBeanResponse();
+		BeanUtils.copyProperties(studentReturn, studentBeanReturn);
+		studentBeanReturn.setProfileUpdateStatus(student.getProfileUpdationStatus());
+		studentBeanReturn.setStudentBatchName(userBean.getBatch() != null ? studentBatch.get().getBatchName() : "");
+		studentBeanReturn.setStudentBranchName(userBean.getBranch() != null ? studentBranch.get().getBranchName() : "");
+		studentBeanReturn.setUniversityName(student.getUniversityId() != null
+				? universityRepository.getById(student.getUniversityId()).getUniversityName()
+				: "");
+		studentBeanReturn.setBatch(student.getBatch());
+		studentBeanReturn.setBranch(student.getBranch());
+		studentBeanReturn.setCgpa(student.getCgpa());
+		studentBeanReturn.setUniversityId(student.getUniversityId());
+		studentBeanReturn.setStream(student.getStream());
+		studentBeanReturn.setImageUrl(student.getImageUrl());
+		studentBeanReturn.setPercentageOfProfileCompletion(student.getPercentageOfProfileCompletion());
+		LOGGER.info("Data Successfully updated using StudentServiceImpl.updateStudentProfile(-)");
+
+		return studentBeanReturn;
+	}
 	@Override
 	public UserBeanResponse updateStudentProfile2(UserBean userBean, String token) throws Exception {
 		LOGGER.debug("Inside StudentServiceImpl.updateStudentProfile2(-)");
@@ -1117,6 +1177,7 @@ public class StudentServiceImpl implements StudentService {
 		List<UniversitySharedJobList> universitySharedJobList = new ArrayList<UniversitySharedJobList>();
 
 		studentList = studentRepository.getDetailsByEmail1(email);
+		System.out.println(studentList);
 //		student -> university id -> university
 		if (studentList.get(0).getUniversityId() == null) {
 			throw new NoSuchElementException("You are not associated with any university");
@@ -1396,7 +1457,7 @@ public class StudentServiceImpl implements StudentService {
 		List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 		for (int hr = 0; hr <= 23; hr++) {
 			hours.put(String.valueOf(hr) + ":00", true);
-			mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+			mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 
 		}
 		
@@ -1443,19 +1504,25 @@ public class StudentServiceImpl implements StudentService {
 //					LOGGER.info("{} date {} hr {} i",date,hr,i);
 					if(studentMentorSessions.get(i) == null ) {
 						hours.put(String.valueOf(hr)+":00", true);
-						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+						
+						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 						
 					}
 				else if (studentMentorSessions.get(i).getScheduledDate().equals(date)
 							&& studentMentorSessions.get(i).getStartTime().getHour() == hr) {
 						hours.put(String.valueOf(hr) + ":00", false);
-						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),false));
+						mentorAvailabilityHours.add(
+								new MentorAvailabilityHours(
+										(String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),
+										false,
+										studentMentorSessions.get(i).getStudent().getStudentId().compareTo(student.getStudentId())==0?true:false)
+								);
 
 						i++;
 						
 					} else {
 						hours.put(String.valueOf(hr)+":00", true);
-						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+						mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 						
 					}
 
@@ -1479,7 +1546,7 @@ public class StudentServiceImpl implements StudentService {
 				List<MentorAvailabilityHours> mentorAvailabilityHours = new ArrayList<>();
 				for (int hr = 0; hr <= 23; hr++) {
 					hours.put(String.valueOf(hr) + ":00", true);
-					mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true));
+					mentorAvailabilityHours.add(new MentorAvailabilityHours((String.valueOf(hr)+":00 - "+String.valueOf(hr+1)+":00"),true,false));
 					
 				}
 				

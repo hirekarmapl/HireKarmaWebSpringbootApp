@@ -125,6 +125,11 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	}
 	@Override
 	public OnlineAssessment addQuestionToOnlineAssesmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception {
+/*
+Note :- using onlineAssessment - > questionAndAnswer relation
+
+ */
+		
 		String email = Validation.validateToken(token);
 		
 		Corporate corporate = corporateRepository.findByEmail(email);
@@ -139,6 +144,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
 		List<QuestionANdanswer> questionANdanswersToBeAdded = new ArrayList<QuestionANdanswer>();
 		logger.info("question and answer -> {} ",questionANdanswers);
+//		checking if qna already exist
 		for(QuestionANdanswer q:questionANdanswers) {
 			if(!onlineAssessment.getQuestionANdanswers().contains(q)) {
 				onlineAssessment.getQuestionANdanswers().add(q);
@@ -301,26 +307,29 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	}
 
 	@Override
-	public Map<String,Object> getAllQNAForStudentOfOnlineAssessment(String token,
+	public Map<String,Object> getAllQNAForStudentForOnlineAssessment(String token,
 			String onlineAssessmentSlug) throws Exception {
+//	finding student
 		String email = Validation.validateToken(token);
 		Student student = this.studentRepository.findByStudentEmail(email);
+//		online assesment validation
 		Optional<OnlineAssessment> optional = this.onlineAssessmentRepository.findById(onlineAssessmentSlug);
 		if(!optional.isPresent()) {
 			throw new Exception("invalid slug");
-		}
-		
+		}		
 		OnlineAssessment onlineAssessment = optional.get();
+//		setting the start timer
 		StudentOnlineAssessment studentOnlineAssessment = this.studentOnlineAssessmentRepository.findByStudentAndOnlineAssessment(student, onlineAssessment);
 		studentOnlineAssessment.setStartedOn(LocalDateTime.now());
 		this.studentOnlineAssessmentRepository.save(studentOnlineAssessment);
-		
+//		get all question without answer
 		List<QuestionAndAnswerStudentResponseBean> questionAndAnswerStudentResponseBeans = new ArrayList<QuestionAndAnswerStudentResponseBean>();
 		for(QuestionANdanswer q:onlineAssessment.getQuestionANdanswers()) {
 			QuestionAndAnswerStudentResponseBean questionAndAnswerStudentResponseBean = new QuestionAndAnswerStudentResponseBean();
 			BeanUtils.copyProperties(q, questionAndAnswerStudentResponseBean);
 			questionAndAnswerStudentResponseBeans.add(questionAndAnswerStudentResponseBean);
 		}
+//		inserting values
 		Map<String,Object> response = new HashMap<String, Object>();
 		response.put("QNA",questionAndAnswerStudentResponseBeans);
 		onlineAssessment.setCorporate(null);
@@ -461,7 +470,101 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		
 		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment,onlineAssessmentBean));
 	}
+//-------------------------- admin ---------------------------------
+	@Override
+	public OnlineAssessment addOnlineAssessmentByAdmin(OnlineAssessmentBean bean) throws Exception {
+		
+		OnlineAssessment onlineAssessment = new OnlineAssessment();
+		
+		return onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment, bean));
+	}
 
+	@Override
+	public List<OnlineAssessment> getOnlineAssessmentCreatedByAdmin() {
+		List<OnlineAssessment> onlineAssessments = this.onlineAssessmentRepository.findAllByAdmin();
+		return onlineAssessments;
+	}
+	@Override
+	public OnlineAssessment addQuestionToOnlineAssesmentByAdmin(OnlineAssessmentBean onlineAssessmentBean) throws Exception {
+		
+		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentBean.getOnlineAssessmentSlug());
+		
+		if(onlineAssessment.getUniversity()!=null || onlineAssessment.getCorporate()!=null) {
+			throw new Exception("admin access only");
+		}
+		if(onlineAssessment==null) {
+			throw new Exception("onlineAssesment id incorrect");
+		}
+		
+		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
+		List<QuestionANdanswer> questionANdanswersToBeAdded = new ArrayList<QuestionANdanswer>();
+		logger.info("question and answer -> {} ",questionANdanswers);
+		for(QuestionANdanswer q:questionANdanswers) {
+			if(!onlineAssessment.getQuestionANdanswers().contains(q)) {
+				onlineAssessment.getQuestionANdanswers().add(q);
+			}
+		}
+		
+//		counting total marks
+		int totalMarks = onlineAssessment.getTotalMarks();
+		for(QuestionANdanswer q: questionANdanswers) {
+			if(q.getType().equals("QNA")) {
+				totalMarks += onlineAssessment.getQnaMarks();
+			}
+			else if(q.getType().equals("MCQ")) {
+				totalMarks += onlineAssessment.getMcqMarks();
+			}
+			else if(q.getType().equals("Input")) {
+				totalMarks += onlineAssessment.getParagraphMarks();
+			}
+			else if(q.getType().equals("Coding")) {
+				totalMarks += onlineAssessment.getCodingMarks();
+			}
+		}
+		onlineAssessment.setTotalMarks(totalMarks);
+		logger.info("saving totla marks {}",totalMarks);
+		logger.info("succesffully completed the function");
+		return this.onlineAssessmentRepository.save(onlineAssessment);
+	}
+
+	// get all assessment created by admin for public student
+	@Override
+	public List<OnlineAssesmentResponseBean> getAllOnlineAssessmentForPublic() throws Exception {		
+		List<OnlineAssessment> onlineAssessments = this.onlineAssessmentRepository.findAllForPublic();
+		List<OnlineAssesmentResponseBean> onlineAssesmentResponseBeans = new ArrayList<OnlineAssesmentResponseBean>();
+		for(OnlineAssessment o: onlineAssessments) {
+			OnlineAssesmentResponseBean onlineAssesmentResponseBean = new OnlineAssesmentResponseBean();
+			BeanUtils.copyProperties(o, onlineAssesmentResponseBean);
+			onlineAssesmentResponseBeans.add(onlineAssesmentResponseBean);
+			System.out.println(onlineAssesmentResponseBeans);
+		}
+		return onlineAssesmentResponseBeans;
+	}
+
+	@Override
+	public Map<String, Object> getAllQNAForPublicForAssessement(String onlineAssessmentSlug) throws Exception {
+
+//			online assesment validation
+			Optional<OnlineAssessment> optional = this.onlineAssessmentRepository.findById(onlineAssessmentSlug);
+			if(!optional.isPresent()) {
+				throw new Exception("invalid slug");
+			}		
+			OnlineAssessment onlineAssessment = optional.get();
+//			get all question without answer
+			List<QuestionAndAnswerStudentResponseBean> questionAndAnswerStudentResponseBeans = new ArrayList<QuestionAndAnswerStudentResponseBean>();
+			for(QuestionANdanswer q:onlineAssessment.getQuestionANdanswers()) {
+				QuestionAndAnswerStudentResponseBean questionAndAnswerStudentResponseBean = new QuestionAndAnswerStudentResponseBean();
+				BeanUtils.copyProperties(q, questionAndAnswerStudentResponseBean);
+				questionAndAnswerStudentResponseBeans.add(questionAndAnswerStudentResponseBean);
+			}
+//			inserting values
+			Map<String,Object> response = new HashMap<String, Object>();
+			response.put("QNA",questionAndAnswerStudentResponseBeans);
+			onlineAssessment.setCorporate(null);
+			onlineAssessment.setQuestionANdanswers(null);
+			response.put("onlineAssessment", onlineAssessment);
+			return response;
+	}
 }
 	
 	

@@ -13,4 +13,5 @@ import lombok.ToString;
 public class MentorAvailabilityHours {
  String time;
 	boolean available;
+	boolean studentBooking;
 }

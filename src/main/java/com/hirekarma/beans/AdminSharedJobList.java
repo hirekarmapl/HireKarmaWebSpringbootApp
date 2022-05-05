@@ -1,5 +1,11 @@
 package com.hirekarma.beans;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.hirekarma.model.Stream;
+import com.hirekarma.model.StudentBranch;
+
 import lombok.Data;
 import lombok.ToString;
 
@@ -36,5 +42,11 @@ public class AdminSharedJobList {
 	private String corporateId;
 	
 	private String descriptionFileUrl;
+private String eligibilityCriteria;
+	
+	private String rolesAndResponsibility;
+	private List<Stream> streams= new ArrayList<>();
+	private List<StudentBranch> branchs= new ArrayList<>();
+	
 
 }

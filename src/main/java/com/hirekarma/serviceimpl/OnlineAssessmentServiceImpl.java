@@ -1,7 +1,9 @@
 package com.hirekarma.serviceimpl;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +24,7 @@ import com.hirekarma.beans.OnlineAssessmentBean;
 import com.hirekarma.beans.QuestionAndAnswerStudentResponseBean;
 import com.hirekarma.beans.StudentOnlineAssessmentAnswerRequestBean;
 import com.hirekarma.controller.UniversityUserController;
+import com.hirekarma.email.controller.EmailController;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.OnlineAssessment;
 import com.hirekarma.model.QuestionANdanswer;
@@ -44,6 +47,9 @@ import com.hirekarma.utilty.Validation;
 public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OnlineAssessmentServiceImpl.class);
+	
+	@Autowired
+	EmailController emailController;
 	@Autowired
 	QuestionAndAnswerRepository questionAndAnswerRepository;
 
@@ -77,7 +83,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		
 //		create a studentOnlineAssessment
 		List<StudentOnlineAssessment> studentOnlineAssessments = studentOnlineAssessmentService.createByListOfStudent(students, onlineAssessment);
-		
+		emailController.onlineAssessmentEmail(studentOnlineAssessments);
 		return studentOnlineAssessments;
 	}
 	
@@ -308,18 +314,27 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 
 	@Override
 	public Map<String,Object> getAllQNAForStudentForOnlineAssessment(String token,
-			String onlineAssessmentSlug) throws Exception {
+			String studentOnlineAssessmentSlug) throws Exception {
 //	finding student
 		String email = Validation.validateToken(token);
 		Student student = this.studentRepository.findByStudentEmail(email);
 //		online assesment validation
-		Optional<OnlineAssessment> optional = this.onlineAssessmentRepository.findById(onlineAssessmentSlug);
-		if(!optional.isPresent()) {
+		Optional<StudentOnlineAssessment> optionalStudentOnlineAssessment = this.studentOnlineAssessmentRepository.findById(studentOnlineAssessmentSlug);
+		if(!optionalStudentOnlineAssessment.isPresent()) {
 			throw new Exception("invalid slug");
-		}		
-		OnlineAssessment onlineAssessment = optional.get();
+		}
+		StudentOnlineAssessment studentOnlineAssessment = optionalStudentOnlineAssessment.get();
+		
+		OnlineAssessment onlineAssessment = studentOnlineAssessment.getOnlineAssessment();
+		if(studentOnlineAssessment!=null && studentOnlineAssessment.getStartedOn()!=null) {
+			 Duration duration = Duration.between(studentOnlineAssessment.getStartedOn(), LocalDateTime.now());
+			 long minutes = duration.toMinutes();
+//			long minutes = ChronoUnit.MINUTES.between(studentOnlineAssessment.getStartedOn(), LocalDateTime.now());
+			if(onlineAssessment.getTotalTime() < minutes  ) {
+				throw new Exception("already attempted the test");
+			}
+		}
 //		setting the start timer
-		StudentOnlineAssessment studentOnlineAssessment = this.studentOnlineAssessmentRepository.findByStudentAndOnlineAssessment(student, onlineAssessment);
 		studentOnlineAssessment.setStartedOn(LocalDateTime.now());
 		this.studentOnlineAssessmentRepository.save(studentOnlineAssessment);
 //		get all question without answer
@@ -339,17 +354,20 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 	}
 
 	@Override
-	public void submitAnswerForOnlineAssessmentByStudent(String onlineAssessmentSlug,
+	public void submitAnswerForOnlineAssessmentByStudent(String studentOnlineAssessmentSlug,
 			List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans,String token) throws Exception {
 		String email = Validation.validateToken(token);
 		Student student = this.studentRepository.findByStudentEmail(email);
-		Optional<OnlineAssessment> optional = this.onlineAssessmentRepository.findById(onlineAssessmentSlug);
-		if(!optional.isPresent()) {
-			throw new Exception("invalid onlineasseesment id");
+//		getting studentONlineAssesment from slug
+		Optional<StudentOnlineAssessment> optionalStudentOnlineAssessment = this.studentOnlineAssessmentRepository.findById(studentOnlineAssessmentSlug);
+		if(!optionalStudentOnlineAssessment.isPresent()) {
+			throw new Exception("invalid slug");
 		}
-		OnlineAssessment onlineAssessment = optional.get();
+		StudentOnlineAssessment studentOnlineAssessment = optionalStudentOnlineAssessment.get();		
+		OnlineAssessment onlineAssessment = studentOnlineAssessment.getOnlineAssessment();
+
 		int totalMarks = 0;
-		
+//		saving all the answera
 		List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers = new ArrayList<>();
 		for(StudentOnlineAssessmentAnswerRequestBean s:studentOnlineAssessmentAnswerRequestBeans) {
 			StudentOnlineAssessmentAnswer studentOnlineAssessmentAnswer = new StudentOnlineAssessmentAnswer();
@@ -365,22 +383,22 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 			else if(questionANdanswer.getType().equals("Coding")) {
 				if(questionANdanswer.getType().equals("MCQ")) {
 					if(s.getAnswer()!=null) {
-						Integer mcqAnswer = (Integer) s.getAnswer().get("testCasesPased");
-						totalMarks = totalMarks+ onlineAssessment.getCodingMarks()*mcqAnswer;
+						Integer testCasePassed = (Integer) s.getAnswer().get("testCasesPased");
+						totalMarks = totalMarks+ onlineAssessment.getCodingMarks()*testCasePassed;
 					
 					}
 				}
 			}
 			studentOnlineAssessmentAnswer.setQuestionANdanswer(questionANdanswer);
 			studentOnlineAssessmentAnswer.setAnswer(s.getAnswer());
-			
+			studentOnlineAssessmentAnswer.setStudentOnlineAssessment(studentOnlineAssessment);
 			studentOnlineAssessmentAnswer.setJsonAnswer(s.getAnswer().toJSONString());
 			studentOnlineAssessmentAnswer.setStudent(student);
-			studentOnlineAssessmentAnswer.setOnlineAssessment(optional.get());
+			studentOnlineAssessmentAnswer.setOnlineAssessment(onlineAssessment);
 			System.out.println(s.getAnswer());
 			studentOnlineAssessmentAnswers.add(studentOnlineAssessmentAnswer);
 		}
-		StudentOnlineAssessment studentOnlineAssessment = this.studentOnlineAssessmentRepository.findByStudentAndOnlineAssessment(student, onlineAssessment);
+		studentOnlineAssessment = this.studentOnlineAssessmentRepository.findByStudentAndOnlineAssessment(student, onlineAssessment);
 		studentOnlineAssessment.setTotalMarksObtained(totalMarks);
 		this.studentOnlineAssessmentRepository.save(studentOnlineAssessment); 
 		this.studentOnlineAssessmentAnswerRepository.saveAll(studentOnlineAssessmentAnswers);

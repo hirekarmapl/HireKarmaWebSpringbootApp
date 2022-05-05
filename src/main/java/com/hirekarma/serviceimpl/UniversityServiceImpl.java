@@ -45,6 +45,7 @@ import com.hirekarma.model.Notice;
 import com.hirekarma.model.Stream;
 import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentBatch;
+import com.hirekarma.model.StudentBranch;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UniversityJobShareToStudent;
 import com.hirekarma.model.UserProfile;
@@ -284,10 +285,13 @@ public class UniversityServiceImpl implements UniversityService {
 			JSONObject jsonObject = (JSONObject) obj;
 
 			String email = (String) jsonObject.get("sub");
-
+//			getting university
 			university = universityRepository.findByEmail(email);
 			Optional<?> optional = null;
-
+/*
+ get univeristy,job
+ if campusDriveRespone exist with particular unviersity ,corporate and job then throw error else create new one
+ */
 			if (university != null) {
 
 				 Job job = jobRepository.getById(campus.getJobId());
@@ -370,23 +374,30 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 
 				if (list.size() != 0) {
 					for (Object[] obj1 : list) {
+						AdminShareJobToUniversity adminShareJobToUniversity = (AdminShareJobToUniversity) obj1[0];
+						Job j = (Job) obj1[1];
 						adminSharedJobList = new AdminSharedJobList();
 
-						adminSharedJobList.setUniversityResponseStatus(String.valueOf(obj1[0]));
-						adminSharedJobList.setShareJobId(String.valueOf(obj1[1]));
-						adminSharedJobList.setJobTitle((String) obj1[2]);
-						adminSharedJobList.setCategory((String) obj1[3]);
-						adminSharedJobList.setJobType((String) obj1[4]);
-						adminSharedJobList.setWfhCheckbox((Boolean) obj1[5]);
-						adminSharedJobList.setSkills((String) obj1[6]);
-						adminSharedJobList.setCity((String) obj1[7]);
-						adminSharedJobList.setOpenings(String.valueOf(obj1[8]));
-						adminSharedJobList.setSalary(String.valueOf(obj1[9]));
-						adminSharedJobList.setAbout((String) obj1[10]);
-						adminSharedJobList.setDescription((String) obj1[11]);
-						adminSharedJobList.setJobId(String.valueOf(obj1[12]));
-						adminSharedJobList.setCorporateId(String.valueOf(obj1[13]));
-						adminSharedJobList.setDescriptionFileUrl(String.valueOf(obj1[14]));
+						adminSharedJobList.setUniversityResponseStatus(adminShareJobToUniversity.getUniversityResponseStatus().toString());
+						adminSharedJobList.setShareJobId(adminShareJobToUniversity.getShareJobId().toString());
+						adminSharedJobList.setJobTitle(j.getJobTitle());
+						adminSharedJobList.setCategory(j.getCategory());
+						adminSharedJobList.setJobType(j.getJobType());
+						adminSharedJobList.setWfhCheckbox(j.getWfhCheckbox());
+						adminSharedJobList.setSkills(j.getSkills());
+						adminSharedJobList.setCity(j.getCity());
+						adminSharedJobList.setOpenings(j.getOpenings().toString());
+						adminSharedJobList.setSalary(j.getSalary().toString());
+						adminSharedJobList.setAbout(j.getAbout());
+						adminSharedJobList.setDescription(j.getDescription());
+						adminSharedJobList.setJobId(j.getJobId().toString());
+						adminSharedJobList.setCorporateId(j.getCorporateId().toString());
+						adminSharedJobList.setDescriptionFileUrl(j.getDescriptionFileUrl());
+						adminSharedJobList.setRolesAndResponsibility(j.getRolesAndResponsibility());	
+						adminSharedJobList.setEligibilityCriteria(j.getEligibilityCriteria());
+						adminSharedJobList.setBranchs(j.getBranchs());
+						adminSharedJobList.setStreams(j.getStreams());
+
 						SharedJobList.add(adminSharedJobList);
 					}
 

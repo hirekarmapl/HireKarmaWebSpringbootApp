@@ -51,6 +51,26 @@ public class StudentOnlineAssessmentServiceImpl implements StudentOnlineAssessme
 	}
 	@Override
 	public Map<String,Object> getAllAnswerByAStudent(StudentOnlineAssessmentAnswerBean studentOnlineAssessmentAnswerBean) throws Exception{
+//		Optional<Student> optionalStudent = this.studentRepository.findById(studentOnlineAssessmentAnswerBean.getStudentId());
+//		if(!optionalStudent.isPresent()) {
+//			throw new Exception("no such student found");
+//		}
+//		Optional<StudentOnlineAssessment> optionalStudentOnlineAssessment = this.studentOnlineAssessmentRepository.findById(studentOnlineAssessmentAnswerBean.getStudentAssesmentSlug());
+//		if(!optionalStudentOnlineAssessment.isPresent()) {
+//			throw new Exception("invalid slug");
+//		}
+//		StudentOnlineAssessment studentOnlineAssessment = optionalStudentOnlineAssessment.get();		
+//		OnlineAssessment onlineAssessment = studentOnlineAssessment.getOnlineAssessment();
+//
+//		onlineAssessment.setQuestionANdanswers(null);
+//		Map<String, Object> response = new HashMap<String, Object>();
+//		List<StudentOnlineAssessmentAnswer>  studentOnlineAssessmentAnswers = this.studentOnlineAssessmentAnswerRepository.findByStudentAndOnlineAssessment(optionalStudent.get(), onlineAssessment);
+//		response.put("studentOnlineAssessment", studentOnlineAssessment);
+//		response.put("studentOnlineAssessmentAnswers",studentOnlineAssessmentAnswers);
+//		response.put("student", optionalStudent.get());
+//		response.put("onlineAssessment", onlineAssessment);
+//		return response;
+		
 		Optional<Student> optionalStudent = this.studentRepository.findById(studentOnlineAssessmentAnswerBean.getStudentId());
 		if(!optionalStudent.isPresent()) {
 			throw new Exception("no such student found");

@@ -44,13 +44,14 @@ public class OnlineAssesmentController {
 	
 	@PreAuthorize("hasRole('student')")
 	@GetMapping("/student/assessment/questionaries/{slug}")
-	public ResponseEntity<Response> getAllQNAForStudentOfOnlineAssessment(@RequestHeader("Authorization") String token,@PathVariable("slug") String onlineAssessmentSlug) {
+	public ResponseEntity<Response> getAllQNAForStudentOfOnlineAssessment(@RequestHeader("Authorization") String token,@PathVariable("slug") String studentOnlineAssessmentSlug) {
 		try {
 			return new ResponseEntity(
 					new Response("success", HttpStatus.OK, "",
-							this.onlineAssessmentService.getAllQNAForStudentForOnlineAssessment(token,onlineAssessmentSlug), null),
+							this.onlineAssessmentService.getAllQNAForStudentForOnlineAssessment(token,studentOnlineAssessmentSlug), null),
 					HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}
@@ -58,11 +59,11 @@ public class OnlineAssesmentController {
 
 	@PreAuthorize("hasRole('student')")
 	@PostMapping("/student/assessment/submit/{slug}")
-	public ResponseEntity<Response> submitAnswerForOnlineAssessmentByStudent(@RequestHeader("Authorization") String token,@PathVariable("slug") String onlineAssessmentSlug,@RequestBody List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans) {
+	public ResponseEntity<Response> submitAnswerForOnlineAssessmentByStudent(@RequestHeader("Authorization") String token,@PathVariable("slug") String studentOnlineAssessmentSlug,@RequestBody List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans) {
 		try {
 			System.out.println(studentOnlineAssessmentAnswerRequestBeans.get(0).getAnswer());
 			System.out.println(studentOnlineAssessmentAnswerRequestBeans.get(0).getQuestionId());
-			this.onlineAssessmentService.submitAnswerForOnlineAssessmentByStudent(onlineAssessmentSlug, studentOnlineAssessmentAnswerRequestBeans, token);
+			this.onlineAssessmentService.submitAnswerForOnlineAssessmentByStudent(studentOnlineAssessmentSlug, studentOnlineAssessmentAnswerRequestBeans, token);
 			
 			return new ResponseEntity(
 					new Response("success", HttpStatus.OK, "successfully added",

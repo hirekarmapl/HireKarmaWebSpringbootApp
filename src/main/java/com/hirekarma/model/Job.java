@@ -26,6 +26,10 @@ public class Job implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@NotNull
@@ -90,238 +94,234 @@ public class Job implements Serializable{
 	
 	private Boolean forcampusDrive;
 	
+
 	private LocalDateTime tentativeDate;
 	
-
 	@ManyToMany
 	private List<Stream> streams = new ArrayList<Stream>();
 	
 	@ManyToMany
 	private List<StudentBranch> branchs = new ArrayList<StudentBranch>();
-	
-	public Double getSalaryAtProbation() {
-		return salaryAtProbation;
+
+	public String getAbout() {
+		return about;
 	}
-
-	public LocalDateTime getTentativeDate() {
-		return tentativeDate;
-	}
-
-	public void setTentativeDate(LocalDateTime tentativeDate) {
-		this.tentativeDate = tentativeDate;
-	}
-
-	public void setSalaryAtProbation(Double salaryAtProbation) {
-		this.salaryAtProbation = salaryAtProbation;
-	}
-
-	
-
-	public Boolean getForcampusDrive() {
-		return forcampusDrive;
-	}
-
-	public void setForcampusDrive(Boolean forcampusDrive) {
-		this.forcampusDrive = forcampusDrive;
-	}
-
-
-
-	
-	
-	public List<Stream> getStreams() {
-		return streams;
-	}
-
-	public void setStreams(List<Stream> streams) {
-		this.streams = streams;
-	}
-
-	public String getRolesAndResponsibility() {
-		return rolesAndResponsibility;
-	}
-
-	public void setRolesAndResponsibility(String rolesAndResponsibility) {
-		this.rolesAndResponsibility = rolesAndResponsibility;
-	}
-
-	public String getEligibilityCriteria() {
-		return eligibilityCriteria;
-	}
-
-	public void setEligibilityCriteria(String eligibilityCriteria) {
-		this.eligibilityCriteria = eligibilityCriteria;
-	}
-
-	public Double getSalaryAfterProbation() {
-		return salaryAtProbation;
-	}
-
-	public void setSalaryAfterProbation(Double salaryAfterProbation) {
-		this.salaryAtProbation = salaryAfterProbation;
-	}
-
-	public Integer getServiceAgreement() {
-		return serviceAgreement;
-	}
-
-	public void setServiceAgreement(Integer serviceAgreement) {
-		this.serviceAgreement = serviceAgreement;
-	}
-
-	
-	
-
-	
 
 	public List<StudentBranch> getBranchs() {
 		return branchs;
-	}
-
-	public void setBranchs(List<StudentBranch> branchs) {
-		this.branchs = branchs;
-	}
-
-
-
-	public String getDescriptionFileUrl() {
-		return descriptionFileUrl;
-	}
-
-	public void setDescriptionFileUrl(String descriptionFileUrl) {
-		this.descriptionFileUrl = descriptionFileUrl;
-	}
-
-	public Long getJobId() {
-		return jobId;
-	}
-
-	public void setJobId(Long jobId) {
-		this.jobId = jobId;
-	}
-
-	public Long getCorporateId() {
-		return corporateId;
-	}
-
-	public void setCorporateId(Long corporateId) {
-		this.corporateId = corporateId;
-	}
-
-	public String getJobTitle() {
-		return jobTitle;
-	}
-
-	public void setJobTitle(String jobTitle) {
-		this.jobTitle = jobTitle;
 	}
 
 	public String getCategory() {
 		return category;
 	}
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public String getJobType() {
-		return jobType;
-	}
-
-	public void setJobType(String jobType) {
-		this.jobType = jobType;
-	}
-
-	public Boolean getWfhCheckbox() {
-		return wfhCheckbox;
-	}
-
-	public void setWfhCheckbox(Boolean wfhCheckbox) {
-		this.wfhCheckbox = wfhCheckbox;
-	}
-
-	public String getSkills() {
-		return skills;
-	}
-
-	public void setSkills(String skills) {
-		this.skills = skills;
-	}
+	
 
 	public String getCity() {
 		return city;
 	}
 
-	public void setCity(String city) {
-		this.city = city;
+	public Long getCorporateId() {
+		return corporateId;
 	}
 
-	public Integer getOpenings() {
-		return openings;
-	}
 
-	public void setOpenings(Integer openings) {
-		this.openings = openings;
-	}
 
-	public Double getSalary() {
-		return salary;
-	}
-
-	public void setSalary(Double salary) {
-		this.salary = salary;
-	}
-
-	public String getAbout() {
-		return about;
-	}
-
-	public void setAbout(String about) {
-		this.about = about;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public Boolean getStatus() {
-		return status;
-	}
-
-	public void setStatus(Boolean status) {
-		this.status = status;
+	
+	
+	public Timestamp getCreatedOn() {
+		return createdOn;
 	}
 
 	public Boolean getDeleteStatus() {
 		return deleteStatus;
 	}
 
-	public void setDeleteStatus(Boolean deleteStatus) {
-		this.deleteStatus = deleteStatus;
+	public String getDescription() {
+		return description;
 	}
 
-	public Timestamp getCreatedOn() {
-		return createdOn;
+	public String getDescriptionFileUrl() {
+		return descriptionFileUrl;
 	}
 
-	public void setCreatedOn(Timestamp createdOn) {
-		this.createdOn = createdOn;
+	public String getEligibilityCriteria() {
+		return eligibilityCriteria;
+	}
+
+	public Boolean getForcampusDrive() {
+		return forcampusDrive;
+	}
+
+	public Long getJobId() {
+		return jobId;
+	}
+
+	public String getJobTitle() {
+		return jobTitle;
+	}
+
+	public String getJobType() {
+		return jobType;
+	}
+
+	public Integer getOpenings() {
+		return openings;
+	}
+
+	
+	
+
+	
+
+	public String getRolesAndResponsibility() {
+		return rolesAndResponsibility;
+	}
+
+	public Double getSalary() {
+		return salary;
+	}
+
+
+
+	public Double getSalaryAfterProbation() {
+		return salaryAtProbation;
+	}
+
+	public Double getSalaryAtProbation() {
+		return salaryAtProbation;
+	}
+
+	public Integer getServiceAgreement() {
+		return serviceAgreement;
+	}
+
+	public String getSkills() {
+		return skills;
+	}
+
+	public Boolean getStatus() {
+		return status;
+	}
+
+	public List<Stream> getStreams() {
+		return streams;
+	}
+
+	public LocalDateTime getTentativeDate() {
+		return tentativeDate;
 	}
 
 	public Timestamp getUpdatedOn() {
 		return updatedOn;
 	}
 
+	public Boolean getWfhCheckbox() {
+		return wfhCheckbox;
+	}
+
+	public void setAbout(String about) {
+		this.about = about;
+	}
+
+	public void setBranchs(List<StudentBranch> branchs) {
+		this.branchs = branchs;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
+	}
+
+	public void setCreatedOn(Timestamp createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public void setDeleteStatus(Boolean deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setDescriptionFileUrl(String descriptionFileUrl) {
+		this.descriptionFileUrl = descriptionFileUrl;
+	}
+
+	public void setEligibilityCriteria(String eligibilityCriteria) {
+		this.eligibilityCriteria = eligibilityCriteria;
+	}
+
+	public void setForcampusDrive(Boolean forcampusDrive) {
+		this.forcampusDrive = forcampusDrive;
+	}
+
+	public void setJobId(Long jobId) {
+		this.jobId = jobId;
+	}
+
+	public void setJobTitle(String jobTitle) {
+		this.jobTitle = jobTitle;
+	}
+
+	public void setJobType(String jobType) {
+		this.jobType = jobType;
+	}
+
+	public void setOpenings(Integer openings) {
+		this.openings = openings;
+	}
+
+	public void setRolesAndResponsibility(String rolesAndResponsibility) {
+		this.rolesAndResponsibility = rolesAndResponsibility;
+	}
+
+	public void setSalary(Double salary) {
+		this.salary = salary;
+	}
+
+	public void setSalaryAfterProbation(Double salaryAfterProbation) {
+		this.salaryAtProbation = salaryAfterProbation;
+	}
+
+	public void setSalaryAtProbation(Double salaryAtProbation) {
+		this.salaryAtProbation = salaryAtProbation;
+	}
+
+	public void setServiceAgreement(Integer serviceAgreement) {
+		this.serviceAgreement = serviceAgreement;
+	}
+
+	public void setSkills(String skills) {
+		this.skills = skills;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+	public void setStreams(List<Stream> streams) {
+		this.streams = streams;
+	}
+
+	public void setTentativeDate(LocalDateTime tentativeDate) {
+		this.tentativeDate = tentativeDate;
+	}
+
 	public void setUpdatedOn(Timestamp updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public void setWfhCheckbox(Boolean wfhCheckbox) {
+		this.wfhCheckbox = wfhCheckbox;
 	}
 
 	@Override

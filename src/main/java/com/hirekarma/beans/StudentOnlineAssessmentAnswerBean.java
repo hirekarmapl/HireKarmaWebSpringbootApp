@@ -9,4 +9,5 @@ public class StudentOnlineAssessmentAnswerBean {
 
 	Long studentId;
 	String onlineAssessmentSlug;
+	String studentAssesmentSlug;
 }

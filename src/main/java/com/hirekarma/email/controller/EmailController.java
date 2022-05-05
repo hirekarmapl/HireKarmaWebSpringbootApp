@@ -26,6 +26,7 @@ import com.hirekarma.email.service.EmailSenderService;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
+import com.hirekarma.model.StudentOnlineAssessment;
 import com.hirekarma.model.University;
 
 @RestController
@@ -67,6 +68,12 @@ public class EmailController {
 //			Logger.error("Mail sending failed using EmailController.SendingEmailList(-)");
 //		}
 //	}
+	
+	public void onlineAssessmentEmail(List<StudentOnlineAssessment> studentOnlineAssessments ) {
+		for(StudentOnlineAssessment s: studentOnlineAssessments) {
+			mailSender.sendEmailWithoutAttachment(s.getStudent().getStudentEmail(),"you have recieved an onlineAssessment please click on the link to check for the same http://exam.hirekarma.org/"+s.getSlug()+" ","OnlineAssessment Recieved");	
+		}
+	}
 	
 	public String getStudentEmailBody(String name) {
 		String welcomeStudentBody = "\r\n"

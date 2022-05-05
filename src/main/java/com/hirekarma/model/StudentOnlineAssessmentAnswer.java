@@ -31,14 +31,22 @@ public class StudentOnlineAssessmentAnswer {
 	@ManyToOne
 	OnlineAssessment onlineAssessment;
 	
-	
+	@JsonIgnore
+	@ManyToOne
+	StudentOnlineAssessment studentOnlineAssessment;
 	
 	@Transient
 	JSONObject answer;
 	
 	String jsonAnswer;
+
 	
-	
+	public StudentOnlineAssessment getStudentOnlineAssessment() {
+		return studentOnlineAssessment;
+	}
+	public void setStudentOnlineAssessment(StudentOnlineAssessment studentOnlineAssessment) {
+		this.studentOnlineAssessment = studentOnlineAssessment;
+	}
 	public Student getStudent() {
 		return student;
 	}

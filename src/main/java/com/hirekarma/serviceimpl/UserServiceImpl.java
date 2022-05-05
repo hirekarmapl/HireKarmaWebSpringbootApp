@@ -144,7 +144,6 @@ public class UserServiceImpl implements UserService {
 		if(!userProfile.getResetPasswordToken().equals(token)) {
 			throw new Exception("Invalid Request");
 		}
-		System.out.println(userProfile);
 		if(userProfile==null) {
 			throw new NoSuchElementException("no such user found");
 		}

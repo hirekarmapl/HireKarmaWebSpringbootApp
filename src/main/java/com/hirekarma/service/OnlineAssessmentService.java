@@ -72,7 +72,7 @@ public interface OnlineAssessmentService {
 	public Map<String,Object> getAllQNAForPublicForAssessement(String onlineAssessmentSlug) throws Exception;
 	
 //	get qna for student with particular assessment
-	public Map<String,Object> getAllQNAForStudentForOnlineAssessment(String token,String onlineAssessmentSlug) throws Exception;
+	public Map<String,Object> getAllQNAForStudentForOnlineAssessment(String token,String studentOnlineAssessmentSlug) throws Exception;
 
 	public void submitAnswerForOnlineAssessmentByStudent(String onlineAssessmentSlug,List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans,String token) throws Exception;
 }

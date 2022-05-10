@@ -46,7 +46,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.authorizeRequests()
 			.antMatchers(
 //					"/hirekarma/**"
-				"/hirekarma/login","/hirekarma/saveStudentUrl","/hirekarma/account/resetPassword",
+				"/hirekarma/login",
+				"/hirekarma/saveStudentUrl",
+				"/hirekarma/account/resetPassword",
 				"/hirekarma/account/validate",
 				"/hirekarma/account/update",
 				"/hirekarma/account/reset",
@@ -57,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/hirekarma/displayJobList",
 				"/hirekarma/branch",
 				"/hirekarma/branchs",
-					"/hirekarma/stream",
+				"/hirekarma/stream",
 				"/hirekarma/streams",
 				"/hirekarma/batch",
 				"/hirekarma/batch",
@@ -65,6 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/achievement",
 				"/hirekarma/job/activeJobs",
 				"/hirekarma/account/request-a-demo",
+				"/hirekarma/categories",
 				"/oauth2_login",
 				"/loginSuccess",
 				"/loginFailure"

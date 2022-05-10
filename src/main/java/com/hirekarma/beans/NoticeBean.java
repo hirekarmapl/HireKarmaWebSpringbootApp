@@ -20,6 +20,7 @@ public class NoticeBean {
 	
 	Long universityId;
 	
+	Long corporateId;
 //	
 	String link;
 //	

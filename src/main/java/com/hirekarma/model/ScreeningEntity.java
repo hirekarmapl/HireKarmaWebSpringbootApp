@@ -38,7 +38,6 @@ public class ScreeningEntity implements Serializable{
 	
 	@Column(name = "CORPORATE_ID")
 	private Long corporateId;
-	
 
 	private Long universityId;
 	

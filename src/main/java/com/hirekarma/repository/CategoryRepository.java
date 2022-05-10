@@ -7,4 +7,5 @@ import com.hirekarma.model.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
+	public Category findByName(String name);
 }

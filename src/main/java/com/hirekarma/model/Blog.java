@@ -1,5 +1,6 @@
 package com.hirekarma.model;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import javax.persistence.Column;
@@ -24,12 +25,9 @@ public class Blog {
 	String title;
 	
 	@ManyToOne
-	
 	Category category;
-	@Lob
-	byte[] image;
-	@Lob
-	String altImage;
+	
+	String imageUrl;
 	
 	@NotNull
 	String body;
@@ -46,6 +44,28 @@ public class Blog {
 
 	boolean ispublic =  false;
 	
+	LocalDateTime createdOn ;
+	
+	LocalDateTime updatedOn;
+	
+	
+	
+	public LocalDateTime getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(LocalDateTime createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public LocalDateTime getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(LocalDateTime updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
 	@Column(unique = true)
 	@NotNull
 	String slug;
@@ -74,15 +94,17 @@ public class Blog {
 		this.category = category;
 	}
 
-	public byte[] getImage() {
-		return image;
-	}
-
-	public void setImage(byte[] image) {
-		this.image = image;
-	}
+	
 
 	
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 
 	public String getBody() {
 		return body;
@@ -104,14 +126,7 @@ public class Blog {
 		return metaTitle;
 	}
 
-	public String getAltImage() {
-		return altImage;
-	}
-
-	public void setAltImage(String altImage) {
-		this.altImage = altImage;
-	}
-
+	
 	public void setMetaTitle(String metaTitle) {
 		this.metaTitle = metaTitle;
 	}
@@ -154,8 +169,6 @@ public class Blog {
 		this.id = id;
 		this.title = title;
 		this.category = category;
-		this.image = image;
-		this.altImage = altImage;
 		this.body = body;
 		this.keyword = keyword;
 		this.metaTitle = metaTitle;
@@ -170,13 +183,5 @@ public class Blog {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public String toString() {
-		return "Blog [id=" + id + ", title=" + title + ", category=" + category + ", image=" + Arrays.toString(image)
-				+ ", altImage=" + altImage + ", body=" + body + ", keyword=" + keyword + ", metaTitle="
-				+ metaTitle + ", metaDescription=" + metaDescription + ", corporate=" + corporate + ", ispublic="
-				+ ispublic + ", slug=" + slug + "]";
-	}
-	
 	
 }

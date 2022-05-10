@@ -200,17 +200,19 @@ public class CoporateUserController {
 	public ResponseEntity<Response> deleteBlogBySlug(@RequestHeader(value = "Authorization") String token,
 			@PathVariable("slug") String slug) {
 		try {
+			System.out.println(slug);
 			this.blogService.deleteBlogBySlug(token, slug);
 			return new ResponseEntity<Response>(new Response("success", 201, "deleted succesfully", null, null),
-					HttpStatus.CREATED);
+					HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@PreAuthorize("hasRole('corporate')")
-	@GetMapping("/corporate/blog/")
+	@GetMapping("/corporate/blog")
 	public ResponseEntity<Response> getAllBlogsByCoporate(@RequestHeader(value = "Authorization") String token) {
 		try {
 			List<Blog> blogs = this.blogService.getAllBlogsByCoporate(token);

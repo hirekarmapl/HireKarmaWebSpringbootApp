@@ -71,9 +71,8 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	@Autowired
 	StudentOnlineAssessmentAnswerRepository studentOnlineAssessmentAnswerRepository;
 	@Override
-	public List<StudentOnlineAssessment> sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception {
-		String email = Validation.validateToken(token);
-		Corporate corporate = this.corporateRepository.findByEmail(email);
+	public List<StudentOnlineAssessment> sendOnlineAssessmentToStudents(OnlineAssessmentBean onlineAssessmentBean) throws Exception {
+		
 		Optional<OnlineAssessment> optional = onlineAssessmentRepository.findById(onlineAssessmentBean.getOnlineAssessmentSlug());
 		if(!optional.isPresent()) {
 			throw new Exception("invalid slug");
@@ -104,11 +103,7 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 	}
 	
 	@Override
-	public OnlineAssessment addOnlineAssessmentByCorporate(OnlineAssessmentBean bean, String token) throws Exception {
-		
-		String email = Validation.validateToken(token);
-		Corporate corporate = corporateRepository.findByEmail(email);
-		
+	public OnlineAssessment addOnlineAssessmentByCorporate(OnlineAssessmentBean bean, Corporate corporate) throws Exception {
 		OnlineAssessment onlineAssessment = new OnlineAssessment();
 		
 		onlineAssessment.setCorporate(corporate);
@@ -130,15 +125,13 @@ public class OnlineAssessmentServiceImpl implements OnlineAssessmentService {
 		return questionANdanswers;
 	}
 	@Override
-	public OnlineAssessment addQuestionToOnlineAssesmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token) throws Exception {
+	public OnlineAssessment addQuestionToOnlineAssesmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,Corporate corporate) throws Exception {
 /*
 Note :- using onlineAssessment - > questionAndAnswer relation
 
  */
 		
-		String email = Validation.validateToken(token);
-		
-		Corporate corporate = corporateRepository.findByEmail(email);
+	
 		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentBean.getOnlineAssessmentSlug());
 		
 		if(onlineAssessment==null) {
@@ -181,7 +174,8 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 	}
 
 	public OnlineAssessment updateOnlineAssessmentForBeanNotNull(OnlineAssessment onlineAssessment,OnlineAssessmentBean onlineAssessmentBean) throws Exception {
-		System.out.println(onlineAssessmentBean.toString());
+		logger.info("inside updateOnlineAssessmentForBeanNotNull()");
+		//		System.out.println(onlineAssessmentBean.toString());
 		if(onlineAssessmentBean.getTitle()!=null) {
 			onlineAssessment.setTitle(onlineAssessmentBean.getTitle());
 		}
@@ -215,15 +209,20 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 				throw new Exception("wrong dateFormat");
 			}
 		}
+		logger.info(" exiting updateOnlineAssessmentForBeanNotNull()");
 		return onlineAssessment;
 	}
-	
-	public OnlineAssessment updateOnlineAssessmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,String token,String slug) throws Exception{
-		Optional<OnlineAssessment> onlineAssessment = this.onlineAssessmentRepository.findById(slug);
-		if(!onlineAssessment.isPresent()) {
+	@Override
+	public OnlineAssessment updateOnlineAssessmentByCorporate(OnlineAssessmentBean onlineAssessmentBean,Corporate corporate,String slug) throws Exception{
+		Optional<OnlineAssessment> onlineAssessmentOptional = this.onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessmentOptional.isPresent()) {
 			throw new Exception("please enter proper assesemnet id");
 		}
-		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment.get(),onlineAssessmentBean));
+		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
+		if(onlineAssessment.getCorporate()==null||onlineAssessment.getCorporate().getCorporateId().compareTo(corporate.getCorporateId())!=0) {
+			throw new Exception("unauthorized");
+		}
+		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment,onlineAssessmentBean));
 	}
 	
 	@Override
@@ -252,13 +251,17 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 	
 
 	@Override
-	public OnlineAssessment getOnlineAssessmentBySlug(String token, String slug) throws Exception {
-		String email =  Validation.validateToken(token);
-		Optional<OnlineAssessment> onlineAssessment = onlineAssessmentRepository.findById(slug);
-		if(!onlineAssessment.isPresent()) {
-			throw new Exception("Bad Request");
+	public OnlineAssessment getCorporateOnlineAssessmentBySlug(Corporate corporate, String slug) throws Exception {
+		
+		Optional<OnlineAssessment> onlineAssessmentOptional = onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessmentOptional.isPresent()) {
+			throw new Exception("invalid slug");
 		}
-		return onlineAssessment.get();
+		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
+		if(onlineAssessment.getCorporate().getCorporateId().compareTo(corporate.getCorporateId())!=0) {
+			throw new Exception("unauthorized");
+		}
+		return onlineAssessment;
 	}
 
 	@Override
@@ -298,9 +301,7 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 	}
 
 	@Override
-	public List<OnlineAssessmentBean> getOnlineAssesmentsAddedByCorporatedWithoutQNA(String token) throws Exception {
-		String email = Validation.validateToken(token);
-		Corporate corporate = corporateRepository.findByEmail(email);
+	public List<OnlineAssessmentBean> getOnlineAssesmentsAddedByCorporatedWithoutQNA(Corporate corporate) throws Exception {
 		
 		List<OnlineAssessmentBean> onlineAssessmentBeans  = new ArrayList<>();
 		for(OnlineAssessment o : this.onlineAssessmentRepository.findAllByCorporate(corporate)) {
@@ -326,6 +327,9 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 		StudentOnlineAssessment studentOnlineAssessment = optionalStudentOnlineAssessment.get();
 		
 		OnlineAssessment onlineAssessment = studentOnlineAssessment.getOnlineAssessment();
+		if(onlineAssessment.getDeleteStatus()) {
+			throw new Exception("no such assessment");
+		}
 		if(studentOnlineAssessment!=null && studentOnlineAssessment.getStartedOn()!=null) {
 			 Duration duration = Duration.between(studentOnlineAssessment.getStartedOn(), LocalDateTime.now());
 			 long minutes = duration.toMinutes();
@@ -381,13 +385,14 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 				}
 			}
 			else if(questionANdanswer.getType().equals("Coding")) {
-				if(questionANdanswer.getType().equals("MCQ")) {
+			
 					if(s.getAnswer()!=null) {
 						Integer testCasePassed = (Integer) s.getAnswer().get("testCasesPased");
+						
 						totalMarks = totalMarks+ onlineAssessment.getCodingMarks()*testCasePassed;
 					
 					}
-				}
+				
 			}
 			studentOnlineAssessmentAnswer.setQuestionANdanswer(questionANdanswer);
 			studentOnlineAssessmentAnswer.setAnswer(s.getAnswer());
@@ -398,25 +403,54 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 			System.out.println(s.getAnswer());
 			studentOnlineAssessmentAnswers.add(studentOnlineAssessmentAnswer);
 		}
-		studentOnlineAssessment = this.studentOnlineAssessmentRepository.findByStudentAndOnlineAssessment(student, onlineAssessment);
 		studentOnlineAssessment.setTotalMarksObtained(totalMarks);
 		this.studentOnlineAssessmentRepository.save(studentOnlineAssessment); 
 		this.studentOnlineAssessmentAnswerRepository.saveAll(studentOnlineAssessmentAnswers);
 	}
 
 	@Override
-	public void deleteOnlineAssessmentBySlugAndCorporate(String slug, Corporate corporate) {
+	public void deleteOnlineAssessmentBySlugAndCorporate(String slug, Corporate corporate) throws Exception {
 
 		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(slug);
 		if(onlineAssessment==null) {
 			throw new NoSuchElementException("invalid bad request");
 		}
+		if(onlineAssessment.getCorporate().getCorporateId().compareTo(corporate.getCorporateId())!=0){
+			throw new Exception("unauthorized");
+		}
 		onlineAssessment.setDeleteStatus(true);
 		this.onlineAssessmentRepository.save(onlineAssessment);
 	}
-
+	
 	@Override
-	public void deleteOnlineAssessmentBySlugAndToken(String slug, String token) throws ParseException {
+	public void deleteOnlineAssessmentBySlugAndUniversity(String slug, University university) throws Exception {
+
+		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(slug);
+		if(onlineAssessment==null) {
+			throw new NoSuchElementException("invalid bad request");
+		}
+		if(onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
+			throw new Exception("invalid university Id");
+		}
+		
+		onlineAssessment.setDeleteStatus(true);
+		this.onlineAssessmentRepository.save(onlineAssessment);
+	}
+	@Override
+	public void deleteOnlineAssessmentBySlugAndAdmin(String slug) throws Exception {
+
+		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(slug);
+		if(onlineAssessment==null) {
+			throw new NoSuchElementException("invalid bad request");
+		}
+		if(onlineAssessment.getUniversity()!=null || onlineAssessment.getCorporate()!=null) {
+			throw new Exception("admin access only");
+		}
+		onlineAssessment.setDeleteStatus(true);
+		this.onlineAssessmentRepository.save(onlineAssessment);
+	}
+	@Override
+	public void deleteOnlineAssessmentBySlugAndToken(String slug, String token) throws Exception {
 		String email = Validation.validateToken(token);
 		Corporate corporate = this.corporateRepository.findByEmail(email);
 		deleteOnlineAssessmentBySlugAndCorporate(slug,corporate);
@@ -436,16 +470,17 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 			University university) throws Exception {
 		
 		OnlineAssessment onlineAssessment = onlineAssessmentRepository.getById(onlineAssessmentBean.getOnlineAssessmentSlug());
-		if(onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
-			throw new Exception("invalid university Id");
-		}
 		if(onlineAssessment==null) {
 			throw new Exception("onlineAssesment id incorrect");
 		}
+		if(onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
+			throw new Exception("invalid university Id");
+		}
+		
 		
 		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
 		List<QuestionANdanswer> questionANdanswersToBeAdded = new ArrayList<QuestionANdanswer>();
-		logger.info("question and answer -> {} ",questionANdanswers);
+//		logger.info("question and answer -> {} ",questionANdanswers);
 		for(QuestionANdanswer q:questionANdanswers) {
 			if(!onlineAssessment.getQuestionANdanswers().contains(q)) {
 				onlineAssessment.getQuestionANdanswers().add(q);
@@ -474,21 +509,21 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 		return this.onlineAssessmentRepository.save(onlineAssessment);
 	}
 
-	@Override
-	public OnlineAssessment updateOnlineAssessmentByUniversity(OnlineAssessmentBean onlineAssessmentBean,
-			University university,String slug) throws Exception {
-		Optional<OnlineAssessment> onlineAssessmentOptional = this.onlineAssessmentRepository.findById(slug);
-		if(!onlineAssessmentOptional.isPresent()) {
-			throw new Exception("please enter proper assesemnet id");
-		}
-		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
-		if(onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
-			throw new Exception("invalid university Id");
-		}
-		
-		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment,onlineAssessmentBean));
-	}
+	
 //-------------------------- admin ---------------------------------
+
+	@Override
+	public List<OnlineAssessmentBean> getOnlineAssesmentsAddedByAdminWithoutQNA() throws Exception {
+		
+		List<OnlineAssessmentBean> onlineAssessmentBeans  = new ArrayList<>();
+		for(OnlineAssessment o : this.onlineAssessmentRepository.findAllByAdmin()) {
+			OnlineAssessmentBean b = new OnlineAssessmentBean();
+			BeanUtils.copyProperties(o, b);
+			b.setOnlineAssessmentSlug(o.getSlug());
+			onlineAssessmentBeans.add(b);
+		}
+		return onlineAssessmentBeans;
+	}
 	@Override
 	public OnlineAssessment addOnlineAssessmentByAdmin(OnlineAssessmentBean bean) throws Exception {
 		
@@ -516,7 +551,7 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 		
 		List<QuestionANdanswer> questionANdanswers =  getQuestionAndAnswerById(onlineAssessmentBean.getQuestions());
 		List<QuestionANdanswer> questionANdanswersToBeAdded = new ArrayList<QuestionANdanswer>();
-		logger.info("question and answer -> {} ",questionANdanswers);
+//		logger.info("question and answer -> {} ",questionANdanswers);
 		for(QuestionANdanswer q:questionANdanswers) {
 			if(!onlineAssessment.getQuestionANdanswers().contains(q)) {
 				onlineAssessment.getQuestionANdanswers().add(q);
@@ -568,6 +603,9 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 				throw new Exception("invalid slug");
 			}		
 			OnlineAssessment onlineAssessment = optional.get();
+			if(!onlineAssessment.isPublicly_available()) {
+				throw new Exception("please sign up to continue the assessment");
+			}
 //			get all question without answer
 			List<QuestionAndAnswerStudentResponseBean> questionAndAnswerStudentResponseBeans = new ArrayList<QuestionAndAnswerStudentResponseBean>();
 			for(QuestionANdanswer q:onlineAssessment.getQuestionANdanswers()) {
@@ -582,6 +620,123 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 			onlineAssessment.setQuestionANdanswers(null);
 			response.put("onlineAssessment", onlineAssessment);
 			return response;
+	}
+
+//	answer for public assesment
+	@Override
+	public Map<String, Object> submitResponseForPublicAssessment(String onlineAssesmentSlug,List<StudentOnlineAssessmentAnswerRequestBean> studentOnlineAssessmentAnswerRequestBeans) throws Exception {
+	
+		Map<String,Object> response = new HashMap<String,Object>(); 
+		
+		OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(onlineAssesmentSlug);
+		if(onlineAssessment==null) {
+			throw new Exception("invalid slug");
+		}
+		int totalMarks = 0;
+//		saving all the answera
+		List<StudentOnlineAssessmentAnswer> studentOnlineAssessmentAnswers = new ArrayList<>();
+		for(StudentOnlineAssessmentAnswerRequestBean s:studentOnlineAssessmentAnswerRequestBeans) {
+			StudentOnlineAssessmentAnswer studentOnlineAssessmentAnswer = new StudentOnlineAssessmentAnswer();
+			QuestionANdanswer questionANdanswer = this.questionAndAnswerRepository.findByuID(s.getQuestionId());
+			if(questionANdanswer.getType().equals("MCQ")) {
+				if(s.getAnswer()!=null) {
+					String mcqAnswer = (String) s.getAnswer().get("answer");
+					if(mcqAnswer.equals(questionANdanswer.getCorrectOption())) {
+						totalMarks = totalMarks+ onlineAssessment.getMcqMarks();
+					}
+				}
+			}
+			else if(questionANdanswer.getType().equals("Coding")) {
+				if(questionANdanswer.getType().equals("MCQ")) {
+					if(s.getAnswer()!=null) {
+						Integer testCasePassed = (Integer) s.getAnswer().get("testCasesPased");
+						totalMarks = totalMarks+ onlineAssessment.getCodingMarks()*testCasePassed;
+					
+					}
+				}
+			}
+			studentOnlineAssessmentAnswer.setQuestionANdanswer(questionANdanswer);
+			studentOnlineAssessmentAnswer.setAnswer(s.getAnswer());
+			studentOnlineAssessmentAnswer.setJsonAnswer(s.getAnswer().toJSONString());
+			studentOnlineAssessmentAnswer.setOnlineAssessment(onlineAssessment);
+
+			studentOnlineAssessmentAnswers.add(studentOnlineAssessmentAnswer);
+	}
+	response.put("studentOnlineAssessmentAnswers", studentOnlineAssessmentAnswers);
+	response.put("onlineAssessment", onlineAssessment);
+	response.put("totalMarks", totalMarks);
+	return response;
+	}
+//	update online assessment
+	@Override
+	public OnlineAssessment updateOnlineAssessmentByAdmin(OnlineAssessmentBean onlineAssessmentBean,String slug) throws Exception {
+		Optional<OnlineAssessment> onlineAssessmentOptional = this.onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessmentOptional.isPresent()) {
+			throw new Exception("please enter proper assessment slug");
+		}
+		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
+		if(onlineAssessment.getCorporate()!=null || onlineAssessment.getUniversity()!=null) {
+			throw new Exception("unauthorized");			
+		}
+		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment,onlineAssessmentBean));
+	}
+	
+	@Override
+	public OnlineAssessment getAdminOnlineAssessmentBySlug( String slug) throws Exception {
+		
+		Optional<OnlineAssessment> onlineAssessmentOptional = onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessmentOptional.isPresent()) {
+			throw new Exception("invalid slug");
+		}
+		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
+		if(onlineAssessment.getCorporate()!=null || onlineAssessment.getUniversity()!=null) {
+			throw new Exception("unauthorized");
+		}
+		return onlineAssessment;
+	}
+
+//------------------------------------- UNIVERSITY ---------------------
+	
+//	get all assessment
+	@Override
+	public List<OnlineAssessmentBean> getOnlineAssesmentsAddedByUniversityWithoutQNA(University university)
+			throws Exception {
+		List<OnlineAssessmentBean> onlineAssessmentBeans  = new ArrayList<>();
+		for(OnlineAssessment o : this.onlineAssessmentRepository.findAllByUniversity(university)) {
+			OnlineAssessmentBean b = new OnlineAssessmentBean();
+			BeanUtils.copyProperties(o, b);
+			b.setOnlineAssessmentSlug(o.getSlug());
+			onlineAssessmentBeans.add(b);
+		}
+		return onlineAssessmentBeans;
+	}
+	
+	@Override
+	public OnlineAssessment updateOnlineAssessmentByUniversity(OnlineAssessmentBean onlineAssessmentBean,
+			University university,String slug) throws Exception {
+		Optional<OnlineAssessment> onlineAssessmentOptional = this.onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessmentOptional.isPresent()) {
+			throw new Exception("please enter proper assessment slug");
+		}
+		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
+		if(onlineAssessment.getUniversity()==null ||onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
+			throw new Exception("unauthorized");
+		}
+		
+		return this.onlineAssessmentRepository.save(updateOnlineAssessmentForBeanNotNull(onlineAssessment,onlineAssessmentBean));
+	}
+	@Override
+	public OnlineAssessment getUniversityOnlineAssessmentBySlug(University university, String slug) throws Exception {
+		
+		Optional<OnlineAssessment> onlineAssessmentOptional = onlineAssessmentRepository.findById(slug);
+		if(!onlineAssessmentOptional.isPresent()) {
+			throw new Exception("invalid slug");
+		}
+		OnlineAssessment onlineAssessment = onlineAssessmentOptional.get();
+		if(onlineAssessment.getUniversity().getUniversityId().compareTo(university.getUniversityId())!=0) {
+			throw new Exception("unauthorized");
+		}
+		return onlineAssessment;
 	}
 }
 	

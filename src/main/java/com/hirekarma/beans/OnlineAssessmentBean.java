@@ -25,9 +25,16 @@ public class OnlineAssessmentBean {
 	String onlineAssessmentSlug;
 //	for sending online assesement to student
 	List<Long> studentIds;
+	boolean publicly_available;
 	
 	
 	
+	public boolean isPublicly_available() {
+		return publicly_available;
+	}
+	public void setPublicly_available(boolean publicly_available) {
+		this.publicly_available = publicly_available;
+	}
 	public List<Long> getStudentIds() {
 		return studentIds;
 	}

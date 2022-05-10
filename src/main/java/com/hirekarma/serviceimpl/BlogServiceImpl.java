@@ -2,7 +2,10 @@ package com.hirekarma.serviceimpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.BeanUtils;
@@ -32,51 +35,100 @@ public class BlogServiceImpl implements BlogService {
 
 	@Autowired
 	CategoryRepository categoryRepository;
+	
+	@Autowired
+	AWSS3Service awss3Service;
 
 //	--------------add functions---------------
 
-	public Blog addBlogByAdmin(BlogBean bean, MultipartFile file) throws ParseException, IOException {
+	public Blog addBlogByAdmin(BlogBean bean, MultipartFile file) throws ParseException, IOException,Exception {
 
-		byte[] arr = Utility.readFile(file);
 
 		Blog blog = new Blog();
 		BeanUtils.copyProperties(bean, blog);
 
 		blog.setSlug(Utility.createSlug(bean.getTitle()));
-		blog.setImage(arr);
+		String url = null;
+		try {
+			if(!file.isEmpty()) {
+				url = awss3Service.uploadFile(file);
+			}
+		}catch(Exception e) {
+			
+			url= null;
+		}
+		Category category = null;
+		if(bean.getCategoryid()!=null) {
+			Optional<Category> categoryOptional = this.categoryRepository.findById(bean.getCategoryid());
+			if(!categoryOptional.isPresent()) {
+				throw new Exception("invalid category id");
+			}
+			category = categoryOptional.get();
+		}
+		blog.setCategory(category);
+		blog.setImageUrl(url);
 		blog.setCorporate(null);
 		blog.setIspublic(true);
+		blog.setCreatedOn(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
+		blog.setUpdatedOn(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
 		return this.blogRepository.save(blog);
 
 	}
 
-	public Blog addBlogByCooperate(BlogBean bean, String token, MultipartFile file) throws ParseException, IOException {
+	public Blog addBlogByCooperate(BlogBean bean, String token, MultipartFile file) throws ParseException, IOException,Exception {
 
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
-		Category category = categoryRepository.getById(bean.getCategoryid());
 
-		byte[] arr = Utility.readFile(file);
 
 		Blog blog = new Blog();
 		BeanUtils.copyProperties(bean, blog);
 
 		blog.setSlug(Utility.createSlug(bean.getTitle()));
-		blog.setImage(arr);
+		String url = null;
+		try {
+			if(!file.isEmpty()) {
+				url = awss3Service.uploadFile(file);
+			}
+			
+		}catch(Exception e) {
+			
+			url= null;
+		}
+		Category category = null;
+		if(bean.getCategoryid()!=null) {
+			Optional<Category> categoryOptional = this.categoryRepository.findById(bean.getCategoryid());
+			if(!categoryOptional.isPresent()) {
+				throw new Exception("invalid category id");
+			}
+			category = categoryOptional.get();
+		}
+		blog.setCategory(category);
+		blog.setImageUrl(url);
 		blog.setCorporate(corporate);
-		blog.setIspublic(false);
+		blog.setIspublic(true);
+		blog.setCreatedOn(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
+		blog.setUpdatedOn(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
 		return this.blogRepository.save(blog);
 
 	}
 
 //	-------------- get functions --------------
 	
-	public Blog getBlogByAdminById(int blogId) {
+	public Blog getBlogByAdminById(int blogId) throws Exception {
+		Optional<Blog> optionalBlog = this.blogRepository.findById(blogId);
+		if(!optionalBlog.isPresent()) {
+			throw new Exception("invalid blog id");
+		}
 		return this.blogRepository.getById(blogId);
 	}
 	
-	public Blog getBlogByAdminBySlug(String slug) {
-		return this.blogRepository.findBySlug(slug);
+	public Blog getBlogByAdminBySlug(String slug) throws Exception {
+		Blog blog = this.blogRepository.findBySlug(slug);
+		if(blog==null) {
+			throw new Exception("invalid slug");
+		}
+		return blog;
 	}
 
 	public List<Blog> getAllBlogByAdmin(){
@@ -113,12 +165,16 @@ public class BlogServiceImpl implements BlogService {
 	public void deleteBlogBySlug(String token,String slug) throws Exception  {
 		String email = Validation.validateToken(token);
 		Corporate corporate = corporateRepository.findByEmail(email);
-		Blog blog = blogRepository.findBySlug(slug);
+		Blog blog = blogRepository.findBySlug(slug.trim());
+		System.out.println(blog.getTitle());
+		System.out.println(corporate.getCorporateId());
 		if(corporate==null||blog==null) {
+			
+			System.out.println("inside coprorate blog null");
 			throw new Exception("unauthorized");
 		}
 		
-		if(corporate.getCorporateId()!=blog.getCorporate().getCorporateId()) {
+		if(blog.getCorporate()==null|| corporate.getCorporateId().compareTo(blog.getCorporate().getCorporateId())!=0) {
 			throw new Exception("unauthorized");
 		}
 		this.blogRepository.deleteById(blog.getId());
@@ -129,7 +185,6 @@ public class BlogServiceImpl implements BlogService {
 	
 	public Blog updateBlogByAdmin(BlogBean bean,String slug,MultipartFile file) throws IOException {
 		
-		byte[] arr = Utility.readFile(file);
 
 		Blog blog = this.blogRepository.findBySlug(slug);
 		int id = blog.getId();
@@ -137,7 +192,16 @@ public class BlogServiceImpl implements BlogService {
 
 		blog.setId(id);
 		blog.setSlug(Utility.createSlug(bean.getTitle()));
-		blog.setImage(arr);
+		String url = null;
+		try {
+			if(!file.isEmpty()) {
+				url = awss3Service.uploadFile(file);
+			}
+		}catch(Exception e) {
+			
+			url= null;
+		}
+		blog.setImageUrl(url);
 		blog.setCorporate(null);
 		blog.setIspublic(true);
 		return this.blogRepository.save(blog);
@@ -151,14 +215,21 @@ public class BlogServiceImpl implements BlogService {
 			throw new Exception("unauthorized");
 		}
 		
-		byte[] arr = Utility.readFile(file);
 		
 		int id = blog.getId();
 		BeanUtils.copyProperties(bean, blog);
 
 		blog.setId(id);
 		blog.setSlug(Utility.createSlug(bean.getTitle()));
-		blog.setImage(arr);
+		String url = null;
+		try {
+
+			 url = awss3Service.uploadFile(file);
+		}catch(Exception e) {
+			
+			url= null;
+		}
+		blog.setImageUrl(url);
 		blog.setCorporate(null);
 		blog.setIspublic(true);
 		return this.blogRepository.save(blog);
@@ -168,10 +239,20 @@ public class BlogServiceImpl implements BlogService {
 	public void activateBlogByAdmin(String slug) {
 		Blog blog = this.blogRepository.findBySlug(slug);
 		blog.setIspublic(true);
-
 	}
 
-	
+	public void deleteAdminBlogBySlug(String slug) throws Exception  {
+		
+		Blog blog = blogRepository.findBySlug(slug.trim());
+		System.out.println(blog.getTitle());
+		if(blog.getCorporate()!=null||blog==null) {
+			
+			System.out.println("inside coprorate blog null");
+			throw new Exception("unauthorized");
+		}
+		
+		this.blogRepository.deleteById(blog.getId());
+	}
 }
 
 

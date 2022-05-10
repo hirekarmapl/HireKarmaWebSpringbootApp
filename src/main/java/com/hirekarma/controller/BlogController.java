@@ -67,9 +67,25 @@ public class BlogController {
 			return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", blog, null),
 						HttpStatus.CREATED);
 			} catch (Exception e) {
+				e.printStackTrace();
 				return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 						HttpStatus.BAD_REQUEST);
 			}
+	}
+	
+	@DeleteMapping("/admin/blog/{slug}")
+	@PreAuthorize("hasRole('admin')")
+	public ResponseEntity<Response> deleteBlogBySlug(
+			@PathVariable("slug") String slug) {
+		try {
+			System.out.println(slug);
+			this.blogService.deleteAdminBlogBySlug(slug);
+			return new ResponseEntity<Response>(new Response("success", 200, "deleted succesfully", null, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
 	}
 //	@DeleteMapping("/corporate/blog/{slug}")
 //	

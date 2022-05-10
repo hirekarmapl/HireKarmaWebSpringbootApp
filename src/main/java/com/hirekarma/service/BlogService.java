@@ -13,10 +13,10 @@ import com.hirekarma.model.Blog;
 
 @Service
 public interface BlogService {
-	public Blog addBlogByAdmin(BlogBean bean, MultipartFile file) throws ParseException, IOException;
-	public Blog addBlogByCooperate(BlogBean bean, String token, MultipartFile file) throws ParseException, IOException;
-	public Blog getBlogByAdminById(int blogId);
-	public Blog getBlogByAdminBySlug(String slug);
+	public Blog addBlogByAdmin(BlogBean bean, MultipartFile file) throws ParseException, IOException, Exception;
+	public Blog addBlogByCooperate(BlogBean bean, String token, MultipartFile file) throws ParseException, IOException, Exception;
+	public Blog getBlogByAdminById(int blogId) throws Exception;
+	public Blog getBlogByAdminBySlug(String slug) throws Exception;
 	public List<Blog> getAllBlogByAdmin();
 	public Blog getBlogByCoporateBySlug(String slug,String token) throws Exception;
 	public List<Blog> getAllBlogsByCoporate(String token) throws Exception;
@@ -25,5 +25,6 @@ public interface BlogService {
 	public Blog updateBlogByAdmin(BlogBean bean,String slug,MultipartFile file) throws IOException ;
 	public Blog updateBlogByCorporate(String token, BlogBean bean,String slug,MultipartFile file) throws Exception;
 	public void activateBlogByAdmin(String slug);
+	public void deleteAdminBlogBySlug(String slug) throws Exception ;
 	
 }

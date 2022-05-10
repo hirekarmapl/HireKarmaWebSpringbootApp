@@ -43,6 +43,8 @@ String keywords;
 	String slug;
 
 	Long universityId;
+	
+	Long corporateId;
 
 	LocalDateTime updatedOn = LocalDateTime.now();
 	
@@ -135,5 +137,14 @@ String keywords;
 	public void setUpdatedOn(LocalDateTime updatedOn) {
 		this.updatedOn = updatedOn;
 	}
+
+	public Long getCorporateId() {
+		return corporateId;
+	}
+
+	public void setCorporateId(Long corporateId) {
+		this.corporateId = corporateId;
+	}
+	
 
 }

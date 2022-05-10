@@ -11,7 +11,7 @@ public class BlogBean {
 
 	String title;
 	
-	int categoryid;
+	Integer categoryid;
 	String altImage;
 	
 	String body;
@@ -33,9 +33,7 @@ public class BlogBean {
 		this.title = title;
 	}
 
-	public int getCategoryid() {
-		return categoryid;
-	}
+	
 
 	public void setCategoryid(int categoryid) {
 		this.categoryid = categoryid;
@@ -81,11 +79,21 @@ public class BlogBean {
 		this.metaDescription = metaDescription;
 	}
 
-	public int getCorporateid() {
+	
+
+	public Integer getCategoryid() {
+		return categoryid;
+	}
+
+	public void setCategoryid(Integer categoryid) {
+		this.categoryid = categoryid;
+	}
+
+	public Long getCorporateid() {
 		return corporateid;
 	}
 
-	public void setCorporateid(int corporateid) {
+	public void setCorporateid(Long corporateid) {
 		this.corporateid = corporateid;
 	}
 
@@ -94,25 +102,7 @@ public class BlogBean {
 		// TODO Auto-generated constructor stub
 	}
 
-	int corporateid;
+	Long corporateid;
 
-	public BlogBean( String title, int categoryid, String altImage, String body, String keyword,
-			String metaTitle, String metaDescription, int corporateid) {
-		super();
-		this.title = title;
-		this.categoryid = categoryid;
-		this.altImage = altImage;
-		this.body = body;
-		this.keyword = keyword;
-		this.metaTitle = metaTitle;
-		this.metaDescription = metaDescription;
-		this.corporateid = corporateid;
-	}
-
-	@Override
-	public String toString() {
-		return "BlogBean [title=" + title + ", categoryid=" + categoryid + ", altImage=" + altImage + ", body=" + body
-				+ ", keyword=" + keyword + ", metaTitle=" + metaTitle + ", metaDescription=" + metaDescription
-				+ ", corporateid=" + corporateid + "]";
-	}
+	
 }

@@ -11,12 +11,20 @@ import org.springframework.stereotype.Service;
 import com.hirekarma.beans.HomePageBean;
 import com.hirekarma.model.HomePage;
 import com.hirekarma.repository.HomePageRepository;
+import com.hirekarma.repository.JobApplyRepository;
+import com.hirekarma.repository.JobRepository;
 import com.hirekarma.service.HomePageService;
 @Service("HomePageService")
 public class HomePageServiceImpl implements HomePageService {
 
 	@Autowired
 	HomePageRepository homePageRepository;
+	
+	@Autowired
+	JobApplyRepository jobApplyRepository;
+	
+	@Autowired
+	JobRepository jobRepository;
 	@Override
 	public Map<String, Object> add(HomePageBean homePageBean) throws Exception {
 		Map<String,Object> result = new HashMap<String, Object>();
@@ -36,6 +44,18 @@ public class HomePageServiceImpl implements HomePageService {
 			this.homePageRepository.save(homePage);
 		}
 		return result;
+	}
+	@Override
+	public Map<String, Object> noOfJobPosted() {
+		Map<String,Object> response = new HashMap<String,Object>();
+		response.put("noOfJobPosted", jobRepository.count());
+		return response;
+	}
+	@Override
+	public Map<String, Object> noOfJobApplications() {
+		Map<String,Object> response = new HashMap<String,Object>();
+		response.put("noOfJobPosted", jobApplyRepository.count());
+		return response;
 	}
 
 }

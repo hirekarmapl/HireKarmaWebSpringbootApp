@@ -10,4 +10,6 @@ import com.hirekarma.beans.HomePageBean;
 @Service
 public interface HomePageService {
 	Map<String,Object> add(HomePageBean homePageBean) throws Exception;
+	Map<String,Object> noOfJobPosted();
+	Map<String,Object> noOfJobApplications();
 }

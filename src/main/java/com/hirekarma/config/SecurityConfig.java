@@ -69,6 +69,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/hirekarma/account/request-a-demo",
 				"/hirekarma/categories",
 				"/oauth2_login",
+				"/homePage/job-count",
+				"/homePage/jobApply-count",
 				"/loginSuccess",
 				"/loginFailure"
 			).permitAll()

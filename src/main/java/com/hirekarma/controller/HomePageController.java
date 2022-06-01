@@ -57,4 +57,39 @@ public class HomePageController {
 		}
 	}
 	
+	@GetMapping("/homePage/student-count")
+	ResponseEntity<Response> noOfStudents(){
+		try {
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "",homePageService.noOfStudents() , null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/homePage/hiredStudent-count")
+	ResponseEntity<Response> noOfStudentsHired(){
+		try {
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "",homePageService.noOfStudentsHired() , null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/homePage/campusDrive-count")
+	ResponseEntity<Response> noOfOngoingDrive(){
+		try {
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "",homePageService.noOfOngoingDrive() , null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 }

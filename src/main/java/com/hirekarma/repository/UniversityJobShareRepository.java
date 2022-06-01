@@ -45,5 +45,9 @@ public interface UniversityJobShareRepository extends JpaRepository<UniversityJo
 	@Query("update UniversityJobShareToStudent u set u.seen = true where u.iD= :universityShareJobId")
 	void setStudentSeenById(@Param("universityShareJobId")Long universityShareJobId);
 	
+//	list of student hired
+	@Query("select count(iD) from UniversityJobShareToStudent where isHire = :status")
+	Long countByIsHire(@Param("status") Boolean status);
+	
 }
 	

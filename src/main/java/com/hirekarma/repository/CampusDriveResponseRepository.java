@@ -24,4 +24,5 @@ public interface CampusDriveResponseRepository extends JpaRepository<CampusDrive
 	@Query("select u from University u where u.universityId = ?1")
 	University getUniversityByUniversityId(Long universityId);
 
+	Long countByCorporateResponseTrue();
 }

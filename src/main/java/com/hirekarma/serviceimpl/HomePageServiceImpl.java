@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service;
 
 import com.hirekarma.beans.HomePageBean;
 import com.hirekarma.model.HomePage;
+import com.hirekarma.repository.CampusDriveResponseRepository;
 import com.hirekarma.repository.HomePageRepository;
 import com.hirekarma.repository.JobApplyRepository;
 import com.hirekarma.repository.JobRepository;
+import com.hirekarma.repository.StudentRepository;
+import com.hirekarma.repository.UniversityJobShareRepository;
 import com.hirekarma.service.HomePageService;
 @Service("HomePageService")
 public class HomePageServiceImpl implements HomePageService {
@@ -21,10 +24,20 @@ public class HomePageServiceImpl implements HomePageService {
 	HomePageRepository homePageRepository;
 	
 	@Autowired
+	CampusDriveResponseRepository campusDriveResponseRepository;
+	
+	@Autowired
 	JobApplyRepository jobApplyRepository;
 	
 	@Autowired
+	UniversityJobShareRepository universityJobShareRepository;
+	@Autowired
+	StudentRepository studentRepository;
+	
+	@Autowired
 	JobRepository jobRepository;
+	
+	
 	@Override
 	public Map<String, Object> add(HomePageBean homePageBean) throws Exception {
 		Map<String,Object> result = new HashMap<String, Object>();
@@ -57,5 +70,26 @@ public class HomePageServiceImpl implements HomePageService {
 		response.put("noOfJobPosted", jobApplyRepository.count());
 		return response;
 	}
+	@Override
+	public Map<String, Object> noOfStudents() {
+		Map<String,Object> response = new HashMap<String,Object>();
+		response.put("noOfStudents", studentRepository.count());
+		return response;
+	}
 
+	@Override
+	public Map<String,Object> noOfStudentsHired(){
+		Long jobApplyHiredCount= jobApplyRepository.countByIsHire(true);
+		Long campusHiredCount = universityJobShareRepository.countByIsHire(true);
+		Map<String,Object> response = new HashMap<String,Object>();
+		response.put("noOfStudentsHired", (jobApplyHiredCount+campusHiredCount));
+		return response;
+	}
+	@Override
+	public Map<String,Object> noOfOngoingDrive(){
+		Long onGoingDrive = campusDriveResponseRepository.countByCorporateResponseTrue();
+		Map<String,Object> response = new HashMap<String,Object>();
+		response.put("nofOngoingDrive", (onGoingDrive));
+		return response;
+	}
 }

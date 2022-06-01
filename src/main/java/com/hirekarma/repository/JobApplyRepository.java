@@ -36,4 +36,6 @@ public interface JobApplyRepository extends JpaRepository<JobApply, Long>{
 	@Query("update JobApply ja set ja.applicationStatus = true where ja.studentId in (:studentIds) and ja.jobId=:jobId")
 	void updateApplicationStatusByJobIdAndStudentIds(@Param("jobId")Long jobId,@Param("studentIds")List<Long> studentIds);
 	
+	@Query("select count(jobApplyId) from JobApply where isHire = :status")
+	Long countByIsHire(@Param("status") boolean status);
 }

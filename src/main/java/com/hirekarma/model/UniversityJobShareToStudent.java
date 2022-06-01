@@ -71,7 +71,18 @@ public class UniversityJobShareToStudent {
 	@OneToOne(mappedBy = "universityJobShareToStudent")
 	private Meet meet;
 
+	private Boolean isHire ;
 	
+
+	public Boolean getIsHire() {
+		return isHire;
+	}
+
+
+	public void setIsHire(Boolean isHire) {
+		this.isHire = isHire;
+	}
+
 
 	public Meet getMeet() {
 		return meet;

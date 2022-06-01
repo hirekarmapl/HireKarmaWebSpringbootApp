@@ -71,6 +71,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/oauth2_login",
 				"/homePage/job-count",
 				"/homePage/jobApply-count",
+				"/homePage/student-count",
+				"/homePage/hiredStudent-count",
+				"/homePage/campusDrive-count",
 				"/loginSuccess",
 				"/loginFailure"
 			).permitAll()

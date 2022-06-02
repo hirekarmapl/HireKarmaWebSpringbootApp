@@ -61,7 +61,9 @@ public class StudentOnlineAssessmentServiceImpl implements StudentOnlineAssessme
 		}
 		StudentOnlineAssessment studentOnlineAssessment = optionalStudentOnlineAssessment.get();		
 		OnlineAssessment onlineAssessment = studentOnlineAssessment.getOnlineAssessment();
-
+		if(onlineAssessment==null) {
+			throw new Exception("invalid request");
+		}
 		onlineAssessment.setQuestionANdanswers(null);
 		Map<String, Object> response = new HashMap<String, Object>();
 		List<StudentOnlineAssessmentAnswer>  studentOnlineAssessmentAnswers = this.studentOnlineAssessmentAnswerRepository.findByStudentAndOnlineAssessment(optionalStudent.get(), onlineAssessment);

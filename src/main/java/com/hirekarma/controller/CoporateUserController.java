@@ -229,8 +229,9 @@ public class CoporateUserController {
 		try {
 			OnlineAssessment onlineAssessment = this.onlineAssessmentRepository.findBySlug(onlineAssessmentSlug);
 			Map<String, Object> response = new HashMap<String, Object>();
-			response.put("onlineAssessment",onlineAssessment);
-			response.put("student",this.studentOnlineAssessmentRepository.findStudentByOnlineAssessment(onlineAssessment));
+//			onlineAssessment.setQuestionANdanswers(null);
+//			response.put("onlineAssessment",onlineAssessment);
+			response.put("studentOnlineAssessment",this.studentOnlineAssessmentRepository.findStudentOnlineAssessmentAndStudentByOnlineAssessment(onlineAssessment));
 			return new ResponseEntity<Response>(new Response("success", 200, "",response, null), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
@@ -700,6 +701,7 @@ public class CoporateUserController {
 //			System.out.println((studentOnlineAssessmentAnswer.getAnswer()!=null?studentOnlineAssessmentAnswer.getAnswer().toJSONString():"Online assesement NA"));
 			return new ResponseEntity<Response>(new Response("success", 200, "",this.studentOnlineAssessmentService.getAllAnswerByAStudent(studentOnlineAssessmentAnswerBean) , null), HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 				HttpStatus.BAD_REQUEST);
 		}

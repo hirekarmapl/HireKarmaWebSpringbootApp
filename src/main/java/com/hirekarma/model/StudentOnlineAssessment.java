@@ -28,7 +28,7 @@ public class StudentOnlineAssessment {
 
 	Student student;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 
 	OnlineAssessment onlineAssessment;
 	

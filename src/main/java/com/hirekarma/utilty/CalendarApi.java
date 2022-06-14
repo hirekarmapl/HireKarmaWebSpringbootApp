@@ -84,14 +84,14 @@ public class CalendarApi {
         return credential;
     }
 
-    public static void main(String args[]) {
-    	try {
-			System.out.println(insert("TESTING", "KJDFKJADFKLJAKLJKLSDJFKLJ", "Asia", 2, List.of("sawant.rohit510@gmail.com","rohitsadeepsawant@gmail.com"), "2022-06-30T09:00:00", "2022-06-30T09:30:00"));
-		} catch (GeneralSecurityException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
+//    public static void main(String args[]) {
+//    	try {
+//			System.out.println(insert("TESTING", "KJDFKJADFKLJAKLJKLSDJFKLJ", "Asia", 2, List.of("sawant.rohit510@gmail.com","rohitsadeepsawant@gmail.com"), "2022-06-30T09:00:00", "2022-06-30T09:30:00"));
+//		} catch (GeneralSecurityException | IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    }
     public static String insert(String eventName,String description,String location,int noOfAttendees,List<String> attendees,String startTime,String endTime) throws GeneralSecurityException, IOException {
     	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))

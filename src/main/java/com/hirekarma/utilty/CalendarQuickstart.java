@@ -72,6 +72,6 @@ public class CalendarQuickstart {
         return credential;
     }
 
-    public static void main(String... args) throws IOException, GeneralSecurityException {
-      }
+//    public static void main(String... args) throws IOException, GeneralSecurityException {
+//      }
 }

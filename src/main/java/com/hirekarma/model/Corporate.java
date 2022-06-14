@@ -3,6 +3,7 @@ package com.hirekarma.model;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -59,7 +60,9 @@ public class Corporate {
 	
 	private String imageUrl;
 	
-	
+	@JsonIgnore
+	@OneToMany(mappedBy = "corporate",orphanRemoval = true)
+	private Set<Event> events;
 	
 	@OneToMany(mappedBy = "corporate")
 	@JsonIgnore

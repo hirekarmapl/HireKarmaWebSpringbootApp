@@ -41,7 +41,7 @@ public class SecurityController {
     
 
     @GetMapping("/loginSuccess")
-    public String getLoginInfo(Model model, OAuth2AuthenticationToken authentication) {
+    public String getLoginInfo(OAuth2AuthenticationToken authentication) {
     	if(authentication==null) {
     		System.out.println("authentication is null");
     	}else {
@@ -58,11 +58,13 @@ public class SecurityController {
             			  HttpHeaders headers = new HttpHeaders();
             			  headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken()
             		      .getTokenValue());
+            			  
             			  HttpEntity<String> request = new HttpEntity<String>(headers);
             			  ResponseEntity<Map> response = restTemplate.exchange(userInfoEndpointUri, HttpMethod.GET, request, Map.class);
             			  Map userAttributes = response.getBody();
             			  System.out.println(userAttributes.toString());
-            			  System.out.println("name:"+userAttributes.get("name"));
+            			  System.out.println("name:"+userAttributes.get("name")+" accesstoken:"+client.getAccessToken()
+            		      .getTokenValue());
             			  return userAttributes.get("name").toString();
             			   
 

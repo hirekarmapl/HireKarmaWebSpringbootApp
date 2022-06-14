@@ -497,26 +497,25 @@ public class CoporateUserController {
 	}
 
 
-	@PostMapping("/calendar")
 	@PreAuthorize("hasRole('corporate')")
 	public Response createEvent(@RequestBody GoogleCalenderRequest request) {
 
-		try {
-			CalendarApi calendarQuickstart = new CalendarApi();
-			System.out.println(request.toString());
-			String op = calendarQuickstart.insert(request.getEventName(), request.getDescription(),
-					request.getLocation(), request.getAttendees().size(), request.getAttendees(),
-					request.getStartTime() + "+05:30", request.getEndTime() + "+05:30");
-			return new Response("success", 200, op, request, null);
-		} catch (GeneralSecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			CalendarApi calendarQuickstart = new CalendarApi();
+//			System.out.println(request.toString());
+//			String op = calendarQuickstart.insert(request.getEventName(), request.getDescription(),
+//					request.getLocation(), request.getAttendees().size(), request.getAttendees(),
+//					request.getStartTime() + "+05:30", request.getEndTime() + "+05:30");
+//			return new Response("success", 200, op, request, null);
+//		} catch (GeneralSecurityException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		return new Response("error", 400, "Bad Request", null, null);
 	}
 	

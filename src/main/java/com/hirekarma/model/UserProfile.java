@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -94,7 +95,18 @@ public class UserProfile implements Serializable {
 	@Column(nullable = false)
 	private Boolean emailVerfication=false;
 
+	@JsonIgnore
+	@ManyToMany(mappedBy = "userProfiles")
+	Set<Event> events;
+
 	
+	public Set<Event> getEvents() {
+		return events;
+	}
+
+	public void setEvents(Set<Event> events) {
+		this.events = events;
+	}
 
 	public Boolean getEmailVerfication() {
 		return emailVerfication;
@@ -148,6 +160,7 @@ public class UserProfile implements Serializable {
 	List<Experience> experiences = new ArrayList<Experience>();
 	
 	@Column(name = "RESET_PASSWORD_TOKEN")
+	@JsonIgnore
 	String resetPasswordToken;
 	public String getResetPasswordToken() {
 		return resetPasswordToken;

@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
-import org.checkerframework.common.aliasing.qual.Unique;
+
 import org.hibernate.annotations.GeneratorType;
 
 import com.sun.istack.NotNull;

@@ -11,9 +11,16 @@ public class ScreeningBean implements Serializable{
 	private String questions;
 	private Integer questionType;
 	private Long corporateId;
+	private Long universityId;
 	private String slug;
 	private List<String> options;
 	
+	public Long getUniversityId() {
+		return universityId;
+	}
+	public void setUniversityId(Long universityId) {
+		this.universityId = universityId;
+	}
 	public Long getScreeningTableId() {
 		return screeningTableId;
 	}

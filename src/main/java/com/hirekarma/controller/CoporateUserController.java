@@ -176,6 +176,7 @@ public class CoporateUserController {
 			map.put("university", university);
 			return new ResponseEntity<Response>(new Response("success", 200, "", map, null), HttpStatus.CREATED);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}

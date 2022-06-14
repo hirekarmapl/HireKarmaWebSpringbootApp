@@ -378,7 +378,7 @@ LOGGER.info("universityRepository.findIdByEmail return id = "+id);
 						Job j = (Job) obj1[1];
 						adminSharedJobList = new AdminSharedJobList();
 
-						adminSharedJobList.setUniversityResponseStatus(adminShareJobToUniversity.getUniversityResponseStatus().toString());
+						adminSharedJobList.setUniversityResponseStatus(adminShareJobToUniversity.getUniversityResponseStatus()==null?"false": adminShareJobToUniversity.getUniversityResponseStatus().toString());
 						adminSharedJobList.setShareJobId(adminShareJobToUniversity.getShareJobId().toString());
 						adminSharedJobList.setJobTitle(j.getJobTitle());
 						adminSharedJobList.setCategory(j.getCategory());

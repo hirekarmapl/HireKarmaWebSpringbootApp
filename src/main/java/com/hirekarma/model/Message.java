@@ -2,6 +2,7 @@ package com.hirekarma.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.sun.istack.NotNull;
@@ -30,6 +33,7 @@ public class Message implements Serializable{
 	@Column(name = "MESSAGE_ID")
 	private Long messageId;
 	
+
 	@Column(name = "CHAT_ROOM_ID")
 	private Long chatRoomId;
 	
@@ -43,6 +47,11 @@ public class Message implements Serializable{
 	
 	@Column(name = "IS_SEEN")
 	private String isSeen;
+	
+	@OneToMany(mappedBy = "message")
+	List<ScreeningResponse> screeningResponses;
+	
+	
 	
 	private LocalDateTime createdOn = LocalDateTime.now();
 

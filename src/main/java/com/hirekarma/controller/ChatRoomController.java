@@ -152,7 +152,7 @@ public class ChatRoomController {
 	}
 	
 	@PostMapping("/student/send-screening-responses")
-	@PreAuthorize("hasAnyRole('student','corporate')")
+	@PreAuthorize("hasAnyRole('student')")
 	public ResponseEntity<Response> studentResponseOnScreeningQuestions(@RequestBody List<ScreeningResponseBean> screeningResponseBeans) {
 		try {
 			 this.chatRoomService.studentResponseOnScreeningQuestions(screeningResponseBeans);

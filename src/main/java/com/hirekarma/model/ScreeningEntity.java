@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -39,20 +40,25 @@ public class ScreeningEntity implements Serializable{
 	@Column(name = "CORPORATE_ID")
 	private Long corporateId;
 
+	@Column(name="UNIVERSITY_ID")
 	private Long universityId;
 	
+
 	
 	@Column(name = "SLUG")
 	private String slug;
 	
-	@ManyToMany(mappedBy = "screeningEntities")
+	@ManyToMany(mappedBy = "screeningEntities",cascade = CascadeType.ALL)
 	@JsonIgnore
 	private Set<ScreeningEntityParent> screeningEntityParents;
 	
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(updatable = false, insertable = false, name = "SCREENING_TABLE_ID", referencedColumnName = "SCREENING_TABLE_ID")
 	private List<ScreeninQuestionOptions> screeninQuestionOptions;
 	
+	@JsonIgnore
+	@OneToMany(mappedBy = "screeningEntity",cascade = CascadeType.ALL)
+	List<ScreeningResponse> screeningResponse;
 	private boolean deleted;
 	
 
@@ -138,6 +144,8 @@ public class ScreeningEntity implements Serializable{
 	public void setScreeningEntityParents(Set<ScreeningEntityParent> screeningEntityParents) {
 		this.screeningEntityParents = screeningEntityParents;
 	}
+
+	
 
 	@Override
 	public String toString() {

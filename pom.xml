@@ -194,35 +194,30 @@
 			<version>1.1.1</version>
 		</dependency>
 		<!--dependencies for using google api -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.google.oauth-client</groupId>
 			<artifactId>google-oauth-client</artifactId>
 			<version>1.33.0</version>
-		</dependency>
+		</dependency> -->
 		<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
-		<dependency>
+	<dependency>
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
 			<version>1.33.1</version>
-		</dependency>
+		</dependency> 
 		<!-- https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client-jetty -->
-		<dependency>
+		 <dependency>
 			<groupId>com.google.oauth-client</groupId>
 			<artifactId>google-oauth-client-jetty</artifactId>
 			<version>1.33.0</version>
-		</dependency>
+		</dependency> 
 		<!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-calendar -->
-		<dependency>
+		 <dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-calendar</artifactId>
 			<version>v3-rev411-1.25.0</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<version>2.6.6</version>
-		</dependency>
+		</dependency> 
+		
 		<dependency>
 			<groupId>com.google.http-client</groupId>
 			<artifactId>google-http-client-gson</artifactId>
@@ -235,11 +230,11 @@
 		</dependency>
 	
 		<!-- https://mvnrepository.com/artifact/org.springframework.social/spring-social-google -->
-<dependency>
+<!-- <dependency>
     <groupId>org.springframework.social</groupId>
     <artifactId>spring-social-google</artifactId>
     <version>1.0.0.RELEASE</version>
-</dependency>
+</dependency> -->
 		<dependency>
     <groupId>com.fasterxml.jackson.datatype</groupId>
     <artifactId>jackson-datatype-hibernate5</artifactId>

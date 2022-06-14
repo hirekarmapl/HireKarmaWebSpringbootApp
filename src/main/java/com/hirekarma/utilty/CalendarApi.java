@@ -3,8 +3,11 @@ package com.hirekarma.utilty;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+//import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+//import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -21,6 +24,8 @@ import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 import com.google.api.services.calendar.model.Events;
+import com.hirekarma.controller.AdminController;
+
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,8 +37,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /* class to demonstarte use of Calendar events list API */
 public class CalendarApi {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
     /** Application name. */
     private static final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
     /** Global instance of the JSON factory. */
@@ -70,16 +79,25 @@ public class CalendarApi {
                 .build();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
         Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+      
         //returns an authorized Credential object.
         return credential;
     }
 
+//    public static void main(String args[]) {
+//    	try {
+//			System.out.println(insert("TESTING", "KJDFKJADFKLJAKLJKLSDJFKLJ", "Asia", 2, List.of("sawant.rohit510@gmail.com","rohitsadeepsawant@gmail.com"), "2022-06-30T09:00:00", "2022-06-30T09:30:00"));
+//		} catch (GeneralSecurityException | IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    }
     public static String insert(String eventName,String description,String location,int noOfAttendees,List<String> attendees,String startTime,String endTime) throws GeneralSecurityException, IOException {
     	final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-    	
+    	LOGGER.info("creating eveent");
     	Event event = new Event()
         	    .setSummary(eventName)
         	    .setLocation(location)
@@ -126,8 +144,9 @@ public class CalendarApi {
         	event.setReminders(reminders);
 
         	String calendarId = "primary";
-
+LOGGER.info("inserting event");
         	event = service.events().insert(calendarId, event).execute();
+        	
         	return "Event Created: "+event.getHtmlLink()+" hangout: "+event.getHangoutLink() ;
     }
 }

@@ -3,13 +3,17 @@ package com.hirekarma.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 @Entity
@@ -27,8 +31,12 @@ public class ScreeningResponse implements Serializable{
 	@Column(name = "JOB_APPLY_ID")
 	private Long jobApplyId;
 	
-	@Column(name = "SCREENING_ID")
-	private Long screeningId;
+	@ManyToOne
+	private ScreeningEntity screeningEntity;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
+	private Message message;
 	
 	@Column(name = "USER_RESPONSE")
 	private String userResponse;
@@ -48,17 +56,19 @@ public class ScreeningResponse implements Serializable{
 		return jobApplyId;
 	}
 
+	public Message getMessage() {
+		return message;
+	}
+
+	public void setMessage(Message message) {
+		this.message = message;
+	}
+
 	public void setJobApplyId(Long jobApplyId) {
 		this.jobApplyId = jobApplyId;
 	}
 
-	public Long getScreeningId() {
-		return screeningId;
-	}
 
-	public void setScreeningId(Long screeningId) {
-		this.screeningId = screeningId;
-	}
 
 	public String getUserResponse() {
 		return userResponse;
@@ -69,6 +79,15 @@ public class ScreeningResponse implements Serializable{
 	}
 	
 
+
+	public ScreeningEntity getScreeningEntity() {
+		return screeningEntity;
+	}
+
+	public void setScreeningEntity(ScreeningEntity screeningEntity) {
+		this.screeningEntity = screeningEntity;
+	}
+
 	public LocalDateTime getCreatedOn() {
 		return createdOn;
 	}
@@ -77,10 +96,5 @@ public class ScreeningResponse implements Serializable{
 		this.createdOn = createdOn;
 	}
 
-	@Override
-	public String toString() {
-		return "ScreeningResponse [ScreeningResponseId=" + ScreeningResponseId + ", jobApplyId=" + jobApplyId
-				+ ", screeningId=" + screeningId + ", userResponse=" + userResponse + "]";
-	}
 
 }

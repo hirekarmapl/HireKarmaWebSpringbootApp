@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +17,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 @Entity
@@ -59,7 +61,10 @@ public class University implements Serializable{
 			@Column(name = "STATUS")
 			private Boolean status;
 			
-
+			@JsonIgnore
+			@OneToMany(mappedBy = "university",orphanRemoval = true)
+			private Set<Event> events;
+			
 			private Boolean profileUpdationStatus =  false;
 
 			private double percentageOfProfileCompletion;

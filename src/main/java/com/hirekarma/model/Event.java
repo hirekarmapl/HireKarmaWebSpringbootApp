@@ -4,44 +4,45 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Entity
 @Data
 @ToString
-public class ScreeningEntityParent {
+@AllArgsConstructor
+@Entity
+@NoArgsConstructor
+public class Event {
 
 	@GeneratedValue(generator = "uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid")
 	@Column(columnDefinition = "CHAR(32)")
 	@Id
 	String id;
-	
+	LocalDateTime startTime;
+	LocalDateTime endTime;
+	String speaker;
+	String host;
+	String coverImage;
+	String keywords;
 	String title;
-	
-	Long coporateId;
-	
-	Long universityId;
-	
+	String meetingLink;
+	@ManyToOne
+	Corporate corporate;
+	@ManyToOne
+	University university;
 	@ManyToMany
-	Set<ScreeningEntity> screeningEntities;
+	Set<UserProfile> userProfiles;
 	
-	LocalDateTime createdOn= LocalDateTime.now();
-
-	LocalDateTime updatedOn;
-	
-	boolean deleted;
 }

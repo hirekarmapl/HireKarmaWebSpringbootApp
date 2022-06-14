@@ -133,7 +133,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 		for(ScreeningResponseBean screeningResponseBean:screeningResponseBeans) {
 			Optional<ScreeningResponse> optional = this.screeningResponseRepository.findById(screeningResponseBean.getScreeningResponseId());
 			if(!optional.isPresent()) {
-				throw new Exception("no such bean found");
+				throw new Exception("something wrong with your inputs!");
 			}
 			ScreeningResponse screeningResponse = optional.get();
 			screeningResponse.setUserResponse(screeningResponseBean.getUserResponse());
@@ -144,11 +144,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 	@Override
 	public Map<String,Object> getMessagesAndScreeningQuestionByChatRoomId(Long chatRoomId){
 		Map<String,Object> map = new HashMap<String, Object>();
-		List<Message> messages = null;
-		List<Object[]> screeningResponseAndScreeningQuestion =  screeningResponseRepository.getAllScreeningResponsesAndScreeningTableByChatRoomId(chatRoomId);
-		messages = messageRepository.getMessagesByChatRoomId(chatRoomId);
-		map.put("screeningResponse", screeningResponseAndScreeningQuestion);
-		map.put("messages", messages);
+//		List<Message> messages = null;
+//		List<Object[]> screeningResponseAndScreeningQuestion =  screeningResponseRepository.getAllScreeningResponsesAndScreeningTableByChatRoomId(chatRoomId);
+//		messages = messageRepository.getMessagesByChatRoomId(chatRoomId);
+//		map.put("screeningResponse", screeningResponseAndScreeningQuestion);
+//		map.put("messages", messages);
 		return map;
 	}
 	@Override

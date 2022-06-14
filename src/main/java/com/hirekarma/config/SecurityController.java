@@ -18,14 +18,15 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.hirekarma.beans.Response;
-@Controller
+@RestController
 public class SecurityController {
 	
 
-    @Autowired
+	@Autowired
     private OAuth2AuthorizedClientService authorizedClientService;
 
     private static String authorizationRequestBaseUri
@@ -36,62 +37,40 @@ public class SecurityController {
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
 
-  
-	  @GetMapping("/oauth2_login")
-	    public String getLoginPage(Model model) {
-	        Iterable<ClientRegistration> clientRegistrations = null;
-	        ResolvableType type = ResolvableType.forInstance(clientRegistrationRepository)
-	          .as(Iterable.class);
-	        if (type != ResolvableType.NONE && 
-	          ClientRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {
-	            clientRegistrations = (Iterable<ClientRegistration>) clientRegistrationRepository;
-	        }
 
-	        clientRegistrations.forEach(registration -> 
-	          oauth2AuthenticationUrls.put(registration.getClientName(), 
-	          authorizationRequestBaseUri + "/" + registration.getRegistrationId()));
-	        model.addAttribute("urls", oauth2AuthenticationUrls);
+    
 
-	        return "oauth2_login";
-	    }
-	  
-	    @GetMapping("/loginSuccess")
-	    public String getLoginInfo(Model model, OAuth2AuthenticationToken authentication) {
-	    	if(authentication==null) {
-	    		System.out.println("authentication is null");
-	    		return "loginFailure";
-	    	}else {
-	    		System.out.println("authentication.getAuthorizedClientRegistrationId():"+authentication.getAuthorizedClientRegistrationId() +" \nauthentication.getName() : "+authentication.getName());
-	            OAuth2AuthorizedClient client = authorizedClientService
-	              .loadAuthorizedClient(
-	                authentication.getAuthorizedClientRegistrationId(), 
-	                  authentication.getName());
-	            String userInfoEndpointUri = client.getClientRegistration()
-	            		  .getProviderDetails().getUserInfoEndpoint().getUri();
-	    System.out.println(userInfoEndpointUri);
-	            		if(!userInfoEndpointUri.equals("")) {
-	            			  RestTemplate restTemplate = new RestTemplate();
-	            			  HttpHeaders headers = new HttpHeaders();
-	            			  headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken()
-	            		      .getTokenValue());
-	            			  HttpEntity<String> request = new HttpEntity<String>(headers);
-	            			  ResponseEntity<Map> response = restTemplate.exchange(userInfoEndpointUri, HttpMethod.GET, request, Map.class);
-	            			  Map userAttributes = response.getBody();
-	            			  System.out.println(userAttributes.toString());
-	            			  System.out.println("name:"+userAttributes.get("name"));
-	            			   model.addAttribute("name", userAttributes.get("name"));
-	            			   model.addAttribute("status","successs");
-	            			   
+    @GetMapping("/loginSuccess")
+    public String getLoginInfo(OAuth2AuthenticationToken authentication) {
+    	if(authentication==null) {
+    		System.out.println("authentication is null");
+    	}else {
+    		System.out.println("authentication.getAuthorizedClientRegistrationId():"+authentication.getAuthorizedClientRegistrationId() +" \nauthentication.getName() : "+authentication.getName());
+            OAuth2AuthorizedClient client = authorizedClientService
+              .loadAuthorizedClient(
+                authentication.getAuthorizedClientRegistrationId(), 
+                  authentication.getName());
+            String userInfoEndpointUri = client.getClientRegistration()
+            		  .getProviderDetails().getUserInfoEndpoint().getUri();
+    System.out.println(userInfoEndpointUri);
+            		if(!userInfoEndpointUri.equals("")) {
+            			  RestTemplate restTemplate = new RestTemplate();
+            			  HttpHeaders headers = new HttpHeaders();
+            			  headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + client.getAccessToken()
+            		      .getTokenValue());
+            			  
+            			  HttpEntity<String> request = new HttpEntity<String>(headers);
+            			  ResponseEntity<Map> response = restTemplate.exchange(userInfoEndpointUri, HttpMethod.GET, request, Map.class);
+            			  Map userAttributes = response.getBody();
+            			  System.out.println(userAttributes.toString());
+            			  System.out.println("name:"+userAttributes.get("name")+" accesstoken:"+client.getAccessToken()
+            		      .getTokenValue());
+            			  return userAttributes.get("name").toString();
+            			   
 
-	            		}
-	    	}
-	    	
-	        return "loginSuccess";
-	    }
-
-//		http://localhost:5000/oauth2/authorization/google
-		@GetMapping("/loginFailure")
-		public String getLoginInfoForFailure(Model model, OAuth2AuthenticationToken authentication) {
-			return "loginFailure";
-		}
+            		}
+    	}
+    	return "failed";
+       
+    }
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,11 +28,15 @@ import com.hirekarma.beans.Response;
 import com.hirekarma.beans.ScreeningBean;
 import com.hirekarma.beans.ScreeningRequestBean;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Student;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
+import com.hirekarma.repository.ScreeningEntityRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.ScreeningService;
 import com.hirekarma.utilty.JwtUtil;
+import com.hirekarma.utilty.Validation;
 
 @RestController("screeningController")
 @RequestMapping("/hirekarma/")
@@ -47,6 +52,9 @@ public class ScreeningController {
 	private JwtUtil jwtTokenUtil;
 	
 	@Autowired
+	private ScreeningEntityRepository screeningEntityRepository;
+	
+	@Autowired
 	private UserRepository userRepository;
 	
 	@Autowired
@@ -54,28 +62,31 @@ public class ScreeningController {
 	
 	@PostMapping("/createScreeningQuestion")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> createScreeningQuestion(@RequestBody ScreeningBean screeningBean, HttpServletRequest request) {
+	public ResponseEntity<Map<String,Object>> createScreeningQuestion(@RequestBody ScreeningBean screeningBean, @RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside ScreeningController.createScreeningQuestion()");
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;
-		String jwtToken = null;
-		String authorizationHeader = null;
-		String email=null;
-		UserProfile userProfile = null;
+
 		try {
-			authorizationHeader = request.getHeader("Authorization");
-			jwtToken = authorizationHeader.substring(7);
-			email = jwtTokenUtil.extractUsername(jwtToken);
-			userProfile = userRepository.findUserByEmail(email);
+			String email = Validation.validateToken(token);
+		List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+		UserProfile userProfile = (UserProfile) userData.get(0)[0];
+		Corporate corporate  = (Corporate) userData.get(0)[1];
+		University university  = (University) userData.get(0)[2];
+		Student student = (Student) userData.get(0)[3];
+		if(userProfile.getUserType().equals("university")) {
+			screeningBean.setUniversityId(university.getUniversityId());
+			map = screeningService.createScreeningQuestion(screeningBean);
+		}
+		else if(userProfile.getUserType().equals("admin")) {
 			
-			if(userProfile!=null) {
-				Corporate corporate = this.corporateRepository.findByEmail(email);
-				
-				screeningBean.setCorporateId(corporate.getCorporateId());
-			}
-			else {
-				screeningBean.setCorporateId(null);
-			}
+			map = screeningService.createScreeningQuestion(screeningBean);
+		}
+		else if(userProfile.getUserType().equals("corporate")){
+			screeningBean.setCorporateId(corporate.getCorporateId());
+			map = screeningService.createScreeningQuestion(screeningBean);
+		}
+
 			map = screeningService.createScreeningQuestion(screeningBean);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question saved using ScreeningController.createScreeningQuestion()");
@@ -95,27 +106,27 @@ public class ScreeningController {
 	
 	@PostMapping("/createListScreeningQuestion")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> createListScreeningQuestion(@RequestBody List<ScreeningBean> screeningBeans, HttpServletRequest request) {
+	public ResponseEntity<Map<String,Object>> createListScreeningQuestion(@RequestBody List<ScreeningBean> screeningBeans, @RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside ScreeningController.createScreeningQuestion()");
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;
-		String jwtToken = null;
-		String authorizationHeader = null;
-		String email=null;
-		UserProfile userProfile = null;
-		Long corporateId = null;
+	
 		try {
-			authorizationHeader = request.getHeader("Authorization");
-			jwtToken = authorizationHeader.substring(7);
-			email = jwtTokenUtil.extractUsername(jwtToken);
-			userProfile = userRepository.findUserByEmail(email);
-			if(userProfile!=null) {
-				corporateId = userProfile.getUserId();
+			String email = Validation.validateToken(token);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				map = screeningService.createListScreeningQuestion(screeningBeans, null,university.getUniversityId());
 			}
-			else {
-				corporateId = null;
+			else if(userProfile.getUserType().equals("admin")) {
+				map = screeningService.createListScreeningQuestion(screeningBeans, null,null);
 			}
-			map = screeningService.createListScreeningQuestion(screeningBeans, corporateId);
+			else if(userProfile.getUserType().equals("corporate")){
+				map = screeningService.createListScreeningQuestion(screeningBeans, corporate.getCorporateId(),null);
+			}
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question saved using ScreeningController.createScreeningQuestion()");
 			return responseEntity;
@@ -139,6 +150,7 @@ public class ScreeningController {
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		try {
+			
 			map = screeningService.updateScreeningQuestion(slug,screeningBean);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question updated using ScreeningController.updateScreeningQuestion()");
@@ -158,12 +170,27 @@ public class ScreeningController {
 	
 	@DeleteMapping("/deleteScreeningQuestion/{slug}")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> deleteScreeningQuestion(@PathVariable("slug") String slug) {
+	public ResponseEntity<Map<String,Object>> deleteScreeningQuestion(@PathVariable("slug") String slug,@RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside ScreeningController.deleteScreeningQuestion()");
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		try {
-			map = screeningService.deleteScreeningQuestion(slug);
+		String email = Validation.validateToken(token);
+		List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+		UserProfile userProfile = (UserProfile) userData.get(0)[0];
+		Corporate corporate  = (Corporate) userData.get(0)[1];
+		University university  = (University) userData.get(0)[2];
+		Student student = (Student) userData.get(0)[3];
+		if(userProfile.getUserType().equals("university")) {
+			map = screeningService.deleteScreeningQuestion(slug,null,university.getUniversityId());
+		}
+		else if(userProfile.getUserType().equals("admin")) {
+			map = screeningService.deleteScreeningQuestion(slug,null,null);
+		}
+		else if(userProfile.getUserType().equals("corporate")){
+			map = screeningService.deleteScreeningQuestion(slug,corporate.getCorporateId(),null);
+		}
+			
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question deleted using ScreeningController.deleteScreeningQuestion()");
 			return responseEntity;
@@ -182,12 +209,12 @@ public class ScreeningController {
 	
 	@PostMapping("/sendScreeningQuestions")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> sendScreeningQuestions(@RequestParam("jobApplyId") Long jobApplyId,@RequestParam("slug") String slug) {
+	public ResponseEntity<Map<String,Object>> sendScreeningQuestions(@RequestParam("jobApplyId") Long jobApplyId,@RequestParam("slug") String slug,@RequestParam("chatRoomId") Long chatRoomId) {
 		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		try {
-			map = screeningService.sendScreeningQuestions(jobApplyId,slug);
+			map = screeningService.sendScreeningQuestions(jobApplyId,slug,chatRoomId);
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question sent using ScreeningController.sendScreeningQuestions()");
 			return responseEntity;
@@ -253,12 +280,30 @@ public class ScreeningController {
 	
 	@GetMapping("/getAllScreeningQuestions")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> getAllScreeningQuestions() {
+	public ResponseEntity<Map<String,Object>> getAllScreeningQuestions(@RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		try {
-			map = screeningService.getAllScreeningQuestions();
+			String email = Validation.validateToken(token);
+			map.put("status", "Success");
+			map.put("responseCode", 200);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				map.put("data", this.screeningEntityRepository.findByUniveristyId(university.getUniversityId()));
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				map.put("data", this.screeningEntityRepository.findByAdmin());
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				map.put("data", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+			}
+			map.put("data", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+			
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question sent using ScreeningController.sendScreeningQuestions()");
 			return responseEntity;

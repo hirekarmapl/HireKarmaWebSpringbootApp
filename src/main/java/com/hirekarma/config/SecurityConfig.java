@@ -75,7 +75,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				"/homePage/hiredStudent-count",
 				"/homePage/campusDrive-count",
 				"/loginSuccess",
-				"/loginFailure"
+				"/loginFailure",
+				"/hirekarma/public/events"
 			).permitAll()
 			.anyRequest()
 			.authenticated()
@@ -83,8 +84,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.exceptionHandling()
 			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 			.and()
-			.sessionManagement()
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+//			.sessionManagement()
+//			.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 			.oauth2Login()
 	        .defaultSuccessUrl("/loginSuccess")
 	        .failureUrl("/loginFailure")

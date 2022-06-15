@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Job;
 import com.hirekarma.model.Student;
 
 import lombok.Data;
@@ -29,5 +30,6 @@ public class ChatRoomBean implements Serializable {
 //	image to be display on get all chatroom
 	private String recieverimageUrl;
 	private List<Long> chatRoomIds;
+	private Job job;
 	
 }

@@ -155,10 +155,12 @@ public class ChatRoomController {
 	@PreAuthorize("hasAnyRole('student')")
 	public ResponseEntity<Response> studentResponseOnScreeningQuestions(@RequestBody List<ScreeningResponseBean> screeningResponseBeans) {
 		try {
+			System.out.println("inside the");
 			 this.chatRoomService.studentResponseOnScreeningQuestions(screeningResponseBeans);
 			return new ResponseEntity<Response>(new Response("success",HttpStatus.OK , "",null, null),HttpStatus.OK);
 			}
 		catch(Exception e) {
+			
 			return new ResponseEntity<Response>(new Response("error",HttpStatus.BAD_REQUEST , e.getMessage(), null, null),HttpStatus.BAD_REQUEST);
 			
 		}

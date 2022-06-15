@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import com.hirekarma.beans.ChatRoomBean;
 import com.hirekarma.beans.ScreeningResponseBean;
 import com.hirekarma.model.ChatRoom;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.Job;
 import com.hirekarma.model.Message;
 import com.hirekarma.model.ScreeningResponse;
 import com.hirekarma.model.Student;
@@ -185,7 +187,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 				ChatRoomBean chatRoomBean = new ChatRoomBean();
 				ChatRoom chatRoom = (ChatRoom)o[0];
 				Student s = (Student) o[1];
-				
+				Job job = (Job)o[2];
+				BeanUtils.copyProperties(chatRoom, chatRoomBean);
+				chatRoomBean.setChatRoomId(chatRoom.getChatRoomId());
+				chatRoomBean.setJob(job);
 				chatRoomBean.setChatRoomId(chatRoom.getChatRoomId());		
 				chatRoomBean.setStudent(s);
 				chatRoomBeans.add(chatRoomBean);
@@ -198,6 +203,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 				ChatRoomBean chatRoomBean = new ChatRoomBean();
 				ChatRoom chatRoom = (ChatRoom)o[0];
 				Corporate c = (Corporate) o[1];
+				Job job = (Job)o[2];
+				chatRoomBean.setJob(job);
 				chatRoomBean.setChatRoomId(chatRoomBean.getChatRoomId());
 				chatRoomBean.setCorporateId(chatRoom.getCorporateId());
 				chatRoomBean.setStudentId(chatRoom.getStudentId());

@@ -296,6 +296,7 @@ public class ScreeningServiceImpl implements ScreeningService{
 				Message message = new Message();
 				message.setCreatedOn(LocalDateTime.now());
 				message.setChatRoomId(chatRoomId);
+				message.setSenderType("corporate");
 				messageRepository.save(message);
 				for(ScreeningEntity screeningEntity: screeningEntityParentOptional.get().getScreeningEntities()) {
 					 screeningResponse = new ScreeningResponse();

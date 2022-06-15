@@ -273,7 +273,7 @@ public class ScreeningEntityParentServiceImpl implements ScreeningEntityParentSe
 			throw new Exception("invalid slug");
 		}
 		ScreeningEntityParent screeningEntityParent = screeningEntityParentOptional.get();
-		if(screeningEntityParent.getCoporateId()==null && screeningEntityParent.getUniversityId()==null)
+		if(screeningEntityParent.getCoporateId()!=null || screeningEntityParent.getUniversityId()!=null)
 		{
 			throw new Exception("unauthorized");
 		}
@@ -295,7 +295,7 @@ public class ScreeningEntityParentServiceImpl implements ScreeningEntityParentSe
 
 		ScreeningEntityParent screeningEntityParent = screeningEntityParentOptional.get();
 		
-		if (screeningEntityParent.getUniversityId().compareTo(corporate.getCorporateId()) != 0) {
+		if (screeningEntityParent.getCoporateId().compareTo(corporate.getCorporateId()) != 0) {
 			throw new Exception("unauthorized");
 		}
 		

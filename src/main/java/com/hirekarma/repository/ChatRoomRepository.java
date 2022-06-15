@@ -22,16 +22,20 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>{
 	@Query("select u from ChatRoom u where u.corporateId = ?1")
 	ChatRoom getChatRoomByCorporateId(Long corporateId);
 	
-	@Query("select cr, s "
+	@Query("select cr, s ,j "
 			+ "from ChatRoom cr "
 			+ "inner join Student s on s.studentId = cr.studentId "
-			+ "where cr.corporateId = :corporateId order by cr.updatedOn")
+			+ "inner join JobApply ja on cr.jobApplyId=ja.jobApplyId "
+			+ "inner join Job j on ja.jobId = j.jobId "
+			+ "where cr.corporateId = :corporateId order by cr.updatedOn desc")
 	List<Object[]> getAllChatRoomsForCorporate(@Param("corporateId") Long corporateId);
 	
-	@Query("select cr, c "
+	@Query("select cr, c ,j "
 			+ "from ChatRoom cr "
 			+ "inner join Corporate c on c.corporateId = cr.corporateId "
-			+ "where cr.studentId =:studentId order by cr.updatedOn")
+			+ "inner join JobApply ja on cr.jobApplyId=ja.jobApplyId "
+			+ "inner join Job j on ja.jobId = j.jobId "
+			+ "where cr.studentId =:studentId order by cr.updatedOn desc")
 	List<Object[]> getAllChatRoomsForStudent(@Param("studentId") Long studentId);
 	
 	@Modifying

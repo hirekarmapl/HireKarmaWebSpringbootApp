@@ -280,43 +280,68 @@ public class ScreeningController {
 	
 	@GetMapping("/getAllScreeningQuestions")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> getAllScreeningQuestions(@RequestHeader("Authorization")String token) {
+	public ResponseEntity<Response> getAllScreeningQuestions(@RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
-		Map<String, Object> map = null;
-		ResponseEntity<Map<String, Object>> responseEntity = null;
 		try {
 			String email = Validation.validateToken(token);
-			map.put("status", "Success");
-			map.put("responseCode", 200);
+			Map<String, Object> response = new HashMap();
 			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
 			UserProfile userProfile = (UserProfile) userData.get(0)[0];
 			Corporate corporate  = (Corporate) userData.get(0)[1];
 			University university  = (University) userData.get(0)[2];
 			Student student = (Student) userData.get(0)[3];
 			if(userProfile.getUserType().equals("university")) {
-				map.put("data", this.screeningEntityRepository.findByUniveristyId(university.getUniversityId()));
+				response.put("screening_questions", this.screeningEntityRepository.findByUniveristyId(university.getUniversityId()));
 			}
 			else if(userProfile.getUserType().equals("admin")) {
-				map.put("data", this.screeningEntityRepository.findByAdmin());
+				response.put("screening_questions", this.screeningEntityRepository.findByAdmin());
 			}
 			else if(userProfile.getUserType().equals("corporate")){
-				map.put("data", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+				response.put("screening_questions", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
 			}
-			map.put("data", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+			response.put("screening_questions", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
 			
-			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
-			LOGGER.info("Question sent using ScreeningController.sendScreeningQuestions()");
-			return responseEntity;
+			return new ResponseEntity<Response>(new Response("Success", 200, "", response, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
 		}
-		catch (Exception e) {
-			LOGGER.error("Error in ScreeningController.sendScreeningQuestions(-)");
-			map = new HashMap<String, Object>();
-			map.put("status", "Failed");
-			map.put("responseCode", 400);
-			map.put("message", "Bad Request!!!");
-			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
-			e.printStackTrace();
-			return responseEntity;
-		}
+//		Map<String, Object> map = null;
+//		ResponseEntity<Map<String, Object>> responseEntity = null;
+//		try {
+//			String email = Validation.validateToken(token);
+//			map.put("status", "Success");
+//			map.put("responseCode", 200);
+//			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+//			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+//			Corporate corporate  = (Corporate) userData.get(0)[1];
+//			University university  = (University) userData.get(0)[2];
+//			Student student = (Student) userData.get(0)[3];
+//			if(userProfile.getUserType().equals("university")) {
+//				map.put("data", this.screeningEntityRepository.findByUniveristyId(university.getUniversityId()));
+//			}
+//			else if(userProfile.getUserType().equals("admin")) {
+//				map.put("data", this.screeningEntityRepository.findByAdmin());
+//			}
+//			else if(userProfile.getUserType().equals("corporate")){
+//				map.put("data", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+//			}
+//			map.put("data", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
+//			
+//			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+//			LOGGER.info("Question sent using ScreeningController.sendScreeningQuestions()");
+//			return responseEntity;
+//		}
+//		catch (Exception e) {
+//			LOGGER.error("Error in ScreeningController.sendScreeningQuestions(-)");
+//			map = new HashMap<String, Object>();
+//			map.put("status", "Failed");
+//			map.put("responseCode", 400);
+//			map.put("message", "Bad Request!!!");
+//			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+//			e.printStackTrace();
+//			return responseEntity;
+//		}
 	}
 }

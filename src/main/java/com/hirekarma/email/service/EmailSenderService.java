@@ -43,7 +43,7 @@ public class EmailSenderService {
 			MimeMessage mailMessage = mailSender.createMimeMessage();
 
 			MimeMessageHelper helper = new MimeMessageHelper(mailMessage, false);
-			helper.setFrom(new InternetAddress("contact@hirekarma.org","Hirekarma"));
+			helper.setFrom(new InternetAddress("noreply@hirekarma.org","Hirekarma"));
 			List<String> emails = new ArrayList<String>();
 			for(String emailFrom : email.getToListEmail()) {
 				emails.add(emailFrom);
@@ -90,7 +90,7 @@ public class EmailSenderService {
 
 			MimeMessageHelper helper = new MimeMessageHelper(mailMessage, false);
 
-			helper.setFrom(new InternetAddress("contact@hirekarma.org","Hirekarma"));
+			helper.setFrom(new InternetAddress("noreply@hirekarma.org","Hirekarma"));
 			helper.setTo(toEmail);
 
 			helper.setSubject(subject);
@@ -113,7 +113,7 @@ public class EmailSenderService {
 		Logger.info("Inside SendEmailWithoutAttachmentList() Method...");
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		for (UserBean student : students) {
-			mailMessage.setFrom("contact@hirekarma.org");
+			mailMessage.setFrom("noreply@hirekarma.org");
 			mailMessage.setText("Dear " + student.getName() + ", Your login id is: " + student.getEmail()
 					+ " and password is: " + student.getPassword());
 			mailMessage.setSubject("You're in!! Let's get started");

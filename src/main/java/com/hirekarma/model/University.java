@@ -72,6 +72,10 @@ public class University implements Serializable{
 			List<OnlineAssessment> onlineAssessments;
 
 			
+			@OneToMany(mappedBy = "university")
+			@JsonIgnore
+			private List<QuestionANdanswer> questionANdanswers;
+			
 			public List<OnlineAssessment> getOnlineAssessments() {
 				return onlineAssessments;
 			}

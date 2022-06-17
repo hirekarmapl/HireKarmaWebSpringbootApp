@@ -23,6 +23,7 @@ import com.hirekarma.model.InputAnswer;
 import com.hirekarma.model.LongAnswer;
 import com.hirekarma.model.MCQAnswer;
 import com.hirekarma.model.QuestionANdanswer;
+import com.hirekarma.model.University;
 import com.hirekarma.repository.MCQRepository;
 import com.hirekarma.repository.QuestionAndAnswerRepository;
 import com.hirekarma.service.QuestionAndANswerService;
@@ -41,7 +42,7 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 
 
 	@Override
-	public QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA,Corporate corporate) {
+	public QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA,Corporate corporate,University university) {
 		
 		QuestionAndAnswerResponseBean bean=new QuestionAndAnswerResponseBean();
 		
@@ -49,7 +50,13 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 			QuestionAndAnswerBean QAbean=new QuestionAndAnswerBean();
 			QuestionANdanswer QA=new QuestionANdanswer();
 			QAbean=qAndA.get(i);
-			QAbean.setCorporate(corporate);
+			if(corporate!=null) {
+
+				QAbean.setCorporate(corporate);
+			}
+			else if(university!=null) {
+				QAbean.setUniversity(university);
+			}
 			String QType=QAbean.getType();
 			if(QType.equals("QNA")) {
 				createQNARecord(QAbean,QARepo,bean);				
@@ -67,7 +74,13 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 				QA.setType(QAbean.getType());
 				QA.setCodingDescription(QAbean.getCodingDescription());
 				String[] testCase=QAbean.getTestCase();
-				QA.setCorporate(corporate);
+				if(corporate!=null) {
+					QA.setCorporate(corporate);
+				}
+				else if(university!=null) {
+					QA.setUniversity(university);
+				}
+				
 				
 				QA.setUID(UUID.randomUUID().toString());
 				List<CodingAnswer> codAns=new ArrayList();
@@ -96,7 +109,11 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 		String [] question=QAbean.getQuestion();
 		QA.setQuestion(question[0]);
 		QA.setType(QAbean.getType());
-		QA.setCorporate(QAbean.getCorporate());
+		if(QAbean.getCorporate()!=null) {
+			QA.setCorporate(QAbean.getCorporate());
+		}else if(QAbean.getUniversity()!=null) {
+			QA.setUniversity(QAbean.getUniversity());
+		}
 		QA.setUID(UUID.randomUUID().toString());
 		QARepo.save(QA);
 		bean.setStatus(200);
@@ -122,7 +139,12 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 			ans.add(answer);					
 		}
 		QA.setMcqAnswer(ans);
-		QA.setCorporate(QAbean.getCorporate());	
+		if(QAbean.getCorporate()!=null) {
+			QA.setCorporate(QAbean.getCorporate());
+		}else if(QAbean.getUniversity()!=null) {
+			QA.setUniversity(QAbean.getUniversity());
+		}
+		
 		QA.setCorrectOption(QAbean.getAnswer());
 		
 		QARepo.save(QA);
@@ -140,7 +162,11 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 			QuestionANdanswer QAs=new QuestionANdanswer();
 		QAs.setQuestion(question[j]);
 		QAs.setType(QAbean.getType());
-		QAs.setCorporate(QAbean.getCorporate());
+		if(QAbean.getCorporate()!=null) {
+			QAs.setCorporate(QAbean.getCorporate());
+		}else if(QAbean.getUniversity()!=null) {
+			QAs.setUniversity(QAbean.getUniversity());
+		}
 		QAs.setUID(UUID.randomUUID().toString());
 		QARepo.save(QAs);
 		}
@@ -295,15 +321,15 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 
 
 	@Override
-	public ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file,Corporate corporate) {
+	public ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file,Corporate corporate,University university) {
 		String message = "";
 		int status=0;
 		ExcelService fileService=new ExcelService();
 		CSVService csvService=new CSVService();
 	    if (ExcelHelper.hasExcelFormat(file)) {
 	      try {
-	    	  List<QuestionAndAnswerBean> tutorial= fileService.save(file,corporate);
-	    	  CreateQuestionAndAnswer(tutorial,corporate);
+	    	  List<QuestionAndAnswerBean> tutorial= fileService.save(file,corporate, university);
+	    	  CreateQuestionAndAnswer(tutorial,corporate, university);
 	        status=200;
 	        message = "Uploaded the file successfully: " + file.getOriginalFilename();
 	        return ResponseEntity.status(HttpStatus.OK).body(new QuestionAndAnswerResponseBean(status,message));

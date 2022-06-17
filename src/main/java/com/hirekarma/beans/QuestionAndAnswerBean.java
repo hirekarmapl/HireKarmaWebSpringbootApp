@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.MCQAnswer;
+import com.hirekarma.model.University;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,5 +31,6 @@ public class QuestionAndAnswerBean {
     private String answer;
     private String adminId;
     private String uId;
+    private University university;
 	
 }

@@ -14,7 +14,7 @@ import com.hirekarma.model.University;
 @Repository("QuestionAndAnswerRepository")
 public interface QuestionAndAnswerRepository extends JpaRepository<QuestionANdanswer, Long> {
 
-	QuestionANdanswer findByuID(String getuId);
+	QuestionANdanswer findByuID(String uID);
 
 	List<QuestionANdanswer> findAllByuID(String qNA_id);
 

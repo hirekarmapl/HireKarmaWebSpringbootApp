@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.hirekarma.beans.QuestionAndAnswerBean;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.QuestionANdanswer;
+import com.hirekarma.model.University;
 @Repository("QuestionAndAnswerRepository")
 public interface QuestionAndAnswerRepository extends JpaRepository<QuestionANdanswer, Long> {
 
@@ -24,7 +25,13 @@ public interface QuestionAndAnswerRepository extends JpaRepository<QuestionANdan
 	
 	List<QuestionANdanswer> findByType(String type);
 	
-	@Query("select q from QuestionANdanswer q where (q.corporate = :corporate or q.corporate = NULL) and (q.status is null or q.status!=:status)")
+	@Query("select q from QuestionANdanswer q where (q.university is null && q.corporate is null) and (q.status is null or q.status!=:status)")
+	List<QuestionANdanswer> findQandAForAdmin(String status);
+	
+	@Query("select q from QuestionANdanswer q where (q.university = :university) and (q.status is null or q.status!=:status)")
+	List<QuestionANdanswer> findQandAForUniversity(@Param("university") University university,String status);
+	
+	@Query("select q from QuestionANdanswer q where (q.corporate = :corporate) and (q.status is null or q.status!=:status)")
 	List<QuestionANdanswer> findQandAForCorporate(@Param("corporate") Corporate corporate,String status);
 
 }

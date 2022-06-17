@@ -1,6 +1,7 @@
 package com.hirekarma.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,6 +31,8 @@ import com.hirekarma.beans.QuestionAndAnswerResponseBean;
 import com.hirekarma.beans.Response;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.QuestionANdanswer;
+import com.hirekarma.model.Student;
+import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
 import com.hirekarma.repository.CorporateRepository;
 import com.hirekarma.repository.QuestionAndAnswerRepository;
@@ -55,24 +58,31 @@ public class QuestionAndAnswerController {
 	CorporateRepository corporateRepository;
 
 	@PostMapping("/saveQNA")
-	@PreAuthorize("hasAnyRole('admin','corporate')")
+	@PreAuthorize("hasAnyRole('admin','corporate','university')")
 	public ResponseEntity<QuestionAndAnswerResponseBean> saveQNA(@RequestBody List<QuestionAndAnswerBean> QAndA,
 			@RequestHeader("Authorization") String token) {
-		try {
+		
 
-			String email = Validation.validateToken(token);
-			UserProfile userProfile = userRepository.findUserByEmail(email);
-			Corporate corporate = null;
-
-			QuestionAndAnswerResponseBean QAResp = new QuestionAndAnswerResponseBean();
-			if (userProfile.getUserType().equals("corporate")) {
-				corporate = corporateRepository.findByEmail(email);
-				QAResp = QAService.CreateQuestionAndAnswer(QAndA, corporate);
-			} else if (userProfile.getUserType().equals("admin")) {
-				QAResp = QAService.CreateQuestionAndAnswer(QAndA, corporate);
-			} else {
-				throw new Exception("unauthorized");
+			try {
+				
+				QuestionAndAnswerResponseBean QAResp = new QuestionAndAnswerResponseBean();
+				String email = Validation.validateToken(token);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				QAResp = QAService.CreateQuestionAndAnswer(QAndA, null,university);
 			}
+			else if(userProfile.getUserType().equals("admin")) {
+				
+				QAResp = QAService.CreateQuestionAndAnswer(QAndA, null,null);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				QAResp = QAService.CreateQuestionAndAnswer(QAndA, corporate,null);
+			}
+			
 			return new ResponseEntity<QuestionAndAnswerResponseBean>(QAResp, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<QuestionAndAnswerResponseBean>(new QuestionAndAnswerResponseBean(),
@@ -86,19 +96,26 @@ public class QuestionAndAnswerController {
 	public ResponseEntity<QuestionAndAnswerResponseBean> updateQNA(@RequestBody List<QuestionAndAnswerBean> QAndA,
 			@RequestHeader("Authorization") String token) {
 		try {
-			String email = Validation.validateToken(token);
-			UserProfile userProfile = userRepository.findUserByEmail(email);
-			Corporate corporate = null;
-
 			QuestionAndAnswerResponseBean QAResp = new QuestionAndAnswerResponseBean();
-			if (userProfile.getUserType().equals("corporate")) {
-				corporate = corporateRepository.findByEmail(email);
+			String email = Validation.validateToken(token);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
 				QAResp = QAService.updateQuestionAndAnswer(QAndA, corporate);
-			} else if (userProfile.getUserType().equals("admin")) {
-				QAResp = QAService.updateQuestionAndAnswer(QAndA, corporate);
-			} else {
-				throw new Exception("unauthorized");
 			}
+			else if(userProfile.getUserType().equals("admin")) {
+				QAResp = QAService.updateQuestionAndAnswer(QAndA, corporate);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				QAResp = QAService.updateQuestionAndAnswer(QAndA, corporate);
+			}
+			else {
+				throw new Exception("something went wrong");
+			}
+
 			return new ResponseEntity<QuestionAndAnswerResponseBean>(QAResp, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<QuestionAndAnswerResponseBean>(new QuestionAndAnswerResponseBean(),
@@ -131,19 +148,27 @@ public class QuestionAndAnswerController {
 			@RequestHeader("Authorization") String token) {
 		try {
 
-			String email = Validation.validateToken(token);
-			UserProfile userProfile = userRepository.findUserByEmail(email);
-			Corporate corporate = null;
-
 			QuestionAndAnswerResponseBean QAResp = new QuestionAndAnswerResponseBean();
-			if (userProfile.getUserType().equals("corporate")) {
-				corporate = corporateRepository.findByEmail(email);
-				return QAService.uploadFile(file, corporate);
-			} else if (userProfile.getUserType().equals("admin")) {
-				return QAService.uploadFile(file, null);
-			} else {
-				throw new Exception("unauthorized");
+			String email = Validation.validateToken(token);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				return QAService.uploadFile(file, corporate,university);
 			}
+			else if(userProfile.getUserType().equals("admin")) {
+				return QAService.uploadFile(file, corporate,university);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+				return QAService.uploadFile(file, corporate,university);
+			}
+			else {
+				throw new Exception("something went wrong");
+			}
+
+			
 		} catch (Exception e) {
 			return new ResponseEntity<QuestionAndAnswerResponseBean>(new QuestionAndAnswerResponseBean(),
 					HttpStatus.BAD_REQUEST);
@@ -169,25 +194,30 @@ public class QuestionAndAnswerController {
 	public ResponseEntity<Response> findQandAForCorporate(
 			@RequestHeader("Authorization") String token) {
 		try {
-			String email = Validation.validateToken(token);
-			UserProfile userProfile = userRepository.findUserByEmail(email);
-			Corporate corporate = null;
-			
-
 			QuestionAndAnswerResponseBean QAResp = new QuestionAndAnswerResponseBean();
-			if (userProfile.getUserType().equals("corporate")) {
-
-				corporate = corporateRepository.findByEmail(email);
-				System.out.println(corporate.getCorporateId());
+			String email = Validation.validateToken(token);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+			if(userProfile.getUserType().equals("university")) {
+				return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", questionAndAnswerRepository.findQandAForUniversity(university,"deleted"), null),
+						HttpStatus.OK);
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", questionAndAnswerRepository.findQandAForAdmin("deleted"), null),
+						HttpStatus.OK);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
 				return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", questionAndAnswerRepository.findQandAForCorporate(corporate,"deleted"), null),
 						HttpStatus.OK);
-			} else if (userProfile.getUserType().equals("admin")) {
-				
-				return new ResponseEntity<Response>(new Response("success", 201, "added succesfully", questionAndAnswerRepository.findAll(), null),
-						HttpStatus.OK);
-			} else {
-				throw new Exception("unauthorized");
 			}
+			else {
+				throw new Exception("something went wrong");
+			}
+
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

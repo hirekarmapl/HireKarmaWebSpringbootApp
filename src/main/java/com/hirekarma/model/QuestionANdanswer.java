@@ -46,6 +46,9 @@ public class QuestionANdanswer implements Serializable{
    
     @ManyToOne
     private Corporate corporate;
+    
+    @ManyToOne
+    private University university;
     @Column(name="UID")
     private String uID;
     @ManyToMany(mappedBy = "questionANdanswers")

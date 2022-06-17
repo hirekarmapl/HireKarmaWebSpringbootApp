@@ -12,10 +12,11 @@ import com.hirekarma.beans.QuestionAndAnswerBean;
 import com.hirekarma.beans.QuestionAndAnswerResponseBean;
 import com.hirekarma.model.Corporate;
 import com.hirekarma.model.QuestionANdanswer;
+import com.hirekarma.model.University;
 
 public interface QuestionAndANswerService {
 
-	QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA,Corporate corporate);
+	QuestionAndAnswerResponseBean CreateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA,Corporate corporate,University university);
 
 	QuestionAndAnswerResponseBean updateQuestionAndAnswer(List<QuestionAndAnswerBean> qAndA,Corporate corporate);
 
@@ -23,7 +24,7 @@ public interface QuestionAndANswerService {
 
 	QuestionAndAnswerResponseBean deleteQNADetail(String qNA_id);
 
-	ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file,Corporate corporate);
+	ResponseEntity<QuestionAndAnswerResponseBean> uploadFile(MultipartFile file,Corporate corporate,University university);
 
 	ResponseEntity<Resource> downloadFile(String type, Corporate corporate);
 

@@ -15,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 import com.hirekarma.beans.QuestionAndAnswerBean;
 import com.hirekarma.model.Corporate;
+import com.hirekarma.model.University;
 public class ExcelHelper {
   public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   static String[] HEADERs = { "question", "type", "mcqanswer", "codingdescription","testcase","corporateid" };
@@ -26,7 +27,7 @@ public class ExcelHelper {
     }
     return true;
   }
-  public static List<QuestionAndAnswerBean> excelToTutorials(InputStream is,Corporate corporate) {
+  public static List<QuestionAndAnswerBean> excelToTutorials(InputStream is,Corporate corporate,University university) {
     try {
     	System.out.println(is.toString());
       Workbook workbook = new XSSFWorkbook(is);
@@ -59,8 +60,13 @@ public class ExcelHelper {
 						default:
 							break;
 						}
-
-						tutorial.setCorporate(corporate);
+						if(corporate!=null)
+						{
+							tutorial.setCorporate(corporate);
+						}
+						else if(university!=null) {
+							tutorial.setUniversity(university);
+						}
 						tutorial.setType("QNA");
 					} else if (sheetName.equalsIgnoreCase("Input")) {
 
@@ -71,6 +77,13 @@ public class ExcelHelper {
 							break;
 						default:
 							break;
+						}
+						if(corporate!=null)
+						{
+							tutorial.setCorporate(corporate);
+						}
+						else if(university!=null) {
+							tutorial.setUniversity(university);
 						}
 						tutorial.setType("Input");
 					} else if (sheetName.equalsIgnoreCase("MCQ")) {
@@ -87,8 +100,13 @@ public class ExcelHelper {
 						default:
 							break;
 						}
-
-						tutorial.setCorporate(corporate);
+						if(corporate!=null)
+						{
+							tutorial.setCorporate(corporate);
+						}
+						else if(university!=null) {
+							tutorial.setUniversity(university);
+						}
 						tutorial.setType("MCQ");
 					} else if (sheetName.equalsIgnoreCase("Coding")) {
 
@@ -108,7 +126,13 @@ public class ExcelHelper {
 							break;
 						}
 
-						tutorial.setCorporate(corporate);
+						if(corporate!=null)
+						{
+							tutorial.setCorporate(corporate);
+						}
+						else if(university!=null) {
+							tutorial.setUniversity(university);
+						}
 						tutorial.setType("Coding");
 					} else {
 						switch (cellIdx) {
@@ -133,8 +157,13 @@ public class ExcelHelper {
 						default:
 							break;
 						}
-
-						tutorial.setCorporate(corporate);
+						if(corporate!=null)
+						{
+							tutorial.setCorporate(corporate);
+						}
+						else if(university!=null) {
+							tutorial.setUniversity(university);
+						}
 					}
 					cellIdx++;
 				}

@@ -185,8 +185,10 @@ public class QuestionAndAnswerServiceImpl implements QuestionAndANswerService {
 			QAbean=qAndA.get(i);
 			String QType=QAbean.getType();
 			QAbean.setCorporate(corporate);
+			System.out.print("q and a"+QAbean.getUId());
 			if(QType.equals("QNA")) {
 				QuestionANdanswer QABeanDetail=new QuestionANdanswer();
+				
 				QABeanDetail=QARepo.findByuID(QAbean.getUId());
 				
 				LongAnswer lAns=new LongAnswer();

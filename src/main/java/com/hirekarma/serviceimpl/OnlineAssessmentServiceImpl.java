@@ -325,7 +325,6 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 			throw new Exception("invalid slug");
 		}
 		StudentOnlineAssessment studentOnlineAssessment = optionalStudentOnlineAssessment.get();
-		
 		OnlineAssessment onlineAssessment = studentOnlineAssessment.getOnlineAssessment();
 		if(onlineAssessment.getDeleteStatus()) {
 			throw new Exception("no such assessment");
@@ -338,8 +337,12 @@ Note :- using onlineAssessment - > questionAndAnswer relation
 				throw new Exception("already attempted the test");
 			}
 		}
+		else {
+			studentOnlineAssessment.setStartedOn(LocalDateTime.now());
+		}
 //		setting the start timer
-		studentOnlineAssessment.setStartedOn(LocalDateTime.now());
+		
+		studentOnlineAssessment.setStudentResponse(true);
 		this.studentOnlineAssessmentRepository.save(studentOnlineAssessment);
 //		get all question without answer
 		List<QuestionAndAnswerStudentResponseBean> questionAndAnswerStudentResponseBeans = new ArrayList<QuestionAndAnswerStudentResponseBean>();

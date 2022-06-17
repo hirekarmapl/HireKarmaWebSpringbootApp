@@ -32,6 +32,7 @@ import com.hirekarma.model.Student;
 import com.hirekarma.model.StudentOnlineAssessment;
 import com.hirekarma.model.University;
 import com.hirekarma.model.UserProfile;
+import com.hirekarma.repository.StudentOnlineAssessmentRepository;
 import com.hirekarma.repository.UserRepository;
 import com.hirekarma.service.OnlineAssessmentService;
 import com.hirekarma.utilty.Validation;
@@ -46,6 +47,9 @@ public class OnlineAssesmentController {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	StudentOnlineAssessmentRepository studentOnlineAssessmentRepository;
 
 	@PreAuthorize("hasRole('corporate')")
 	@GetMapping("/corporate/assessment/dummy")
@@ -93,7 +97,48 @@ public class OnlineAssesmentController {
 	public OnlineAssessmentBean dummyBean() {
 		return new OnlineAssessmentBean();
 	}
-
+	@GetMapping("/public/assessment")
+	public ResponseEntity<Response> getPublicOnlineAssesmentsQNA() {
+		try {
+			List<OnlineAssessmentBean> onlineAssessmentBeans = null;
+			Map<String, Object> response = new HashMap<>();
+			onlineAssessmentBeans = this.onlineAssessmentService.getOnlineAssesmentsAddedByAdminWithoutQNA();
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", onlineAssessmentBeans, null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	@GetMapping("/public/student-assessment/{slug}/leaderBoard")
+	public ResponseEntity<Response> getLeaderBoardForPublicAssessmentByStudentOnlineAssessment(@PathVariable("slug") String slug) {
+		try {
+		
+			Map<String, Object> response = new HashMap<>();
+			
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.studentOnlineAssessmentRepository.findLeaderBoardByStudentOnlineAssessment(slug), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	@GetMapping("/public/assessment/{slug}/leaderBoard")
+	public ResponseEntity<Response> getLeaderBoardForPublicAssessmentByOnlineAssessment(@PathVariable("slug") String slug) {
+		try {
+		
+			Map<String, Object> response = new HashMap<>();
+			
+			
+			return new ResponseEntity(new Response("success", HttpStatus.OK, "", this.studentOnlineAssessmentRepository.findLeaderBoardByOnlineAssessment(slug), null),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
 //	get all assessement without qna
 	@PreAuthorize("hasAnyRole('admin','corporate','university')")
 	@GetMapping("/corporate/assessment")
@@ -115,6 +160,9 @@ public class OnlineAssesmentController {
 			} else if (userProfile.getUserType().equals("corporate")) {
 				onlineAssessmentBeans = this.onlineAssessmentService
 						.getOnlineAssesmentsAddedByCorporatedWithoutQNA(corporate);
+			}
+			else if(userProfile.getUserType().equals("student")){
+				onlineAssessmentBeans = this.onlineAssessmentService.getOnlineAssesmentsAddedByAdminWithoutQNA();
 			}
 			return new ResponseEntity(new Response("success", HttpStatus.OK, "", onlineAssessmentBeans, null),
 					HttpStatus.OK);
@@ -189,7 +237,7 @@ public class OnlineAssesmentController {
 	}
 
 //	send assessment to students
-	@PreAuthorize("hasAnyRole('admin','corporate','university')")
+	@PreAuthorize("hasAnyRole('admin','corporate','university','student')")
 	@PostMapping("/corporate/assessment/student")
 	public ResponseEntity<Response> sendOnlineAssessmentToStudents(
 			@RequestBody OnlineAssessmentBean onlineAssessmentBean) {
@@ -350,34 +398,34 @@ public class OnlineAssesmentController {
 	}
 
 
-	@GetMapping("/public/assessment")
-	public ResponseEntity<Response> getAllOnlineAssessmentForPublic(@RequestHeader("Authorization") String token) {
-		try {
-			List<OnlineAssesmentResponseBean> studentOnlineAssessments = this.onlineAssessmentService
-					.getAllOnlineAssessmentForPublic();
+//	@GetMapping("/public/assessment")
+//	public ResponseEntity<Response> getAllOnlineAssessmentForPublic(@RequestHeader("Authorization") String token) {
+//		try {
+//			List<OnlineAssesmentResponseBean> studentOnlineAssessments = this.onlineAssessmentService
+//					.getAllOnlineAssessmentForPublic();
+//
+//			return new ResponseEntity<Response>(new Response("success", 200, "", studentOnlineAssessments, null),
+//					HttpStatus.OK);
+//
+//		} catch (Exception e) {
+//			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+//					HttpStatus.BAD_REQUEST);
+//		}
+//	}
 
-			return new ResponseEntity<Response>(new Response("success", 200, "", studentOnlineAssessments, null),
-					HttpStatus.OK);
-
-		} catch (Exception e) {
-			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
-					HttpStatus.BAD_REQUEST);
-		}
-	}
-
-	@GetMapping("/public/assessment/questionaries/{slug}")
-	public ResponseEntity<Response> getAllQNAForPublicForAssessement(@RequestHeader("Authorization") String token,
-			@PathVariable("slug") String onlineAssessmentSlug) {
-		try {
-			return new ResponseEntity(
-					new Response("success", HttpStatus.OK, "",
-							this.onlineAssessmentService.getAllQNAForPublicForAssessement(onlineAssessmentSlug), null),
-					HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
-					HttpStatus.BAD_REQUEST);
-		}
-	}
+//	@GetMapping("/public/assessment/questionaries/{slug}")
+//	public ResponseEntity<Response> getAllQNAForPublicForAssessement(@RequestHeader("Authorization") String token,
+//			@PathVariable("slug") String onlineAssessmentSlug) {
+//		try {
+//			return new ResponseEntity(
+//					new Response("success", HttpStatus.OK, "",
+//							this.onlineAssessmentService.getAllQNAForPublicForAssessement(onlineAssessmentSlug), null),
+//					HttpStatus.OK);
+//		} catch (Exception e) {
+//			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
+//					HttpStatus.BAD_REQUEST);
+//		}
+//	}
 	
 	@PreAuthorize("hasRole('student')")
 	@PostMapping("/public/assessment/submit/{slug}")

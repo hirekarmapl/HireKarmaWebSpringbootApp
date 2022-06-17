@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.internal.build.AllowSysOut;
 import org.hibernate.validator.internal.constraintvalidators.bv.number.bound.decimal.DecimalMaxValidatorForNumber;
 import org.slf4j.Logger;
@@ -200,7 +201,11 @@ public class CoporateUserServiceImpl implements CoporateUserService {
 
 			LOGGER.info("Data successfully saved using CoporateUserServiceImpl.insert(-)");
 			return user;
-		} catch (Exception e) {
+		}
+		catch(ConstraintViolationException cve) {
+			throw new CoporateUserDefindException("Email Id already present");
+		}
+		catch (Exception e) {
 			LOGGER.error("Data Insertion failed using CoporateUserServiceImpl.insert(-): " + e);
 			throw new CoporateUserDefindException(e.getMessage());
 		}

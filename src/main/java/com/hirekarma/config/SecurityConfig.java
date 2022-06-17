@@ -46,6 +46,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.authorizeRequests()
 			.antMatchers(
 //					"/hirekarma/**"
+					"/hirekarma/public/assessment/{slug}/leaderBoard",
+					"/hirekarma/public/student-assessment/{slug}/leaderBoard",
+					"/hirekarma/public/assessment",
 				"/hirekarma/login",
 				"/hirekarma/saveStudentUrl",
 				"/hirekarma/account/resetPassword",

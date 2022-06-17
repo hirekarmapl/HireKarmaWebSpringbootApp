@@ -26,7 +26,7 @@ public class UserBeanResponse implements Serializable {
 	private Long userId;
 	private String imageUrl;
 	private String name;
-
+	private Long studentId;
 	private String email;
 	private String universityEmailAddress;
 	private String phoneNo;

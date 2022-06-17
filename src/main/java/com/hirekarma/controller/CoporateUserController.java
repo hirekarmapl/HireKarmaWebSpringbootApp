@@ -224,7 +224,7 @@ public class CoporateUserController {
 		}
 	}
 
-	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasAnyRole('admin','corporate','university')")
 	@GetMapping("/corporate/assessment/student/assessment-shared")
 	public ResponseEntity<Response> getAllStudentOnlineAssessmentByOnlineAssesment(@RequestHeader(value = "Authorization") String token,@RequestParam("onlineAssessment")String onlineAssessmentSlug) {
 		try {
@@ -232,6 +232,7 @@ public class CoporateUserController {
 			Map<String, Object> response = new HashMap<String, Object>();
 //			onlineAssessment.setQuestionANdanswers(null);
 //			response.put("onlineAssessment",onlineAssessment);
+			LOGGER.info("inside getAllStudentOnlineAssessmentByOnlineAssesment()");
 			response.put("studentOnlineAssessment",this.studentOnlineAssessmentRepository.findStudentOnlineAssessmentAndStudentByOnlineAssessment(onlineAssessment));
 			return new ResponseEntity<Response>(new Response("success", 200, "",response, null), HttpStatus.OK);
 		} catch (Exception e) {
@@ -694,7 +695,7 @@ public class CoporateUserController {
 	}
 	
 	@PostMapping("/corporate/getStudentResponse")
-	@PreAuthorize("hasRole('corporate')")
+	@PreAuthorize("hasAnyRole('corporate','admin',University)")
 	public ResponseEntity<Response> getResponseOfOnlineAssessmentOfStudent(@RequestHeader(value = "Authorization") String token,@RequestBody StudentOnlineAssessmentAnswerBean studentOnlineAssessmentAnswerBean){
 		try {
 //			StudentOnlineAssessmentAnswer studentOnlineAssessmentAnswer =  this.studentOnlineAssessmentAnswerRepository.getById("2c9fa6e47fdffdd5017fe079dac30002");

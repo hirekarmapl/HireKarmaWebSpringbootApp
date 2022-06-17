@@ -406,7 +406,7 @@ public class StudentServiceImpl implements StudentService {
 		HttpHeaders headers = null;
 		Map<String, String> body = null;
 		Student stud = new Student();
-
+		LOGGER.info("StudentServiceImpl.insertForExcel(-) entering try blocck");
 		String LowerCaseEmail = student.getEmail().toLowerCase();
 		Long count = userRepository.getDetailsByEmail(LowerCaseEmail, "student");
 
@@ -416,6 +416,10 @@ public class StudentServiceImpl implements StudentService {
 
 				student.setStatus("Active");
 				student.setUserType("student");
+				LOGGER.info("email of student {}",LowerCaseEmail);
+				if(!Validation.validateEmail(LowerCaseEmail)) {
+					throw new Exception("please check the file inputs");
+				}
 				student.setEmail(LowerCaseEmail);
 				student.setPhoneNo(student.getPhoneNo());
 				student.setPassword(((universityName == null) ? "Admin" : universityName) + "@123");

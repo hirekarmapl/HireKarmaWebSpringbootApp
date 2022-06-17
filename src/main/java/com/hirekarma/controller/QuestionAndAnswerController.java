@@ -103,6 +103,7 @@ public class QuestionAndAnswerController {
 			Corporate corporate  = (Corporate) userData.get(0)[1];
 			University university  = (University) userData.get(0)[2];
 			Student student = (Student) userData.get(0)[3];
+			System.out.println(QAndA.toString());
 			if(userProfile.getUserType().equals("university")) {
 				QAResp = QAService.updateQuestionAndAnswer(QAndA, corporate);
 			}

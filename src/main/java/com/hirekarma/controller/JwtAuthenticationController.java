@@ -135,6 +135,7 @@ public class JwtAuthenticationController {
 			userBean.setStream(student.getStream());
 			userBean.setImageUrl(student.getImageUrl());
 			userBean.setPassword(null);
+			userBean.setStudentId(student.getStudentId());
 			userBean.setProfileUpdateStatus(student.getProfileUpdationStatus());
 			userBean.setPercentageOfProfileCompletion(student.getPercentageOfProfileCompletion());
 		}

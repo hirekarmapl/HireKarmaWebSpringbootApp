@@ -63,7 +63,9 @@ public class ScreeningServiceImpl implements ScreeningService{
 			}
 			screeningEntity.setQuestions(screeningBean.getQuestions());
 			screeningEntity.setQuestionType(screeningBean.getQuestionType());
-			slug = (screeningBean.getQuestions().substring(0, 6).trim())+generateRandomString();
+			 slug = String.join("-",screeningBean.getQuestions().replaceAll("[^a-zA-Z0-9]", "-").split(" "));
+			 
+			slug += (""+generateRandomString());
 			screeningEntity.setSlug(slug);
 			screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
 			if(screeningBean.getQuestionType()==0) {
@@ -100,6 +102,7 @@ public class ScreeningServiceImpl implements ScreeningService{
 		try {
 			screeningBeans.forEach(screeningBean->{
 				ScreeningEntity screeningEntity = new ScreeningEntity();
+//				System.out.print("corporate Id"+corporateId);
 				if(corporateId!=null) {
 					screeningEntity.setCorporateId(corporateId);
 				}
@@ -108,8 +111,10 @@ public class ScreeningServiceImpl implements ScreeningService{
 				}
 				screeningEntity.setQuestions(screeningBean.getQuestions());
 				screeningEntity.setQuestionType(screeningBean.getQuestionType());
-				String slug = screeningBean.getQuestions().substring(0, 6)+generateRandomString();
-				screeningEntity.setSlug(slug);
+				String slug = String.join("-",screeningBean.getQuestions().replaceAll("[^a-zA-Z0-9]", "-").split(" "));
+				 
+					slug += (""+generateRandomString());
+					screeningEntity.setSlug(slug);
 				ScreeningEntity screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
 				
 				if(screeningBean.getQuestionType()==0) {
@@ -140,7 +145,7 @@ public class ScreeningServiceImpl implements ScreeningService{
 	}
 	
 	@Override
-	public Map<String, Object> updateScreeningQuestion(String slug, ScreeningBean screeningBean) {
+	public Map<String, Object> updateScreeningQuestion(String slug, ScreeningBean screeningBean,Long corporateId, Long universityId) {
 		LOGGER.debug("Starting of ScreeningServiceImpl.updateScreeningQuestion(-)");
 		Optional<ScreeningEntity> optional = null;
 		ScreeningEntity screeningEntity = null, screeningEntityReturn = null;
@@ -154,6 +159,21 @@ public class ScreeningServiceImpl implements ScreeningService{
 				optional = screeningEntityRepository.findById(screeningTableId);
 				if(!optional.isEmpty()) {
 					screeningEntity = optional.get();
+					if(corporateId!=null) {
+						if(screeningEntity.getCorporateId()==null || screeningEntity.getCorporateId().compareTo(corporateId)!=0) {
+							throw new Exception("unauthorized");
+						}
+					}
+					else if(universityId!=null) {
+						if(screeningEntity.getUniversityId()==null || screeningEntity.getUniversityId().compareTo(universityId)!=0) {
+							throw new Exception("unauthorized");
+						}
+					}
+					else {
+						if(screeningEntity.getUniversityId()!=null && screeningEntity.getCorporateId()!=null) {
+							throw new Exception("unauthorized");
+						}
+					}
 					screeningEntity.setQuestions(screeningBean.getQuestions());
 					screeninQuestionOptionsRepository.deleteScreeningQuestionOptions(screeningTableId);
 					screeningEntityReturn = screeningEntityRepository.save(screeningEntity);
@@ -164,6 +184,7 @@ public class ScreeningServiceImpl implements ScreeningService{
 						screeninQuestionOptions.setOptions(option);
 						screeninQuestionOptionsRepository.save(screeninQuestionOptions);
 					}
+					
 					map = new HashMap<String, Object>();
 					map.put("status", "Success");
 					map.put("responseCode", 200);
@@ -172,9 +193,10 @@ public class ScreeningServiceImpl implements ScreeningService{
 				}
 				else {
 					map = new HashMap<String, Object>();
+					map = new HashMap<String, Object>();
 					map.put("status", "Failed");
 					map.put("responseCode", 400);
-					map.put("message", "Screening details updation failed!!!");
+					map.put("message", "invalid id");;
 				}
 			}
 			else {
@@ -237,7 +259,7 @@ public class ScreeningServiceImpl implements ScreeningService{
 				map = new HashMap<String, Object>();
 				map.put("status", "Failed");
 				map.put("responseCode", 400);
-				map.put("message", "Screening details deletion failed!!!");
+				map.put("message", "invalid Id!");
 			}
 		}
 		catch (Exception e) {
@@ -407,7 +429,7 @@ public class ScreeningServiceImpl implements ScreeningService{
                 + "0123456789"
                 + "abcdefghijklmnopqrstuvxyz";
 		StringBuilder sb = new StringBuilder(7);
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 10; i++) {
             int index = (int)(alphaNumericString.length()* Math.random());
             sb.append(alphaNumericString.charAt(index));
         }

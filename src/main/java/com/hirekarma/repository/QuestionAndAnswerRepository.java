@@ -25,7 +25,7 @@ public interface QuestionAndAnswerRepository extends JpaRepository<QuestionANdan
 	
 	List<QuestionANdanswer> findByType(String type);
 	
-	@Query("select q from QuestionANdanswer q where (q.university is null && q.corporate is null) and (q.status is null or q.status!=:status)")
+	@Query("select q from QuestionANdanswer q where (q.university is null and q.corporate is null) and (q.status is null or q.status!=:status)")
 	List<QuestionANdanswer> findQandAForAdmin(String status);
 	
 	@Query("select q from QuestionANdanswer q where (q.university = :university) and (q.status is null or q.status!=:status)")

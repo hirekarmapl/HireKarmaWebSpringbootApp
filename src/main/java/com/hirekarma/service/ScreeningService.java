@@ -9,7 +9,7 @@ public interface ScreeningService {
 	
 	public Map<String,Object> createScreeningQuestion(ScreeningBean screeningBean);
 	public Map<String,Object> createListScreeningQuestion(List<ScreeningBean> screeningBeans,Long corporateId,Long universityId);
-	public Map<String,Object> updateScreeningQuestion(String slug,ScreeningBean screeningBean);
+	public Map<String,Object> updateScreeningQuestion(String slug,ScreeningBean screeningBean,Long corporateId, Long universityId);
 	public Map<String,Object> deleteScreeningQuestion(String slug,Long corporateId,Long universityId);
 	public Map<String,Object> sendScreeningQuestions(Long jobApplyId,String screeningSlug,Long chatRoomId);
 	public Map<String,Object> responseToScreeningQuestions(Long  response);

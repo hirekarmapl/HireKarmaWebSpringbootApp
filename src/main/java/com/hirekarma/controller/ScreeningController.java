@@ -118,6 +118,7 @@ public class ScreeningController {
 			Corporate corporate  = (Corporate) userData.get(0)[1];
 			University university  = (University) userData.get(0)[2];
 			Student student = (Student) userData.get(0)[3];
+//			System.out.println(userProfile.getUserType());
 			if(userProfile.getUserType().equals("university")) {
 				map = screeningService.createListScreeningQuestion(screeningBeans, null,university.getUniversityId());
 			}
@@ -125,6 +126,7 @@ public class ScreeningController {
 				map = screeningService.createListScreeningQuestion(screeningBeans, null,null);
 			}
 			else if(userProfile.getUserType().equals("corporate")){
+//				LOGGER.info("{} ",corporate.getCorporateId());
 				map = screeningService.createListScreeningQuestion(screeningBeans, corporate.getCorporateId(),null);
 			}
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
@@ -145,13 +147,28 @@ public class ScreeningController {
 	
 	@PutMapping("/updateScreeningQuestion/{slug}")
 	@PreAuthorize("hasAnyRole('admin','corporate')")
-	public ResponseEntity<Map<String,Object>> updateScreeningQuestion(@PathVariable("slug") String slug,@RequestBody ScreeningBean screeningBean) {
+	public ResponseEntity<Map<String,Object>> updateScreeningQuestion(@PathVariable("slug") String slug,@RequestBody ScreeningBean screeningBean,@RequestHeader("Authorization") String token) {
 		LOGGER.debug("Inside ScreeningController.createScreeningQuestion()");
 		Map<String, Object> map = null;
 		ResponseEntity<Map<String, Object>> responseEntity = null;
 		try {
-			
-			map = screeningService.updateScreeningQuestion(slug,screeningBean);
+			String email = Validation.validateToken(token);
+			List<Object[]> userData = this.userRepository.findUserAndAssociatedEntity(email);
+			UserProfile userProfile = (UserProfile) userData.get(0)[0];
+			Corporate corporate  = (Corporate) userData.get(0)[1];
+			University university  = (University) userData.get(0)[2];
+			Student student = (Student) userData.get(0)[3];
+//			System.out.println(userProfile.getUserType());
+			if(userProfile.getUserType().equals("university")) {
+				map = screeningService.updateScreeningQuestion(slug,screeningBean,null,university.getUniversityId());
+			}
+			else if(userProfile.getUserType().equals("admin")) {
+				map = screeningService.updateScreeningQuestion(slug,screeningBean,null,null);
+			}
+			else if(userProfile.getUserType().equals("corporate")){
+//				LOGGER.info("{} ",corporate.getCorporateId());
+				map = screeningService.updateScreeningQuestion(slug,screeningBean,corporate.getCorporateId(),null);
+			}
 			responseEntity = new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
 			LOGGER.info("Question updated using ScreeningController.updateScreeningQuestion()");
 			return responseEntity;
@@ -181,6 +198,7 @@ public class ScreeningController {
 		Corporate corporate  = (Corporate) userData.get(0)[1];
 		University university  = (University) userData.get(0)[2];
 		Student student = (Student) userData.get(0)[3];
+		System.out.println("slug"+slug);
 		if(userProfile.getUserType().equals("university")) {
 			map = screeningService.deleteScreeningQuestion(slug,null,university.getUniversityId());
 		}
@@ -279,7 +297,7 @@ public class ScreeningController {
 	}
 	
 	@GetMapping("/getAllScreeningQuestions")
-	@PreAuthorize("hasAnyRole('admin','corporate')")
+	@PreAuthorize("hasAnyRole('admin','corporate','university')")
 	public ResponseEntity<Response> getAllScreeningQuestions(@RequestHeader("Authorization")String token) {
 		LOGGER.debug("Inside ScreeningController.sendScreeningQuestions()");
 		try {
@@ -299,11 +317,11 @@ public class ScreeningController {
 			else if(userProfile.getUserType().equals("corporate")){
 				response.put("screening_questions", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
 			}
-			response.put("screening_questions", this.screeningEntityRepository.findByCorporateId(corporate.getCorporateId()));
 			
 			return new ResponseEntity<Response>(new Response("Success", 200, "", response, null),
 					HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity(new Response("error", HttpStatus.BAD_REQUEST, e.getMessage(), null, null),
 					HttpStatus.BAD_REQUEST);
 		}
